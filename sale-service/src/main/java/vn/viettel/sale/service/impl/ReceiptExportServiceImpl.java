@@ -258,11 +258,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             savePoTransDetails.add(poTransDetail);
                             poTransDetails.get(i).setReturnAmount(poTransDetails.get(i).getQuantity());
                             savePoTransDetails.add(poTransDetails.get(i));
-                            StockTotal stockTotal = null; //stockTotalRepository.findByProductIdAndWareHouseTypeIdAndShopId(poTransDetails.get(i).getProductId(), customerTypeDTO,shopId);
+                            if(poTransDetails.get(i).getReturnAmount()> poTransDetails.get(i).getQuantity())
+                                throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
+                            StockTotal stockTotal = null;
                             for(StockTotal st : stockTotals){
                                 if(st.getProductId().equals(poTransDetails.get(i).getProductId())){
                                     if (st.getQuantity() == null)  st.setQuantity(0);
-//                                    st.setQuantity(st.getQuantity() - poTransDetail.getReturnAmount());
                                     stockTotal = st;
                                     idAndValues.put(st, (-1) * poTransDetail.getReturnAmount());
                                     if((st.getQuantity() - poTransDetail.getReturnAmount()) < 0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS,

@@ -6,6 +6,8 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.PoDetailDTO;
 
@@ -28,13 +30,8 @@ public class ExportExcel {
         workbook = new SXSSFWorkbook();
     }
     private void writeHeaderLine()  {
-        sheet = workbook.createSheet("Sản phẩm");
-        Row row = sheet.createRow(0);
-        Row row1 = sheet.createRow(1);
-        Row row2 = sheet.createRow(2);
-        Row row5 = sheet.createRow(5);
-        Row rowValues = sheet.createRow(8);
 
+        if(!(poDetails.size() >0) && !(poDetails2.size()>0)) throw new ValidateException(ResponseMessage.ACCEPTED);
         ////////////////////////////////////////////////////////////////////
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
@@ -44,8 +41,6 @@ public class ExportExcel {
         font.setFontName("Times New Roman");
         style.setFont(font);
         style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-        row.setRowStyle(style);
-        row2.setRowStyle(style);
         //////////////////////////////////////////////////////////////////
         CellStyle style1 = workbook.createCellStyle();
         XSSFFont font1 = (XSSFFont) workbook.createFont();
@@ -55,8 +50,7 @@ public class ExportExcel {
         font1.setFontName("Times New Roman");
         style1.setFont(font1);
         style1.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-        row1.setRowStyle(style1);
-        row2.setRowStyle(style1);
+
         //////////////////////////////////////////////////////////////////
         CellStyle style2 = workbook.createCellStyle();
         XSSFFont font2 = (XSSFFont) workbook.createFont();
@@ -66,7 +60,7 @@ public class ExportExcel {
         font2.setFontName("Times New Roman");
         style2.setFont(font2);
         style2.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-        row5.setRowStyle(style2);
+
         //////////////////////////////////////////////////////////////////
         CellStyle styleHeader1 = workbook.createCellStyle();
         XSSFFont fontheader = (XSSFFont) workbook.createFont();
@@ -87,30 +81,43 @@ public class ExportExcel {
         styleHeader.setBorderLeft(BorderStyle.THIN);
         styleHeader.setBorderRight(BorderStyle.THIN);
         //////////////////////////////////////////////////////////////////////////////
-        int rowf = 0,rowt = 0;
-        int colf=0,colt = 6;
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
-        sheet.addMergedRegion(new CellRangeAddress(rowf,rowt,colf+7,colt+6));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A2:G2"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("H2:M2"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
-        ExcelPoiUtils.createCell(row, rowf, poDetails.get(0).getShopName(), style);
-        ExcelPoiUtils.createCell(row, 7, shops.getShopName(), style);
-        ExcelPoiUtils.createCell(row1, 0, poDetails.get(0).getShopAddress(), style1);
-        ExcelPoiUtils.createCell(row1, 7, shops.getAddress(), style1);
-        ExcelPoiUtils.createCell(row2, 0, poDetails.get(0).getShopContact(), style1);
-        ExcelPoiUtils.createCell(row2, 7, "Tel: "+ shops.getPhone()+" Fax: "+shops.getFax(), style1);
-        ExcelPoiUtils.createCell(row5, 0, "DANH SÁCH DỮ LIỆU", style2);
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        ExcelPoiUtils.createCell(rowValues, 0, "STT", styleHeader);
-        ExcelPoiUtils.createCell(rowValues, 1, "SO NO", styleHeader);
-        ExcelPoiUtils.createCell(rowValues, 2, "MÃ SẢN PHẨM", styleHeader);
-        ExcelPoiUtils.createCell(rowValues, 3, "TÊN SẢN PHẨM", styleHeader);
-        ExcelPoiUtils.createCell(rowValues, 4, "GIÁ", styleHeader);
-        ExcelPoiUtils.createCell(rowValues, 5, "SỐ LƯỢNG", styleHeader);
-        ExcelPoiUtils.createCell(rowValues, 6, "THÀNH TIỀN", styleHeader);
+        int rowf = 0, rowt = 0;
+        int colf = 0, colt = 6;
+        if(poDetails.size()>0) {
+            sheet = workbook.createSheet("Sản phẩm");
+            Row row = sheet.createRow(0);
+            Row row1 = sheet.createRow(1);
+            Row row2 = sheet.createRow(2);
+            Row row5 = sheet.createRow(5);
+            Row rowValues = sheet.createRow(8);
+            row.setRowStyle(style);
+            row2.setRowStyle(style);
+            row1.setRowStyle(style1);
+            row2.setRowStyle(style1);
+            row5.setRowStyle(style2);
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
+            sheet.addMergedRegion(new CellRangeAddress(rowf, rowt, colf + 7, colt + 6));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A2:G2"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("H2:M2"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A3:G3"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
+            ExcelPoiUtils.createCell(row, rowf, poDetails.get(0).getShopName(), style);
+            ExcelPoiUtils.createCell(row, 7, shops.getShopName(), style);
+            ExcelPoiUtils.createCell(row1, 0, poDetails.get(0).getShopAddress(), style1);
+            ExcelPoiUtils.createCell(row1, 7, shops.getAddress(), style1);
+            ExcelPoiUtils.createCell(row2, 0, poDetails.get(0).getShopContact(), style1);
+            ExcelPoiUtils.createCell(row2, 7, "Tel: " + shops.getPhone() + " Fax: " + shops.getFax(), style1);
+            ExcelPoiUtils.createCell(row5, 0, "DANH SÁCH DỮ LIỆU", style2);
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            ExcelPoiUtils.createCell(rowValues, 0, "STT", styleHeader);
+            ExcelPoiUtils.createCell(rowValues, 1, "SO NO", styleHeader);
+            ExcelPoiUtils.createCell(rowValues, 2, "MÃ SẢN PHẨM", styleHeader);
+            ExcelPoiUtils.createCell(rowValues, 3, "TÊN SẢN PHẨM", styleHeader);
+            ExcelPoiUtils.createCell(rowValues, 4, "GIÁ", styleHeader);
+            ExcelPoiUtils.createCell(rowValues, 5, "SỐ LƯỢNG", styleHeader);
+            ExcelPoiUtils.createCell(rowValues, 6, "THÀNH TIỀN", styleHeader);
+        }
         //////////////////////////////////////////////////////////////////////////////
         // SHEET 2
         ////////////////////////////////////////////////////////////////////////////
@@ -180,19 +187,21 @@ public class ExportExcel {
         styleCurrency.setBorderLeft(BorderStyle.THIN);
         styleCurrency.setBorderRight(BorderStyle.THIN);
         //////////////////////////////////////////////////////////////////
-        int stt = 1;
-        for (PoDetailDTO poDetail : poDetails) {
-            Row row = sheet.createRow(rowCount++);
-            int columnCount = 0;
-            ExcelPoiUtils.createCell(row, columnCount++, stt++, styleValues);
-            ExcelPoiUtils.createCell(row, columnCount++, poDetail.getSoNo(), styleValues);
-            ExcelPoiUtils.createCell(row, columnCount++, poDetail.getProductCode(), styleValues);
-            ExcelPoiUtils.createCell(row, columnCount++, poDetail.getProductName(), styleValues);
-            ExcelPoiUtils.createCell(row, columnCount++, poDetail.getPriceNotVat(), styleCurrency);
-            ExcelPoiUtils.createCell(row, columnCount++, poDetail.getQuantity(), styleCurrency);
-            ExcelPoiUtils.createCell(row, columnCount++, poDetail.getAmountNotVat(), styleCurrency);
+        if(poDetails.size()>0) {
+            int stt = 1;
+            for (PoDetailDTO poDetail : poDetails) {
+                Row row = sheet.createRow(rowCount++);
+                int columnCount = 0;
+                ExcelPoiUtils.createCell(row, columnCount++, stt++, styleValues);
+                ExcelPoiUtils.createCell(row, columnCount++, poDetail.getSoNo(), styleValues);
+                ExcelPoiUtils.createCell(row, columnCount++, poDetail.getProductCode(), styleValues);
+                ExcelPoiUtils.createCell(row, columnCount++, poDetail.getProductName(), styleValues);
+                ExcelPoiUtils.createCell(row, columnCount++, poDetail.getPriceNotVat(), styleCurrency);
+                ExcelPoiUtils.createCell(row, columnCount++, poDetail.getQuantity(), styleCurrency);
+                ExcelPoiUtils.createCell(row, columnCount++, poDetail.getAmountNotVat(), styleCurrency);
+            }
+            ExcelPoiUtils.autoSizeAllColumns(sheet, 6);
         }
-        ExcelPoiUtils.autoSizeAllColumns(sheet, 6);
         if(poDetails2.size()>0){
             int stt_ = 1;
             for (PoDetailDTO poDetail2 : poDetails2) {
