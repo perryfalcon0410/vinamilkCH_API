@@ -379,6 +379,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     if(comboDiscount.getDiscountAmountNotVat()!= null) returnComboDiscount.setDiscountAmountNotVat(comboDiscount.getDiscountAmountNotVat() * -1);
                     if(comboDiscount.getDiscountAmountVat()!= null) returnComboDiscount.setDiscountAmountVat(comboDiscount.getDiscountAmountVat() * -1);
                     returnComboDiscount.setOrderDate(newOrderReturn.getCreatedAt());
+                    returnComboDiscount.setSaleOrderId(newOrderReturn.getId());
                     SaleComboDiscount.save(returnComboDiscount);
                 }
             }
@@ -400,6 +401,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     if(comboDetail.getZmPromotion()!=null) returnComboDetail.setZmPromotion(comboDetail.getZmPromotion() * -1);
                     if(comboDetail.getZmPromotionVat()!=null) returnComboDetail.setZmPromotionVat(comboDetail.getZmPromotionVat() * -1);
                     if(comboDetail.getZmPromotionNotVat()!=null) returnComboDetail.setZmPromotionNotVat(comboDetail.getZmPromotionNotVat() * -1);
+                    returnComboDetail.setSaleOrderId(newOrderReturn.getId());
                     returnComboDetail.setOrderDate(newOrderReturn.getCreatedAt());
                     SaleComboDetail.save(returnComboDetail);
                 }
