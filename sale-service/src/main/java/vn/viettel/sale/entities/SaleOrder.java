@@ -20,6 +20,9 @@ public class SaleOrder extends BaseEntity {
     private Long id;
     @Column(name = "ORDER_NUMBER")
     private String orderNumber;
+    //Lưu số hóa đơn (ORDER_NUMBER) của đơn bán (trường hợp SALE_ORDER có type=2 đơn trả)
+    @Column(name = "ORIGIN_ORDER_NUMBER")
+    private String originOrderNumber;
     @Column(name = "ORDER_DATE")
     private LocalDateTime orderDate;
     @Column(name = "SHOP_ID")

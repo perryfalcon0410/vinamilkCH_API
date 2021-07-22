@@ -57,14 +57,14 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     }
 
     /*
-    Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó huonglx2: Ngoài ra nếu tất cả các cấp đơn vị đều không khai báo tham số   thì fix là 1 ngày.
+    Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó
      */
     @Override
     public String dayReturn(Long id) {
         Shop shop = repository.findByIdAndStatus(id, 1).orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
         String day = shopParamRepo.dayReturn(id);
         if(day == null && shop.getParentShopId()!=null) day = shopParamRepo.dayReturn(shop.getParentShopId());
-        if(day == null) day = "1";
+        if(day == null) day = "-1";
         return day;
     }
 

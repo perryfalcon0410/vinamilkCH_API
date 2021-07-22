@@ -67,8 +67,8 @@ public class ChangePriceReportController extends BaseController {
                                                 @RequestParam(required = false) String code,
                                                 @RequestParam Date fromTransDate,
                                                 @RequestParam Date toTransDate,
-                                                @RequestParam Date fromOrderDate,
-                                                @RequestParam Date toOrderDate,
+                                                @RequestParam(required = false) Date fromOrderDate,
+                                                @RequestParam(required = false) Date toOrderDate,
                                                 @RequestParam(required = false) String ids,
                                                 Pageable pageable) throws ParseException {
         ChangePricePrintDTO result =
@@ -81,9 +81,8 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
-    public void exportToExcel( @RequestParam(required = false) String code, @RequestParam Date fromTransDate,
-                                        @RequestParam Date toTransDate, @RequestParam Date fromOrderDate,
-                                        @RequestParam Date toOrderDate, @RequestParam(required = false) String ids,
+    public void exportToExcel( @RequestParam(required = false) String code, @RequestParam Date fromTransDate, @RequestParam Date toTransDate,
+                               @RequestParam(required = false) Date fromOrderDate, @RequestParam(required = false) Date toOrderDate, @RequestParam(required = false) String ids,
                                         HttpServletResponse response,Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(
