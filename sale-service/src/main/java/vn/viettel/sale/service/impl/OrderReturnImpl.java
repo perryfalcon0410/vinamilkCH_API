@@ -260,20 +260,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDetail> saleOrderPromotions =
                 saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), true);
         if(saleOrder.getIsReturn() != null && !saleOrder.getIsReturn()) throw new ValidateException(ResponseMessage.SALE_ORDER_CANNOT_RETURN);
-
-        LocalDateTime orderDate = DateUtils.convertToDate(saleOrder.getOrderDate());
         LocalDateTime returnDate = DateUtils.convertToDate(new Date());
-        Duration dur = Duration.between(orderDate, returnDate);
-        double diff = dur.toMillis();
-//        double diff = returnDate.getTime() - orderDate.getTime();
-        double diffDays = diff / (24 * 60 * 60 * 1000);
-        /*
-        Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó. Nếu không khai báo cả cấp cha và cấp con thì không được phép trả hàng.
-         */
-        String dayString = shopClient.dayReturn(shopId).getData();
-        int dayReturn = Integer.parseInt(dayString);
         SaleOrder newOrderReturn = new SaleOrder();
-        if(diffDays <= dayReturn) {
+
             int day = returnDate.getDayOfMonth();
             int month = returnDate.getMonthValue();
             String  year = Integer.toString(returnDate.getYear()).substring(2);
@@ -412,19 +401,26 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 saleService.updateCustomer(newOrderReturn, customer, true);
             if(saleOrder.getMemberCardAmount() != null)
                 saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId());
-        }else {
-            throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
-        }
+
         return newOrderReturn;
     }
 
+
+    /*
+   Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó, shop cha và con ko có thì ko dc phép trả hàng
+   Nếu kết quả
+   --+ VALUE = -1 ; Không được trả hàng
+   --+ VALUE = 0 : Chỉ được trả hàng cho ngày hiện tại
+   --+ VALUE = n , n >0 thì được trả hàng trong n ngày
+   => Kiểm tra trunc(sale_order.order_date) >= trunc(sysdate) - số ngày cấu hình
+    */
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long shopId) {
-        String orderNumber = StringUtils.defaultIfBlank(filter.getOrderNumber(), StringUtils.EMPTY);
-        String upperCaseON = VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT));
-        long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        String upperCaseON = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
+
         String stringDayReturn = shopClient.dayReturn(shopId).getData();
-        if(stringDayReturn.equals("-1") || stringDayReturn.equals("0")) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
-        int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
+        if(stringDayReturn == null || stringDayReturn.equals("-1")) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
+        int dayReturn = Integer.parseInt(stringDayReturn);
+
         LocalDateTime newFromDate = DateUtils.convertFromDate(LocalDateTime.now().minusDays(dayReturn));
         LocalDateTime fromDate = DateUtils.convertFromDate(filter.getFromDate());
         LocalDateTime toDate = DateUtils.convertToDate(filter.getToDate());
@@ -482,17 +478,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public OrderReturnDetailDTO getSaleOrderChosen(Long id, Long shopId) {
         SaleOrder orderReturn = repository.findById(id).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
-        LocalDateTime orderDate = DateUtils.convertToDate(orderReturn.getOrderDate());
-        LocalDateTime returnDate = DateUtils.convertToDate(new Date());
-        Duration dur = Duration.between(orderDate, returnDate);
-        double diff = dur.toMillis();
-        double diffDays = diff / (24 * 60 * 60 * 1000);
-        /*
-        Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó. Nếu không khai báo cả cấp cha và cấp con thì không được phép trả hàng.
-         */
-        String dayString = shopClient.dayReturn(shopId).getData();
-        int dayReturn = Integer.parseInt(dayString);
-        if(diffDays > dayReturn) throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
 
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
         orderReturnDetailDTO.setInfos(getInfos(orderReturn));

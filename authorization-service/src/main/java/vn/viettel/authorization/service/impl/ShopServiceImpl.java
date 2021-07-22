@@ -58,14 +58,20 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
     /*
     Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó
+    Nếu kết quả
+    --+ VALUE = -1 ; Không được trả hàng
+    --+ VALUE = 0 : Chỉ được trả hàng cho ngày hiện tại
+    --+ VALUE = n , n >0 thì được trả hàng trong n ngày
+    => Kiểm tra trunc(sale_order.order_date) >= trunc(sysdate) - số ngày cấu hình
      */
     @Override
-    public String dayReturn(Long id) {
-        Shop shop = repository.findByIdAndStatus(id, 1).orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
-        String day = shopParamRepo.dayReturn(id);
-        if(day == null && shop.getParentShopId()!=null) day = shopParamRepo.dayReturn(shop.getParentShopId());
-        if(day == null) day = "-1";
-        return day;
+    public String dayReturn(Long shopId) {
+        Shop shop = repository.findByIdAndStatus(shopId, 1).orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
+        ShopParam param = shopParamRepo.dayReturn(shopId);
+        if(param == null && shop.getParentShopId()!=null) param = shopParamRepo.dayReturn(shop.getParentShopId());
+        if(param != null && param.getName()!=null) return param.getName();
+        if(param != null && param.getName()==null) return "0";
+        return null;
     }
 
     @Override
