@@ -14,6 +14,16 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="2021-07-22-change-data-type-in-table-sale-order-combo-detail" author="thaitt">
+
+        <modifyDataType columnName="COMBO_QUANTITY" newDataType="int" tableName="SALE_ORDER_COMBO_DETAIL"/>
+
+        <rollback>
+            <modifyDataType columnName="COMBO_QUANTITY" newDataType="tinyint" tableName="SALE_ORDER_COMBO_DETAIL"/>
+        </rollback>
+
+    </changeSet>
+
 </databaseChangeLog>
 
 
