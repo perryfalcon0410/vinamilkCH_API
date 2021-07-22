@@ -82,19 +82,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Override
     public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Pageable pageable) {
-        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+//        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
+//        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         boolean hasQty = false;
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (warehouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        CustomerTypeDTO customerType = null;
+        if(customerId == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        else customerType = customerTypeClient.getCusTypeByCustomerIdV1(customerId);
+        if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
-        return repository.findOrderProductTopSale(shopId, customer.getCustomerTypeId(), warehouseTypeId, null,
+        return repository.findOrderProductTopSale(shopId, customerType.getId(), customerType.getWareHouseTypeId(), customerId,
                 keyUpper, fromDate, toDate, hasQty, pageable);
     }
 

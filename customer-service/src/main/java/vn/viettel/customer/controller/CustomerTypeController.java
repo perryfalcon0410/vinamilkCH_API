@@ -60,6 +60,7 @@ public class CustomerTypeController extends BaseController {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByShopId(shopId);
         return customerTypeDTO;
     }
+
     @ApiOperation(value = "Tìm kiếm Customer type mặc định")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -70,18 +71,6 @@ public class CustomerTypeController extends BaseController {
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCustomerTypeDefaut();
         return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
-    }
-
-    @ApiOperation(value = "Tìm kiếm Ware house type Id bằng customerId")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    @RoleFeign
-    @GetMapping(V1+ root + "/warehouse-type/{id}")
-    public Response<Long> getWarehouseTypeIdByCustomer( @PathVariable Long id) {
-        Long aLong = customerTypeService.getWarehouseTypeIdByCustomer(id);
-        return new Response<Long>().withData(aLong);
     }
 
     @RoleFeign
@@ -96,5 +85,16 @@ public class CustomerTypeController extends BaseController {
         return aLong;
     }
 
+    @ApiOperation(value = "Tìm kiếm Customer type theo khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @RoleFeign
+    @GetMapping(value = { V1 + root + "/warehouse-type/customer/{customerId}"})
+    public CustomerTypeDTO getCusTypeByCustomerId( @PathVariable Long customerId) {
+        CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByCustomerId(customerId);
+        return customerTypeDTO;
+    }
 
 }
