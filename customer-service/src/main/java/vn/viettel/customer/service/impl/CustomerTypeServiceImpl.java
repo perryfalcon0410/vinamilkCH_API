@@ -50,8 +50,8 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     @Override
     public Long getWarehouseTypeByShopId(Long shopId) {
         List<CustomerType> customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
-        if(customerTypes == null) customerTypes = repository.getCustomerTypeDefault();
-        if(customerTypes!=null) return customerTypes.get(0).getWareHouseTypeId();
+        if(customerTypes == null || customerTypes.isEmpty()) customerTypes = repository.getCustomerTypeDefault();
+        if(customerTypes!=null || !customerTypes.isEmpty()) return customerTypes.get(0).getWareHouseTypeId();
         return null;
     }
 
