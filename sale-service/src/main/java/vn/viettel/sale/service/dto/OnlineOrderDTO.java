@@ -39,6 +39,9 @@ public class OnlineOrderDTO extends BaseDTO {
     @ApiModelProperty(notes = "Tổng thành tiền")
     private float totalPrice = 0;
 
+    @ApiModelProperty(notes = "Ghi chú")
+    private String note;
+
     @ApiModelProperty(notes = "Danh sách sản phẩm")
     private List<OrderProductOnlineDTO> products;
 
