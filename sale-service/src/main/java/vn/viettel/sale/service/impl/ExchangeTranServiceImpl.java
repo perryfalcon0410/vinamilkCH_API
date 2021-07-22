@@ -110,6 +110,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         exchangeTransRecord.setWareHouseTypeId(cusType.getWareHouseTypeId());
         repository.save(exchangeTransRecord);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<ExchangeTransDetail> lstDtl = new ArrayList<>();
+        HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
 
         for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()) {
             ExchangeTransDetail exchangeTransDetail = modelMapper.map(etd, ExchangeTransDetail.class);
@@ -118,10 +120,27 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             setPrice(prices, exchangeTransDetail);
             exchangeTransDetail.setShopId(shopId);
             StockTotal stockTotal = getStockTotal(stockTotals, etd.getProductId());
-//            stockTotal.setQuantity(stockTotal.getQuantity() - etd.getQuantity());
-            transDetailRepository.save(exchangeTransDetail);
-            stockTotalService.updateWithLock(stockTotal, (-1) * etd.getQuantity());
+            lstDtl.add(exchangeTransDetail);
+            int qty = -1;
+            if(stockTotal != null){
+                int value = ((-1) * etd.getQuantity());
+                if(idAndValues.containsKey(stockTotal)){
+                    value += idAndValues.get(stockTotal);
+                }
+                qty = stockTotal.getQuantity() + value;
+                idAndValues.put(stockTotal, value);
+            }
+            if(qty < 0) {
+                Optional<Product> product = productRepository.findById(etd.getProductId());
+                if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+            }
         }
+        for(ExchangeTransDetail exchangeTransDetail : lstDtl){
+            transDetailRepository.save(exchangeTransDetail);
+        }
+        stockTotalService.updateWithLock(idAndValues);
+
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
@@ -223,42 +242,92 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             if (!listTransCode.contains(request.getTransCode())) exchange.setTransCode(request.getTransCode());
             exchange.setCustomerId(request.getCustomerId());
             exchange.setReasonId(request.getReasonId());
-            repository.save(exchange);
+
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            List<ExchangeTransDetail> exchangeDetails = new ArrayList<>();
+            HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
+            List<Long> lstDelete = new ArrayList<>();
+            List<StockTotal> newStockTotals = new ArrayList<>();
 
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
-                        StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
-                        /** create record*/
-                        if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
-//                            stockTotal.setQuantity(stockTotal.getQuantity() - req.getQuantity());
-                            ExchangeTransDetail exchangeDetail = modelMapper.map(req, ExchangeTransDetail.class);
-                            exchangeDetail.setTransId(exchange.getId());
-                            exchangeDetail.setShopId(shopId);
-                            setPrice(prices, exchangeDetail);
-                            exchangeDetail.setTransDate(date);
-                            transDetailRepository.save(exchangeDetail);
-                            stockTotalService.updateWithLock(stockTotal, (-1) * req.getQuantity());
-                        } else {
-                            for (ExchangeTransDetail item : dbExchangeTransDetails) {
-                                if(item.getId().equals( req.getId())){
-                                    /** delete record*/
-                                    if (req.getType() == 2) {
-//                                        stockTotal.setQuantity(stockTotal.getQuantity() + req.getQuantity());
-                                        transDetailRepository.deleteById(req.getId());
-                                        stockTotalService.updateWithLock(stockTotal, req.getQuantity());
-                                    } else {/** update record*/
-//                                        stockTotal.setQuantity(stockTotal.getQuantity() - (req.getQuantity() - item.getQuantity()));
-                                        item.setQuantity(req.getQuantity());
-                                        transDetailRepository.save(item);
-                                        stockTotalService.updateWithLock(stockTotal, (-1) * (req.getQuantity() - item.getQuantity()));
-                                    }
-                                    stockTotalRepository.save(stockTotal);
-                                    break;
-                                }
-
-                            }
+                StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
+                /** create record*/
+                if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
+                    ExchangeTransDetail exchangeDetail = modelMapper.map(req, ExchangeTransDetail.class);
+                    exchangeDetail.setTransId(exchange.getId());
+                    exchangeDetail.setShopId(shopId);
+                    setPrice(prices, exchangeDetail);
+                    exchangeDetail.setTransDate(date);
+//                            transDetailRepository.save(exchangeDetail);
+                    exchangeDetails.add(exchangeDetail);
+//                            stockTotalService.updateWithLock(stockTotal, (-1) * req.getQuantity());
+                    int qty = -1;
+                    if(stockTotal != null){
+                        int value = (-1) * req.getQuantity();
+                        if(idAndValues.containsKey(stockTotal)){
+                            value += idAndValues.get(stockTotal);
                         }
+                        qty = stockTotal.getQuantity() + value;
+                        idAndValues.put(stockTotal, value);
+                    }
+                    if(qty < 0) {
+                        Optional<Product> product = productRepository.findById(req.getProductId());
+                        if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                    }
+                } else {
+                    for (ExchangeTransDetail item : dbExchangeTransDetails) {
+                        if(item.getId().equals( req.getId())){
+                            /** delete record*/
+                            if (req.getType() == 2) {
+                                lstDelete.add(req.getId());
+//                                        transDetailRepository.deleteById(req.getId());
+//                                        stockTotalService.updateWithLock(stockTotal, req.getQuantity());
+                                if(stockTotal == null){
+                                    StockTotal newStockTotal = new StockTotal();
+                                    newStockTotal.setProductId(req.getProductId());
+                                    newStockTotal.setQuantity(req.getQuantity());
+                                    newStockTotal.setWareHouseTypeId(exchange.getWareHouseTypeId());
+                                    newStockTotal.setShopId(shopId);
+                                    newStockTotal.setStatus(1);
+                                    newStockTotals.add(newStockTotal);
+                                }else{
+                                    int value = req.getQuantity();
+                                    if(idAndValues.containsKey(stockTotal)){
+                                        value += idAndValues.get(stockTotal);
+                                    }
+                                    idAndValues.put(stockTotal, value);
+                                }
+                            } else {/** update record*/
+                                item.setQuantity(req.getQuantity());
+                                exchangeDetails.add(item);
+//                                        transDetailRepository.save(item);
+//                                        stockTotalService.updateWithLock(stockTotal, (-1) * (req.getQuantity() - item.getQuantity()));
+                                int qty = -1;
+                                if(stockTotal != null){
+                                    int value = (-1) * (req.getQuantity() - item.getQuantity());
+                                    if(idAndValues.containsKey(stockTotal)){
+                                        value += idAndValues.get(stockTotal);
+                                    }
+                                    qty = stockTotal.getQuantity() + value;
+                                    idAndValues.put(stockTotal, value);
+                                }
+                                if(qty < 0) {
+                                    Optional<Product> product = productRepository.findById(req.getProductId());
+                                    if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
+            repository.save(exchange);
+            for(Long dl : lstDelete) transDetailRepository.deleteById(dl);
+            for(ExchangeTransDetail item : exchangeDetails) transDetailRepository.save(item);
+            stockTotalService.updateWithLock(idAndValues);
+            for(StockTotal item : newStockTotals) stockTotalRepository.save(item);
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
@@ -307,13 +376,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             }
         }
         for (ExchangeTransDetail e : exchangeTransDetails) {
-            for (StockTotal stockTotal : stockTotals) {
-                if (stockTotal.getProductId().equals(e.getProductId())) {
-//                    stockTotal.setQuantity(stockTotal.getQuantity() + e.getQuantity());
-                    stockTotalService.updateWithLock(stockTotal, e.getQuantity());
-                    break;
-                }
-            }
+            stockTotalService.updateWithLock(shopId, exchangeTrans.get().getWareHouseTypeId(), e.getProductId(), e.getQuantity());
         }
         exchangeTrans.get().setStatus(-1);
         return ResponseMessage.DELETE_SUCCESSFUL;

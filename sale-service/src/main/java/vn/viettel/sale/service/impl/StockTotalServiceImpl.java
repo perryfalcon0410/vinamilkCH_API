@@ -20,7 +20,7 @@ import java.util.Map;
 public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTotalRepository> implements StockTotalService {
 
     private Map<String, Object> properties = new HashMap<String, Object>() {{
-        put("javax.persistence.lock.timeout", 1000);
+        put("javax.persistence.lock.timeout", 500);
     }};
 
     @Override
@@ -45,19 +45,6 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         if(shopId == null || wareHouseId == null || productId == null || value == null) return null;
         StockTotal entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         if (entity == null) return null;
-//        boolean reload = false;
-
-//        for (int i = 0; ; i++) {
-//            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
-//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_READ ||
-//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_WRITE){
-//                reload = true;
-//                continue;
-//            }else {
-//                break;
-//            }
-//        }
-//        if(reload) entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         return updateEntity(entity, value);
     }
 

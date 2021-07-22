@@ -155,19 +155,27 @@ public class ComboProductTransServiceImpl
             }
             int quatity1 = stockTotal1.getQuantity()!=null?stockTotal1.getQuantity():0;
             if(request.getTransType().equals(1)) {
-//                    stockTotal1.setQuantity(quatity1 + combo.getQuantity());
                 quatity1 = combo.getQuantity();
             }else{
+                if(lstSaveStockTotal.containsKey(stockTotal1)){
+                    quatity1 += lstSaveStockTotal.get(stockTotal1);
+                }
                 if(quatity1 < combo.getQuantity()) {
                     ComboProduct comboProduct = comboProductRepo.getById(combo.getComboProductId());
                     throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN,
                             comboProduct.getProductCode() + " - " + comboProduct.getProductName(), stockTotal1.getQuantity().toString());
                 }
-//                    stockTotal1.setQuantity(quatity1 - combo.getQuantity());
                 quatity1 = (-1) * combo.getQuantity();
             }
             if(isNew) stockTotal1.setQuantity(quatity1);
-            else lstSaveStockTotal.put(stockTotal1, quatity1);
+            else {
+//                lstSaveStockTotal.put(stockTotal1, quatity1);
+                int value = quatity1;
+                if(lstSaveStockTotal.containsKey(stockTotal1)){
+                    value += lstSaveStockTotal.get(stockTotal1);
+                }
+                lstSaveStockTotal.put(stockTotal1, value);
+            }
 
             ComboProductTransDetail cbDetail = new ComboProductTransDetail();
             cbDetail.setTransId(comboProductTran.getId());
@@ -223,18 +231,26 @@ public class ComboProductTransServiceImpl
 
                 // - stock total when type = 1 /+ stock total when type = 2
                 if(request.getTransType().equals(1)) {
+                    if(lstSaveStockTotal.containsKey(stockTotal)){
+                        quatity += lstSaveStockTotal.get(stockTotal);
+                    }
                     if(quatity < combo.getQuantity()*comboProductDetail.getFactor()) {
                         Product product = productRepo.findById(comboProductDetail.getProductId()).get();
                         messageErorr.append(product.getProductCode() + " - " + product.getProductName() + " - " + stockTotal.getQuantity().toString() +", ");
                     }
-//                    stockTotal.setQuantity(quatity - (combo.getQuantity()*comboProductDetail.getFactor()));
                     quatity = (-1) * (combo.getQuantity()*comboProductDetail.getFactor());
                 }else{
-//                    stockTotal.setQuantity(quatity  + (combo.getQuantity()*comboProductDetail.getFactor()));
                     quatity = combo.getQuantity() * comboProductDetail.getFactor();
                 }
                 if(isNew1) stockTotal.setQuantity(quatity);
-                else lstSaveStockTotal.put(stockTotal, quatity);
+                else {
+//                    lstSaveStockTotal.put(stockTotal, quatity);
+                    int value = quatity;
+                    if(lstSaveStockTotal.containsKey(stockTotal)){
+                        value += lstSaveStockTotal.get(stockTotal);
+                    }
+                    lstSaveStockTotal.put(stockTotal, value);
+                }
 
                 double price = productPrice.getPrice()!=null?productPrice.getPrice():0;
                 ComboProductTransDetail detail = new ComboProductTransDetail();
@@ -261,8 +277,7 @@ public class ComboProductTransServiceImpl
             throw new ValidateException(ResponseMessage.CREATE_COMBO_PRODUCT_TRANS_FAIL);
         }
         comboProducts.forEach(detail -> {detail.setTransId(comboProductTran.getId()); comboProductTransDetailRepo.save(detail); });
-        for (StockTotal st : newStockTotal)
-            stockTotalRepo.save(st);
+        for (StockTotal st : newStockTotal) stockTotalRepo.save(st);
         stockTotalService.updateWithLock(lstSaveStockTotal);
        return this.mapToOnlineOrderDTO(comboProductTran);
     }
