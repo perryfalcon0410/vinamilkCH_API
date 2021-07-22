@@ -96,8 +96,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Object getAll(Long shopId, String searchKeywords) {
-        Long wareHouseTypeId = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
+    public Object getAll(Long shopId, String searchKeywords,Long wareHouseTypeId) {
+        //Long wareHouseTypeId = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
         if(searchKeywords != null) searchKeywords = searchKeywords.trim().toUpperCase();
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if(countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
@@ -179,52 +179,55 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException {
+    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords,Long wareHouseTypeId) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
         if(stockCountingExcels == null ) throw new ValidationException(ResponseMessage.THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT.statusCodeValue());
         if(stockCountingExcels.size()>5000) throw new ValidationException(ResponseMessage.INVALID_STRING_LENGTH.statusCodeValue());
         List<StockCountingExcel> importFails = new ArrayList<>();
-        List<String> productCodes = productRepository.findIdByStatus(1);
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
-                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(shopId, searchKeywords );
-
+                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(shopId, searchKeywords,wareHouseTypeId);
         List<StockCountingDetailDTO> stockCountingDetails = data.getResponse();
-
+        List<String> productCodes = stockCountingDetails.stream().map(e->e.getProductCode()).collect(Collectors.toList());
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-
         int importSuccessNumber = 0;
-        for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
             for (StockCountingExcel e : stockCountingExcels) {
+                for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
                 if(e.getUnitQuantity()==null) e.setUnitQuantity(0);
                 if(e.getPacketQuantity()==null) e.setPacketQuantity(0);
                 if(e.getProductCode() == null) throw new ValidationException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS.statusCodeValue());
                 if(e.getProductCode().length()>4000||e.getPacketQuantity().toString().length()>7||e.getUnitQuantity().toString().length()>7)
                     throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-                if (countingDetail.getProductCode().equals(e.getProductCode()) && (e.getPacketQuantity() > 0 && e.getUnitQuantity() > 0)) {
+                if (countingDetail.getProductCode().equals(e.getProductCode().toUpperCase()) && checkDataType(e)) {
                     int inventoryQuantity = e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity();
                     countingDetail.setPacketQuantity(e.getPacketQuantity());
                     countingDetail.setUnitQuantity(e.getUnitQuantity());
                     countingDetail.setInventoryQuantity(inventoryQuantity);
                     countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
                     importSuccessNumber++;
-                }
-                if(countingDetail.getProductCode().equals(e.getProductCode())
-                        &&!productCodes.contains(e.getProductCode())
+                    break;
+                }if(!productCodes.contains(e.getProductCode().toUpperCase(Locale.ROOT))&&!importFails.contains(e)){
+                        e.setError("Sản phẩm không có trong kho");
+                        importFails.add(e);
+                    }else if (!checkDataType(e)){
+                        e.setError("Số nhập vào phải là số nguyên dương");
+                        importFails.add(e);
+                    }
+               /* else if(!countingDetail.getProductCode().equals(e.getProductCode())
                         &&!importFails.contains(e.getProductCode())){
-                    e.setError("Sản phẩm đã ngưng hoạt động");
+                    e.setError("Sản phẩm không có trong kho");
                     importFails.add(e);
                 }
                 else if(countingDetail.getProductCode().equals(e.getProductCode())
                 &&!checkDataType(e) &&!importFails.contains(e.getProductId())){
                     e.setError("Số nhập vào phải là số nguyên dương");
                     importFails.add(e);
-                }
-                else if(countingDetail.getProductCode().equals(e.getProductCode())
+                }*/
+                /*else if(countingDetail.getProductCode().equals(e.getProductCode())
                 &&!importFails.contains(e)){
                     e.setError("Sản phẩm không có trong kho");
                     importFails.add(e);
-                }
+                }*/
             }
         }
         return new CoverResponse<>(

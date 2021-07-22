@@ -1225,7 +1225,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         String yy = df.format(Calendar.getInstance().getTime());
         Integer reciNum = repository.getQuantityPoTrans();
         StringBuilder reciCode = new StringBuilder();
-        reciCode.append("IMP.");
+        reciCode.append("IMPP.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
@@ -1238,7 +1238,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         String yy = df.format(Calendar.getInstance().getTime());
         int reciNum = stockBorrowingTransRepository.getQuantityStockBorrowingTrans();
         StringBuilder reciCode = new StringBuilder();
-        reciCode.append("EDC.");
+        reciCode.append("EDCB.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
@@ -1270,7 +1270,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         String yy = df.format(Calendar.getInstance().getTime());
         int reciNum = stockAdjustmentTransRepository.getQuantityStockAdjustmentTrans();
         StringBuilder reciCode = new StringBuilder();
-        reciCode.append("EDC.");
+        reciCode.append("EDCT.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
