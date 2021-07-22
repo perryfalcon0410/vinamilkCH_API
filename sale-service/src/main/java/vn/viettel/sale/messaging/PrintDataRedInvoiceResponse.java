@@ -35,11 +35,11 @@ public class PrintDataRedInvoiceResponse {
     @ApiModelProperty(notes = "Số điện thoại")
     private String customerPhone;
     @ApiModelProperty(notes = "Thành tiền")
-    private Float amount;
+    private Double amount;
     @ApiModelProperty(notes = "Thuế GTGT")
-    private Float valueAddedTax;
+    private Double valueAddedTax;
     @ApiModelProperty(notes = "Tổng tiền phải trả số")
-    private Float totalAmountNumber;
+    private Double totalAmountNumber;
     @ApiModelProperty(notes = "Tổng tiền phải trả chữ")
     private String totalAmountString;
 

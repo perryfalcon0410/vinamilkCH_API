@@ -78,7 +78,7 @@ public class ChangePriceReportExcel {
         //header left
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shop.getPhone()+"  "+"Fax:"+" "+shop.getFax() ,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+(shop.getPhone()==null?"":shop.getPhone())+"  "+"Fax:"+" "+(shop.getFax()==null?"":shop.getFax()) ,style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,"CÔNG TY CỔ PHẦN SỮA VIỆT NAM",style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,"Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",style.get(ExcelPoiUtils.HEADER_LEFT));
@@ -101,7 +101,7 @@ public class ChangePriceReportExcel {
                     if(h.equals("ĐVT")){
                         ExcelPoiUtils.addCell(sheet,col_++,row+7,"TỔNG CỘNG :",style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
                         ExcelPoiUtils.addCell(sheet,colTotal++,row+7+listParent.size()+rowNum,"TỔNG CỘNG :",style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
-                    }else {
+                    } else {
                         ExcelPoiUtils.addCell(sheet, col_++, row + 7, "", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
                         ExcelPoiUtils.addCell(sheet, colTotal++, row+7+listParent.size()+rowNum, "", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
                     }
@@ -113,18 +113,23 @@ public class ChangePriceReportExcel {
         int stt = 0,col,row = 0;
         int rowMerge = 10;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
-        CellStyle format = style.get(ExcelPoiUtils.DATA);
+        CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
         CellStyle format1 = style.get(ExcelPoiUtils.BOLD_9);
+        CellStyle format2 = style.get(ExcelPoiUtils.BOLD_9_LEFT);
+        CellStyle format3 = style.get(ExcelPoiUtils.BORDER_RIGHT);
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.addCell(sheet,6,9, changePriceReport.getReportTotal().getTotalPriceInput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.addCell(sheet,8,9, changePriceReport.getReportTotal().getTotalPriceOutput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         int lastCol = 0;
         for (int i = 0; i < listParent.size(); i ++) {
-            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,"Số HĐ-"+(listParent.get(i).getRedInvoiceNo()==null?"":listParent.get(i).getRedInvoiceNo()+"-")
+            ExcelPoiUtils.addCellsAndMerged(sheet,1,rowMerge,3,rowMerge,"Số HĐ: "+(listParent.get(i).getRedInvoiceNo()==null?"":listParent.get(i).getRedInvoiceNo()+"-")
                     +(listParent.get(i).getStt()==null?"":listParent.get(i).getStt()+"-")+
                    DateUtils.formatDate2StringDate(listParent.get(i).getOrderDate())+"-"+
                     (listParent.get(i).getPoNumber()==null?"":listParent.get(i).getPoNumber()+"-")+
                     (listParent.get(i).getInternalNumber()==null?"":listParent.get(i).getInternalNumber()+"-")+
-                    (listParent.get(i).getTransCode()==null?"":listParent.get(i).getTransCode()),format1);
+                    (listParent.get(i).getTransCode()==null?"":listParent.get(i).getTransCode()),format2);
             ExcelPoiUtils.addCell(sheet,4,rowMerge,listParent.get(i).getTotalQuantity(),format1);
+            ExcelPoiUtils.addCellsAndMerged(sheet,5,rowMerge,9,rowMerge,"",format2);
             for (ChangePriceDTO data : listChildByParent.get(i)) {
                 row = rowMerge;
                 stt++;col=0;row++;rowMerge++;
@@ -143,6 +148,8 @@ public class ChangePriceReportExcel {
             rowMerge = row + 1;
         }
         ExcelPoiUtils.addCell(sheet,4,row + 1, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.addCell(sheet,6,row + 1, changePriceReport.getReportTotal().getTotalPriceInput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
+        ExcelPoiUtils.addCell(sheet,8,row + 1, changePriceReport.getReportTotal().getTotalPriceOutput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
     public ByteArrayInputStream export() throws IOException {

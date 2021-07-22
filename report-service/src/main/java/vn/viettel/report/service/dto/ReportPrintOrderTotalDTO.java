@@ -14,7 +14,7 @@ import java.util.List;
 public class ReportPrintOrderTotalDTO {
     private String category;
     private Integer totalQuantity;
-    private Float totalAmount;
-    private Float totalRefunds;
+    private Double totalAmount;
+    private Double totalRefunds;
     private List<OrderReturnGoodsReportDTO> orderReturnGoods;
 }

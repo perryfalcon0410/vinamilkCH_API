@@ -23,15 +23,15 @@ public class StockTotalReportDTO {
     @Column(name = "PRODUCT_NAME")
     private String productName;
     @Column(name = "QUANTITY")
-    private Integer stockQuantity;
+    private Long stockQuantity;
     @Column(name = "PACKAGE_QUANTITY")
-    private Integer packetQuantity;
+    private Long packetQuantity;
     @Column(name = "UNIT_QUANTITY")
-    private Integer unitQuantity;
+    private Long unitQuantity;
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
+    private Double totalAmount;
     @Column(name = "CONVFACT")
     private Integer convfact;
     @Column(name = "PACKAGE_UNIT")
@@ -46,9 +46,9 @@ public class StockTotalReportDTO {
     private String productGroup;
 
     @Column(name = "MIN_INVENTORY")
-    private Integer minInventory;
+    private Long minInventory;
     @Column(name = "MAX_INVENTORY")
-    private Integer maxInventory;
+    private Long maxInventory;
     @Column(name = "WARNING")
     private String warning;
     @Column(name = "CAT_ID")

@@ -92,7 +92,7 @@ public class OrderReturnControllerTest extends BaseTest {
     public void orderSelected() throws Exception {
         String uri = V1 + root + "/chosen/{id}";
         OrderReturnDetailDTO data = new OrderReturnDetailDTO();
-        given(orderReturnService.getSaleOrderChosen(anyLong())).willReturn(data);
+        given(orderReturnService.getSaleOrderChosen(anyLong(), anyLong())).willReturn(data);
         ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());

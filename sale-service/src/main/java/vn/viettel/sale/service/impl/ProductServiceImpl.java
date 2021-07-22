@@ -94,8 +94,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if (warehouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
-//        Page<Long> productIds = repository.findProductsTopSale(shopId, null, warehouseTypeId, keyUpper, fromDate, toDate, hasQty, pageable);
-//        if (productIds.getContent().isEmpty()) return null;
         return repository.findOrderProductTopSale(shopId, customer.getCustomerTypeId(), warehouseTypeId, null,
                 keyUpper, fromDate, toDate, hasQty, pageable);
     }
@@ -209,7 +207,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                                     dto.setPrice(price.getPriceNotVat());
                                     dto.setIntoMoney(price.getPriceNotVat());
                                     dto.setVat(price.getVat());
-                                    dto.setVatAmount((price.getPriceNotVat() * price.getVat()) / 100);
+                                    dto.setVatAmount(roundValue((price.getPriceNotVat() * price.getVat()) / 100));
                                     break;
                                 }
                             }
@@ -283,5 +281,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         orderProductsDTO.addTotalPrice(dto.getTotalPrice());
 
         return dto;
+    }
+
+    private double roundValue(Double value){
+        if(value == null) return 0;
+        return Math.round(value);
     }
 }

@@ -56,7 +56,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT SUM(total) FROM SaleOrder WHERE customerId =:customerId AND orderDate BETWEEN :fromDate AND :toDate ")
     Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
 
-    @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum(-so.amount), sum(-so.total), sum(so.totalPromotion) ) " +
+    @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum(-so.amount), sum(-so.total), sum(-so.totalPromotion) ) " +
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN (:customerIds)) " +

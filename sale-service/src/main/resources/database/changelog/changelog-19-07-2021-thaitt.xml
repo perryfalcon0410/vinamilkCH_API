@@ -32,5 +32,40 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="2021-07-21-change-type-columns-red_invoice_taxcode-in-table-sale-orders" author="thaitt">
+        <modifyDataType tableName="SALE_ORDERS" columnName="RED_INVOICE_TAXCODE"
+                        newDataType="varchar(250)"/>
+        <rollback>
+            <modifyDataType tableName="SALE_ORDERS" columnName="RED_INVOICE_TAXCODE"
+                            newDataType="varchar(50)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-07-21-change-type-columns-office-worrking-in-table-red-invoices" author="thaitt">
+        <modifyDataType tableName="RED_INVOICES" columnName="OFFICE_WORKING"
+                        newDataType="nvarchar(255)"/>
+        <rollback>
+            <modifyDataType tableName="RED_INVOICES" columnName="OFFICE_WORKING"
+                            newDataType="varchar(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-07-21-change-type-columns-office-address-in-table-red-invoices" author="thaitt">
+        <modifyDataType tableName="RED_INVOICES" columnName="OFFICE_ADDRESS"
+                        newDataType="nvarchar(512)"/>
+        <rollback>
+            <modifyDataType tableName="RED_INVOICES" columnName="OFFICE_ADDRESS"
+                            newDataType="varchar(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-07-21-change-type-columns-tax-code-in-table-red-invoices" author="thaitt">
+        <modifyDataType tableName="RED_INVOICES" columnName="TAX_CODE"
+                        newDataType="nvarchar(255)"/>
+        <rollback>
+            <modifyDataType tableName="RED_INVOICES" columnName="TAX_CODE"
+                            newDataType="varchar(50)"/>
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>

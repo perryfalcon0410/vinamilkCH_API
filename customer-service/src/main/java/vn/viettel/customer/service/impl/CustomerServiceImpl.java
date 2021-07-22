@@ -3,6 +3,7 @@ package vn.viettel.customer.service.impl;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -287,19 +288,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setAreaDetailDTO(areaDetailDTO);
         }
         //level edit customer
+        Long level;
+        level = shopClient.getLevelUpdateCustomerV1(shopId).getData();
         if(!customer.getShopId().equals(shopId)){
-            Long level;
-            level = shopClient.getLevelUpdateCustomerV1(customer.getShopId()).getData();
             if(level!= null){
                 customerDTO.setIsEdit(level);
             }else  {
-                Response<ShopDTO> parentShop = shopClient.getShopByIdV1(shopId);
-                level = shopClient.getLevelUpdateCustomerV1(parentShop.getData().getId()).getData();
-                if(level!= null){
-                    customerDTO.setIsEdit(level);
-                }
+                customerDTO.setIsEdit(0L);
             }
-        }
+        }else customerDTO.setIsEdit(3L);
         //edit customer type
         CustomerType cusType = customerTypeRepository.getById(customer.getCustomerTypeId());
         if(cusType.getPosModifyCustomer()==1)
@@ -327,23 +324,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CustomerDTO update(CustomerRequest request, Long userId,Long shopId, Boolean checkUpdate) {
-        Optional<Customer> customerOld = repository.findById(request.getId());
-        if (!customerOld.isPresent())
-            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        Response<ShopDTO> parentShop = shopClient.getShopByIdV1(shopId);
-        Long level;
+    public CustomerDTO update(CustomerRequest request, Long userId, Long shopId, Boolean checkUpdate) {
+        Customer customerDb= repository.findById(request.getId()).orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
         //check level edit
-        level = shopClient.getLevelUpdateCustomerV1(customerOld.get().getShopId()).getData();
-        if(level == null) level = shopClient.getLevelUpdateCustomerV1(parentShop.getData().getId()).getData();
-        if(customerOld.equals(shopId)){
+        Long level = shopClient.getLevelUpdateCustomerV1(shopId).getData();
+        if(!customerDb.getShopId().equals(shopId)){
             if(level == 0L && checkUpdate){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
             }
         }
 
         //checkphone
-        if (!request.getMobiPhone().equals(customerOld.get().getMobiPhone())) {
+        if (!request.getMobiPhone().equals(customerDb.getMobiPhone())) {
             List<Customer> checkPhone = repository.getAllByMobiPhoneAndStatus(request.getMobiPhone(), 1);
             if (checkPhone.size() > 0) {
                 String customerInfo = "";
@@ -360,7 +352,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         if(request.getIdNo()!=null)
         {
-            if (!request.getIdNo().equals(customerOld.get().getIdNo())) {
+            if (!request.getIdNo().equals(customerDb.getIdNo())) {
                 Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
                 if (checkIdNo.isPresent()) {
                     Customer customer = checkIdNo.get();
@@ -376,28 +368,54 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             throw new ValidateException(ResponseMessage.CUSTOMER_AGE_NOT_BE_YOUNGER, ageApparam);
         }
 
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Customer newCustomer = this.mapCustomerUpdate(customerDb, request);
+        newCustomer = repository.save(newCustomer);
+        sendSynRequest(Arrays.asList(newCustomer.getId()));
+        return this.mapCustomerToCustomerResponse(newCustomer, null);
+    }
 
-        Customer customerRecord = modelMapper.map(request, Customer.class);
-        customerRecord.setTotalBill(customerOld.get().getTotalBill());
-        customerRecord.setDayOrderAmount(customerOld.get().getDayOrderAmount());
-        customerRecord.setDayOrderNumber(customerOld.get().getDayOrderNumber());
-        customerRecord.setMonthOrderAmount(customerOld.get().getMonthOrderAmount());
-        customerRecord.setMonthOrderNumber(customerOld.get().getMonthOrderNumber());
+    private Customer mapCustomerUpdate(Customer customer, CustomerRequest request) {
+        if(request.getFirstName()!=null) customer.setFirstName(request.getFirstName());
+        if(request.getLastName()!=null) customer.setLastName(request.getLastName());
 
-        // address and areaId
-        setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
+        String fullName = request.getLastName()+" "+request.getFirstName();
+        customer.setNameText(VNCharacterUtils.removeAccent(fullName).toUpperCase(Locale.ROOT));
 
-        //set full name
-        String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
-        customerRecord.setNameText(VNCharacterUtils.removeAccent(fullName).toUpperCase(Locale.ROOT));
+        if(request.getGenderId()!=null) customer.setGenderId(request.getGenderId());
+        if(request.getBarCode()!=null) customer.setBarCode(request.getBarCode());
+        if(request.getDob()!=null) customer.setDob(request.getDob());
+        if(request.getCustomerTypeId()!=null) customer.setCustomerTypeId(request.getCustomerTypeId());
+        if(request.getStatus()!=null) customer.setStatus(request.getStatus());
+        if(request.getIsPrivate()!=null) customer.setIsPrivate(request.getIsPrivate());
+        if(request.getIdNo()!=null) customer.setIdNo(request.getIdNo());
+        if(request.getIdNoIssuedDate()!=null) customer.setIdNoIssuedDate(request.getIdNoIssuedDate());
+        if(request.getIdNoIssuedPlace()!=null) customer.setIdNoIssuedPlace(request.getIdNoIssuedPlace());
+        if(request.getMobiPhone()!=null) customer.setMobiPhone(request.getMobiPhone());
+        if(request.getEmail()!=null) customer.setEmail(request.getEmail());
+        //setAddress();setAreaId();
+        setAddressAndAreaId(request.getStreet(), request.getAreaId(), customer);
+        if(request.getWorkingOffice()!=null) customer.setWorkingOffice(request.getWorkingOffice());
+        if(request.getOfficeAddress()!=null) customer.setOfficeAddress(request.getOfficeAddress());
+        if(request.getTaxCode()!=null) customer.setTaxCode(request.getTaxCode());
+        if(request.getCloselyTypeId()!=null) customer.setCloselyTypeId(request.getCloselyTypeId());
+        if(request.getCardTypeId()!=null) customer.setCardTypeId(request.getCardTypeId());
 
-        customerRecord.setShopId(customerOld.get().getShopId());
+        return customer;
+    }
 
-        Customer customerResult = repository.save(customerRecord);
-        sendSynRequest(Arrays.asList(customerResult.getId()));
-        
-        return this.mapCustomerToCustomerResponse(customerResult, null);
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CustomerDTO updateForSale(CustomerRequest request, Long shopId) {
+        Customer customerDb= repository.findById(request.getId()).orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        if(request.getTotalBill()!=null) customerDb.setTotalBill(request.getTotalBill());
+        if(request.getDayOrderAmount()!=null) customerDb.setDayOrderAmount(request.getDayOrderAmount());
+        if(request.getDayOrderNumber()!=null) customerDb.setDayOrderNumber(request.getDayOrderNumber());
+        if(request.getMonthOrderAmount()!=null) customerDb.setMonthOrderAmount(request.getMonthOrderAmount());
+        if(request.getMonthOrderNumber()!=null) customerDb.setMonthOrderNumber(request.getMonthOrderNumber());
+        customerDb.setLastOrderDate(LocalDateTime.now());
+        repository.save(customerDb);
+        return this.mapCustomerToCustomerResponse(customerDb, null);
     }
 
     @Override

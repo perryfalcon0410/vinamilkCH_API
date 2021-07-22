@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.service.dto.CustomerReportDTO;
@@ -36,7 +37,6 @@ public class CustomerNotTradeExcel {
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
         int col = 0,row =0;
         int colm = 2,rowm =0;
-        SimpleDateFormat dt1 = new SimpleDateFormat("dd-MM-yyyy");
         sheet = workbook.createSheet("Khách Không Giao Dịch");
         //header left
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
@@ -48,7 +48,7 @@ public class CustomerNotTradeExcel {
         ExcelPoiUtils.addCellsAndMerged(sheet,col+3,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO KHÁCH HÀNG KHÔNG GIAO DỊCH",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ dt1.format(fromDate) +"  ĐẾN NGÀY: "+ dt1.format(toDate), style.get(ExcelPoiUtils.ITALIC_12));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(fromDate) +"  ĐẾN NGÀY: "+ DateUtils.formatDate2StringDate(toDate), style.get(ExcelPoiUtils.ITALIC_12));
         //
         String[] headers = NameHeader.customerNotTradeHeader.split(";");
 
@@ -56,6 +56,7 @@ public class CustomerNotTradeExcel {
             for (String h : headers) {
                 ExcelPoiUtils.addCell(sheet, col++, row + 6, h, style.get(ExcelPoiUtils.BOLD_10));
             }
+            ExcelPoiUtils.autoSizeAllColumns(sheet, col);
         }
     }
 
@@ -71,6 +72,9 @@ public class CustomerNotTradeExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, stt, format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerCode(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), format);
+            ExcelPoiUtils.addCell(sheet, col++, row, data.getPhone(), format);
+            ExcelPoiUtils.addCell(sheet, col++, row, DateUtils.formatDate2StringDate(data.getBirthDay()), format);
+            ExcelPoiUtils.addCell(sheet, col++, row, data.getGender(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), format);
         }
 

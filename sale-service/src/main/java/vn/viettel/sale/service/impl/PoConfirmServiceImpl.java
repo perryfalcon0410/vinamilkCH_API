@@ -110,6 +110,8 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                             detail.setPriceNotVat(line.getPrice());
                             detail.setVat(line.getVat());
                             detail.setAmountNotVat(line.getLineTotal());
+                            if(poConfirm.getSaleOrderNumber() == null || poConfirm.getSaleOrderNumber().equals(""))
+                                poConfirm.setSaleOrderNumber(line.getSaleOrderNumber());
                             detail.setPrice((line.getVat() > 0) ? line.getPrice() + (line.getPrice()*line.getVat()/100) : line.getPrice());
                             totalAm += line.getLineTotal();
                             totalQuan += line.getQuantity();
@@ -154,13 +156,10 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }
-        }
-        if(stt > 0){
             return new PoConfirmXmlDTO(true, "Đồng bộ thành công "+stt+" file");
-        }else{
-            return new PoConfirmXmlDTO(false, "Đồng bộ không thành công");
         }
 
+        return new PoConfirmXmlDTO(true, "Không có file đồng bộ");
     }
 
     public static ConnectFTP getConnectFTP(List<ApParamDTO> apParamDTOList) {

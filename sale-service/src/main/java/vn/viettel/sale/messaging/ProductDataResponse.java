@@ -15,13 +15,13 @@ public class ProductDataResponse {
     @ApiModelProperty(notes = "Mã sản phẩm")
     private String productCode;
     @ApiModelProperty(notes = "Đơn giá có vat ")
-    private Float price;
+    private Double price;
     @ApiModelProperty(notes = "ĐVT")
     private String uom1;
     @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
     @ApiModelProperty(notes = "Thành tiền")
-    private Float intoMoney;
+    private Double intoMoney;
     @ApiModelProperty(notes = "Ghi chú")
     private String note;
 

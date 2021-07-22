@@ -14,8 +14,8 @@ public class ReturnGoodsReportTotalDTO {
     private String reciept;
     private String fullName;
     private Integer totalQuantity;
-    private Float totalAmount;
-    private Float totalRefunds;
+    private Double totalAmount;
+    private Double totalRefunds;
 
     public ReturnGoodsReportTotalDTO(String returnCode, String reciept, String fullName) {
         this.returnCode = returnCode;

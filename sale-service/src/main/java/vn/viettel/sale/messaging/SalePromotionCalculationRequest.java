@@ -43,4 +43,7 @@ public class SalePromotionCalculationRequest {
     @ApiModelProperty(notes = "Thông tin mua hàng")
     private OrderPromotionRequest orderRequest;
 
+    @ApiModelProperty(notes = "Mã giảm giá")
+    private String discountCode;
+
 }
