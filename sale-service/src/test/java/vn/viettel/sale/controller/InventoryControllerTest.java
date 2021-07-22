@@ -68,7 +68,7 @@ public class InventoryControllerTest extends BaseTest {
         CoverResponse<Page<StockCountingDTO>, TotalStockCounting> data =
                 new CoverResponse<>(stockCountingDTOS, new TotalStockCounting());
         Object obj = new Object();
-        given(inventoryService.getAll(  any(), any())).willReturn(data);
+        given(inventoryService.getAll( any(), any(), any())).willReturn(data);
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -111,7 +111,7 @@ public class InventoryControllerTest extends BaseTest {
         CoverResponse<StockCountingImportDTO,InventoryImportInfo> data =
                 new CoverResponse<>(stockCountingImportDTO, new InventoryImportInfo());
         MockMultipartFile firstFile = new MockMultipartFile("data", "filename.txt", "text/plain", "some xml".getBytes());
-        given(inventoryService.importExcel(any(), firstFile,Mockito.any(PageRequest.class), any())).willReturn(data);
+        given(inventoryService.importExcel(any(), firstFile,Mockito.any(PageRequest.class), any(),any())).willReturn(data);
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());

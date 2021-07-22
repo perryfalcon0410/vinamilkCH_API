@@ -23,8 +23,8 @@ public interface CustomerTypeService extends BaseService {
     Long getWarehouseTypeByShopId(Long shopId);
 
     CustomerTypeDTO getCusTypeByShopId(long shopId);
-    CustomerTypeDTO getCustomerTypeDefaut();
-    CustomerTypeDTO findByCustomerTypeId(Long customerTypeId);
 
-    Long getWarehouseTypeIdByCustomer(Long id);
+    CustomerTypeDTO getCustomerTypeDefaut();
+
+    CustomerTypeDTO getCusTypeByCustomerId(long customerId);
 }
