@@ -66,8 +66,8 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         if (!reportDTOS.isEmpty()) {
             ReturnGoodsDTO dto = reportDTOS.get(reportDTOS.size() - 1);
             totalDTO.setTotalQuantity(dto.getTotalQuantity());
-            totalDTO.setTotalAmount(dto.getTotalAmount());
-            totalDTO.setTotalRefunds(dto.getTotalRefunds());
+            totalDTO.setTotalAmount(dto.getTotalAmount().floatValue());
+            totalDTO.setTotalRefunds(dto.getTotalRefunds().floatValue());
 
             this.removeDataList(reportDTOS);
             int start = (int) pageable.getOffset();
@@ -114,18 +114,19 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         for (Map.Entry<Long, List<ReturnGoodsDTO>> entry : cats.entrySet()) {
             ReportPrintOrderTotalDTO cat = new ReportPrintOrderTotalDTO();
             Integer totalQuantity = 0;
-            Float totalAmount = 0F;
-            Float totalRefunds = 0F;
+            Double totalAmount = 0.0;
+            Double totalRefunds = 0.0;
             for(ReturnGoodsDTO total : entry.getValue()) {
                 cat.setCategory(total.getIndustry());
-                totalQuantity += total.getQuantity();
-                totalAmount += total.getAmount();
-                totalRefunds +=total.getRefunds();
+                totalQuantity += total.getQuantity()!=null?total.getQuantity():0;
+                totalAmount += total.getAmount()!=null?total.getAmount():0.0;
+                totalRefunds +=total.getRefunds()!=null?total.getRefunds():0.0;
             }
             cat.setTotalQuantity(totalQuantity);
             cat.setTotalAmount(totalAmount);
             cat.setTotalRefunds(totalRefunds);
-            Map<Long, List<ReturnGoodsDTO>> lstIds = listResults.stream().collect(Collectors.groupingBy(ReturnGoodsDTO::getReturnId));
+
+            Map<Long, List<ReturnGoodsDTO>> lstIds = entry.getValue().stream().collect(Collectors.groupingBy(ReturnGoodsDTO::getReturnId));
             List<OrderReturnGoodsReportDTO> lstOrderReturn = new ArrayList<>();
             for(Map.Entry<Long, List<ReturnGoodsDTO>> value:lstIds.entrySet()){
             OrderReturnGoodsReportDTO orderReturn = new OrderReturnGoodsReportDTO();

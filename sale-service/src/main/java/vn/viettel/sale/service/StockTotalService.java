@@ -12,9 +12,9 @@ public interface StockTotalService extends BaseService {
     /*
     Lock record and unlock record
      */
-    void updateWithLock(HashMap<StockTotal,Integer> idAndValues);
-
-    void updateWithLock(StockTotal entity, Integer value);
+    void updateWithLock(HashMap<Long,Integer> idAndValues);
 
     StockTotal updateWithLock(Long shopId, Long wareHouseId, Long productId, Integer value);
+
+    StockTotal createStockTotal(Long shopId, Long wareHouseId, Long productId, Integer value, boolean autoSave);
 }

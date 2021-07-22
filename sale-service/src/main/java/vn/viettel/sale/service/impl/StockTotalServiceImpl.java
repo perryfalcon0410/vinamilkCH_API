@@ -20,45 +20,48 @@ import java.util.Map;
 public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTotalRepository> implements StockTotalService {
 
     private Map<String, Object> properties = new HashMap<String, Object>() {{
-        put("javax.persistence.lock.timeout", 1000);
+        put("javax.persistence.lock.timeout", 500);
     }};
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateWithLock(HashMap<StockTotal,Integer> idAndValues){
+    public void updateWithLock(HashMap<Long,Integer> idAndValues){
         if(idAndValues == null) return;
-        for(Map.Entry<StockTotal, Integer> entry : idAndValues.entrySet()){
+        for(Map.Entry<Long, Integer> entry : idAndValues.entrySet()){
             updateWithLock(entry.getKey(),entry.getValue() );
         }
     }
-    @Override
+
     @Transactional(rollbackFor = Exception.class)
-    public void updateWithLock(StockTotal entity, Integer value){
-        if(entity == null || value == null) return;
-        StockTotal newEntity = repository.findById(entity.getId()).get();
+    public void updateWithLock(Long stockTotalId, Integer value){
+        if(stockTotalId == null || value == null) return;
+        StockTotal newEntity = repository.findById(stockTotalId).get();
         if (newEntity == null) return;
-        updateEntity(entity, value);
+        updateEntity(newEntity, value);
     }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public StockTotal updateWithLock(Long shopId, Long wareHouseId, Long productId, Integer value){
         if(shopId == null || wareHouseId == null || productId == null || value == null) return null;
         StockTotal entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
-        if (entity == null) return null;
-//        boolean reload = false;
-
-//        for (int i = 0; ; i++) {
-//            if (entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_FORCE_INCREMENT ||
-//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_READ ||
-//                    entityManager.getLockMode(entity) == LockModeType.PESSIMISTIC_WRITE){
-//                reload = true;
-//                continue;
-//            }else {
-//                break;
-//            }
-//        }
-//        if(reload) entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
+        if (entity == null && value > 0) return createStockTotal(shopId, wareHouseId, productId, value, true);
         return updateEntity(entity, value);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public StockTotal createStockTotal(Long shopId, Long wareHouseId, Long productId, Integer value, boolean autoSave){
+        if(shopId == null || productId == null || value == null) return null;
+        if(wareHouseId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        StockTotal newStockTotal = new StockTotal();
+        newStockTotal.setProductId(productId);
+        newStockTotal.setQuantity(value);
+        newStockTotal.setWareHouseTypeId(wareHouseId);
+        newStockTotal.setShopId(shopId);
+        newStockTotal.setStatus(1);
+        if(autoSave) repository.save(newStockTotal);
+
+        return newStockTotal;
     }
 
     @Transactional(rollbackFor = Exception.class)

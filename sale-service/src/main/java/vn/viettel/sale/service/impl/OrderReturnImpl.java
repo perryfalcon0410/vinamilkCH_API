@@ -125,16 +125,17 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Override
     public OrderReturnDetailDTO getOrderReturnDetail(Long orderReturnId) {
+        SaleOrder orderReturn = repository.findById(orderReturnId).get();
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
-        orderReturnDetailDTO.setInfos(getInfos(orderReturnId));
+        orderReturnDetailDTO.setInfos(getInfos(orderReturn));
         orderReturnDetailDTO.setProductReturn(getProductReturn(orderReturnId));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(orderReturnId));
         return orderReturnDetailDTO;
     }
 
-    private InfosReturnDetailDTO getInfos(long orderReturnId){
+    private InfosReturnDetailDTO getInfos(SaleOrder orderReturn){
         InfosReturnDetailDTO infosReturnDetailDTO = new InfosReturnDetailDTO();
-        SaleOrder orderReturn = repository.findById(orderReturnId).get();
+//        SaleOrder orderReturn = repository.findById(orderReturnId).get();
         if (orderReturn.getFromSaleOrderId() != null) {
             SaleOrder saleOrder = repository.findById(orderReturn.getFromSaleOrderId()).get();
             infosReturnDetailDTO.setOrderDate(saleOrder.getOrderDate()); //order date
@@ -267,8 +268,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //        double diff = returnDate.getTime() - orderDate.getTime();
         double diffDays = diff / (24 * 60 * 60 * 1000);
         /*
-        Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó
-            huonglx2: Ngoài ra nếu tất cả các cấp đơn vị đều không khai báo tham số   thì fix là 1 ngày.
+        Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó. Nếu không khai báo cả cấp cha và cấp con thì không được phép trả hàng.
          */
         String dayString = shopClient.dayReturn(shopId).getData();
         int dayReturn = Integer.parseInt(dayString);
@@ -286,6 +286,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase());
             newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase());
             newOrderReturn.setFromSaleOrderId(saleOrder.getId());
+            newOrderReturn.setOriginOrderNumber(saleOrder.getOrderNumber());//Lưu mã của đơn gốc
             newOrderReturn.setReasonId(request.getReasonId());
             newOrderReturn.setReasonDesc(request.getReasonDescription());
 
@@ -422,7 +423,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String upperCaseON = VNCharacterUtils.removeAccent(orderNumber.toUpperCase(Locale.ROOT));
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         String stringDayReturn = shopClient.dayReturn(shopId).getData();
-        if(stringDayReturn == null) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
+        if(stringDayReturn.equals("-1") || stringDayReturn.equals("0")) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
         int dayReturn = Integer.parseInt(shopClient.dayReturn(shopId).getData());
         LocalDateTime newFromDate = DateUtils.convertFromDate(LocalDateTime.now().minusDays(dayReturn));
         LocalDateTime fromDate = DateUtils.convertFromDate(filter.getFromDate());
@@ -479,9 +480,22 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return dto;
     }
 
-    public OrderReturnDetailDTO getSaleOrderChosen(long id) {
+    public OrderReturnDetailDTO getSaleOrderChosen(Long id, Long shopId) {
+        SaleOrder orderReturn = repository.findById(id).orElseThrow(() -> new ValidateException(ResponseMessage.SALE_ORDER_NOT_FOUND));
+        LocalDateTime orderDate = DateUtils.convertToDate(orderReturn.getOrderDate());
+        LocalDateTime returnDate = DateUtils.convertToDate(new Date());
+        Duration dur = Duration.between(orderDate, returnDate);
+        double diff = dur.toMillis();
+        double diffDays = diff / (24 * 60 * 60 * 1000);
+        /*
+        Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó. Nếu không khai báo cả cấp cha và cấp con thì không được phép trả hàng.
+         */
+        String dayString = shopClient.dayReturn(shopId).getData();
+        int dayReturn = Integer.parseInt(dayString);
+        if(diffDays > dayReturn) throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
+
         OrderReturnDetailDTO orderReturnDetailDTO = new OrderReturnDetailDTO();
-        orderReturnDetailDTO.setInfos(getInfos(id));
+        orderReturnDetailDTO.setInfos(getInfos(orderReturn));
         orderReturnDetailDTO.setProductReturn(getProductReturn(id));
         orderReturnDetailDTO.setPromotionReturn(getPromotionReturn(id));
         List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("SALEMT_MASTER_PAY_ITEM").getData();
@@ -503,12 +517,14 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         for(SaleOrderDetail sod:odReturns) {
             if(sod.getQuantity() == null) sod.setQuantity(0);
-            stockTotalService.updateWithLock(shopId, wareHouse, sod.getProductId(), sod.getQuantity() * -1);
+            StockTotal stockTotal = stockTotalService.updateWithLock(shopId, wareHouse, sod.getProductId(), sod.getQuantity() * -1);
+            if (stockTotal == null) throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
         }
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
         for(SaleOrderDetail prd:promotionReturns) {
             if(prd.getQuantity() == null) prd.setQuantity(0);
-            stockTotalService.updateWithLock(shopId, wareHouse, prd.getProductId(), prd.getQuantity() * -1);
+            StockTotal stockTotal = stockTotalService.updateWithLock(shopId, wareHouse, prd.getProductId(), prd.getQuantity() * -1);
+            if (stockTotal == null) throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
         }
     }
 
