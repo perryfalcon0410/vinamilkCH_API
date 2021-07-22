@@ -51,6 +51,8 @@ public class NewOrderReturnDetailDTO {
     private Float zmPromotionVat;
     @ApiModelProperty(notes = "mã chương trình khuyễn mãi")
     private String promotionCode;
+    @ApiModelProperty(notes = "Loại chương trình khuyến mãi")
+    private String promotionType;
     @ApiModelProperty(notes = "tên chương trình khuyến mãi")
     private String promotionName;
     @ApiModelProperty(notes = "mức chương trình khuyễn mãi")
