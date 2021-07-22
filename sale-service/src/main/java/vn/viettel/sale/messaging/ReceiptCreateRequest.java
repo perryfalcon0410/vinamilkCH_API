@@ -20,6 +20,8 @@ import java.util.List;
 public class ReceiptCreateRequest {
     @ApiModelProperty(notes = "Id PoConfirm")
     private Long poId;
+    @ApiModelProperty(notes = "Id loại kho")
+    private Long wareHouseTypeId;
     @ApiModelProperty(notes = "Loại nhập hàng")
     private Integer importType;
     ////////////////////////////////////////////
