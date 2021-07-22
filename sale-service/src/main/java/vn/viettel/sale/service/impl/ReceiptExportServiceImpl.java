@@ -287,7 +287,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             if(poTransDetails.get(i).getQuantity()==null) throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
                             if(poTransDetails.get(i).getAmount()==null) throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
                             poTransDetail.setTransId(poRecord.getId());
-                            poTransDetail.setTransDate(LocalDateTime.now());
                             poTransDetail.setProductId(poTransDetails.get(i).getProductId());
                             poTransDetail.setQuantity(request.getLitQuantityRemain().get(j).getQuantity());
                             poTransDetail.setPrice(poTransDetails.get(i).getPrice());
@@ -397,7 +396,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             StockAdjustmentTransDetail satd = modelMapper.map(sad, StockAdjustmentTransDetail.class);
             satd.setTransId(poAdjustTrans.getId());
             satd.setShopId(shopId);
-            satd.setTransDate(LocalDateTime.now());
             totalQuantity +=sad.getQuantity();
             totalAmount += sad.getPrice()*sad.getQuantity();
             StockTotal stockTotal = stockTotalService.updateWithLock(shopId, customerTypeDTO.getWareHouseTypeId(), sad.getProductId(), (-1) * sad.getQuantity());
@@ -423,7 +421,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             saleOrderDetail.setAutoPromotionVat(0D);
             saleOrderDetail.setZmPromotionVat(0D);
             saleOrderDetail.setZmPromotionNotVat(0D);
-            saleOrderDetail.setOrderDate(LocalDateTime.now());
             saleOrderDetailRepository.save(saleOrderDetail);
         }
         order.setAmount(totalAmount);

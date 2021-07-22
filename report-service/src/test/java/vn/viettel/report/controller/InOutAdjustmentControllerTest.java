@@ -30,7 +30,7 @@ public class InOutAdjustmentControllerTest extends BaseTest {
     @MockBean
     InOutAdjustmentService inOutAdjustmentService;
 
-  /*  @Test
+    @Test
     public void find() throws Exception{
 
         String uri = V1 + root;
@@ -56,5 +56,5 @@ public class InOutAdjustmentControllerTest extends BaseTest {
 
     @Test
     public void exportToExcel() {
-    }*/
+    }
 }
