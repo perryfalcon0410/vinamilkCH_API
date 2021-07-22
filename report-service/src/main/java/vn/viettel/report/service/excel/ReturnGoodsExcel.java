@@ -46,8 +46,8 @@ public class ReturnGoodsExcel {
         }
         for (ReturnGoodsReportTotalDTO totalDTO : returnGoodsDTOS) {
             int totalQuantity = 0;
-            Float totalAmount = 0f;
-            Float totalRefunds = 0f;
+            Double totalAmount = 0.0;
+            Double totalRefunds = 0.0;
             List<ReturnGoodsDTO> dtoList = new ArrayList<>();
             for (ReturnGoodsDTO returnGoodsDTO : reportRequest.getReturnGoodsDTOS()) {
                 if (returnGoodsDTO.getReturnCode().equals(totalDTO.getReturnCode())) {

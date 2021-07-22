@@ -54,19 +54,19 @@ public class ReturnGoodsDTO {
     private Integer totalQuantity;
     @ApiModelProperty(notes = "Giá")
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @ApiModelProperty(notes = "Thành tiền")
     @Column(name = "AMOUNT")
-    private Float amount;
+    private Double amount;
     @ApiModelProperty(notes = "Tổng thành tiền")
     @Column(name = "TOTAL_AMOUNT")
-    private Float totalAmount;
+    private Double totalAmount;
     @ApiModelProperty(notes = "Tiền trả lại")
     @Column(name = "REFUNDS")
-    private Float refunds;
+    private Double refunds;
     @ApiModelProperty(notes = "Tổng tiền trả lại")
     @Column(name = "TOTAL_REFUNDS")
-    private Float totalRefunds;
+    private Double totalRefunds;
     @ApiModelProperty(notes = "Ngày trả")
     @Column(name = "PAY_DAY")
     private LocalDateTime payDay;
