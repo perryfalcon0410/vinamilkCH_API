@@ -433,13 +433,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if (poTrans.getFromTransId() == null) {
             if(poTrans.getPoId()!=null){
                  poConfirm = poConfirmRepository.findById(poTrans.getPoId());
-                 if(!poConfirm.isPresent()) throw new ValidateException(ResponseMessage.RECORD_WRONG);
+                 if(!poConfirm.isPresent()) throw new ValidateException(ResponseMessage.PO_ORIGINAL_NOT_FOUND);
             }
             List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail0(id);
             if(!poTransDetails.isEmpty()){
                 List<Product> products = productRepository.getProducts(poTransDetails.stream().map(item -> item.getProductId()).distinct()
                         .collect(Collectors.toList()), null);
-
                 for (int i = 0; i < poTransDetails.size(); i++) {
                     PoTransDetail ptd = poTransDetails.get(i);
                     PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
@@ -1165,7 +1164,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockAdjustmentTrans.getWareHouseTypeId(),
                     stockAdjustmentTransDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
             HashMap<StockTotal,Integer> idAndValues = new HashMap<>();
-
             for (StockAdjustmentTransDetail satd : stockAdjustmentTransDetails) {
                 int qty = -1;
                 if(stockTotals != null){
