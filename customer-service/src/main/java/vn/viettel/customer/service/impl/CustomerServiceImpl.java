@@ -245,6 +245,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             AreaDTO areaDTO = areaClient.getByIdV1(areaId).getData();
             if (street != null) {
                 address += street + ", ";
+                customer.setStreet(street);
             }
             address += areaDTO.getAreaName()+", ";
             address += areaDTO.getDistrictName()+", ";
@@ -384,13 +385,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getIdNoIssuedPlace()!=null) customer.setIdNoIssuedPlace(request.getIdNoIssuedPlace());
         if(request.getMobiPhone()!=null) customer.setMobiPhone(request.getMobiPhone());
         if(request.getEmail()!=null) customer.setEmail(request.getEmail());
-        //setAddress();setAreaId();
+        //setAddress();setAreaId(),setStreet();
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customer);
         if(request.getWorkingOffice()!=null) customer.setWorkingOffice(request.getWorkingOffice());
         if(request.getOfficeAddress()!=null) customer.setOfficeAddress(request.getOfficeAddress());
         if(request.getTaxCode()!=null) customer.setTaxCode(request.getTaxCode());
         if(request.getCloselyTypeId()!=null) customer.setCloselyTypeId(request.getCloselyTypeId());
         if(request.getCardTypeId()!=null) customer.setCardTypeId(request.getCardTypeId());
+
+        if(request.getNoted()!=null) customer.setNoted(request.getNoted());
 
         return customer;
     }

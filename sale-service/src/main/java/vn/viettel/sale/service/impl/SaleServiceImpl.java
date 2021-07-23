@@ -226,10 +226,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(request.getVouchers() != null){
             VoucherDTO voucher = null;
             for (OrderVoucherRequest orderVoucher : request.getVouchers() ) {
-                if (orderVoucher.getVoucherId() != null)
-                    voucher = promotionClient.getVouchersV1(orderVoucher.getVoucherId()).getData();
+                if (orderVoucher.getId() != null)
+                    voucher = promotionClient.getVouchersV1(orderVoucher.getId()).getData();
 
-                if (voucher == null || (voucher != null && (voucher.getIsUsed() || voucher.getPrice().compareTo(orderVoucher.getVoucherAmount()) != 0 )))
+                if (voucher == null || (voucher != null && (voucher.getIsUsed() || voucher.getPrice().compareTo(orderVoucher.getPrice()) != 0 )))
                     throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
                 if (voucher.getPrice() != null) voucherAmount += voucher.getPrice();
@@ -237,7 +237,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if (voucher != null) {
                     voucher.setOrderShopCode(shop.getShopCode());
                     voucher.setIsUsed(true);
-                    voucher.setPriceUsed(orderVoucher.getVoucherAmount());
+                    voucher.setPriceUsed(orderVoucher.getPrice());
                     voucher.setOrderCustomerCode(customer.getCustomerCode());
                     lstVoucherNeedSave.add(voucher);
                 }

@@ -340,6 +340,7 @@ public enum ResponseMessage {
     VOUCHER_PRODUCT_REJECT(11010, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
     VOUCHER_PROGRAM_DATE_REJECT(11011, "Chương trình voucher đã hết hiệu lực hoặc chưa được kích hoạt"),
     VOUCHER_PROGRAM_IS_USED(11012, "Voucher đã sử dụng"),
+    APPARAM_VOUCHER_NOT_EXITS(11013, "Bạn chưa được khai báo sử dụng chức năng. Vui lòng liên hệ bộ phận hỗ trợ để được tư vấn."),
     /**
      * Product 12000-12999
      */
