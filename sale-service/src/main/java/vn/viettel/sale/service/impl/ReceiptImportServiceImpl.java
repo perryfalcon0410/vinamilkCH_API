@@ -613,12 +613,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     ////////////////////////////////////////////////////////////////////////////////////////////////
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
-            CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         if(request.getRedInvoiceNo() != null && request.getRedInvoiceNo().length() >50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         checkNoteLength(request.getNote());
-
         if (request.getPoId() == null) {
             List<String> lstInternalNumber = repository.getInternalNumber();
             List<String> lstPoCoNumber = repository.getPoCoNumber();
@@ -630,7 +628,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             poRecord.setTransDate(LocalDateTime.now());
             poRecord.setTransCode(createPoTransCode(shopId));
-            poRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
+            poRecord.setWareHouseTypeId(request.getWareHouseTypeId());
             poRecord.setRedInvoiceNo(request.getRedInvoiceNo().trim());
             poRecord.setPocoNumber(request.getPoCoNumber());
             poRecord.setOrderDate(request.getOrderDate());
@@ -658,24 +656,24 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     poTransDetail.setTransDate(poRecord.getTransDate());
                     total += rcdr.getQuantity();
                     poTransDetailRepository.save(poTransDetail);
-                    stockTotalService.updateWithLock(shopId, customerTypeDTO.getWareHouseTypeId(), rcdr.getProductId(),rcdr.getQuantity());
+                    stockTotalService.updateWithLock(shopId, request.getWareHouseTypeId(), rcdr.getProductId(),rcdr.getQuantity());
                 }
             } else throw  new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
             poRecord.setTotalQuantity(total);
             poRecord.setTotalAmount(0D);
             poRecord.setNumSku(request.getLst().size());
             repository.save(poRecord);
-            return ResponseMessage.CREATED_SUCCESSFUL;
         } else {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             PoConfirm poConfirm = poConfirmRepository.findById(request.getPoId()).get();
             if(poConfirm.getStatus()==1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
+            if(poConfirm.getWareHouseTypeId()==null) throw new ValidateException(ResponseMessage.DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT);
             LocalDateTime date = LocalDateTime.now();
             poRecord.setTransDate(date);
             poRecord.setTransCode(createPoTransCode(shopId));
             poRecord.setShopId(shopId);
-            poRecord.setWareHouseTypeId(customerTypeDTO.getWareHouseTypeId());
+            poRecord.setWareHouseTypeId(poConfirm.getWareHouseTypeId());
             poRecord.setOrderDate(poConfirm.getOrderDate());
             poRecord.setInternalNumber(poConfirm.getInternalNumber());
             poRecord.setPoId(poConfirm.getId());
@@ -698,34 +696,33 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 poTransDetail.setReturnAmount(0);
                 poTransDetail.setTransDate(date);
                 poTransDetailRepository.save(poTransDetail);
-                stockTotalService.updateWithLock(shopId, customerTypeDTO.getWareHouseTypeId(), pod.getProductId(),pod.getQuantity());
+                stockTotalService.updateWithLock(shopId, poConfirm.getWareHouseTypeId(), pod.getProductId(),pod.getQuantity());
             }
             poRecord.setNumSku(countNumSKU.size());
             poRecord.setNote(request.getNote());
             poConfirm.setStatus(1);
             repository.save(poRecord);
             poConfirmRepository.save(poConfirm);
-            return ResponseMessage.CREATED_SUCCESSFUL;
         }
+        return ResponseMessage.CREATED_SUCCESSFUL;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
-
         UserDTO user = userClient.getUserByIdV1(userId);
-        Long customerTypeDTO = customerTypeClient.getWarehouseTypeByShopId(shopId);
         CustomerDTO cus = customerClient.getCusDefault(shopId);
         if(cus.getId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         if (request.getImportType() == 1) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getPoId()).get();
-            if(stockAdjustment.getStatus() ==2) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
+            if(stockAdjustment.getWareHouseTypeId()==null) throw new ValidateException(ResponseMessage.DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT);
+            if(stockAdjustment.getStatus() ==3) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
             Response<ApParamDTO> reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
             if(reason.getData() == null || reason.getData().getId() == null) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
             stockAdjustmentRecord.setTransDate(LocalDateTime.now());
-            stockAdjustmentRecord.setWareHouseTypeId(customerTypeDTO);
+            stockAdjustmentRecord.setWareHouseTypeId(stockAdjustment.getWareHouseTypeId());
             stockAdjustmentRecord.setTransCode(stockAdjustment.getAdjustmentCode());
             stockAdjustmentRecord.setAdjustmentDate(stockAdjustment.getAdjustmentDate());
             stockAdjustmentRecord.setShopId(shopId);
@@ -746,7 +743,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setShopId(shopId);
             order.setSalemanId(userId);
             order.setCustomerId(cus.getId());
-            order.setWareHouseTypeId(customerTypeDTO);
+            order.setWareHouseTypeId(stockAdjustment.getWareHouseTypeId());
             order.setBalance(0D);
             order.setNote(reason.getData().getApParamName());
             order.setMemberCardAmount(0D);
@@ -764,7 +761,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setUsedRedInvoice(false);
             saleOrderRepository.save(order);
             List<Price> prices = productPriceRepository.findProductPrice(stockAdjustmentDetails.stream().map(item -> item.getProductId()).distinct()
-                    .collect(Collectors.toList()), customerTypeDTO, LocalDateTime.now());
+                    .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), LocalDateTime.now());
 
             for (StockAdjustmentDetail sad : stockAdjustmentDetails) {
                 if(sad.getPrice() == null) sad.setPrice(0D);
@@ -775,7 +772,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockAdjustmentTransDetail.setTransDate(LocalDateTime.now());
                 totalQuantity += sad.getQuantity();
                 totalAmount += sad.getPrice() * sad.getQuantity();
-                stockTotalService.updateWithLock(shopId, customerTypeDTO,sad.getProductId(),sad.getQuantity());
+                stockTotalService.updateWithLock(shopId, stockAdjustment.getWareHouseTypeId(),sad.getProductId(),sad.getQuantity());
                 stockAdjustmentTransDetail.setStockQuantity(sad.getQuantity());
                 stockAdjustmentTransDetail.setOriginalQuantity(sad.getQuantity());
                 stockAdjustmentTransDetailRepository.save(stockAdjustmentTransDetail);
@@ -819,10 +816,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return null;
     }
-
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage createBorrowingTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
-        Long wareHouseId = customerTypeClient.getWarehouseTypeByShopId(shopId);
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
@@ -830,7 +825,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if(stockBorrowing.getStatusImport()==2) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
             stockBorrowingTrans.setTransDate(LocalDateTime.now());
             stockBorrowingTrans.setTransCode(createBorrowingTransCode(shopId));
-            stockBorrowingTrans.setWareHouseTypeId(wareHouseId);
+            stockBorrowingTrans.setWareHouseTypeId(request.getWareHouseTypeId());
             stockBorrowingTrans.setRedInvoiceNo(stockBorrowing.getPoBorrowCode());
             stockBorrowingTrans.setBorrowDate(stockBorrowing.getBorrowDate());
             stockBorrowingTrans.setFromShopId(stockBorrowing.getShopId());
@@ -843,7 +838,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<StockBorrowingDetail> stockBorrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
             Integer totalQuantity = 0;
             Double totalAmount = 0D;
-
             for (StockBorrowingDetail sbd : stockBorrowingDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockBorrowingTransDetail stockBorrowingTransDetail = modelMapper.map(sbd, StockBorrowingTransDetail.class);
@@ -852,7 +846,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockBorrowingTransDetail.setShopId(stockBorrowing.getToShopId());
                 totalQuantity += sbd.getQuantity();
                 totalAmount += sbd.getPrice() * sbd.getQuantity();
-                stockTotalService.updateWithLock(shopId, wareHouseId, sbd.getProductId(),sbd.getQuantity());
+                stockTotalService.updateWithLock(shopId, request.getWareHouseTypeId(), sbd.getProductId(),sbd.getQuantity());
                 stockBorrowingTransDetailRepository.save(stockBorrowingTransDetail);
             }
             stockBorrowingTrans.setTotalAmount(totalAmount);
@@ -865,12 +859,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return null;
     }
-
     private void checkNoteLength(String note){
         if(note != null && note.length()>250)
             throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
     }
-
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage updatePoTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
         checkNoteLength(request.getNote());
@@ -892,7 +884,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<PoTransDetail> deletedPoTransDetails = new ArrayList<>();
             List<PoTransDetail> savedPoTransDetails = new ArrayList<>();
             HashMap<Long,Integer> idAndValues = new HashMap<>();
-
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if(request.getPoCoNumber() == null || request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
@@ -902,7 +893,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 poTrans.setOrderDate(request.getOrderDate());
                 poTrans.setInternalNumber(request.getInternalNumber());
                 if(request.getLstUpdate()==null) throw  new ValidateException(ResponseMessage.NOT_EXISTS);
-
                 if (!request.getLstUpdate().isEmpty()) {
                     List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail(id);
                     List<Long> pIds = poTransDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
@@ -1051,9 +1041,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
-
+    /**Up date stock adjustment trans**/
     public ResponseMessage updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
-
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
         checkNoteLength(request.getNote());
         if (DateUtils.formatDate2StringDate(adjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
@@ -1065,9 +1054,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
-
+    /** Up date stock borrowing trans **/
     public ResponseMessage updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
-
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         checkNoteLength(request.getNote());
         if (DateUtils.formatDate2StringDate(borrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
@@ -1079,7 +1067,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
-
+    /** Remove Po Trans **/
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage removePoTrans(Long id,String userName,Long shopId) {
         PoTrans poTrans = repository.getPoTransById(id);
@@ -1286,7 +1274,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             throw new ValidateException(ResponseMessage.VALIDATED_ERROR);
         }
         PoTransDTO poTransDTO = modelMapper.map(poTrans, PoTransDTO.class);
-        poTransDTO.setWareHouseTypeName(wareHouseTypeRepository.findById(poTrans.getWareHouseTypeId()).get().getWareHouseTypeName());
+        if(poTrans.getWareHouseTypeId()==null)
+            throw new ValidateException(ResponseMessage.DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT);
+        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(poTrans.getWareHouseTypeId());
+        poTransDTO.setWareHouseTypeName(wareHouseType.get().getWareHouseTypeName());
         return poTransDTO;
     }
 
