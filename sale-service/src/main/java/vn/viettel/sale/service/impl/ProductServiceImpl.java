@@ -82,10 +82,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Override
     public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Pageable pageable) {
-//        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-//        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        if (keyWord != null) keyWord = keyWord.trim();
-        String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
+        if (keyWord != null)
+            keyWord = VNCharacterUtils.removeAccent(keyWord.trim()).toUpperCase(Locale.ROOT);
+
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
@@ -97,7 +96,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
         if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
         return repository.findOrderProductTopSale(shopId, customerType.getId(), customerType.getWareHouseTypeId(), customerId,
-                keyUpper, fromDate, toDate, hasQty, pageable);
+                keyWord, fromDate, toDate, hasQty, pageable);
     }
 
     @Override
