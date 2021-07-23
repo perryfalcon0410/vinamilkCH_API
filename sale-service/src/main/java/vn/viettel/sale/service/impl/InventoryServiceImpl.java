@@ -15,11 +15,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.repository.*;
@@ -102,8 +104,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if(countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
         Long customerTypeId = null;
-        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
-        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
+        CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        if(customerType != null) customerTypeId = customerType.getId();
         List<Price> prices = priceRepository.findProductPrice(countingDetails.stream().map(item -> item.getProductId())
                 .collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
         TotalStockCounting totalStockCounting = new TotalStockCounting();
@@ -240,16 +242,27 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         StockCounting stockCounting = repository.findById(stockCountingId).get();
         if (stockCounting == null)
             throw new ValidateException(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
+        if(stockCounting.getCountingDate().isBefore(DateUtils.convertFromDate(LocalDateTime.now())))
+            throw new ValidateException(ResponseMessage.INVENTORY_OVER_DATE);
 
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
 
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.NO_PRODUCT_IN_STOCK_COUNTING);
 
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId(),
+                stockCountingDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
+
         for (int i = 0; i < details.size(); i++) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
                 if (stockCountingDetail.getProductId() == details.get(i).getProductId()) {
                     stockCountingDetail.setQuantity(details.get(i).getPacketQuantity() * details.get(i).getConvfact() + details.get(i).getUnitQuantity());
+                    for (StockTotal stockTotal : stockTotals){
+                        if(stockTotal.getProductId().equals(stockCountingDetail.getProductId())){
+                            stockCountingDetail.setStockQuantity(stockTotal.getQuantity());
+                            break;
+                        }
+                    }
                 }
                 countingDetailRepository.save(stockCountingDetail);
             }

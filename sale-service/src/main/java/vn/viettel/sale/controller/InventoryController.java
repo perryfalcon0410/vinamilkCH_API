@@ -72,7 +72,7 @@ public class InventoryController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
     public Object getAll(@RequestParam(value = "searchKeywords",required = false) String searchKeywords,
-                          @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId) {
+                          @RequestParam(value = "wareHouseTypeId",required = false) Long wareHouseTypeId) {
         Object response = inventoryService.getAll(getShopId(), searchKeywords,wareHouseTypeId);
         return new Response<>().withData(response);
     }

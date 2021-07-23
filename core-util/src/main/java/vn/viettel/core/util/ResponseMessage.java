@@ -317,6 +317,7 @@ public enum ResponseMessage {
     PROMOTION_OVER_BILL(9087, "Không thể tạo đơn hàng có doanh số < 0."),
     PO_ORIGINAL_NOT_FOUND(9088, "Không tìm thấy đơn PO gốc."),
     DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT(9089, "Không tìm thấy kho của đơn."),
+    INVENTORY_OVER_DATE(9090, "Hết hạn kiểm kê."),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
