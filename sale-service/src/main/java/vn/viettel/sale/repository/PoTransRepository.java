@@ -17,13 +17,11 @@ import java.util.List;
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
 
-    @Query(value = "SELECT COUNT(pt.id) FROM PoTrans pt WHERE pt.type = 1 ")
-    Integer getQuantityPoTrans();
+    @Query(value = "SELECT COUNT(pt.id) FROM PoTrans pt WHERE pt.type = 1 and pt.transDate >= :date")
+    Integer countImport(LocalDateTime date);
 
-    @Query(value = "SELECT COUNT(ID) FROM PO_TRANS WHERE TO_CHAR(TRANS_DATE,'YYYY') = TO_CHAR(SYSDATE,'YYYY') AND TYPE = 2 ", nativeQuery = true)
-    int getQuantityPoTransExport();
-
-    PoTrans getPoTransById(Long transId);
+    @Query(value = "SELECT COUNT(pt.id) FROM PoTrans pt WHERE pt.type = 2 and pt.transDate >= :date ")
+    int countExport(LocalDateTime date);
 
     @Query(value = "SELECT pt.redInvoiceNo FROM PoTrans pt WHERE pt.type = 1 AND pt.status =1 ")
     List<String> getRedInvoiceNo();

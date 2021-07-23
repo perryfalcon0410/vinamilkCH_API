@@ -68,7 +68,7 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     public String dayReturn(Long shopId) {
         Shop shop = repository.findByIdAndStatus(shopId, 1).orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
         ShopParam param = shopParamRepo.dayReturn(shopId);
-        if(param == null && shop.getParentShopId()!=null) param = shopParamRepo.dayReturn(shop.getParentShopId());
+        if((param == null) && shop.getParentShopId()!=null) param = shopParamRepo.dayReturn(shop.getParentShopId());
         if(param != null && param.getName()!=null) return param.getName();
         if(param != null && param.getName()==null) return "0";
         return null;

@@ -39,13 +39,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     SaleOrder findSaleOrderByCustomerIdAndOrderNumberAndType(Long idCus, String saleOrderCode,Integer type);
 
-    Optional<SaleOrder> getSaleOrderByOrderNumber(String saleOrderCode);
-
     @Query(value = "SELECT so FROM SaleOrder so WHERE coalesce(:orderCodes, null) is null or so.orderNumber in :orderCodes")
-    List<SaleOrder> findSaleOrderIdByOrderCode(List<String> orderCodes);
-
-    @Query(value = "SELECT orderNumber FROM SaleOrder WHERE id = ?1")
-    String findByIdSale(Long saleOrderId);
+    List<SaleOrder> findSaleOrderByOrderCode(List<String> orderCodes);
 
     @Query(value = "SELECT so FROM SaleOrder so WHERE so.customerId = :customerId ORDER BY so.orderDate DESC ")
     List<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
@@ -84,8 +79,9 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             " AND ( so.isReturn is null or so.isReturn = true ) " +
             " AND so.fromSaleOrderId is null " +
             " AND so.id in (select sd.saleOrderId from SaleOrderDetail sd " +
-            " JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
-            "  )"
+            "               JOIN Product p ON p.id = sd.productId and (:keyWord is null or p.productNameText LIKE %:keyWord% OR UPPER(p.productCode) LIKE %:keyWord% ) " +
+            "               ) " +
+            " ORDER BY so.orderDate desc , so.orderNumber"
     )
     List<SaleOrder> getSaleOrderForReturn(Long shopId, String orderNumber, List<Long> customerIds, String keyWord, LocalDateTime fromDate, LocalDateTime toDate,LocalDateTime newFromDate);
 

@@ -415,28 +415,21 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
    => Kiểm tra trunc(sale_order.order_date) >= trunc(sysdate) - số ngày cấu hình
     */
     public CoverResponse<List<SaleOrderDTO>,TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long shopId) {
-        String upperCaseON = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
-
         String stringDayReturn = shopClient.dayReturn(shopId).getData();
-        if(stringDayReturn == null || stringDayReturn.equals("-1")) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
+        if(stringDayReturn ==null || stringDayReturn.isEmpty() || stringDayReturn.equals("-1") || stringDayReturn.equals("0")) throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
         int dayReturn = Integer.parseInt(stringDayReturn);
-
         LocalDateTime newFromDate = DateUtils.convertFromDate(LocalDateTime.now().minusDays(dayReturn));
         LocalDateTime fromDate = DateUtils.convertFromDate(filter.getFromDate());
         LocalDateTime toDate = DateUtils.convertToDate(filter.getToDate());
-        String keyUpper = "";
-        if (filter.getProduct() != null){
-            keyUpper = VNCharacterUtils.removeAccent(filter.getProduct().trim()).toUpperCase(Locale.ROOT);
-        }
         List<Long> customerIds = null;
         if(filter.getSearchKeyword() != null) {
             customerIds = customerClient.getIdCustomerBySearchKeyWordsV1(filter.getSearchKeyword().trim()).getData();
             if(customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
         }
-        List<SaleOrder> saleOrders = repository.getSaleOrderForReturn(shopId,upperCaseON, customerIds, keyUpper, fromDate,toDate,newFromDate);
+        if(filter.getOrderNumber() != null) filter.setOrderNumber(filter.getOrderNumber().trim().toUpperCase());
+        if(filter.getProduct() != null) filter.setProduct(filter.getProduct().trim().toUpperCase());
+        List<SaleOrder> saleOrders = repository.getSaleOrderForReturn(shopId,filter.getOrderNumber(), customerIds, filter.getProduct(), fromDate,toDate,newFromDate);
         if(saleOrders.size() == 0) throw new ValidateException(ResponseMessage.ORDER_FOR_RETURN_NOT_FOUND);
-        Collections.sort(saleOrders, Comparator.comparing(SaleOrder::getOrderDate, Comparator.reverseOrder())
-                .thenComparing(SaleOrder::getOrderNumber));
 
         List<SaleOrderDTO> list = new ArrayList<>();
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();

@@ -141,5 +141,5 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query("SELECT p FROM Product p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
     List<Product> getProducts(List<Long> productIds, Integer status);
 
-    Optional<Product> getByBarCodeAndStatus(String barCode, Integer status);
+    List<Product> getByBarCodeAndStatus(String barCode, Integer status);
 }

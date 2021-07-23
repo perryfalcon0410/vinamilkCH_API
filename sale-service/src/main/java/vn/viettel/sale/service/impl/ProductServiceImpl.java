@@ -84,7 +84,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Pageable pageable) {
 //        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
 //        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-
+        if (keyWord != null) keyWord = keyWord.trim();
         String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
@@ -249,19 +249,22 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Override
     public OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId) {
-        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        CustomerTypeDTO customerType = null;
+        if(customerId == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        else customerType = customerTypeClient.getCusTypeByCustomerIdV1(customerId);
+        if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
-        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if(wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
+        if(products == null || products.isEmpty()) return null;
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), products.get(0).getId());
 
-        Product product = repository.getByBarCodeAndStatus(barcode, 1).orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
-        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHouseTypeId, product.getId()).orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
-        Price price = productPriceRepo.getProductPrice(product.getId(), customer.getCustomerTypeId()).orElseThrow(() -> new ValidateException(ResponseMessage.PRICE_NOT_FOUND));
+        List<Price> prices = productPriceRepo.findProductPrice(Arrays.asList(products.get(0).getId()), customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));
+        if(prices == null || prices.isEmpty() ) return null;
 
-        OrderProductDTO orderProductDTO = modelMapper.map(product, OrderProductDTO.class);
-        orderProductDTO.setPrice(price.getPrice());
-        orderProductDTO.setStockTotal(stockTotal.getQuantity());
+        OrderProductDTO orderProductDTO = modelMapper.map(products.get(0), OrderProductDTO.class);
+        orderProductDTO.setPrice(prices.get(0).getPrice());
+        if(stockTotals == null || stockTotals.isEmpty())
+            orderProductDTO.setStockTotal(stockTotals.get(0).getQuantity());
 
         return orderProductDTO;
     }
