@@ -76,18 +76,18 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     CustomerClient customerClient;
 
     @Override
-    public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate,Long shopId, Pageable pageable) {
+    public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Long shopId, Pageable pageable) {
         Page<StockCounting> stockCountings = repository.findAll(Specification
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
                         .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)).and(InventorySpecification.hasShopId(shopId)))
                 , pageable);
         List<Long> ids = stockCountings.stream().map(item -> item.getWareHouseTypeId()).distinct().collect(Collectors.toList());
         List<WareHouseType> wareHouseTypes = wareHouseTypeRepository.findAllById((ids != null && !ids.isEmpty()) ? ids : Arrays.asList(0L));
-        return stockCountings.map(e->{
-            StockCountingDTO dto =  modelMapper.map(e,StockCountingDTO.class);
-            if(wareHouseTypes != null){
-                for(WareHouseType wareHouseType : wareHouseTypes){
-                    if(wareHouseType.getId().equals(e.getWareHouseTypeId())){
+        return stockCountings.map(e -> {
+            StockCountingDTO dto = modelMapper.map(e, StockCountingDTO.class);
+            if (wareHouseTypes != null) {
+                for (WareHouseType wareHouseType : wareHouseTypes) {
+                    if (wareHouseType.getId().equals(e.getWareHouseTypeId())) {
                         dto.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
                         break;
                     }
@@ -98,14 +98,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Object getAll(Long shopId, String searchKeywords,Long wareHouseTypeId) {
-        //Long wareHouseTypeId = customerTypeClient.getCustomerTypeDefaultV1().getData().getWareHouseTypeId();
-        if(searchKeywords != null) searchKeywords = searchKeywords.trim().toUpperCase();
+    public Object getAll(Long shopId, String searchKeywords, Long wareHouseTypeId) {
+        if (searchKeywords != null) searchKeywords = searchKeywords.trim().toUpperCase();
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
-        if(countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
+        if (countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
         Long customerTypeId = null;
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType != null) customerTypeId = customerType.getId();
+
         List<Price> prices = priceRepository.findProductPrice(countingDetails.stream().map(item -> item.getProductId())
                 .collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
         TotalStockCounting totalStockCounting = new TotalStockCounting();
@@ -121,15 +121,15 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         for (StockCountingDetailDTO stockCounting : countingDetails) {
             stockCounting.setWarehouseTypeId(wareHouseTypeId);
             stockCounting.setShopId(shopId);
-            if(prices != null){
-                for(Price price : prices){
-                    if(price.getProductId().equals(stockCounting.getProductId())){
+            if (prices != null) {
+                for (Price price : prices) {
+                    if (price.getProductId().equals(stockCounting.getProductId())) {
                         stockCounting.setPrice(price.getPrice());
                         break;
                     }
                 }
             }
-            if(stockCounting.getPrice() != null){
+            if (stockCounting.getPrice() != null) {
                 stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
                 stockCounting.setPacketQuantity(0);
                 stockCounting.setUnitQuantity(0);
@@ -144,7 +144,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
 
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
-                    new CoverResponse(rs, totalStockCounting);
+                new CoverResponse(rs, totalStockCounting);
         return response;
     }
 
@@ -163,58 +163,67 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
         totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
         for (StockCountingExcel countingExcel : result) {
-            if(countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
-            if(countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
-            countingExcel.setTotalAmount(countingExcel.getPrice()==null?0D:countingExcel.getPrice() * countingExcel.getStockQuantity());
-            countingExcel.setPacketQuantity(countingExcel.getInventoryQuantity() / countingExcel.getConvfact());
-            countingExcel.setUnitQuantity(countingExcel.getInventoryQuantity() % countingExcel.getConvfact());
+            if (countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
+            if (countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
+            countingExcel.setTotalAmount(countingExcel.getPrice() == null ? 0D : countingExcel.getPrice() * countingExcel.getStockQuantity());
+            countingExcel.setPacketQuantity((double) (countingExcel.getInventoryQuantity() / countingExcel.getConvfact()));
+            countingExcel.setUnitQuantity((double) (countingExcel.getInventoryQuantity() % countingExcel.getConvfact()));
             countingExcel.setChangeQuantity(countingExcel.getStockQuantity() - countingExcel.getInventoryQuantity());
             totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + countingExcel.getStockQuantity());
             totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + countingExcel.getInventoryQuantity());
             totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
-            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * (countingExcel.getPrice()==null?0D:countingExcel.getPrice())));
-            totalStockCounting.setTotalPacket(totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity());
-            totalStockCounting.setTotalUnit(totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity());
+            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * (countingExcel.getPrice() == null ? 0D : countingExcel.getPrice())));
+            totalStockCounting.setTotalPacket((int) (totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity()));
+            totalStockCounting.setTotalUnit((int) (totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity()));
         }
         CoverResponse<List<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
         return response;
     }
 
     @Override
-    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords,Long wareHouseTypeId) throws IOException {
+    public CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords, Long wareHouseTypeId) throws IOException {
         List<StockCountingExcel> stockCountingExcels = readDataExcel(file);
-        if(stockCountingExcels == null ) throw new ValidationException(ResponseMessage.THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT.statusCodeValue());
-        if(stockCountingExcels.size()>5000) throw new ValidationException(ResponseMessage.INVALID_STRING_LENGTH.statusCodeValue());
+        if (stockCountingExcels == null)
+            throw new ValidationException(ResponseMessage.THE_EXCEL_FILE_IS_NOT_IN_THE_CORRECT_FORMAT.statusCodeValue());
+        if (stockCountingExcels.size() > 5000)
+            throw new ValidationException(ResponseMessage.INVALID_STRING_LENGTH.statusCodeValue());
         List<StockCountingExcel> importFails = new ArrayList<>();
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data =
-                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(shopId, searchKeywords,wareHouseTypeId);
+                (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) getAll(shopId, searchKeywords, wareHouseTypeId);
         List<StockCountingDetailDTO> stockCountingDetails = data.getResponse();
-        List<String> productCodes = stockCountingDetails.stream().map(e->e.getProductCode()).collect(Collectors.toList());
+        List<String> productCodes = stockCountingDetails.stream().map(e -> e.getProductCode()).distinct().collect(Collectors.toList());
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
         int importSuccessNumber = 0;
-            for (StockCountingExcel e : stockCountingExcels) {
-                for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
-                if(e.getUnitQuantity()==null) e.setUnitQuantity(0);
-                if(e.getPacketQuantity()==null) e.setPacketQuantity(0);
-                if(e.getProductCode() == null) throw new ValidationException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS.statusCodeValue());
-                if(e.getProductCode().length()>4000||e.getPacketQuantity().toString().length()>7||e.getUnitQuantity().toString().length()>7)
+        for (StockCountingExcel e : stockCountingExcels) {
+            for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
+                if (e.getUnitQuantity() == null) e.setUnitQuantity(0D);
+                if (e.getPacketQuantity() == null) e.setPacketQuantity(0.0);
+                if (e.getProductCode() == null)
+                    throw new ValidationException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS.statusCodeValue());
+                if (e.getProductCode().length() > 4000 || e.getPacketQuantity().toString().length() > 7 || e.getUnitQuantity().toString().length() > 7)
                     throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-                if (countingDetail.getProductCode().equals(e.getProductCode().toUpperCase()) && checkDataType(e)) {
-                    int inventoryQuantity = e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity();
-                    countingDetail.setPacketQuantity(e.getPacketQuantity());
-                    countingDetail.setUnitQuantity(e.getUnitQuantity());
-                    countingDetail.setInventoryQuantity(inventoryQuantity);
-                    countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
-                    importSuccessNumber++;
+                if (!productCodes.contains(e.getProductCode().toUpperCase()) && !importFails.contains(e)) {
+                    e.setError("Sản phẩm không có trong kho");
+                    importFails.add(e);
                     break;
-                }if(!productCodes.contains(e.getProductCode().toUpperCase(Locale.ROOT))&&!importFails.contains(e)){
-                        e.setError("Sản phẩm không có trong kho");
-                        importFails.add(e);
-                    }else if (!checkDataType(e)){
+                }
+                if (countingDetail.getProductCode().equals(e.getProductCode().toUpperCase())) {
+                    if (!checkDataType(e) && !importFails.contains(e)) {
                         e.setError("Số nhập vào phải là số nguyên dương");
                         importFails.add(e);
+                        break;
+                    } else {
+                        /*if (countingDetail.getProductCode().equals(e.getProductCode().toUpperCase()) ) {*/
+                        int inventoryQuantity = (int) (e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity());
+                        countingDetail.setPacketQuantity(e.getPacketQuantity().intValue());
+                        countingDetail.setUnitQuantity(e.getUnitQuantity().intValue());
+                        countingDetail.setInventoryQuantity(inventoryQuantity);
+                        countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
+                        importSuccessNumber++;
+                        break;
                     }
+                }
             }
         }
         return new CoverResponse<>(
@@ -222,23 +231,25 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     public boolean checkDataType(StockCountingExcel stockCountingExcel) {
-        if (stockCountingExcel.getUnitQuantity().toString().contains("-") ||
-                stockCountingExcel.getPacketQuantity().toString().contains("-")) /*||
-                stockCountingExcel.getStockQuantity().toString().contains("-") ||
-                stockCountingExcel.getInventoryQuantity().toString().contains("-"))*/
+        if (stockCountingExcel.getUnitQuantity().toString().contains("-") || stockCountingExcel.getPacketQuantity().toString().contains("-"))
             return false;
-
-        if (stockCountingExcel.getUnitQuantity() != (int) stockCountingExcel.getUnitQuantity() ||
-                stockCountingExcel.getPacketQuantity() != (int) stockCountingExcel.getPacketQuantity()) /*||
-                stockCountingExcel.getStockQuantity() != (int) stockCountingExcel.getStockQuantity() ||
-                stockCountingExcel.getInventoryQuantity() != (int) stockCountingExcel.getInventoryQuantity())*/
+        String a = stockCountingExcel.getUnitQuantity().toString().split("\\.")[1];
+        String b = stockCountingExcel.getPacketQuantity().toString().split("\\.")[1];
+        if (!a.equals("0") || !b.equals("0"))
             return false;
         return true;
     }
 
+    public static boolean isInteger(Object object) {
+        if (object instanceof Integer) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public ResponseMessage updateStockCounting(Long stockCountingId, String userAccount,
-                                                                   List<StockCountingUpdateDTO> details) {
+                                               List<StockCountingUpdateDTO> details) {
         StockCounting stockCounting = repository.findById(stockCountingId).get();
         if (stockCounting == null)
             throw new ValidateException(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
