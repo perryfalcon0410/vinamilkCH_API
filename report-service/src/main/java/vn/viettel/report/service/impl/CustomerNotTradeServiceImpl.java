@@ -6,14 +6,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
-import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
-import vn.viettel.report.service.dto.CustomerReportDTO;
-import vn.viettel.report.service.dto.CustomerTradeDTO;
+import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.CustomerTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -87,16 +86,36 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         return result;
     }
 
+//    @Override
+//    public Page<CustomerTradeDTO>  findCustomerTrades(CustomerTradeFilter filter, Pageable pageable) {
+//        List<CustomerTradeDTO> customers = this.callProcedure(filter);
+//        List<CustomerTradeDTO> subList = new ArrayList<>();
+//        if(!customers.isEmpty()) {
+//            int start = (int)pageable.getOffset();
+//            int end = Math.min((start + pageable.getPageSize()), customers.size());
+//            subList = customers.subList(start, end);
+//        }
+//        return new PageImpl<>( subList, pageable, customers.size());
+//    }
+
     @Override
-    public Page<CustomerTradeDTO>  findCustomerTrades(CustomerTradeFilter filter, Pageable pageable) {
+    public CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO> findCustomerTrades(CustomerTradeFilter filter, Pageable pageable) {
         List<CustomerTradeDTO> customers = this.callProcedure(filter);
+        CustomerTradeTotalDTO totalDTO = new CustomerTradeTotalDTO();
         List<CustomerTradeDTO> subList = new ArrayList<>();
+
         if(!customers.isEmpty()) {
+            CustomerTradeDTO total = customers.get(customers.size() -1);
+            totalDTO.setTotalSaleAmount(total.getSaleAmount());
+            this.removeDataList(customers);
             int start = (int)pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), customers.size());
             subList = customers.subList(start, end);
         }
-        return new PageImpl<>( subList, pageable, customers.size());
+        Page<CustomerTradeDTO> page = new PageImpl<>( subList, pageable, customers.size());
+        CoverResponse response = new CoverResponse(page, totalDTO);
+
+        return response;
     }
 
     @Override
@@ -104,6 +123,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         List<CustomerTradeDTO> customers = this.callProcedure(filter);
+        this.removeDataList(customers);
         CustomerTradeExcel excel = new CustomerTradeExcel(shopDTO, parentShopDTO, customers);
         return excel.export();
     }
@@ -124,10 +144,6 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         query.registerStoredProcedureParameter("toCreateDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("fromPurchaseDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toPurchaseDate", LocalDateTime.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromSaleAmount", Float.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toSaleAmount", Float.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("fromSaleDate", LocalDateTime.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("toSaleDate", LocalDateTime.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());
         query.setParameter("customerSearch", keySearchUpper);
@@ -139,14 +155,16 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         query.setParameter("toCreateDate", filter.getToCreateDate());
         query.setParameter("fromPurchaseDate", filter.getFromPurchaseDate());
         query.setParameter("toPurchaseDate", filter.getToPurchaseDate());
-        query.setParameter("fromSaleAmount", filter.getFromSaleAmount());
-        query.setParameter("toSaleAmount", filter.getToSaleAmount());
-        query.setParameter("fromSaleDate", filter.getFromSaleDate());
-        query.setParameter("toSaleDate", filter.getToSaleDate());
 
         List<CustomerTradeDTO> result = query.getResultList();
 
         return result;
     }
+
+    private void removeDataList(List<CustomerTradeDTO> customerTrades) {
+        customerTrades.remove(customerTrades.size() - 1);
+        customerTrades.remove(customerTrades.size() - 1);
+    }
+
 
 }

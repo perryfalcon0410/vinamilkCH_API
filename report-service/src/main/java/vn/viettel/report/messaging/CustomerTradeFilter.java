@@ -35,13 +35,6 @@ public class CustomerTradeFilter {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime toPurchaseDate;
 
-    private Float fromSaleAmount;
-
-    private Float toSaleAmount;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDateTime fromSaleDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDateTime toSaleDate;
 
     public CustomerTradeFilter(Long shopId, String keySearch, String areaCode, Integer customerType, Integer customerStatus, String customerPhone) {
         this.shopId = shopId;
@@ -63,17 +56,4 @@ public class CustomerTradeFilter {
         this.toPurchaseDate = toPurchaseDate;
         return this;
     }
-
-    public CustomerTradeFilter withSaleAmount(Float fromSaleAmount, Float toSaleAmount) {
-        this.fromSaleAmount = fromSaleAmount;
-        this.toSaleAmount = toSaleAmount;
-        return this;
-    }
-
-    public CustomerTradeFilter withSaleAt(LocalDateTime fromSaleDate, LocalDateTime toSaleDate) {
-        this.fromSaleDate = fromSaleDate;
-        this.toSaleDate = toSaleDate;
-        return this;
-    }
-
 }

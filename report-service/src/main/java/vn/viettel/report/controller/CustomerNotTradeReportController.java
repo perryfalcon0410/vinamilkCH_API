@@ -17,15 +17,13 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
-import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
-import vn.viettel.report.service.dto.CustomerReportDTO;
-import vn.viettel.report.service.dto.CustomerTradeDTO;
-import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
+import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.CustomerNotTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -89,7 +87,7 @@ public class CustomerNotTradeReportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<CustomerTradeDTO>> findCustomerTrades(HttpServletRequest request, @ApiParam("Tìm theo mã, họ tên khách hàng") @RequestParam(required = false, defaultValue = "") String keySearch,
+    public Response<CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO>> findCustomerTrades(HttpServletRequest request, @ApiParam("Tìm theo mã, họ tên khách hàng") @RequestParam(required = false, defaultValue = "") String keySearch,
                                                              @ApiParam("Tìm theo mã khu vực") @RequestParam(required = false) String areaCode,
                                                              @ApiParam("Tìm theo loại khách hàng") @RequestParam(required = false) Integer customerType,
                                                              @ApiParam("Tìm theo trạng thái khách hàng") @RequestParam(required = false) Integer customerStatus,
@@ -97,21 +95,15 @@ public class CustomerNotTradeReportController extends BaseController {
                                                              @ApiParam("Tìm theo thời gian tạo khách hàng nhỏ nhất") @RequestParam(required = false)  Date fromCreateDate,
                                                              @ApiParam("Tìm theo thời gian tạo khách hàng lớn nhất") @RequestParam(required = false)  Date toCreateDate,
                                                              @ApiParam("Tìm theo thời gian mua hàng nhỏ nhất") @RequestParam(required = false)  Date fromPurchaseDate,
-                                                             @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false)  Date toPurchaseDate,
-                                                             @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
-                                                             @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                             @ApiParam("Tìm doanh số có thời gian từ") @RequestParam(required = false) Date fromSaleDate,
-                                                             @ApiParam("Tìm doanh số có thời gian đến") @RequestParam(required = false) Date toSaleDate, Pageable pageable) {
+                                                             @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false)  Date toPurchaseDate, Pageable pageable) {
 
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
-                customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
-                .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertToDate(toPurchaseDate))
-                .withSaleAmount(fromSaleAmount, toSaleAmount)
-                .withSaleAt(DateUtils.convertFromDate(fromSaleDate), DateUtils.convertToDate(toSaleDate));
+                customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertFromDate(toCreateDate))
+                .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertFromDate(toPurchaseDate));
 
-        Page<CustomerTradeDTO> response = service.findCustomerTrades(filter, pageable);
+        CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO> response = service.findCustomerTrades(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_CUSTOMER_TRADE_SUCCESS);
-        return new Response<Page<CustomerTradeDTO>>().withData(response);
+        return new Response<CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO>>().withData(response);
     }
 
     @GetMapping(V1 + root + "/trade/excel")
@@ -128,22 +120,16 @@ public class CustomerNotTradeReportController extends BaseController {
                                                                @ApiParam("Tìm theo thời gian tạo khách hàng nhỏ nhất") @RequestParam(required = false) Date fromCreateDate,
                                                                @ApiParam("Tìm theo thời gian tạo khách hàng lớn nhất") @RequestParam(required = false) Date toCreateDate,
                                                                @ApiParam("Tìm theo thời gian mua hàng nhỏ nhất") @RequestParam(required = false) Date fromPurchaseDate,
-                                                               @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false) Date toPurchaseDate,
-                                                               @ApiParam("Tìm theo doanh số tối thiểu") @RequestParam(required = false) Float fromSaleAmount,
-                                                               @ApiParam("Tìm theo doanh số tối đa") @RequestParam(required = false) Float toSaleAmount,
-                                                               @ApiParam("Tìm doanh số có thời gian từ") @RequestParam(required = false) Date fromSaleDate,
-                                                               @ApiParam("Tìm doanh số có thời gian đến") @RequestParam(required = false) Date toSaleDate, HttpServletResponse response) throws IOException {
+                                                               @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false) Date toPurchaseDate, HttpServletResponse response) throws IOException {
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
-                customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertToDate(toCreateDate))
-                .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertToDate(toPurchaseDate))
-                .withSaleAmount(fromSaleAmount, toSaleAmount)
-                .withSaleAt(DateUtils.convertFromDate(fromSaleDate), DateUtils.convertToDate(toSaleDate));
+                customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertFromDate(toCreateDate))
+                .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertFromDate(toPurchaseDate));
 
         ByteArrayInputStream in = service.customerTradesExportExcel(filter);
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS);
         response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_khong_gd_" + StringUtils.createExcelFileName());
+        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         response.getOutputStream().flush();
     }

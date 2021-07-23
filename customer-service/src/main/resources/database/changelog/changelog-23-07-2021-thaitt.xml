@@ -5,12 +5,24 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="21-06-2021-add-column-noted-in-table-customers" author="minhle">
-        <addColumn tableName="CUSTOMERS">
-            <column name="NOTED" type="nvarchar(4000)"/>
-        </addColumn>
+    <changeSet id="23-07-2021-delete-column-noted-v2-in-table-customers" author="thaitt">
+        <dropColumn tableName="CUSTOMERS" columnName="NOTED"/>
         <rollback>
-            <dropColumn tableName="CUSTOMERS" columnName="NOTED"/>
+            <addColumn tableName="CUSTOMERS">
+                <column name="NOTED" type="CLOB"/>
+            </addColumn>
         </rollback>
     </changeSet>
+
+    <changeSet id="23-07-2021-add-column-noted-v2-in-table-customers" author="thaitt">
+        <addColumn tableName="CUSTOMERS">
+            <column name="NOTED" type="varchar(4000)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="nvarchar(4000)"/>
+        </rollback>
+    </changeSet>
+
 </databaseChangeLog>
+
+
