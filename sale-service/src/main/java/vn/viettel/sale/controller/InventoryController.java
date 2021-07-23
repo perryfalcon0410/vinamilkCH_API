@@ -207,9 +207,9 @@ public class InventoryController extends BaseController {
         return response;
     }
 
-    @GetMapping(value = {V1 + root + "/inventory/numInDay"})
-    public Response<Boolean> getInventoryNumberInDay() {
+    @GetMapping(value = {V1 + root + "/inventory/numInDay/{wareHouseTypeId}"})
+    public Response<Boolean> getInventoryNumberInDay(@PathVariable(value = "wareHouseTypeId") Long wareHouseTypeId) {
         Response<Boolean> check = new Response<>();
-        return check.withData(inventoryService.checkInventoryInDay(this.getShopId()));
+        return check.withData(inventoryService.checkInventoryInDay(wareHouseTypeId));
     }
 }

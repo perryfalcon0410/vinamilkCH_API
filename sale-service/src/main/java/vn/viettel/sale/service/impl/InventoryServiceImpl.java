@@ -213,21 +213,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                         e.setError("Số nhập vào phải là số nguyên dương");
                         importFails.add(e);
                     }
-               /* else if(!countingDetail.getProductCode().equals(e.getProductCode())
-                        &&!importFails.contains(e.getProductCode())){
-                    e.setError("Sản phẩm không có trong kho");
-                    importFails.add(e);
-                }
-                else if(countingDetail.getProductCode().equals(e.getProductCode())
-                &&!checkDataType(e) &&!importFails.contains(e.getProductId())){
-                    e.setError("Số nhập vào phải là số nguyên dương");
-                    importFails.add(e);
-                }*/
-                /*else if(countingDetail.getProductCode().equals(e.getProductCode())
-                &&!importFails.contains(e)){
-                    e.setError("Sản phẩm không có trong kho");
-                    importFails.add(e);
-                }*/
             }
         }
         return new CoverResponse<>(
@@ -313,10 +298,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public Boolean checkInventoryInDay(Long shopId) {
-        WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);
-        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseType.getId());
-
+    public Boolean checkInventoryInDay(Long wareHouseTypeId) {
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId);
         if (countingNumberInDay.size() > 0)
             return false;
         return true;
