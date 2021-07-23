@@ -58,13 +58,13 @@ public class InventoryController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventory"})
     public Response<Page<StockCountingDTO>> index(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
-                                                  @RequestParam(value ="warehouseTypeId",required = false) Long warehouseTypeId,
+                                                  @RequestParam(value ="wareHouseTypeId",required = false) Long wareHouseTypeId,
                                                   @RequestParam(value = "fromDate",required = false) Date fromDate,
                                                   @RequestParam(value = "toDate",required = false) Date toDate,
                                                   @SortDefault.SortDefaults({
                                                       @SortDefault(sort = "countingDate", direction = Sort.Direction.ASC),
                                                   }) Pageable pageable) {
-        Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,warehouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),this.getShopId(),pageable);
+        Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,wareHouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),this.getShopId(),pageable);
         return new Response<Page<StockCountingDTO>>().withData(response);
     }
 
