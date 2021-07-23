@@ -16,6 +16,7 @@ public class InventoryImportExportFilter {
     private Long shopId;
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
+    private Long warehouseTypeId;
     private String productCodes;
 
 }

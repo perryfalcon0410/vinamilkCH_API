@@ -397,7 +397,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         for (SaleOrderDiscount item : lstSaleOrderDiscount) {
             if (item.getPromotionType() != null && "zm".equalsIgnoreCase(item.getPromotionType().trim() ) && item.getDiscountAmountVat() != null) {
                 if(lstZM.containsKey(item.getPromotionCode())){
-                    lstZM.get(item.getPromotionCode()).setAmount(lstZM.get(item.getPromotionCode()).getAmount() + item.getDiscountAmountVat());
+                    lstZM.get(item.getPromotionCode()).setAmount(lstZM.get(item.getPromotionCode()).getAmount() - item.getDiscountAmountVat());
                 }else{
                     PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
                     zm.setPromotionName(item.getPromotionName());
@@ -531,7 +531,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 so.setTotalPromotion((double) 0);
             if (so.getDiscountCodeAmount() == null)
                 so.setDiscountCodeAmount((double) 0);
-            saleOrder.setTotalPromotion(Math.round(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount())); //tiền giảm giá
+//            saleOrder.setTotalPromotion(Math.round(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount())); //tiền giảm giá
+            saleOrder.setTotalPromotion(so.getTotalPromotionVat());
             if (so.getCustomerPurchase() == null)
                 so.setCustomerPurchase((double) 0);
             saleOrder.setCustomerPurchase(Math.round(so.getMemberCardAmount()));//tiền tích lũy

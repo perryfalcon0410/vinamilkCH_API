@@ -54,9 +54,10 @@ public class InventoryController extends BaseController {
     public void exportToExcel(HttpServletRequest request,
                                         @RequestParam(value = "fromDate") Date fromDate,
                                         @RequestParam(value = "toDate") Date toDate,
+                                        @RequestParam Long warehouseTypeId,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException {
-        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), warehouseTypeId, productCodes);
         ByteArrayInputStream in = inventoryService.exportImportExcel(filter);
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);
@@ -77,9 +78,10 @@ public class InventoryController extends BaseController {
                                                 HttpServletRequest request,
                                                 @RequestParam(value = "fromDate") Date fromDate,
                                                 @RequestParam(value = "toDate") Date toDate,
+                                                @RequestParam Long warehouseTypeId,
                                                 @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                 @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
-        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), warehouseTypeId, productCodes);
         CoverResponse<Page<ImportExportInventoryDTO>, ImportExportInventoryTotalDTO> response
                 = inventoryService.getReportInventoryImportExport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_INVENTORY_SUCCESS);
@@ -95,9 +97,10 @@ public class InventoryController extends BaseController {
     public Response<PrintInventoryDTO> getDataPrint(HttpServletRequest request,
                                                     @RequestParam(value = "fromDate") Date fromDate,
                                                     @RequestParam(value = "toDate") Date toDate,
+                                                    @RequestParam Long warehouseTypeId,
                                                     @ApiParam("Tìm theo danh sách mã sản phẩm")
                                                     @RequestParam(value = "productCodes", required = false) String productCodes) {
-        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), productCodes);
+        InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), warehouseTypeId, productCodes);
         PrintInventoryDTO response = inventoryService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS);
         return new Response<PrintInventoryDTO>().withData(response);

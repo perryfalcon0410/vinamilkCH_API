@@ -1,6 +1,5 @@
 package vn.viettel.report.service.impl;
 
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,7 +11,6 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.StockTotalReportExcel;
-import vn.viettel.report.service.feign.CustomerTypeClient;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -21,8 +19,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.Collator;
-import java.text.RuleBasedCollator;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,14 +30,11 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     @Autowired
     ShopClient shopClient;
 
-    @Autowired
-    CustomerTypeClient customerTypeClient;
-
     @Override
-    public StockTotalReportPrintDTO print(Date stockDate, String productCodes, Long shopId) {
+    public StockTotalReportPrintDTO print(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) {
         ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
         StockTotalReportPrintDTO printDTO = new StockTotalReportPrintDTO();
-        List<StockTotalReportDTO> lists =  callProcedure(stockDate, productCodes, shopId);
+        List<StockTotalReportDTO> lists =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
         StockTotalReportDTO totalInfo = lists.get(lists.size() - 1);
         List<StockTotalReportDTO> listResults = lists.subList(0, lists.size() - 2);
         /*
@@ -80,10 +73,10 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(Date stockDate, String productCodes, Long shopId) throws IOException {
+    public ByteArrayInputStream exportExcel(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
 
-        List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId);
+        List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
         StockTotalReportDTO totalInfo = new StockTotalReportDTO();
         List<StockTotalReportDTO> listResults = new ArrayList<>();
         if(listResult !=null && !listResult.isEmpty()) {
@@ -99,8 +92,8 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     }
 
     @Override
-    public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Pageable pageable) {
-        List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId);
+    public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId, Pageable pageable) {
+        List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
         if (listResult.isEmpty())
             return new CoverResponse<>(new PageImpl<>(listResult), null);
         StockTotalReportDTO totalInfo = listResult.get(listResult.size() - 1);
@@ -116,8 +109,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         return response;
     }
 
-   private List<StockTotalReportDTO> callProcedure(Date stockDate, String productCodes, Long shopId) {
-       Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+   private List<StockTotalReportDTO> callProcedure(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) {
 
        StoredProcedureQuery storedProcedure =
                entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);

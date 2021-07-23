@@ -140,6 +140,12 @@ public class ComboProductTransServiceImpl
                 if(stockTotal1 == null){
                     stockTotal1 = stockTotalService.createStockTotal(shopId, warehouseTypeId, combo.getRefProductId(), combo.getQuantity(), false);
                     newStockTotal.add(stockTotal1);
+                }else{
+                    int value = combo.getQuantity();
+                    if (lstSaveStockTotal.containsKey(stockTotal1.getId())) {
+                        value += lstSaveStockTotal.get(stockTotal1.getId());
+                    }
+                    lstSaveStockTotal.put(stockTotal1.getId(), value);
                 }
             } else {
                 if (stockTotal1 == null || stockTotal1.getQuantity() < combo.getQuantity()) {
@@ -168,7 +174,9 @@ public class ComboProductTransServiceImpl
             cbDetail.setAmount(combo.getPrice()*combo.getQuantity());
             comboProducts.add(cbDetail);
 
-            comboProductDetails.forEach(comboProductDetail -> {
+
+            List<ComboProductDetail> details = comboProductDetails.stream().filter(f -> f.getComboProductId().equals(combo.getComboProductId())).collect(Collectors.toList());
+            details.forEach(comboProductDetail -> {
                 if(comboProductDetail.getFactor() == null || comboProductDetail.getFactor() < 1 )
                     throw new ValidateException(ResponseMessage.COMBO_PRODUCT_FACTOR_REJECT);
 
