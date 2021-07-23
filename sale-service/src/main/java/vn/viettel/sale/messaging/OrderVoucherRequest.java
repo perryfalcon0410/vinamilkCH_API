@@ -19,10 +19,10 @@ import java.util.List;
 public class OrderVoucherRequest {
 
     @ApiModelProperty(notes = "Tiền theo mã giảm giá")
-    private Double voucherAmount;
+    private Double price;
 
     @ApiModelProperty(notes = "Id voucher")
-    private Long voucherId;
+    private Long id;
 
     @ApiModelProperty(notes = "Mã voucher")
     private String voucherCode;
