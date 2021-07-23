@@ -109,7 +109,6 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     }
 
     private List<CustomerTradeDTO> callProcedure(CustomerTradeFilter filter) {
-
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getKeySearch().toUpperCase(Locale.ROOT));
 
         StoredProcedureQuery query =

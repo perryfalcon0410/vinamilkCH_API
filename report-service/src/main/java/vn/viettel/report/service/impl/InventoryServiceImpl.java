@@ -16,7 +16,6 @@ import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
 import vn.viettel.report.service.dto.PrintInventoryCatDTO;
 import vn.viettel.report.service.dto.PrintInventoryDTO;
 import vn.viettel.report.service.excel.ImportExportInventoryExcel;
-import vn.viettel.report.service.feign.CustomerTypeClient;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -25,7 +24,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,9 +33,6 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Autowired
     ShopClient shopClient;
-
-    @Autowired
-    CustomerTypeClient customerTypeClient;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -128,7 +123,6 @@ public class InventoryServiceImpl implements InventoryService {
     private List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
 
         String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(filter.getShopId());
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_INVENTORY", ImportExportInventoryDTO.class);
         query.registerStoredProcedureParameter("results", void.class, ParameterMode.REF_CURSOR);
@@ -139,7 +133,7 @@ public class InventoryServiceImpl implements InventoryService {
         query.registerStoredProcedureParameter("productCodes", String.class, ParameterMode.IN);
 
         query.setParameter("shopId", filter.getShopId());
-        query.setParameter("warehouseTypeId", warehouseTypeId);
+        query.setParameter("warehouseTypeId", filter.getWarehouseTypeId());
         query.setParameter("fromDate", filter.getFromDate());
         query.setParameter("toDate", filter.getToDate());
         query.setParameter("productCodes", upperCode);

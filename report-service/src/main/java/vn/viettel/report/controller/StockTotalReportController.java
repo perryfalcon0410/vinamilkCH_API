@@ -44,17 +44,18 @@ public class StockTotalReportController extends BaseController {
 
     @GetMapping(V1 + root)
     public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam Date stockDate,
+                                                                                                     @RequestParam Long warehouseTypeId,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
-        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), pageable);
+        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), warehouseTypeId, pageable);
         return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = {V1 + root + "/excel"})
-    public void exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes, HttpServletResponse response) throws IOException {
-        ByteArrayInputStream in = stockTotalReportService.exportExcel(stockDate, productCodes, this.getShopId());
+    public void exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes,  @RequestParam Long warehouseTypeId, HttpServletResponse response) throws IOException {
+        ByteArrayInputStream in = stockTotalReportService.exportExcel(stockDate, productCodes, this.getShopId(), warehouseTypeId);
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=BC-ton_kho_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
@@ -68,8 +69,9 @@ public class StockTotalReportController extends BaseController {
     )
     @GetMapping(V1 + root + "/print")
     public Response<StockTotalReportPrintDTO> print(@RequestParam Date stockDate,
+                                                    @RequestParam Long warehouseTypeId,
                                                     @RequestParam(required = false) String productCodes) {
-        StockTotalReportPrintDTO response = stockTotalReportService.print(stockDate, productCodes, this.getShopId());
+        StockTotalReportPrintDTO response = stockTotalReportService.print(stockDate, productCodes, this.getShopId(), warehouseTypeId);
         return new Response<StockTotalReportPrintDTO>().withData(response);
     }
 }

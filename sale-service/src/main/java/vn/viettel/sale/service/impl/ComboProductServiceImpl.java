@@ -54,7 +54,18 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
         List<Long> lstProductIds = comboProducts.stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
         if(lstProductIds.isEmpty()) return dtos;
         List<Price> prices = productPriceRepo.findProductPrice(lstProductIds, customerTypeId, LocalDateTime.now());
-        dtos = comboProducts.stream().map(item -> convertToComboProductDTO(item, prices)).collect(Collectors.toList());
+
+        for (ComboProduct combo: comboProducts) {
+            for (Price price : prices) {
+                if (price.getProductId().equals(combo.getRefProductId())) {
+                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                    ComboProductDTO dto = modelMapper.map(combo, ComboProductDTO.class);
+                    dto.setProductPrice(price.getPrice());
+                    dtos.add(dto);
+                    break;
+                }
+            }
+        }
 
         return dtos;
     }

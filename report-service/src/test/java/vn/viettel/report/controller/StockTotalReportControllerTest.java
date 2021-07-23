@@ -42,7 +42,7 @@ public class StockTotalReportControllerTest extends BaseTest {
         Page<StockTotalReportDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = new CoverResponse<>(pageDto, new StockTotalInfoDTO());
 
-        given(stockTotalReportService.getStockTotalReport(any(),any(),any(), Mockito.any(PageRequest.class)))
+        given(stockTotalReportService.getStockTotalReport(any(),any(),any(), any(), Mockito.any(PageRequest.class)))
                 .willReturn(response);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
