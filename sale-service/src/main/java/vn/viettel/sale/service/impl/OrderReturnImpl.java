@@ -67,9 +67,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
-        List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
-        if(customerIds.size() == 0) {
-            return new CoverResponse<>(new PageImpl<>(new ArrayList<>()), new SaleOrderTotalResponse());
+        List<Long> customerIds = null;
+        if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null) {
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+            if(customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
         }
         if(saleOrderFilter.getOrderNumber() != null) saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
         Page<SaleOrder> findAll = repository.getSaleOrderReturn(shopId,saleOrderFilter.getOrderNumber(),
@@ -78,7 +79,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
         .filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, customerIds);
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).distinct()
+                .filter(Objects::nonNull).collect(Collectors.toList()));
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
         Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item ->mapOrderReturnDTO(item, users, customers, saleOrders));
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);

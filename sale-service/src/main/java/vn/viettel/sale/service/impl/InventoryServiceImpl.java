@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -102,8 +103,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if(countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
         Long customerTypeId = null;
-        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
-        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
+        CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        if(customerType != null) customerTypeId = customerType.getId();
         List<Price> prices = priceRepository.findProductPrice(countingDetails.stream().map(item -> item.getProductId())
                 .collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
         TotalStockCounting totalStockCounting = new TotalStockCounting();
