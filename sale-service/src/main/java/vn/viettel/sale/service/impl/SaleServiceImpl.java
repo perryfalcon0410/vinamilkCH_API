@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.dto.promotion.PromotionShopMapDTO;
@@ -95,11 +96,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         // check order type
         ApParamDTO apParamDTO = apparamClient.getApParamByTypeAndvalue(apParamOrderType, request.getOrderType().toString()).getData();
         if(apParamDTO == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
-        
-        //check warehouse
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (warehouseTypeId == null)
-            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         // information need to be save
         // thông tin giảm giá
@@ -520,8 +516,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             createSaleOrderComboDetail(saleOrderDetails, combos).stream().forEachOrdered(listOrderComboDetails::add);
         }
 
+        //check warehouse
+        CustomerTypeDTO customerType = null;
+        if(request.getCustomerId() == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        else customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
+        if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+
         //kiểm tra xem tổng sản phẩm mua + km có vượt quá tôn kho
-        List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, warehouseTypeId, new ArrayList<>(mapProductWithQty.keySet()));
+        List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(), new ArrayList<>(mapProductWithQty.keySet()));
         for (FreeProductDTO freeProductDTO : freeProductDTOs){
             if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < mapProductWithQty.get(freeProductDTO.getProductId())))
                 throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " + freeProductDTO.getProductName(), freeProductDTO.getStockQuantity() + "");
@@ -542,7 +544,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setShopId(shopId);
         saleOrder.setSalemanId(userId);
         saleOrder.setCustomerId(customer.getId());
-        saleOrder.setWareHouseTypeId(warehouseTypeId);
+        saleOrder.setWareHouseTypeId(customerType.getWareHouseTypeId());
         saleOrder.setAmount(request.getTotalOrderAmount());
         saleOrder.setTotalPromotion(roundValue(promotion));
         saleOrder.setTotalPromotionVat(roundValue(promotionInVat));
@@ -676,7 +678,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionClient.updatePromotionShopMapV1(item);
         }
 
-        this.updateStockTotal(mapProductWithQty, shopId, warehouseTypeId );
+        this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );
 
         //update doanh số tích lũy và tiền tích lũy cho customer, số đơn mua trong ngày...
         updateCustomer(saleOrder, customer, false);

@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -393,6 +392,19 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Double totalAmount = 0D;
         List<Price> prices = productPriceRepository.findProductPrice(sads.stream().map(item -> item.getProductId()).distinct()
                 .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), LocalDateTime.now());
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockAdjustment.getWareHouseTypeId(),
+                sads.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
+        for (StockAdjustmentDetail sad : sads) {
+            for (StockTotal stockTotal : stockTotals){
+                if(stockTotal.getProductId().equals(sad.getProductId()) && stockTotal.getQuantity() != null && sad.getQuantity() != null){
+                    if(stockTotal.getQuantity() - sad.getQuantity() < 0){
+                        Optional<Product> product = productRepository.findById(sad.getProductId());
+                        if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                    }
+                }
+            }
+        }
 
         for (StockAdjustmentDetail sad : sads) {
             if (sad.getQuantity() == null) sad.setQuantity(0);
@@ -468,6 +480,20 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockBorrowingDetail> sbds = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
         Integer totalQuantity = 0;
         Double totalAmount = 0D;
+
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockBorrowing.getWareHouseTypeId(),
+                sbds.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
+        for (StockBorrowingDetail sad : sbds) {
+            for (StockTotal stockTotal : stockTotals){
+                if(stockTotal.getProductId().equals(sad.getProductId()) && stockTotal.getQuantity() != null && sad.getQuantity() != null){
+                    if(stockTotal.getQuantity() - sad.getQuantity() < 0){
+                        Optional<Product> product = productRepository.findById(sad.getProductId());
+                        if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                    }
+                }
+            }
+        }
 
         for (StockBorrowingDetail sbd : sbds) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -566,6 +592,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return ResponseMessage.UPDATE_SUCCESSFUL;
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
+
     /** Chỉnh sửa phiếu trả vay mượn **/
     private ResponseMessage updateBorrowingTransExport(ReceiptExportUpdateRequest request, Long id,Long shopId) {
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getById(id);
@@ -576,6 +603,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return ResponseMessage.UPDATE_SUCCESSFUL;
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
     }
+
     /** Xóa phiếu xuất trả PO **/
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage removePoTransExport(Long id,Long shopId) {
@@ -613,6 +641,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_DELETED);
         if (DateUtils.formatDate2StringDate(stockAdjustmentTrans.get().getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             List<StockAdjustmentTransDetail> stockAdjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(stockAdjustmentTrans.get().getId());
+
             for (StockAdjustmentTransDetail satd :stockAdjustmentTransDetails ){
                 stockTotalService.updateWithLock(shopId,stockAdjustmentTrans.get().getWareHouseTypeId(), satd.getProductId(), satd.getQuantity());
             }
@@ -636,6 +665,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             return ResponseMessage.DELETE_SUCCESSFUL;
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
+
     /** Xóa phiếu xuất vay mượn **/
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage removeStockBorrowingTransExport(Long id,Long shopId) {
@@ -643,6 +673,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if(stockBorrowingTrans == null || stockBorrowingTrans.getStatus()==-1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_DELETED);
         if(DateUtils.formatDate2StringDate(stockBorrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
             List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
+
             for (StockBorrowingTransDetail sbtd : stockBorrowingTransDetails) {
                 stockTotalService.updateWithLock(shopId, stockBorrowingTrans.getWareHouseTypeId(), sbtd.getProductId(), sbtd.getQuantity());
             }
