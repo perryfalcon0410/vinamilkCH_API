@@ -300,7 +300,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     poTransDetail.setPriceNotVat(poTransDetails.get(i).getPriceNotVat());
                     poTransDetail.setAmountNotVat(poTransDetails.get(i).getAmountNotVat());
                     poTransDetail.setShopId(shopId);
-                    poTransDetail.setReturnAmount(request.getLitQuantityRemain().get(i).getQuantity());
+                    poTransDetail.setReturnAmount(request.getLitQuantityRemain().get(j).getQuantity());
                     poTransDetail.setAmount(poTransDetail.getQuantity() * poTransDetails.get(i).getPrice());
                     savePoTransDetails.add(poTransDetail);
                     total_quantity += poTransDetail.getQuantity();
@@ -515,7 +515,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     PoTransDetail poTransDetail = poTransDetails.get(i);
                     for (int j = 0; j < request.getListProductRemain().size(); j++) {
                         if (poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())) {
-                            if (poTransDetailImport.get(i).getReturnAmount() > poTransDetailImport.get(i).getQuantity())
+                            if (request.getListProductRemain().get(j).getId()>(poTransDetailImport.get(i).getQuantity()-poTransDetailImport.get(i).getReturnAmount()))
                                 throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
                             poTransDetailImport.get(i).setReturnAmount(poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(j).getQuantity() - poTransDetail.getQuantity()));
                             StockTotal st = null;
