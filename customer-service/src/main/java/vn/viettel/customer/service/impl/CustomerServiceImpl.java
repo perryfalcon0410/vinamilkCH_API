@@ -229,10 +229,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     public String createCustomerCode(Long shopId, String shopCode) {
         int customerNumber = 0;
-        Customer customer = repository.getCustomerNumber(shopId);
-        if(customer != null ) {
-            int i = customer.getCustomerCode().lastIndexOf('.');
-            String numberString = customer.getCustomerCode().substring(i+1).trim();
+        List<Customer> customers = repository.getCustomerNumber(shopId);
+        if(customers != null && !customers.isEmpty()) {
+            int i = customers.get(0).getCustomerCode().lastIndexOf('.');
+            String numberString = customers.get(0).getCustomerCode().substring(i+1).trim();
             customerNumber = Integer.valueOf(numberString);
         }
 

@@ -725,6 +725,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Transactional(rollbackFor = Exception.class)
     public void updateStockTotal( Map<Long, Integer> productTotalMaps, Long shopId, Long warehouseTypeId) {
         if(productTotalMaps != null) {
+            List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, warehouseTypeId,
+                    new ArrayList<>(productTotalMaps.keySet()));
+            for(Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
+                for (StockTotal stockTotal : stockTotals){
+                    if(stockTotal.getProductId().equals(entry.getKey()) && stockTotal.getQuantity() != null && entry.getValue() != null){
+                        if(stockTotal.getQuantity() - entry.getValue() < 0){
+                            Optional<Product> product = productRepository.findById(entry.getKey());
+                            if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                            throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                        }
+                    }
+                }
+            }
             for(Map.Entry<Long, Integer> entry : productTotalMaps.entrySet()) {
                 StockTotal stockTotal = stockTotalService.updateWithLock(shopId, warehouseTypeId, entry.getKey(), (-1) * entry.getValue());
                 if (stockTotal == null) throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);

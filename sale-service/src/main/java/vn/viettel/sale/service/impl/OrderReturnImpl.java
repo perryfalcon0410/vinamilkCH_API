@@ -495,12 +495,41 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void updateReturn(long id, long wareHouse, long shopId){
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
 
+        List<StockTotal> stockTotals1 = stockTotalRepository.getStockTotal(shopId, wareHouse,
+                odReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
+        for (SaleOrderDetail sad : odReturns) {
+            for (StockTotal stockTotal : stockTotals1){
+                if(stockTotal.getProductId().equals(sad.getProductId()) && stockTotal.getQuantity() != null && sad.getQuantity() != null){
+                    if(stockTotal.getQuantity() - sad.getQuantity() < 0){
+                        Optional<Product> product = productRepository.findById(sad.getProductId());
+                        if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                    }
+                }
+            }
+        }
+
+        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, wareHouse,
+                promotionReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
+        for (SaleOrderDetail sad : promotionReturns) {
+            for (StockTotal stockTotal : stockTotals){
+                if(stockTotal.getProductId().equals(sad.getProductId()) && stockTotal.getQuantity() != null && sad.getQuantity() != null){
+                    if(stockTotal.getQuantity() - sad.getQuantity() < 0){
+                        Optional<Product> product = productRepository.findById(sad.getProductId());
+                        if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                    }
+                }
+            }
+        }
+
         for(SaleOrderDetail sod:odReturns) {
             if(sod.getQuantity() == null) sod.setQuantity(0);
             StockTotal stockTotal = stockTotalService.updateWithLock(shopId, wareHouse, sod.getProductId(), sod.getQuantity() * -1);
             if (stockTotal == null) throw  new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
         }
-        List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
+
         for(SaleOrderDetail prd:promotionReturns) {
             if(prd.getQuantity() == null) prd.setQuantity(0);
             StockTotal stockTotal = stockTotalService.updateWithLock(shopId, wareHouse, prd.getProductId(), prd.getQuantity() * -1);
