@@ -1057,7 +1057,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             discountInTax += amtInTax;
                             discountExTax += amtExTax;
                             if(forSaving)
-                                saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry1.getKey(), amtExTax, amtInTax, true));
+                                saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry1.getKey(), amtInTax, amtExTax, true));
                         }
                         if (checkMulti == MR_RECURSIVE || checkMulti == MR_MULTIPLE_RECURSIVE) { // có tối ưu thì tính tiếp
                         }else break; // không tính tối ưu thì dừng lại
@@ -1410,8 +1410,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
         saveDTO.setProductId(productId);
         saveDTO.setLevelNumber(level);
-        saveDTO.setAmountExTax(roundValue(amountDiscountInTax));
-        saveDTO.setAmountInTax(roundValue(amountDiscountExTax));
+        saveDTO.setAmountExTax(roundValue(amountDiscountExTax));
+        saveDTO.setAmountInTax(roundValue(amountDiscountInTax));
         saveDTO.setAmount(saveDTO.getAmountExTax());
         saveDTO.setMaxAmount(saveDTO.getAmountExTax());
         if (isInclusiveTax) {
@@ -1678,8 +1678,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double exTax = 0;
         for (ProductOrderDetailDataDTO product : products) {
             count++;
-            SaleDiscountSaveDTO saveDTO = initSaleDiscount(product.getProductId(), level, product.getTotalPriceNotVAT() * percent / 100,
-                    product.getTotalPrice() * percent / 100, isInclusiveTax);
+            SaleDiscountSaveDTO saveDTO = initSaleDiscount(product.getProductId(), level, product.getTotalPrice() * percent / 100,
+                    product.getTotalPriceNotVAT() * percent / 100,
+                     isInclusiveTax);
             if(count == products.size()) {
                 saveDTO.setAmountInTax(roundValue(amountInTax) - inTax);
                 saveDTO.setAmountExTax(roundValue(amountExTax) - exTax);
