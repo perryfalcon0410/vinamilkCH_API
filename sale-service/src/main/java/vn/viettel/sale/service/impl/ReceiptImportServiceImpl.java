@@ -501,7 +501,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
             for (int i = 0; i < poTransDetails.size(); i++) {
                 for(int j= 0; j < poTransDetailImport.size(); j++){
-                    if(poTransDetailImport.get(j).getPrice().equals(poTransDetails.get(i).getPrice()))
+                    if(poTransDetailImport.get(j).getProductId().equals(poTransDetails.get(i).getProductId()))
                     {
                         PoTransDetail ptd = poTransDetails.get(i);
                         PoTransDetailDTO dto = modelMapper.map(ptd, PoTransDetailDTO.class);
