@@ -138,8 +138,9 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false) String keyWord) {
-        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), keyWord);
+    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false) String keyWord,
+            @RequestParam(required = false) Long customerId) {
+        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), customerId, keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<List<OrderProductDTO>>().withData(response);
     }

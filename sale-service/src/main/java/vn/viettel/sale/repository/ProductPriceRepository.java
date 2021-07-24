@@ -16,7 +16,7 @@ public interface ProductPriceRepository extends BaseRepository<Price> {
             " AND (:date IS NULL OR (p.fromDate <= :date AND p.toDate IS NULL) ) " +
             " order by p.fromDate desc, p.customerTypeId"
     )
-    List<Price> findProductPrice(List<Long> productIds, Long customerTypeId, LocalDateTime date);
+    List<Price> findProductPriceWithType(List<Long> productIds, Long customerTypeId, LocalDateTime date);
 
     @Query(value = "SELECT p FROM Price p " +
             "WHERE p.status = :status AND (COALESCE(:productIds, NULL) IS NULL OR p.productId IN (:productIds)) AND p.priceType = 1 " +

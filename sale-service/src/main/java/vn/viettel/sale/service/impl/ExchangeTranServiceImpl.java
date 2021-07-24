@@ -81,22 +81,31 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         return new CoverResponse<>(pageResult, exchangeTotalDTO);
     }
 
+    private CustomerTypeDTO getCustomerType(Long shopId, Long customerId){
+        CustomerTypeDTO customerType = null;
+        if(customerId != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(shopId);
+        if(customerType == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(customerId);
+        if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+
+        return customerType;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage create(ExchangeTransRequest request, Long userId, Long shopId) {
-        CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
         List<Long> catIds = cats.stream().map(CategoryDataDTO::getId).collect(Collectors.toList());
         List<String> exChangeCodes = repository.getListExChangeCodes();
         if (exChangeCodes.contains(request.getTransCode()))
             throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
         if (!catIds.contains(request.getReasonId())) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
-        if (cusType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         if (request.getCustomerId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
+        CustomerTypeDTO cusType = getCustomerType(shopId, request.getCustomerId());
         LocalDateTime date = LocalDateTime.now();
         List<Long> productIds = request.getLstExchangeDetail().stream().map(
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
-        List<Price> prices = priceRepository.findProductPrice(productIds, cusType.getId(), date);
+        List<Price> prices = priceRepository.findProductPriceWithType(productIds, cusType.getId(), date);
 
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, cusType.getWareHouseTypeId(), productIds);
         validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, null);
@@ -130,10 +139,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 qty = stockTotal.getQuantity() + value;
                 idAndValues.put(stockTotal.getId(), value);
             }
+            if(stockTotal == null) stockTotalService.showMessage(etd.getProductId(), true);
             if(qty < 0) {
-                Optional<Product> product = productRepository.findById(etd.getProductId());
-                if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                stockTotalService.showMessage(etd.getProductId(), false);
             }
         }
         for(ExchangeTransDetail exchangeTransDetail : lstDtl){
@@ -229,10 +237,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             if (listTransCode == null) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
             List<Long> productIds = request.getLstExchangeDetail().stream().map(
                     item -> item.getProductId()).distinct().collect(Collectors.toList());
-            Long customerTypeId = null;
-            CustomerDTO customerDTO = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
-            if (customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
-            List<Price> prices = priceRepository.findProductPrice(productIds, customerTypeId, date);
+            CustomerTypeDTO customerDTO = getCustomerType(shopId,request.getCustomerId());
+            List<Price> prices = priceRepository.findProductPriceWithType(productIds, customerDTO.getId(), date);
 
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchange.getWareHouseTypeId(), productIds);
             List<ExchangeTransDetail> dbExchangeTransDetails = transDetailRepository.findByTransId(exchangeTranId);
@@ -251,6 +257,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
                 StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
+                if(stockTotal == null) stockTotalService.showMessage(req.getProductId(), true);
+
                 /** create record*/
                 if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
                     ExchangeTransDetail exchangeDetail = modelMapper.map(req, ExchangeTransDetail.class);
@@ -258,9 +266,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                     exchangeDetail.setShopId(shopId);
                     setPrice(prices, exchangeDetail);
                     exchangeDetail.setTransDate(date);
-//                            transDetailRepository.save(exchangeDetail);
                     exchangeDetails.add(exchangeDetail);
-//                            stockTotalService.updateWithLock(stockTotal, (-1) * req.getQuantity());
                     int qty = -1;
                     if(stockTotal != null){
                         int value = (-1) * req.getQuantity();
@@ -270,10 +276,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                         qty = stockTotal.getQuantity() + value;
                         idAndValues.put(stockTotal.getId(), value);
                     }
+
                     if(qty < 0) {
-                        Optional<Product> product = productRepository.findById(req.getProductId());
-                        if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                        stockTotalService.showMessage(req.getProductId(), false);
                     }
                 } else {
                     for (ExchangeTransDetail item : dbExchangeTransDetails) {
@@ -304,9 +309,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                     idAndValues.put(stockTotal.getId(), value);
                                 }
                                 if(qty < 0) {
-                                    Optional<Product> product = productRepository.findById(req.getProductId());
-                                    if(!product.isPresent()) throw  new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName());
+                                    stockTotalService.showMessage(req.getProductId(), false);
                                 }
                             }
                             break;

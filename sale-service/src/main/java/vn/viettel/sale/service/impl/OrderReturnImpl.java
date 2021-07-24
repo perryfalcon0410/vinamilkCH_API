@@ -267,11 +267,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         LocalDateTime returnDate = LocalDateTime.now();
         SaleOrder newOrderReturn = new SaleOrder();
-
-
-        int day = returnDate.getDayOfMonth();
-        int month = returnDate.getMonthValue();
-        String year = Integer.toString(returnDate.getYear()).substring(2);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
         newOrderReturn = modelMapper.map(newOrderReturnDTO, SaleOrder.class);
@@ -528,15 +523,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<StockTotal> stockTotals1 = stockTotalRepository.getStockTotal(shopId, wareHouse,
                 odReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
         for (SaleOrderDetail sad : odReturns) {
-            for (StockTotal stockTotal : stockTotals1) {
-                if (stockTotal.getProductId().equals(sad.getProductId()) && stockTotal.getQuantity() != null && sad.getQuantity() != null) {
-                    if (stockTotal.getQuantity() - sad.getQuantity() < 0) {
-                        Optional<Product> product = productRepository.findById(sad.getProductId());
-                        if (!product.isPresent()) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                        throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS, product.get().getProductName());
-                    }
-                }
-            }
+            stockTotalService.validateStockTotal(stockTotals1, sad.getProductId(), -sad.getQuantity());
         }
 
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
@@ -544,30 +531,19 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, wareHouse,
                     promotionReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
             for (SaleOrderDetail sad : promotionReturns) {
-                for (StockTotal stockTotal : stockTotals) {
-                    if (stockTotal.getProductId().equals(sad.getProductId()) && stockTotal.getQuantity() != null && sad.getQuantity() != null) {
-                        if (stockTotal.getQuantity() - sad.getQuantity() < 0) {
-                            Optional<Product> product = productRepository.findById(sad.getProductId());
-                            if (!product.isPresent())
-                                throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
-                            throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS, product.get().getProductName());
-                        }
-                    }
-                }
+                stockTotalService.validateStockTotal(stockTotals, sad.getProductId(), -sad.getQuantity());
             }
         }
 
 
         for (SaleOrderDetail sod : odReturns) {
             if (sod.getQuantity() == null) sod.setQuantity(0);
-            StockTotal stockTotal = stockTotalService.updateWithLock(shopId, wareHouse, sod.getProductId(), sod.getQuantity() * -1);
-            if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+            stockTotalService.updateWithLock(shopId, wareHouse, sod.getProductId(), sod.getQuantity() * -1);
         }
 
         for (SaleOrderDetail prd : promotionReturns) {
             if (prd.getQuantity() == null) prd.setQuantity(0);
-            StockTotal stockTotal = stockTotalService.updateWithLock(shopId, wareHouse, prd.getProductId(), prd.getQuantity() * -1);
-            if (stockTotal == null) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+            stockTotalService.updateWithLock(shopId, wareHouse, prd.getProductId(), prd.getQuantity() * -1);
         }
     }
 

@@ -300,7 +300,7 @@ public enum ResponseMessage {
     MGG_SALE_AMOUNT_REJECT(9085,"Tổng tiền đơn hàng chưa đủ điều kiện dùng mã giảm giá %s"),
     ONLINE_NUMBER_MAX_LENGTH_STRING(9086, "Số đơn online không vượt quá 50 ký tự"),
     PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
-    PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
+    PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm %s không tìm thấy thông tin tồn kho"),
     PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
     SHOP_DOES_HAVE_DAY_RETURN(9076,"Cửa hàng không được phép trả hàng"),
     PRODUCT_NOT_EXISTS(9077, "Không tìm thấy sản phẩm %s"),

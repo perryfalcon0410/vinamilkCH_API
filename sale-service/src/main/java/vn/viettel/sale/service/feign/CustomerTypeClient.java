@@ -21,4 +21,7 @@ public interface CustomerTypeClient {
 
     @GetMapping("/api/v1/customers/customer-types/warehouse-type/customer/{customerId}")
     CustomerTypeDTO getCusTypeByCustomerIdV1(@PathVariable Long customerId);
+
+    @GetMapping("/api/v1/customers/customer-types/{id}")
+    CustomerTypeDTO getCusTypeById(@PathVariable Long id);
 }

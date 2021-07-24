@@ -106,7 +106,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType != null) customerTypeId = customerType.getId();
 
-        List<Price> prices = priceRepository.findProductPrice(countingDetails.stream().map(item -> item.getProductId())
+        List<Price> prices = priceRepository.findProductPriceWithType(countingDetails.stream().map(item -> item.getProductId())
                 .collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);

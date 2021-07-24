@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,7 +8,9 @@ import vn.viettel.core.db.entity.BaseEntity;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.StockTotalService;
 
@@ -15,9 +18,13 @@ import javax.persistence.LockModeType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTotalRepository> implements StockTotalService {
+
+    @Autowired
+    ProductRepository productRepository;
 
     private Map<String, Object> properties = new HashMap<String, Object>() {{
         put("javax.persistence.lock.timeout", 500);
@@ -46,6 +53,8 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         if(shopId == null || wareHouseId == null || productId == null || value == null) return null;
         StockTotal entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         if (entity == null && value > 0) return createStockTotal(shopId, wareHouseId, productId, value, true);
+        if(entity == null && value < 0) showMessage(productId, true);
+
         return updateEntity(entity, value);
     }
 
@@ -69,9 +78,37 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         entityManager.lock(entity, LockModeType.PESSIMISTIC_WRITE, properties);
         if(entity.getQuantity() == null) entity.setQuantity(0);
         entity.setQuantity(entity.getQuantity() + value);
-        if(entity.getQuantity() < 0) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE);
+        if(entity.getQuantity() < 0) showMessage(entity.getProductId(), false);
         repository.save(entity);
         entityManager.lock(entity, LockModeType.NONE);
         return entity;
+    }
+
+    public void validateStockTotal(List<StockTotal> stockTotals, Long productId, Integer value){
+        if(productId == null) return;
+        boolean flag = false;
+        for (StockTotal stockTotal : stockTotals){
+            if(stockTotal.getProductId().equals(productId)){
+                if(stockTotal.getQuantity() == null) stockTotal.setQuantity(0);
+                flag = true;
+                if(value != null && value < 0 && stockTotal.getQuantity() + value < 0) {
+                    showMessage(productId, false);
+                }
+                break;
+            }
+        }
+        if(flag == false) {
+            showMessage(productId, true);
+        }
+    }
+
+    public void showMessage(Long productId, boolean notFound){
+        Optional<Product> product = productRepository.findById(productId);
+        if (!product.isPresent()) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS);
+        String name = product.get().getProductCode() + " - " + product.get().getProductName();
+        if(notFound)
+            throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, name);
+        else
+            throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS, name);
     }
 }
