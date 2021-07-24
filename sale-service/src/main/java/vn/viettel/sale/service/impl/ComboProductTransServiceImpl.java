@@ -83,6 +83,7 @@ public class ComboProductTransServiceImpl
     @Autowired
     private JMSSender jmsSender;
     
+    @Autowired
     StockTotalService stockTotalService;
 
     @Override

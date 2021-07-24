@@ -672,6 +672,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTotalAmount(0D);
             poRecord.setNumSku(request.getLst().size());
             poRecord = repository.save(poRecord);
+            repository.flush();
             sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
             return ResponseMessage.CREATED_SUCCESSFUL;
         } else {
@@ -712,8 +713,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setNote(request.getNote());
             poConfirm.setStatus(1);
             poRecord = repository.save(poRecord);
+            repository.flush();
             sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
             poConfirm = poConfirmRepository.save(poConfirm);
+            poConfirmRepository.flush();
             sendSynRequest(JMSType.po_confirm, Arrays.asList(poConfirm.getId()));
             return ResponseMessage.CREATED_SUCCESSFUL;
         }
@@ -825,7 +828,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustment.setUpdatedBy(user.getUserAccount());
             stockAdjustmentRecord = stockAdjustmentTransRepository.save(stockAdjustmentRecord);
             stockAdjustment = stockAdjustmentRepository.save(stockAdjustment);
-            
+            stockAdjustmentRepository.flush();
+            stockAdjustmentTransRepository.flush();
             sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
             sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentRecord.getId()));
             return ResponseMessage.CREATED_SUCCESSFUL;
@@ -893,10 +897,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setNote(request.getNote()==null ? stockBorrowing.getNote() : request.getNote());
             stockBorrowing.setStatusImport(2);
             stockBorrowing = stockBorrowingRepository.save(stockBorrowing);
+            stockBorrowingRepository.flush();
             if(null != stockBorrowing) {
                 sendSynRequest(JMSType.stock_borrowing, Arrays.asList(stockBorrowing.getId()));
             }
             stockBorrowingTrans = stockBorrowingTransRepository.save(stockBorrowingTrans);
+            stockBorrowingTransRepository.flush();
             if(null != stockBorrowingTrans) {
                 sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(stockBorrowingTrans.getId()));
             }
@@ -1088,6 +1094,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if(st != null) stockTotalRepository.save(st);
             }
         }
+        repository.flush();
         sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
@@ -1101,6 +1108,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             adjustmentTrans.setUpdatedBy(userName);
             adjustmentTrans.setInternalNumber(request.getInternalNumber());
             stockAdjustmentTransRepository.save(adjustmentTrans);
+            stockAdjustmentTransRepository.flush();
             sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(adjustmentTrans.getId()));
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -1116,6 +1124,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             borrowingTrans.setUpdatedBy(userName);
             borrowingTrans.setInternalNumber(request.getInternalNumber());
             borrowingTrans = stockBorrowingTransRepository.save(borrowingTrans);
+            stockBorrowingTransRepository.flush();
             if(null != borrowingTrans) {
                 sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(borrowingTrans.getId()));
             }
@@ -1160,10 +1169,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
                 poConfirm.setStatus(0);
                 poConfirm = poConfirmRepository.save(poConfirm);
+                poConfirmRepository.flush();
                 sendSynRequest(JMSType.po_confirm, Arrays.asList(poConfirm.getId()));
             }
             poTrans.setStatus(-1);
             poTrans = repository.save(poTrans);
+            repository.flush();
             if(stockTotals != null){
                 stockTotalService.updateWithLock(idAndValues);
             }
@@ -1216,7 +1227,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentTrans.setStatus(-1);
             stockAdjustmentRepository.save(stockAdjustment);
             stockAdjustmentTransRepository.save(stockAdjustmentTrans);
-            
+            saleOrderRepository.flush();
+            saleOrderDetailRepository.flush();
             sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
             sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentTrans.getId()));
             sendSynRequestByCode(JMSType.sale_orders_adjustment, Arrays.asList(orderNumber));
@@ -1263,10 +1275,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setStatus(-1);
             stockBorrowingTrans.setUpdatedBy(userName);
             stockBorrowingTrans = stockBorrowingTransRepository.save(stockBorrowingTrans);
+            stockBorrowingTransRepository.flush();
             if(null != stockBorrowingTrans) {
                 sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(stockBorrowingTrans.getId()));
             }
             stockBorrowing = stockBorrowingRepository.save(stockBorrowing);
+            stockBorrowingRepository.flush();
             if(null != stockBorrowing) {
                 sendSynRequest(JMSType.stock_borrowing, Arrays.asList(stockBorrowing.getId()));
             }

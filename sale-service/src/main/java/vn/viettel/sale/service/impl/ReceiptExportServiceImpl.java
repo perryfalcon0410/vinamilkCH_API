@@ -334,6 +334,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poRecord.setTotalAmount(total_amount);
         poRecord.setNumSku(countNumSKU.size());
         poRecord = repository.save(poRecord);
+        repository.flush();
         sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
         return ResponseMessage.CREATED_SUCCESSFUL;
     }
@@ -439,6 +440,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         stockAdjustment.setStatus(3);
         stockAdjustmentRepository.save(stockAdjustment);
         stockAdjustmentTransRepository.save(poAdjustTrans);
+        stockAdjustmentRepository.flush();
+        stockAdjustmentTransRepository.flush();
+        saleOrderRepository.flush();
+        saleOrderDetailRepository.flush();
         sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
         sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(poAdjustTrans.getId()));
         return ResponseMessage.CREATED_SUCCESSFUL;
@@ -487,10 +492,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poBorrowTransRecord.setNote(request.getNote()==null ? stockBorrowing.getNote() : request.getNote());
         stockBorrowing.setStatusExport(2);
         stockBorrowing = stockBorrowingRepository.save(stockBorrowing);
+        stockBorrowingRepository.flush();
         if(null != stockBorrowing) {
             sendSynRequest(JMSType.stock_borrowing, Arrays.asList(stockBorrowing.getId()));
         }
         poBorrowTransRecord = stockBorrowingTransRepository.save(poBorrowTransRecord);
+        stockBorrowingTransRepository.flush();
         if(null != poBorrowTransRecord) {
             sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(poBorrowTransRecord.getId()));
         }
@@ -572,6 +579,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poTrans.setTotalAmount(totalAmount);
             poTrans.setNote(request.getNote());
             poTrans = repository.save(poTrans);
+            repository.flush();
             sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
             for(PoTransDetail poTransDetail : savePoTransDetails){
                 poTransDetailRepository.save(poTransDetail);
@@ -590,6 +598,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if (DateUtils.formatDate2StringDate(adjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             adjustmentTrans.setNote(request.getNote());
             stockAdjustmentTransRepository.save(adjustmentTrans);
+            stockAdjustmentTransRepository.flush();
             sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(adjustmentTrans.getId()));
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -600,6 +609,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if (DateUtils.formatDate2StringDate(borrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             borrowingTrans.setNote(request.getNote());
             borrowingTrans = stockBorrowingTransRepository.save(borrowingTrans);
+            stockBorrowingTransRepository.flush();
             sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(borrowingTrans.getId()));
             return ResponseMessage.UPDATE_SUCCESSFUL;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
@@ -622,6 +632,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             poTrans.setStatus(-1);
             poTrans = repository.save(poTrans);
+            repository.flush();
             sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
 
             for (int i=0;i<poTransDetails.size();i++){
@@ -655,6 +666,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustment.setStatus(1);
             stockAdjustment = stockAdjustmentRepository.save(stockAdjustment);
             StockAdjustmentTrans stockAdjustmentTransResult = stockAdjustmentTransRepository.save(stockAdjustmentTrans.get());
+            stockAdjustmentRepository.flush();
+            stockAdjustmentTransRepository.flush();
+            saleOrderRepository.flush();
+            saleOrderDetailRepository.flush();
             sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
             sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentTransResult.getId()));
             sendSynRequestByCode(JMSType.sale_orders_adjustment, Arrays.asList(orderNumber));
@@ -676,10 +691,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             StockBorrowing sb = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();
             sb.setStatusExport(1);
             sb = stockBorrowingRepository.save(sb);
+            stockBorrowingRepository.flush();
             if(null != sb) {
                 sendSynRequest(JMSType.stock_borrowing, Arrays.asList(sb.getId()));
             }
             stockBorrowingTrans = stockBorrowingTransRepository.save(stockBorrowingTrans);
+            stockBorrowingTransRepository.flush();
             if(null != stockBorrowingTrans) {
                 sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(stockBorrowingTrans.getId()));
             }
