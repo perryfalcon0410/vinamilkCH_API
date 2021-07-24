@@ -18,8 +18,10 @@ import java.util.Date;
 public class ReturnGoodsReportsRequest {
     private Long shopId;
     private String reciept;
-    private Date fromDate;
-    private Date toDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime fromDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
+    private LocalDateTime toDate;
     private String reason;
     private String productKW;
 }

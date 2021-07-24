@@ -164,7 +164,7 @@ public class InventoryControllerTest extends BaseTest {
     @Test
     public void testGetInventoryNumberInDay() throws Exception {
         String uri = V1 + root + "/inventory/numInDay";
-        given(inventoryService.checkInventoryInDay(any())).willReturn(true);
+        given(inventoryService.checkInventoryInDay(any(), any())).willReturn(true);
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

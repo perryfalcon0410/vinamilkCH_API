@@ -30,5 +30,5 @@ public interface InventoryService {
 
     Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
-    Boolean checkInventoryInDay(Long wareHouseTypeId);
+    Boolean checkInventoryInDay(Long wareHouseTypeId, Long shopId);
 }
