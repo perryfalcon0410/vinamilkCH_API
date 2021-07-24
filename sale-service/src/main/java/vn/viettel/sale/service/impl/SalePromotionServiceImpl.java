@@ -271,6 +271,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             auto.setProgramType(program.getType());
             auto.setPromotionProgramName(program.getPromotionProgramName());
             auto.setPromotionProgramCode(program.getPromotionProgramCode());
+            auto.setEditable(program.getIsEdited());
             if(auto.getProducts() == null || auto.getProducts().isEmpty() ||
                     (program.getRelation() != null && program.getRelation() == 0))  auto.setIsEditable(false);
             else auto.setIsEditable(true);
@@ -652,6 +653,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
             salePromotion.setPromotionProgramName(program.getPromotionProgramName());
             salePromotion.setIsEditable(false);
+            salePromotion.setEditable(program.getIsEdited());
             salePromotion.setContraintType(1);
             if (program.getRelation() != null && program.getRelation() == 0) salePromotion.setContraintType(0);
             salePromotion.setZv23Amount(saveAmount);
@@ -1026,8 +1028,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if(discountItem.getDisPer() != null && discountItem.getDisPer() > 0) {
                         totalAmountSaleExTax += productOrder.getTotalPriceNotVAT();
                         totalAmountSaleInTax += productOrder.getTotalPrice();
-                        double amtInTax = productOrder.getTotalPriceNotVAT() * discountItem.getDisPer() / 100;
-                        double amtExTax = productOrder.getTotalPrice() * discountItem.getDisPer() / 100;
+                        double amtInTax = productOrder.getTotalPrice() * discountItem.getDisPer() / 100;
+                        double amtExTax = productOrder.getTotalPriceNotVAT() * discountItem.getDisPer() / 100;
                         if(forSaving)
                             saveInfo.add(initSaleDiscount(discountItem.getProductId(), level, amtInTax, amtExTax, isInclusiveTax));
 

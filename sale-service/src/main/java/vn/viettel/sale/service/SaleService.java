@@ -1,5 +1,6 @@
 package vn.viettel.sale.service;
 
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.SaleOrderRequest;
@@ -19,4 +20,10 @@ public interface SaleService {
     câp nhật giá trị chiết tích lũy
      */
     void updateAccumulatedAmount(Double accumulatedAmount, Long customerId);
+
+
+    /*
+    Tạo mã đơn
+    */
+    String createOrderNumber(ShopDTO shopDTO);
 }

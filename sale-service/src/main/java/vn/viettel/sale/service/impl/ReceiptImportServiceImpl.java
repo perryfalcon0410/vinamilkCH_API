@@ -22,6 +22,7 @@ import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptImportService;
+import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
@@ -85,6 +86,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Autowired
     StockTotalService stockTotalService;
+
+    @Autowired
+    SaleService saleService;
 
     @Override
     public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate, Integer type, Long shopId, Pageable pageable) {
@@ -714,7 +718,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerDTO cus = customerClient.getCusDefault(shopId);
         if(cus.getId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
         if (request.getImportType() == 1) {
+            ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+            if (shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
             StockAdjustment stockAdjustment = stockAdjustmentRepository.getById(request.getPoId());
@@ -728,7 +735,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setTransCode(stockAdjustment.getAdjustmentCode());
             stockAdjustmentRecord.setAdjustmentDate(stockAdjustment.getAdjustmentDate());
             stockAdjustmentRecord.setShopId(shopId);
-            stockAdjustmentRecord.setRedInvoiceNo(createRedInvoiceCodeAdjust(shopId));
+            stockAdjustmentRecord.setRedInvoiceNo(saleService.createOrderNumber(shop));
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(shopId));
             stockAdjustmentRecord.setType(1);
             stockAdjustmentRecord.setStatus(1);
@@ -1243,24 +1250,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
-        return reciCode.toString();
-    }
-
-    private String createRedInvoiceCodeAdjust(Long idShop) {
-
-        DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
-        LocalDate currentDate = LocalDate.now();
-        String yy = df.format(Calendar.getInstance().getTime());
-        String mm = String.valueOf(currentDate.getMonthValue());
-        String dd = String.valueOf(currentDate.getDayOfMonth());
-        int reciNum = saleOrderRepository.countIdFromSaleOrder();
-        StringBuilder reciCode = new StringBuilder();
-        reciCode.append("SAL.");
-        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
-        reciCode.append(yy);
-        reciCode.append(mm.length()<2 ? "0"+mm : mm);
-        reciCode.append(dd.length()<2 ? "0"+dd : dd);
         reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
         return reciCode.toString();
     }

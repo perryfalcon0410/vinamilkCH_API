@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -23,6 +24,7 @@ import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptExportService;
+import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
@@ -86,6 +88,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Autowired
     StockTotalService stockTotalService;
+
+    @Autowired
+    SaleService saleService;
 
     @Override
     public CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> find(String transCode, String redInvoiceNo, LocalDateTime fromDate,
@@ -349,11 +354,14 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Response<ApParamDTO> reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
         if (reason.getData() == null || reason.getData().getId() == null)
             throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+        if (shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+
         LocalDateTime ldt = LocalDateTime.now();
         poAdjustTrans.setTransDate(ldt);
         poAdjustTrans.setTransCode(stockAdjustment.getAdjustmentCode());
         poAdjustTrans.setShopId(shopId);
-        poAdjustTrans.setRedInvoiceNo(createStockAdjustmentExportRedInvoice(shopId));
+        poAdjustTrans.setRedInvoiceNo(saleService.createOrderNumber(shop));
         poAdjustTrans.setAdjustmentDate(stockAdjustment.getAdjustmentDate());
         poAdjustTrans.setWareHouseTypeId(stockAdjustment.getWareHouseTypeId());
         poAdjustTrans.setOrderDate(stockAdjustment.getAdjustmentDate());
@@ -704,22 +712,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         return reciCode.toString();
     }
 
-    private String createStockAdjustmentExportRedInvoice(Long idShop) {
-        DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
-        LocalDate currentDate = LocalDate.now();
-        String yy = df.format(Calendar.getInstance().getTime());
-        String mm = String.valueOf(currentDate.getMonthValue());
-        String dd = String.valueOf(currentDate.getDayOfMonth());
-        int reciNum = saleOrderRepository.countIdFromSaleOrder();
-        StringBuilder reciCode = new StringBuilder();
-        reciCode.append("SAL.");
-        reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
-        reciCode.append(yy);
-        reciCode.append(mm.length() < 2 ? "0" + mm : mm);
-        reciCode.append(dd.length() < 2 ? "0" + dd : dd);
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
-        return reciCode.toString();
-    }
 
     public String createStockBorrowTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits

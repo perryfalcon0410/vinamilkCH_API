@@ -20,6 +20,7 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.core.util.ValidationUtils;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
@@ -27,6 +28,7 @@ import vn.viettel.sale.service.*;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -295,13 +297,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                         return null;
                                     }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
                                     if(lstMax.size() == 1){ // cùng max value
-                                        if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
-                                            if(inputPro.getTotalQty() < lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                                        if(dbPro.getEditable() == null || dbPro.getEditable() == 0){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
+                                            if(inputPro.getTotalQty() != lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                                         }else{ // được tặng số lượng nhỏ hơn số cơ cấu
                                             //TODO
                                         }
                                     }else{ // khác max value
-                                        if(dbPro.getIsEditable() == null || dbPro.getIsEditable() == false){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
+                                        if(dbPro.getEditable() == null || dbPro.getEditable() == 0 ){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
                                             for(FreeProductDTO product: inputPro.getProducts()){
                                                 if(product.getQuantity() != null && product.getQuantity() > 0){
                                                     if(inputPro.getTotalQty() < product.getQuantityMax() || inputPro.getTotalQty() > product.getQuantityMax())
@@ -526,7 +528,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(), new ArrayList<>(mapProductWithQty.keySet()));
         for (FreeProductDTO freeProductDTO : freeProductDTOs){
             if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < mapProductWithQty.get(freeProductDTO.getProductId())))
-                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " + freeProductDTO.getProductName(), freeProductDTO.getStockQuantity() + "");
+                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " + freeProductDTO.getProductName(), this.withLargeIntegers(freeProductDTO.getStockQuantity()) + "");
         }
 
         // 5. kiểm tra tiền tích lũy
@@ -539,7 +541,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
         saleOrder.setOnlineNumber(null);
-        saleOrder.setOrderNumber(createOrderNumber(shop.getShopCode(),shopId));
+        saleOrder.setOrderNumber(createOrderNumber(shop));
         saleOrder.setOrderDate(LocalDateTime.now());
         saleOrder.setShopId(shopId);
         saleOrder.setSalemanId(userId);
@@ -590,17 +592,17 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
                 saleOrder.setMemberCardAmount(remain);
             }
-            if (saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher() > 0 && remain < 0) {
-                if(saleOrder.getTotalVoucher() >= -remain ) {
-                    saleOrder.setTotalVoucher(-remain);
+            if (saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0 && remain < 0) {
+                if(saleOrder.getDiscountCodeAmount() >= -remain ) {
+                    saleOrder.setDiscountCodeAmount(-remain);
                     remain = 0;
                 }
                 else {
-                    remain = saleOrder.getTotalVoucher() + remain;
-                    saleOrder.setTotalVoucher(0D);
+                    remain = saleOrder.getDiscountCodeAmount() + remain;
+                    saleOrder.setDiscountCodeAmount(0D);
                 }
             }
-            if (saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0 && remain < 0) {
+            if (saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher() > 0 && remain < 0) {
                 saleOrder.setTotalVoucher(remain);
             }
         }
@@ -764,15 +766,15 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     /*
     Tạo số đơn mua hàng
      */
-    private String createOrderNumber(String shopCode, Long shopId){
+    public String createOrderNumber(ShopDTO shop){
         LocalDateTime now = DateUtils.convertDateToLocalDateTime(new Date());
         int day = now.getDayOfMonth();
         int month = now.getMonthValue();
         LocalDateTime start =  DateUtils.convertFromDate(now);
         LocalDateTime end =  DateUtils.convertToDate(now);
         String  year = Integer.toString(now.getYear()).substring(2);
-        int STT = repository.countSaleOrder(start,end,shopId) + 1;
-        return  "SAL." +  shopCode + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
+        int STT = repository.countSaleOrder(start,end,shop.getId()) + 1;
+        return  "SAL." +  shop.getShopCode() + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
     }
 
     /*
@@ -1001,6 +1003,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             customerRequest.setMonthOrderNumber(monthOrderNumber + quantity);
             customerRequest.setMonthOrderAmount(monthOrderAmount + saleOrder.getAmount());
         customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
+    }
+
+
+    public static String withLargeIntegers(Integer value) {
+        DecimalFormat df = new DecimalFormat("#,###");
+        return df.format(value);
     }
 
 }
