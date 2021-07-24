@@ -255,150 +255,156 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
         if(saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
-        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
-        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
         Integer check = repository.checkIsReturn(saleOrder.getId());
         if(check != null && check > 0) throw new ValidateException(ResponseMessage.SALE_ORDER_HAS_ALREADY_RETURNED);
         List<SaleOrderDetail> saleOrderPromotions =
                 saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), true);
         if(saleOrder.getIsReturn() != null && !saleOrder.getIsReturn()) throw new ValidateException(ResponseMessage.SALE_ORDER_CANNOT_RETURN);
-        LocalDateTime returnDate = DateUtils.convertToDate(new Date());
+        LocalDateTime returnDate = LocalDateTime.now();
         SaleOrder newOrderReturn = new SaleOrder();
 
-            int day = returnDate.getDayOfMonth();
-            int month = returnDate.getMonthValue();
-            String  year = Integer.toString(returnDate.getYear()).substring(2);
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
-            newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
-            String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
-            newOrderReturn.setOrderNumber(orderNumber); // important
-            newOrderReturn.setType(2);
-            newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase());
-            newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase());
-            newOrderReturn.setFromSaleOrderId(saleOrder.getId());
-            newOrderReturn.setOriginOrderNumber(saleOrder.getOrderNumber());//Lưu mã của đơn gốc
-            newOrderReturn.setReasonId(request.getReasonId());
-            newOrderReturn.setReasonDesc(request.getReasonDescription());
+        int day = returnDate.getDayOfMonth();
+        int month = returnDate.getMonthValue();
+        String  year = Integer.toString(returnDate.getYear()).substring(2);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
+        newOrderReturn =  modelMapper.map(newOrderReturnDTO, SaleOrder.class);
+        String orderNumber = createOrderReturnNumber(saleOrder.getShopId(), day, month, year);
+        newOrderReturn.setOrderNumber(orderNumber); // important
+        newOrderReturn.setType(2);
+        newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase());
+        newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase());
+        newOrderReturn.setFromSaleOrderId(saleOrder.getId());
+        newOrderReturn.setOriginOrderNumber(saleOrder.getOrderNumber());//Lưu mã của đơn gốc
+        newOrderReturn.setReasonId(request.getReasonId());
+        newOrderReturn.setReasonDesc(request.getReasonDescription());
 
-            if(saleOrder.getAmount()!=null) newOrderReturn.setAmount(saleOrder.getAmount() * -1);
-            if(saleOrder.getTotalPromotion()!=null) newOrderReturn.setTotalPromotion(saleOrder.getTotalPromotion() * -1);
-            if(saleOrder.getTotal()!=null) newOrderReturn.setTotal(saleOrder.getTotal() * -1);
-            if(saleOrder.getTotalPaid()!=null) newOrderReturn.setTotalPaid(saleOrder.getTotalPaid() * -1);
-            if(saleOrder.getBalance()!=null) newOrderReturn.setBalance(saleOrder.getBalance() * -1);
-            if(saleOrder.getMemberCardAmount()!=null) newOrderReturn.setMemberCardAmount(saleOrder.getMemberCardAmount() * -1);
-            if(saleOrder.getTotalVoucher()!=null) newOrderReturn.setTotalVoucher(saleOrder.getTotalVoucher() * -1);
-            if(saleOrder.getAutoPromotionNotVat()!=null) newOrderReturn.setAutoPromotionNotVat(saleOrder.getAutoPromotionNotVat() * -1);
-            if(saleOrder.getAutoPromotionVat()!=null) newOrderReturn.setAutoPromotionVat(saleOrder.getAutoPromotionVat() * -1);
-            if(saleOrder.getAutoPromotion()!=null) newOrderReturn.setAutoPromotion(saleOrder.getAutoPromotion() * -1);
-            if(saleOrder.getZmPromotion()!=null) newOrderReturn.setZmPromotion(saleOrder.getZmPromotion() * -1);
-            if(saleOrder.getTotalPromotionNotVat()!=null) newOrderReturn.setTotalPromotionNotVat(saleOrder.getTotalPromotionNotVat() * -1);
-            if(saleOrder.getCustomerPurchase()!=null) newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase() * -1);
-            if(saleOrder.getDiscountCodeAmount()!=null) newOrderReturn.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() * -1);
-            if(saleOrder.getTotalCustomerPurchase()!=null) newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase() * -1);
-            if(saleOrder.getTotalPromotionVat()!=null) newOrderReturn.setTotalPromotionVat(saleOrder.getTotalPromotionVat() * -1);
-            if(saleOrder.getZmPromotionVat()!=null) newOrderReturn.setZmPromotionVat(saleOrder.getZmPromotionVat() * -1);
-            if(saleOrder.getZmPromotionNotVat()!=null) newOrderReturn.setZmPromotionNotVat(saleOrder.getZmPromotionNotVat() * -1);
-            newOrderReturn.setCreatedAt(LocalDateTime.now());
-            newOrderReturn.setOrderDate(LocalDateTime.now());
-            repository.save(newOrderReturn); //save new orderReturn
-            saleOrder.setIsReturn(false);
-            repository.save(saleOrder);
+        if(saleOrder.getAmount()!=null) newOrderReturn.setAmount(saleOrder.getAmount() * -1);
+        if(saleOrder.getTotalPromotion()!=null) newOrderReturn.setTotalPromotion(saleOrder.getTotalPromotion() * -1);
+        if(saleOrder.getTotal()!=null) newOrderReturn.setTotal(saleOrder.getTotal() * -1);
+        if(saleOrder.getTotalPaid()!=null) newOrderReturn.setTotalPaid(saleOrder.getTotalPaid() * -1);
+        if(saleOrder.getBalance()!=null) newOrderReturn.setBalance(saleOrder.getBalance() * -1);
+        if(saleOrder.getMemberCardAmount()!=null) newOrderReturn.setMemberCardAmount(saleOrder.getMemberCardAmount() * -1);
+        if(saleOrder.getTotalVoucher()!=null) newOrderReturn.setTotalVoucher(saleOrder.getTotalVoucher() * -1);
+        if(saleOrder.getAutoPromotionNotVat()!=null) newOrderReturn.setAutoPromotionNotVat(saleOrder.getAutoPromotionNotVat() * -1);
+        if(saleOrder.getAutoPromotionVat()!=null) newOrderReturn.setAutoPromotionVat(saleOrder.getAutoPromotionVat() * -1);
+        if(saleOrder.getAutoPromotion()!=null) newOrderReturn.setAutoPromotion(saleOrder.getAutoPromotion() * -1);
+        if(saleOrder.getZmPromotion()!=null) newOrderReturn.setZmPromotion(saleOrder.getZmPromotion() * -1);
+        if(saleOrder.getTotalPromotionNotVat()!=null) newOrderReturn.setTotalPromotionNotVat(saleOrder.getTotalPromotionNotVat() * -1);
+        if(saleOrder.getCustomerPurchase()!=null) newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase() * -1);
+        if(saleOrder.getDiscountCodeAmount()!=null) newOrderReturn.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() * -1);
+        if(saleOrder.getTotalCustomerPurchase()!=null) newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase() * -1);
+        if(saleOrder.getTotalPromotionVat()!=null) newOrderReturn.setTotalPromotionVat(saleOrder.getTotalPromotionVat() * -1);
+        if(saleOrder.getZmPromotionVat()!=null) newOrderReturn.setZmPromotionVat(saleOrder.getZmPromotionVat() * -1);
+        if(saleOrder.getZmPromotionNotVat()!=null) newOrderReturn.setZmPromotionNotVat(saleOrder.getZmPromotionNotVat() * -1);
+        newOrderReturn.setOrderDate(returnDate);
+        repository.save(newOrderReturn); //save new orderReturn
+        saleOrder.setIsReturn(false);
+        repository.save(saleOrder);
 
-            //new orderReturn detail
-            List<SaleOrderDetail> saleOrderDetails =
-                    saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
-//            if(saleOrderDetails.size() <= 0) throw new ValidateException(ResponseMessage.SALE_ORDER_DOES_NOT_HAVE_PRODUCT);
-            SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
-            if(saleOrderDetails != null)
-            for(SaleOrderDetail saleOrderDetail:saleOrderDetails) {
+        //new orderReturn detail
+        List<SaleOrderDetail> saleOrderDetails =
+                saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
+        SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
+        if(saleOrderDetails != null) {
+            for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
                 NewOrderReturnDetailDTO productReturnDTO = modelMapper.map(saleOrderDetail, NewOrderReturnDetailDTO.class);
                 SaleOrderDetail productReturn = modelMapper.map(productReturnDTO, SaleOrderDetail.class);
                 productReturn.setSaleOrderId(orderReturn.getId());
                 productReturn.setAutoPromotionVat(saleOrderDetail.getAutoPromotionVat());
-                productReturn.setOrderDate(LocalDateTime.now());
+                productReturn.setOrderDate(returnDate);
 
                 productReturn.setQuantity(saleOrderDetail.getQuantity() * -1);
 //                productReturn.setPrice(saleOrderDetail.getPrice() * -1);
                 productReturn.setAmount(saleOrderDetail.getAmount() * -1);
                 productReturn.setTotal(saleOrderDetail.getTotal() * -1);
 
-                if(saleOrderDetail.getPriceNotVat()!=null) productReturn.setPriceNotVat(saleOrderDetail.getPriceNotVat() * -1);
-                if(saleOrderDetail.getAutoPromotionNotVat()!=null) productReturn.setAutoPromotionNotVat(saleOrderDetail.getAutoPromotionNotVat() * -1);
-                if(saleOrderDetail.getAutoPromotionVat()!=null) productReturn.setAutoPromotionVat(saleOrderDetail.getAutoPromotionVat() * -1);
-                if(saleOrderDetail.getZmPromotionNotVat()!=null) productReturn.setZmPromotionNotVat(saleOrderDetail.getZmPromotionNotVat() * -1);
-                if(saleOrderDetail.getZmPromotionVat()!=null) productReturn.setZmPromotionVat(saleOrderDetail.getZmPromotionVat() * -1);
-                if(saleOrderDetail.getAutoPromotion()!=null) productReturn.setAutoPromotion(saleOrderDetail.getAutoPromotion() * -1);
-                if(saleOrderDetail.getZmPromotion()!=null) productReturn.setZmPromotion(saleOrderDetail.getZmPromotion() * -1);
+                if (saleOrderDetail.getPriceNotVat() != null)
+                    productReturn.setPriceNotVat(saleOrderDetail.getPriceNotVat() * -1);
+                if (saleOrderDetail.getAutoPromotionNotVat() != null)
+                    productReturn.setAutoPromotionNotVat(saleOrderDetail.getAutoPromotionNotVat() * -1);
+                if (saleOrderDetail.getAutoPromotionVat() != null)
+                    productReturn.setAutoPromotionVat(saleOrderDetail.getAutoPromotionVat() * -1);
+                if (saleOrderDetail.getZmPromotionNotVat() != null)
+                    productReturn.setZmPromotionNotVat(saleOrderDetail.getZmPromotionNotVat() * -1);
+                if (saleOrderDetail.getZmPromotionVat() != null)
+                    productReturn.setZmPromotionVat(saleOrderDetail.getZmPromotionVat() * -1);
+                if (saleOrderDetail.getAutoPromotion() != null)
+                    productReturn.setAutoPromotion(saleOrderDetail.getAutoPromotion() * -1);
+                if (saleOrderDetail.getZmPromotion() != null)
+                    productReturn.setZmPromotion(saleOrderDetail.getZmPromotion() * -1);
                 saleOrderDetailRepository.save(productReturn); //save new orderReturn detail
             }
+        }
+        //new orderReturn promotion
+        for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
+            NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
+            SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
+            promotionReturn.setSaleOrderId(orderReturn.getId());
+            promotionReturn.setPrice(0D);
+            promotionReturn.setAmount(0D);
+            promotionReturn.setTotal(0D);
+            promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
+            saleOrderDetailRepository.save(promotionReturn);
+        }
+        updateZV23(saleOrder.getCustomerId(),shopId, saleOrderPromotions, saleOrder.getId());
 
-            //new orderReturn promotion
-            for(SaleOrderDetail promotionDetail:saleOrderPromotions) {
-                NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
-                SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
-                promotionReturn.setSaleOrderId(orderReturn.getId());
-                promotionReturn.setPrice(0D);
-                promotionReturn.setAmount(0D);
-                promotionReturn.setTotal(0D);
-                promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
-                saleOrderDetailRepository.save(promotionReturn);
+        //new orderReturn discount
+        List<SaleOrderDiscount> orderReturnDiscount = saleDiscount.findAllBySaleOrderId(saleOrder.getId());
+        if(orderReturnDiscount.size() > 0) {
+            for(SaleOrderDiscount discount:orderReturnDiscount){
+                OrderDiscountReturnDTO returnDiscountDTO = modelMapper.map(discount, OrderDiscountReturnDTO.class);
+                SaleOrderDiscount returnDiscount = modelMapper.map(returnDiscountDTO, SaleOrderDiscount.class);
+                returnDiscount.setDiscountAmount(discount.getDiscountAmount() * -1);
+                returnDiscount.setDiscountAmountVat(discount.getDiscountAmountVat() * -1);
+                returnDiscount.setDiscountAmountNotVat(discount.getDiscountAmountNotVat() * -1);
+                returnDiscount.setMaxDiscountAmount(discount.getMaxDiscountAmount() * -1);
+                returnDiscount.setOrderDate(newOrderReturn.getOrderDate());
+                returnDiscount.setSaleOrderId(newOrderReturn.getId());
+                saleDiscount.save(returnDiscount);
             }
-            updateZV23(saleOrder.getCustomerId(),shopId, saleOrderPromotions, saleOrder.getId());
+        }
 
-            //new orderReturn discount
-            List<SaleOrderDiscount> orderReturnDiscount = saleDiscount.findAllBySaleOrderId(saleOrder.getId());
-            if(orderReturnDiscount.size() > 0) {
-                for(SaleOrderDiscount discount:orderReturnDiscount){
-                    OrderDiscountReturnDTO returnDiscountDTO = modelMapper.map(discount, OrderDiscountReturnDTO.class);
-                    SaleOrderDiscount returnDiscount = modelMapper.map(returnDiscountDTO, SaleOrderDiscount.class);
-                    returnDiscount.setDiscountAmount(discount.getDiscountAmount() * -1);
-                    returnDiscount.setDiscountAmountVat(discount.getDiscountAmountVat() * -1);
-                    returnDiscount.setDiscountAmountNotVat(discount.getDiscountAmountNotVat() * -1);
-                    returnDiscount.setMaxDiscountAmount(discount.getMaxDiscountAmount() * -1);
-                    returnDiscount.setOrderDate(newOrderReturn.getCreatedAt());
-                    returnDiscount.setSaleOrderId(newOrderReturn.getId());
-                    saleDiscount.save(returnDiscount);
-                }
+        List<SaleOrderComboDiscount> comboDiscounts = SaleComboDiscount.findAllBySaleOrderId(saleOrder.getId());
+        if(comboDiscounts.size() > 0) {
+            for(SaleOrderComboDiscount comboDiscount:comboDiscounts) {
+                SaleComboDiscountDTO returnComboDiscountDTO = modelMapper.map(comboDiscount, SaleComboDiscountDTO.class);
+                SaleOrderComboDiscount returnComboDiscount = modelMapper.map(returnComboDiscountDTO, SaleOrderComboDiscount.class);
+                if(comboDiscount.getDiscountAmount()!= null) returnComboDiscount.setDiscountAmount(comboDiscount.getDiscountAmount() * -1);
+                if(comboDiscount.getDiscountAmountNotVat()!= null) returnComboDiscount.setDiscountAmountNotVat(comboDiscount.getDiscountAmountNotVat() * -1);
+                if(comboDiscount.getDiscountAmountVat()!= null) returnComboDiscount.setDiscountAmountVat(comboDiscount.getDiscountAmountVat() * -1);
+                returnComboDiscount.setOrderDate(newOrderReturn.getOrderDate());
+                returnComboDiscount.setSaleOrderId(newOrderReturn.getId());
+                SaleComboDiscount.save(returnComboDiscount);
             }
+        }
 
-            List<SaleOrderComboDiscount> comboDiscounts = SaleComboDiscount.findAllBySaleOrderId(saleOrder.getId());
-            if(comboDiscounts.size() > 0) {
-                for(SaleOrderComboDiscount comboDiscount:comboDiscounts) {
-                    SaleComboDiscountDTO returnComboDiscountDTO = modelMapper.map(comboDiscount, SaleComboDiscountDTO.class);
-                    SaleOrderComboDiscount returnComboDiscount = modelMapper.map(returnComboDiscountDTO, SaleOrderComboDiscount.class);
-                    if(comboDiscount.getDiscountAmount()!= null) returnComboDiscount.setDiscountAmount(comboDiscount.getDiscountAmount() * -1);
-                    if(comboDiscount.getDiscountAmountNotVat()!= null) returnComboDiscount.setDiscountAmountNotVat(comboDiscount.getDiscountAmountNotVat() * -1);
-                    if(comboDiscount.getDiscountAmountVat()!= null) returnComboDiscount.setDiscountAmountVat(comboDiscount.getDiscountAmountVat() * -1);
-                    returnComboDiscount.setOrderDate(newOrderReturn.getCreatedAt());
-                    returnComboDiscount.setSaleOrderId(newOrderReturn.getId());
-                    SaleComboDiscount.save(returnComboDiscount);
-                }
-            }
-
-            List<SaleOrderComboDetail> comboDetails = SaleComboDetail.findAllBySaleOrderId(saleOrder.getId());
-            if(comboDiscounts.size() > 0) {
-                for(SaleOrderComboDetail comboDetail:comboDetails) {
-                    SaleComboDetailDTO returnComboDetailDTO = modelMapper.map(comboDetail, SaleComboDetailDTO.class);
-                    SaleOrderComboDetail returnComboDetail = modelMapper.map(returnComboDetailDTO, SaleOrderComboDetail.class);
-                    returnComboDetail.setComboQuantity(comboDetail.getComboQuantity() * -1);
-                    returnComboDetail.setQuantity(comboDetail.getQuantity() * -1);
+        List<SaleOrderComboDetail> comboDetails = SaleComboDetail.findAllBySaleOrderId(saleOrder.getId());
+        if(comboDiscounts.size() > 0) {
+            for(SaleOrderComboDetail comboDetail:comboDetails) {
+                SaleComboDetailDTO returnComboDetailDTO = modelMapper.map(comboDetail, SaleComboDetailDTO.class);
+                SaleOrderComboDetail returnComboDetail = modelMapper.map(returnComboDetailDTO, SaleOrderComboDetail.class);
+                returnComboDetail.setComboQuantity(comboDetail.getComboQuantity() * -1);
+                returnComboDetail.setQuantity(comboDetail.getQuantity() * -1);
 //                    returnComboDetail.setPrice(comboDetail.getPrice() * -1);
-                    returnComboDetail.setPriceNotVat(comboDetail.getPriceNotVat() * -1);
-                    returnComboDetail.setAmount(comboDetail.getAmount() * -1);
-                    returnComboDetail.setTotal(comboDetail.getTotal() * -1);
-                    if(comboDetail.getAutoPromotion()!=null) returnComboDetail.setAutoPromotion(comboDetail.getAutoPromotion() * -1);
-                    if(comboDetail.getAutoPromotionVat()!=null) returnComboDetail.setAutoPromotionVat(comboDetail.getAutoPromotionVat() * -1);
-                    if(comboDetail.getAutoPromotionNotVat()!=null) returnComboDetail.setAutoPromotionNotVat(comboDetail.getAutoPromotionNotVat() * -1);
-                    if(comboDetail.getZmPromotion()!=null) returnComboDetail.setZmPromotion(comboDetail.getZmPromotion() * -1);
-                    if(comboDetail.getZmPromotionVat()!=null) returnComboDetail.setZmPromotionVat(comboDetail.getZmPromotionVat() * -1);
-                    if(comboDetail.getZmPromotionNotVat()!=null) returnComboDetail.setZmPromotionNotVat(comboDetail.getZmPromotionNotVat() * -1);
-                    returnComboDetail.setSaleOrderId(newOrderReturn.getId());
-                    returnComboDetail.setOrderDate(newOrderReturn.getCreatedAt());
-                    SaleComboDetail.save(returnComboDetail);
-                }
+                returnComboDetail.setPriceNotVat(comboDetail.getPriceNotVat() * -1);
+                returnComboDetail.setAmount(comboDetail.getAmount() * -1);
+                returnComboDetail.setTotal(comboDetail.getTotal() * -1);
+                if(comboDetail.getAutoPromotion()!=null) returnComboDetail.setAutoPromotion(comboDetail.getAutoPromotion() * -1);
+                if(comboDetail.getAutoPromotionVat()!=null) returnComboDetail.setAutoPromotionVat(comboDetail.getAutoPromotionVat() * -1);
+                if(comboDetail.getAutoPromotionNotVat()!=null) returnComboDetail.setAutoPromotionNotVat(comboDetail.getAutoPromotionNotVat() * -1);
+                if(comboDetail.getZmPromotion()!=null) returnComboDetail.setZmPromotion(comboDetail.getZmPromotion() * -1);
+                if(comboDetail.getZmPromotionVat()!=null) returnComboDetail.setZmPromotionVat(comboDetail.getZmPromotionVat() * -1);
+                if(comboDetail.getZmPromotionNotVat()!=null) returnComboDetail.setZmPromotionNotVat(comboDetail.getZmPromotionNotVat() * -1);
+                returnComboDetail.setSaleOrderId(newOrderReturn.getId());
+                returnComboDetail.setOrderDate(newOrderReturn.getOrderDate());
+                SaleComboDetail.save(returnComboDetail);
             }
-            updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(),shopId);
+        }
+        updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(),shopId);
+        CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
+        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
             if(saleOrder.getCustomerPurchase() != null)
                 saleService.updateCustomer(newOrderReturn, customer, true);
             if(saleOrder.getMemberCardAmount() != null)

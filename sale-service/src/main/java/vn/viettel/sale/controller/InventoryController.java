@@ -62,7 +62,7 @@ public class InventoryController extends BaseController {
                                                   @RequestParam(value = "fromDate",required = false) Date fromDate,
                                                   @RequestParam(value = "toDate",required = false) Date toDate,
                                                   @SortDefault.SortDefaults({
-                                                      @SortDefault(sort = "countingDate", direction = Sort.Direction.ASC),
+                                                      @SortDefault(sort = "countingDate", direction = Sort.Direction.DESC),
                                                   }) Pageable pageable) {
         Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,wareHouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),this.getShopId(),pageable);
         return new Response<Page<StockCountingDTO>>().withData(response);
