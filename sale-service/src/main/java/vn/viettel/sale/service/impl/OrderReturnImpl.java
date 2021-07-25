@@ -357,7 +357,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
             saleOrderDetailRepository.save(promotionReturn);
         }
-        updateZV23(saleOrder.getCustomerId(), shopId, saleOrderPromotions, saleOrder.getId());
+
 
         //new orderReturn discount
         List<SaleOrderDiscount> orderReturnDiscount = saleDiscount.findAllBySaleOrderId(saleOrder.getId());
@@ -423,6 +423,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(), shopId);
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
+        this.updateZV23(customer, saleOrder, orderReturnDiscount);
         if (saleOrder.getCustomerPurchase() != null)
             saleService.updateCustomer(newOrderReturn, customer, true);
         if (saleOrder.getMemberCardAmount() != null)
@@ -547,27 +549,19 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
     }
 
-    private void updateZV23(Long customerId, Long shopId, List<SaleOrderDetail> products, Long saleOderId) {
-        List<Long> idsProduct = new ArrayList<>();
-        Map<Long, List<SaleOrderDetail>> groupIds = products.stream().collect(Collectors.groupingBy(SaleOrderDetail::getProductId));
-        for (Map.Entry<Long, List<SaleOrderDetail>> entry : groupIds.entrySet()) {
-            idsProduct.add(entry.getKey());
+    private void updateZV23(CustomerDTO customer, SaleOrder saleOrder, List<SaleOrderDiscount> discounts) {
+        Set<Long> zV23Ids = new HashSet<>();
+        for (SaleOrderDiscount discount: discounts) {
+            if (discount.getPromotionType().equalsIgnoreCase("ZV23")) zV23Ids.add(discount.getPromotionProgramId());
         }
-        List<Long> idsRejected = new ArrayList<>();
-        List<PromotionProgramProductDTO> productRejected = promotionClient.findByPromotionIdsV1(idsProduct).getData();
-        if (productRejected != null && !productRejected.isEmpty()) {
-            for (PromotionProgramProductDTO ids : productRejected) {
-                idsRejected.add(ids.getProductId());
-            }
-            List<SaleOrderDetail> promotionProduct = saleOrderDetailRepository.detailNotHaveRejected(saleOderId, true, idsRejected);
+        if (zV23Ids.isEmpty()) return;
+        List<RPT_ZV23DTO> rpt_zv23DTOS = promotionClient.findByProgramIdsV1(zV23Ids, customer.getId()).getData();
+        for(RPT_ZV23DTO zv23: rpt_zv23DTOS) {
+            Double amount =  zv23.getTotalAmount()!=null?zv23.getTotalAmount():0;
+            Double cusPurchase = saleOrder.getCustomerPurchase()!=null?saleOrder.getCustomerPurchase():0;
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
-            for (SaleOrderDetail detail : promotionProduct) {
-                RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(detail.getPromotionCode(), customerId, shopId).getData();
-                if (rpt_zv23DTO != null) {
-                    rpt_zv23DTO.setTotalAmount(rpt_zv23DTO.getTotalAmount() - detail.getAmount());
-                    promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
-                }
-            }
+            zv23Request.setTotalAmount(amount - cusPurchase);
+            promotionClient.updateRPTZV23V1(zv23.getId(), zv23Request);
         }
     }
 

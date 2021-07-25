@@ -86,9 +86,13 @@ public interface PromotionClient {
     @PutMapping(value = {"/api/v1/promotions/create/RPT-ZV23"})
     Response<Boolean> createRPTZV23V1(@RequestBody RPT_ZV23Request request);
 
+    @GetMapping(value = {"/api/v1/promotions/RPT-ZV23"})
+    Response<List<RPT_ZV23DTO>> findByProgramIdsV1(@RequestParam Set<Long> programIds, @RequestParam Long customerId);
+
     @GetMapping(value = {"/api/v1/promotions/promotion-program-discount/code/{code}"})
     Response<PromotionProgramDiscountDTO> getPromotionDiscount(@PathVariable("code") String discountCode, @RequestParam Long shopId);
 
     @GetMapping("api/v1/promotions/ids")
     Response<List<PromotionProgramDTO>> getByIdsV1(@RequestParam List<Long> programIds);
+
 }

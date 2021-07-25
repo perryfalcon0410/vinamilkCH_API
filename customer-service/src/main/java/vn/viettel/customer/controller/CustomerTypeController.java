@@ -55,7 +55,6 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/shop-id/{shopId}"})
     public CustomerTypeDTO getCusTypeByShopId( @PathVariable Long shopId) {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByShopId(shopId);
@@ -67,14 +66,12 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerTypeDTO> getCustomerTypeDefault() {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCustomerTypeDefaut();
         return new Response<CustomerTypeDTO>().withData(customerTypeDTO);
     }
 
-    @RoleFeign
     @ApiOperation(value = "Tìm kiếm loại kho của shop")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -91,7 +88,6 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/warehouse-type/customer/{customerId}"})
     public CustomerTypeDTO getCusTypeByCustomerId( @PathVariable Long customerId) {
         CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByCustomerId(customerId);
@@ -103,7 +99,6 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/{id}"})
     public CustomerTypeDTO getCusTypeById( @PathVariable Long id) {
         if(id == null) return null;
