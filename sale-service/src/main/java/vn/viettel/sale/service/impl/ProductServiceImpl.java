@@ -244,8 +244,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     private CustomerTypeDTO getCustomerType(Long shopId, Long customerId){
         CustomerTypeDTO customerType = null;
-        if(customerId != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(shopId);
-        if(customerType == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(customerId);
+        if(customerId != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(customerId);
+        if(customerType == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         return customerType;
