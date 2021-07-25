@@ -6,8 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.jms.JMSSender;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
@@ -18,6 +22,8 @@ import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
 
 import javax.validation.Valid;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,6 +38,9 @@ public class SaleController extends BaseController {
 
     @Autowired
     SalePromotionService salePromotionService;
+    
+    @Autowired
+    JMSSender jmsSender;
 
     private final String root = "/sales";
 
@@ -55,6 +64,7 @@ public class SaleController extends BaseController {
     public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
         if (request.getProducts().isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
         Long id = (Long) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
+        sendSynRequest(Arrays.asList(id));
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", id);
@@ -143,4 +153,14 @@ public class SaleController extends BaseController {
         SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
         return new Response<SalePromotionDTO>().withData(discount);
     }
+    
+    private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.sale_order, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("vn.viettel.sale.service.impl.SaleServiceImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 }

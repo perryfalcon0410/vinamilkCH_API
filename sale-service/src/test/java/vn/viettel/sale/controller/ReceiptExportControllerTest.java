@@ -24,6 +24,7 @@ import vn.viettel.sale.service.dto.PoTransDTO;
 import vn.viettel.sale.service.dto.ReceiptImportListDTO;
 import vn.viettel.sale.service.dto.StockBorrowingDTO;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -70,8 +71,9 @@ public class ReceiptExportControllerTest extends BaseTest {
         request.setTransCode("CD001");
         request.setLitQuantityRemain(Arrays.asList(new ReceiptCreateDetailRequest(), new ReceiptCreateDetailRequest()));
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-
-        given(receiptExportService.createReceipt(any(), any(), any())).willReturn(response);
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(1l);
+        given(receiptExportService.createReceipt(any(), any(), any())).willReturn(ids);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -92,7 +94,9 @@ public class ReceiptExportControllerTest extends BaseTest {
         request.setListProductRemain(Arrays.asList(new ReceiptCreateDetailRequest(), new ReceiptCreateDetailRequest()));
         request.setNote("Ghi chu 2");
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        given(receiptExportService.updateReceiptExport(any(), any(),any())).willReturn(response);
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(1l);
+        given(receiptExportService.updateReceiptExport(any(), any(),any())).willReturn(ids);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.patch(uri, 1L)
@@ -108,7 +112,9 @@ public class ReceiptExportControllerTest extends BaseTest {
     public void removeReceiptExport() throws Exception {
         String uri = V1 + root + "/remove/1?type=2";
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        given(receiptExportService.removeReceiptExport(any(), any(),any())).willReturn(response);
+        List<String> ids = new ArrayList<String>();
+        ids.add("");
+        given(receiptExportService.removeReceiptExport(any(), any(),any())).willReturn(ids);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri)
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))

@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.apache.logging.log4j.util.Strings;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -7,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.extern.slf4j.Slf4j;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
@@ -15,13 +15,11 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
@@ -41,7 +39,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptImportService {
     @Autowired
     ShopClient shopClient;
@@ -87,8 +84,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     CustomerClient customerClient;
     @Autowired
     ProductPriceRepository productPriceRepository;
-    @Autowired
-    private JMSSender jmsSender;
 
     @Autowired
     StockTotalService stockTotalService;
@@ -139,7 +134,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage createReceipt(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public List<Long> createReceipt(ReceiptCreateRequest request, Long userId, Long shopId) {
         switch (request.getImportType()) {
             case 0:
                 return createPoTrans(request, userId, shopId);
@@ -153,21 +148,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage updateReceiptImport(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
+    public List<Long> updateReceiptImport(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
         switch (request.getType()) {
             case 0:
                 return updatePoTrans(request, id,userName,shopId);
             case 1:
                 return updateAdjustmentTrans(request, id,userName,shopId);
             case 2:
-                return  updateBorrowingTrans(request, id,userName,shopId);
+                return updateBorrowingTrans(request, id,userName,shopId);
         }
         return null;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage removeReceiptImport( Long id,Integer type,String userName,Long shopId) {
+    public List<String> removeReceiptImport( Long id,Integer type,String userName,Long shopId) {
         switch (type) {
             case 0:
                 return removePoTrans(id,userName,shopId);
@@ -176,7 +171,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             case 2:
                 return removeStockBorrowingTrans(id,userName,shopId);
         }
-        return ResponseMessage.DELETE_FAILED;
+        return null;
     }
 
     @Override
@@ -619,13 +614,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public List<Long> createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
             CustomerTypeDTO customerTypeDTO = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
         if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         if(request.getRedInvoiceNo() != null && request.getRedInvoiceNo().length() >50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         checkNoteLength(request.getNote());
-
+        List<Long> syncIds = new ArrayList<Long>();
         if (request.getPoId() == null) {
             List<String> lstInternalNumber = repository.getInternalNumber();
             List<String> lstPoCoNumber = repository.getPoCoNumber();
@@ -672,9 +667,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTotalAmount(0D);
             poRecord.setNumSku(request.getLst().size());
             poRecord = repository.save(poRecord);
-            repository.flush();
-            sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
-            return ResponseMessage.CREATED_SUCCESSFUL;
+            syncIds.add(poRecord.getId());
+            return syncIds;
         } else {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
@@ -713,22 +707,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setNote(request.getNote());
             poConfirm.setStatus(1);
             poRecord = repository.save(poRecord);
-            repository.flush();
-            sendSynRequest(JMSType.po_trans, Arrays.asList(poRecord.getId()));
             poConfirm = poConfirmRepository.save(poConfirm);
-            poConfirmRepository.flush();
-            sendSynRequest(JMSType.po_confirm, Arrays.asList(poConfirm.getId()));
-            return ResponseMessage.CREATED_SUCCESSFUL;
+            syncIds.add(poRecord.getId());
+            syncIds.add(poConfirm.getId());
+            return syncIds;
         }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public List<Long> createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
 
         UserDTO user = userClient.getUserByIdV1(userId);
         Long customerTypeDTO = customerTypeClient.getWarehouseTypeByShopId(shopId);
         CustomerDTO cus = customerClient.getCusDefault(shopId);
+        List<Long> syncIds = new ArrayList<Long>();
         if(cus.getId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         if (request.getImportType() == 1) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -828,38 +821,17 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustment.setUpdatedBy(user.getUserAccount());
             stockAdjustmentRecord = stockAdjustmentTransRepository.save(stockAdjustmentRecord);
             stockAdjustment = stockAdjustmentRepository.save(stockAdjustment);
-            stockAdjustmentRepository.flush();
-            stockAdjustmentTransRepository.flush();
-            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
-            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentRecord.getId()));
-            return ResponseMessage.CREATED_SUCCESSFUL;
+            syncIds.add(stockAdjustment.getId());
+            syncIds.add(stockAdjustmentRecord.getId());
+            return syncIds;
         }
         return null;
     }
 
-    private void sendSynRequest(String type, List<Long> listId) {
-        try {
-        	if(!listId.isEmpty()) {
-        		jmsSender.sendMessage(type, listId);
-        	}
-        } catch (Exception ex) {
-            log.error("khoi tao jmsSender", ex);
-        }
-    }
-    
-    private void sendSynRequestByCode(String type, List<String> lstCodes) {
-        try {
-        	if(!lstCodes.isEmpty()) {
-        		jmsSender.sendMessageByCode(type, lstCodes);
-        	}
-        } catch (Exception ex) {
-            log.error("Cannot send request", ex);
-        }
-    }
-
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage createBorrowingTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
+    public List<Long> createBorrowingTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         Long wareHouseId = customerTypeClient.getWarehouseTypeByShopId(shopId);
+        List<Long> syncIds = new ArrayList<Long>();
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
@@ -897,16 +869,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setNote(request.getNote()==null ? stockBorrowing.getNote() : request.getNote());
             stockBorrowing.setStatusImport(2);
             stockBorrowing = stockBorrowingRepository.save(stockBorrowing);
-            stockBorrowingRepository.flush();
-            if(null != stockBorrowing) {
-                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(stockBorrowing.getId()));
-            }
+            syncIds.add(stockBorrowing.getId());
             stockBorrowingTrans = stockBorrowingTransRepository.save(stockBorrowingTrans);
-            stockBorrowingTransRepository.flush();
-            if(null != stockBorrowingTrans) {
-                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(stockBorrowingTrans.getId()));
-            }
-            return ResponseMessage.CREATED_SUCCESSFUL;
+            syncIds.add(stockBorrowingTrans.getId());
+            return syncIds;
         }
         return null;
     }
@@ -917,7 +883,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage updatePoTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
+    public List<Long> updatePoTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
         checkNoteLength(request.getNote());
         PoTrans poTrans = repository.getPoTransById(id);
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
@@ -1094,12 +1060,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if(st != null) stockTotalRepository.save(st);
             }
         }
-        repository.flush();
-        sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
-        return ResponseMessage.UPDATE_SUCCESSFUL;
+        return Arrays.asList(poTrans.getId());
     }
 
-    public ResponseMessage updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
+    public List<Long> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
 
         StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getStockAdjustmentTransById(id);
         checkNoteLength(request.getNote());
@@ -1108,14 +1072,12 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             adjustmentTrans.setUpdatedBy(userName);
             adjustmentTrans.setInternalNumber(request.getInternalNumber());
             stockAdjustmentTransRepository.save(adjustmentTrans);
-            stockAdjustmentTransRepository.flush();
-            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(adjustmentTrans.getId()));
-            return ResponseMessage.UPDATE_SUCCESSFUL;
+            return Arrays.asList(adjustmentTrans.getId());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
 
-    public ResponseMessage updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
+    public List<Long> updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
 
         StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
         checkNoteLength(request.getNote());
@@ -1124,18 +1086,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             borrowingTrans.setUpdatedBy(userName);
             borrowingTrans.setInternalNumber(request.getInternalNumber());
             borrowingTrans = stockBorrowingTransRepository.save(borrowingTrans);
-            stockBorrowingTransRepository.flush();
-            if(null != borrowingTrans) {
-                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(borrowingTrans.getId()));
-            }
-            return ResponseMessage.UPDATE_SUCCESSFUL;
+            return Arrays.asList(borrowingTrans.getId());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage removePoTrans(Long id,String userName,Long shopId) {
+    public List<String> removePoTrans(Long id,String userName,Long shopId) {
         PoTrans poTrans = repository.getPoTransById(id);
+        List<String> syncIds = new ArrayList<String>();
         if(poTrans== null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         if(poTrans.getStatus()==-1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_DELETED);
         if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
@@ -1165,27 +1124,28 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,product.get().getProductName(),poTrans.getTransCode());
                 }
             }
+            String poConfirmTemp = Strings.EMPTY;
             if (poTrans.getPoId() != null) {
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
                 poConfirm.setStatus(0);
                 poConfirm = poConfirmRepository.save(poConfirm);
-                poConfirmRepository.flush();
-                sendSynRequest(JMSType.po_confirm, Arrays.asList(poConfirm.getId()));
+                poConfirmTemp = poConfirm.getId().toString();
             }
             poTrans.setStatus(-1);
             poTrans = repository.save(poTrans);
-            repository.flush();
             if(stockTotals != null){
                 stockTotalService.updateWithLock(idAndValues);
             }
-            sendSynRequest(JMSType.po_trans, Arrays.asList(poTrans.getId()));
-            return ResponseMessage.DELETE_SUCCESSFUL;
+            syncIds.add(poTrans.getId().toString());
+            syncIds.add(poConfirmTemp);
+            return syncIds;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage removeStockAdjustmentTrans(Long id,String userName,Long shopId) {
+    public List<String> removeStockAdjustmentTrans(Long id,String userName,Long shopId) {
         StockAdjustmentTrans stockAdjustmentTrans = stockAdjustmentTransRepository.getAdjustTransImportById(id);
+        List<String> syncIds = new ArrayList<String>();
         if(stockAdjustmentTrans==null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
         if(stockAdjustmentTrans.getStatus()==-1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_DELETED);
 
@@ -1227,21 +1187,20 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentTrans.setStatus(-1);
             stockAdjustmentRepository.save(stockAdjustment);
             stockAdjustmentTransRepository.save(stockAdjustmentTrans);
-            saleOrderRepository.flush();
-            saleOrderDetailRepository.flush();
-            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(stockAdjustment.getId()));
-            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(stockAdjustmentTrans.getId()));
-            sendSynRequestByCode(JMSType.sale_orders_adjustment, Arrays.asList(orderNumber));
+            syncIds.add(stockAdjustment.getId().toString());
+            syncIds.add(stockAdjustmentTrans.getId().toString());
+            syncIds.add(orderNumber);
             if(stockTotals != null){
                 stockTotalService.updateWithLock(idAndValues);
             }
-            return ResponseMessage.DELETE_SUCCESSFUL;
+            return syncIds;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage removeStockBorrowingTrans(Long id,String userName,Long shopId) {
+    public List<String> removeStockBorrowingTrans(Long id,String userName,Long shopId) {
         StockBorrowingTrans stockBorrowingTrans = stockBorrowingTransRepository.getStockBorrowingTransById(id);
+        List<String> syncIds = new ArrayList<String>();
         if(stockBorrowingTrans.getStatus()==-1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_DELETED);
         if (DateUtils.formatDate2StringDate(stockBorrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             List<StockBorrowingTransDetail> stockBorrowingTransDetails = stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(stockBorrowingTrans.getId());
@@ -1275,20 +1234,13 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockBorrowingTrans.setStatus(-1);
             stockBorrowingTrans.setUpdatedBy(userName);
             stockBorrowingTrans = stockBorrowingTransRepository.save(stockBorrowingTrans);
-            stockBorrowingTransRepository.flush();
-            if(null != stockBorrowingTrans) {
-                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(stockBorrowingTrans.getId()));
-            }
+            syncIds.add(stockBorrowingTrans.getId().toString());
             stockBorrowing = stockBorrowingRepository.save(stockBorrowing);
-            stockBorrowingRepository.flush();
-            if(null != stockBorrowing) {
-                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(stockBorrowing.getId()));
-            }
-
+            syncIds.add(stockBorrowing.getId().toString());
             if(stockTotals != null){
                 stockTotalService.updateWithLock(idAndValues);
             }
-            return ResponseMessage.DELETE_SUCCESSFUL;
+            return syncIds;
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_DELETE);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -11,11 +11,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.*;
@@ -26,6 +28,8 @@ import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +38,8 @@ import java.util.List;
 public class OrderReturnController extends BaseController {
     @Autowired
     OrderReturnService orderReturnService;
+    @Autowired
+    JMSSender jmsSender;
     private final String root = "/sales/order-return";
 
     @GetMapping(value = { V1 + root })
@@ -100,6 +106,21 @@ public class OrderReturnController extends BaseController {
         Response<SaleOrder> response = new Response<>();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_ORDER_RETURN_SUCCESS);
         response.setStatusValue("Tạo hóa đơn trả thành công");
-        return response.withData(orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName()));
+        SaleOrder newOrderReturn = orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName());
+        if(newOrderReturn != null) {
+        	sendSynRequest(Arrays.asList(newOrderReturn.getId()));
+        }
+        return response.withData(newOrderReturn);
     }
+    
+    
+	private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.sale_order, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("vn.viettel.sale.service.impl.OrderReturnImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 }

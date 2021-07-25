@@ -4,6 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.CategoryDataDTO;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
@@ -20,25 +23,31 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.service.ExchangeTranService;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
+import vn.viettel.sale.service.impl.ExchangeTranServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @Api(tags = "Api sử dụng cho quản lý đổi hàng hỏng")
+@Slf4j
 public class ExchangeTransController extends BaseController {
     @Autowired
     ExchangeTranService service;
+    @Autowired
+    private JMSSender jmsSender;
     private final String root = "/sales/exchangetrans";
 
     @ApiOperation(value = "Api dùng khi tạo mới đơn đổi hàng để lấy lý do trả hàng")
@@ -80,10 +89,13 @@ public class ExchangeTransController extends BaseController {
 
     @PostMapping(value = { V1 + root + "/create"})
     public Response<String> create(@Valid @RequestBody ExchangeTransRequest request, HttpServletRequest httpRequest) {
-        ResponseMessage message = service.create(request, this.getUserId(),this.getShopId());
+    	ExchangeTransDTO dto = service.create(request, this.getUserId(),this.getShopId());
+    	if(dto != null) {
+    		sendSynRequest(JMSType.exchange_trans, Arrays.asList(dto.getId()));
+    	}
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        response.setStatusValue(ResponseMessage.CREATED_SUCCESSFUL.statusCodeValue());
+        response.setStatusCode(ResponseMessage.CREATED_SUCCESSFUL.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_EXCHANGE_TRANS_SUCCESS);
         return response;
     }
@@ -111,10 +123,13 @@ public class ExchangeTransController extends BaseController {
     })
     @PutMapping(value = { V1 + root + "/update/{id}"})
     public Response<String> update(@PathVariable Long id,@RequestBody  ExchangeTransRequest request, HttpServletRequest httpRequest) {
-        ResponseMessage message = service.update(id,request,this.getShopId());
+    	ExchangeTransDTO dto = service.update(id,request,this.getShopId());
+    	if(dto != null) {
+    		sendSynRequest(JMSType.exchange_trans, Arrays.asList(dto.getId()));
+    	}
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        response.setStatusValue(ResponseMessage.UPDATE_SUCCESSFUL.statusCodeValue());
+        response.setStatusCode(ResponseMessage.UPDATE_SUCCESSFUL.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
         return response;
     }
@@ -146,4 +161,13 @@ public class ExchangeTransController extends BaseController {
 
         return new Response<List<ExchangeTransDetailRequest>>().withData(response);
     }
+    
+    private void sendSynRequest(String type, List<Long> listId) {
+        try {
+            jmsSender.sendMessage(type, listId);
+        } catch (Exception ex) {
+            log.error("khoi tao jmsSender", ex);
+        }
+    }
+
 }

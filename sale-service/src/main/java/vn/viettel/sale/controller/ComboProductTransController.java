@@ -1,6 +1,8 @@
 package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
@@ -16,23 +19,32 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
 import vn.viettel.sale.service.dto.TotalDTO;
+import vn.viettel.sale.service.impl.ComboProductTransServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @Api(tags = "API xuất nhập sản phẩm combo")
+@Slf4j
 public class ComboProductTransController extends BaseController {
 
     @Autowired
     ComboProductTransService comboProductTransService;
+
+    @Autowired
+    private JMSSender jmsSender;
+    
     private final String root = "/sales/combo-product-trans";
 
     @GetMapping(value = { V1 + root })
@@ -66,7 +78,10 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<String> create(HttpServletRequest request, @Valid @ApiParam("Thông tin tạo mới xuất, nhập combo") @RequestBody ComboProductTranRequest comboRequest) {
-        comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
+    	ComboProductTranDTO dto = comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
+    	if(dto != null) {
+    		sendSynRequest(JMSType.combo_product_trans, Arrays.asList(dto.getId()));
+    	}
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_COMBO_PRODUCT_TRANS_SUCCESS);
         Response response = new Response();
         response.setStatusValue(ResponseMessage.CREATED_SUCCESSFUL.statusCodeValue());
@@ -83,5 +98,13 @@ public class ComboProductTransController extends BaseController {
         ComboProductTranDTO response = comboProductTransService.getComboProductTrans(id);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_TRANS_SUCCESS);
         return new Response<ComboProductTranDTO>().withData(response);
+    }
+    
+    private void sendSynRequest(String type, List<Long> listId) {
+        try {
+            jmsSender.sendMessage(type, listId);
+        } catch (Exception ex) {
+            log.error("khoi tao jmsSender", ex);
+        }
     }
 }

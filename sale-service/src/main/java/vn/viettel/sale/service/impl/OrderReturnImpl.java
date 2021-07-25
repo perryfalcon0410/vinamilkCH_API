@@ -34,15 +34,11 @@ import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.jms.JMSSender;
-import vn.viettel.core.logging.LogFile;
-import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.entities.SaleOrderComboDetail;
@@ -96,8 +92,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     PromotionClient promotionClient;
     @Autowired
     SaleService saleService;
-    @Autowired
-    JMSSender jmsSender;
     @Autowired
     SaleOrderDiscountRepository saleDiscount;
     @Autowired
@@ -457,7 +451,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }else {
             throw new ValidateException(ResponseMessage.ORDER_EXPIRED_FOR_RETURN);
         }
-        sendSynRequest(Arrays.asList(newOrderReturn.getId()));
         return newOrderReturn;
     }
 
@@ -610,15 +603,5 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         int STT = repository.countSaleOrder(start,end,shopId) + 1;
         return  "SAL." +  shopCode + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 10000).substring(1);
     }
-    
-	private void sendSynRequest(List<Long> lstIds) {
-		try {
-			if(!lstIds.isEmpty()) {
-				jmsSender.sendMessage(JMSType.sale_order, lstIds);
-			}
-		} catch (Exception ex) {
-			LogFile.logToFile("vn.viettel.sale.service.impl.OrderReturnImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
-		}
-	}
 	
 }

@@ -20,6 +20,7 @@ import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -70,7 +71,9 @@ public class ReceiptImportControllerTest extends BaseTest {
         request.setRedInvoiceNo("RE123");
         request.setLst(Arrays.asList(new ReceiptCreateDetailRequest(), new ReceiptCreateDetailRequest()));
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        given(receiptService.createReceipt(any(), any(), any())).willReturn(response);
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(1l);
+        given(receiptService.createReceipt(any(), any(), any())).willReturn(ids);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)

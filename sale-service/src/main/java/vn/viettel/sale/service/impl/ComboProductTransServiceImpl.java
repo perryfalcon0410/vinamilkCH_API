@@ -8,16 +8,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.extern.slf4j.Slf4j;
-import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ComboProductTranDetailRequest;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
@@ -38,15 +33,11 @@ import vn.viettel.sale.specification.ComboProductTranSpecification;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class ComboProductTransServiceImpl
     extends BaseServiceImpl<ComboProductTrans, ComboProductTransRepository> implements ComboProductTransService {
 
@@ -79,9 +70,6 @@ public class ComboProductTransServiceImpl
 
     @Autowired
     CustomerClient customerClient;
-
-    @Autowired
-    private JMSSender jmsSender;
     
     @Autowired
     StockTotalService stockTotalService;
@@ -109,14 +97,6 @@ public class ComboProductTransServiceImpl
 
         CoverResponse coverResponse = new CoverResponse(pageProductTranDTOS, totalDTO);
         return coverResponse;
-    }
-
-    private void sendSynRequest(String type, List<Long> listId) {
-        try {
-            jmsSender.sendMessage(type, listId);
-        } catch (Exception ex) {
-            log.error("khoi tao jmsSender", ex);
-        }
     }
 
     @Override
@@ -251,7 +231,6 @@ public class ComboProductTransServiceImpl
         comboProducts.forEach(detail -> {detail.setTransId(comboProductTran.getId()); comboProductTransDetailRepo.save(detail); });
         for (StockTotal st : newStockTotal) if(st != null) stockTotalRepo.save(st);
         stockTotalService.updateWithLock(lstSaveStockTotal);
-        sendSynRequest(JMSType.combo_product_trans, Arrays.asList(comboProductTran.getId()));
        return this.mapToOnlineOrderDTO(comboProductTran);
     }
 

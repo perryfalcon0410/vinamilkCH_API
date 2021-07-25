@@ -9,19 +9,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.extern.slf4j.Slf4j;
-import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
@@ -41,7 +37,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, ExchangeTransRepository> implements ExchangeTranService {
     @Autowired
     CategoryDataClient categoryDataClient;
@@ -59,8 +54,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     CustomerTypeClient customerTypeClient;
     @Autowired
     StockTotalRepository stockTotalRepository;
-    @Autowired
-    private JMSSender jmsSender;
     @Autowired
     StockTotalService stockTotalService;
 
@@ -88,17 +81,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         return new CoverResponse<>(pageResult, exchangeTotalDTO);
     }
 
-    private void sendSynRequest(String type, List<Long> listId) {
-        try {
-            jmsSender.sendMessage(type, listId);
-        } catch (Exception ex) {
-            log.error("khoi tao jmsSender", ex);
-        }
-    }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage create(ExchangeTransRequest request, Long userId, Long shopId) {
+    public ExchangeTransDTO create(ExchangeTransRequest request, Long userId, Long shopId) {
         CustomerTypeDTO cusType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
         List<Long> catIds = cats.stream().map(CategoryDataDTO::getId).collect(Collectors.toList());
@@ -156,11 +141,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             transDetailRepository.save(exchangeTransDetail);
         }
         stockTotalService.updateWithLock(idAndValues);
-        
-        if(null != exchangeTransRecord) {
-            sendSynRequest(JMSType.exchange_trans, Arrays.asList(exchangeTransRecord.getId()));
-        }
-        return ResponseMessage.CREATED_SUCCESSFUL;
+
+        return this.mapExchangeToDTO(exchangeTransRecord, null);
     }
     private void validate(List<ExchangeTransDetailRequest> details, List<Long> productIds, List<Price> prices, List<StockTotal> stockTotals,
                           List<ExchangeTransDetail> dbExchangeTransDetails) {
@@ -239,7 +221,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage update(Long exchangeTranId, ExchangeTransRequest request, Long shopId) {
+    public ExchangeTransDTO update(Long exchangeTranId, ExchangeTransRequest request, Long shopId) {
         LocalDateTime date = LocalDateTime.now();
         ExchangeTrans exchange = repository.findById(exchangeTranId).get();
         if (DateUtils.formatDate2StringDate(exchange.getTransDate()).equals(DateUtils.formatDate2StringDate(date))) {
@@ -336,12 +318,9 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             for(ExchangeTransDetail item : exchangeDetails) transDetailRepository.save(item);
             stockTotalService.updateWithLock(idAndValues);
             for(StockTotal item : newStockTotals) if(item != null) stockTotalRepository.save(item);
-
-            if(null != exchange) {
-                sendSynRequest(JMSType.exchange_trans, Arrays.asList(exchange.getId()));
-            }
+            
         } else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
-        return ResponseMessage.UPDATE_SUCCESSFUL;
+        return this.mapExchangeToDTO(exchange, null);
     }
 
     @Override

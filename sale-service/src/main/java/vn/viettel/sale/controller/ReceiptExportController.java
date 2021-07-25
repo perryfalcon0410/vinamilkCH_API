@@ -1,12 +1,15 @@
 package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
@@ -14,22 +17,31 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
+import vn.viettel.sale.entities.PoTrans;
+import vn.viettel.sale.entities.StockAdjustmentTrans;
+import vn.viettel.sale.entities.StockBorrowingTrans;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.impl.ReceiptExportServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @Api(tags = "API chức năng xuất hàng")
+@Slf4j
 public class ReceiptExportController extends BaseController {
     @Autowired
     ReceiptExportService receiptExportService;
-
+    @Autowired
+    JMSSender jmsSender;
+    
     private final String root = "/sales/export";
 
     @GetMapping(value = { V1 + root})
@@ -58,7 +70,27 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<String> createReceipt(HttpServletRequest request, @Valid @RequestBody ReceiptExportCreateRequest rq) {
-        ResponseMessage message = receiptExportService.createReceipt(rq, this.getUserId(),this.getShopId());
+        List<Long> syncIds = receiptExportService.createReceipt(rq, this.getUserId(),this.getShopId());
+        ResponseMessage message = ResponseMessage.CREATE_FAILED;
+        if(syncIds != null) {
+	        switch (rq.getImportType()){
+	        case 0:
+	               	sendSynRequest(JMSType.po_trans, Arrays.asList(syncIds.get(0)));
+	               	message = ResponseMessage.CREATED_SUCCESSFUL;
+	               	break;
+	        case 1:
+	               	sendSynRequest(JMSType.stock_adjustment, Arrays.asList(syncIds.get(0)));
+	               	sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(syncIds.get(1)));
+	               	message = ResponseMessage.CREATED_SUCCESSFUL;
+	               	break;
+	        case 2:
+	                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(syncIds.get(0)));
+	                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(syncIds.get(1)));
+	        		message = ResponseMessage.CREATED_SUCCESSFUL;
+	        		break;
+	        }
+        }
+        
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_EXPORT_SUCCESS);
@@ -73,7 +105,24 @@ public class ReceiptExportController extends BaseController {
     public Response<String> updateReceiptExport(HttpServletRequest request,@RequestBody ReceiptExportUpdateRequest rq,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_EXPORT_SUCCESS);
-        ResponseMessage message = receiptExportService.updateReceiptExport(rq, Id,this.getShopId());
+        List<Long> syncIds = receiptExportService.updateReceiptExport(rq, Id,this.getShopId());
+        ResponseMessage message = ResponseMessage.UPDATE_FAILED;
+        if(syncIds != null) {
+	        switch (rq.getType()){
+		        case 0:
+		            	sendSynRequest(JMSType.po_trans, syncIds);
+		            	message = ResponseMessage.UPDATE_SUCCESSFUL;
+		            	break;
+			    case 1:
+			        	sendSynRequest(JMSType.stock_adjustment_trans, syncIds);
+			        	message = ResponseMessage.UPDATE_SUCCESSFUL;
+			        	break;
+			    case 2:
+			            sendSynRequest(JMSType.stock_borrowing_trans, syncIds);
+			            message = ResponseMessage.UPDATE_SUCCESSFUL;
+			            break;
+	        }
+        }
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
@@ -88,7 +137,27 @@ public class ReceiptExportController extends BaseController {
     public Response<String> removeReceiptExport(HttpServletRequest request,
                                                 @ApiParam("Loại phiếu xuất")@RequestParam Integer type,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
-        ResponseMessage message = receiptExportService.removeReceiptExport(type,Id,this.getShopId());
+        List<String> synsIds = receiptExportService.removeReceiptExport(type,Id,this.getShopId());
+        ResponseMessage message = ResponseMessage.UPDATE_SUCCESSFUL;
+        if(synsIds != null) {
+        switch (type){
+	        case 0:
+	        		sendSynRequest(JMSType.po_trans, Arrays.asList(Long.parseLong(synsIds.get(0))));
+	        		message = ResponseMessage.DELETE_SUCCESSFUL;
+	        		break;
+	        case 1:
+	            	sendSynRequest(JMSType.stock_adjustment, Arrays.asList(Long.parseLong(synsIds.get(0))));
+	            	sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(Long.parseLong(synsIds.get(1))));
+	            	sendSynRequestByCode(JMSType.sale_orders_adjustment, Arrays.asList(synsIds.get(2)));
+	            	message = ResponseMessage.DELETE_SUCCESSFUL;
+	            	break;
+	        case 2:
+	             	sendSynRequest(JMSType.stock_borrowing, Arrays.asList(Long.parseLong(synsIds.get(0))));
+	             	sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(Long.parseLong(synsIds.get(1))));
+	             	message = ResponseMessage.DELETE_SUCCESSFUL;
+	             	break;
+        	}
+        }
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
@@ -135,5 +204,23 @@ public class ReceiptExportController extends BaseController {
         List<StockBorrowingDTO> response = receiptExportService.getListStockBorrowing(this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_STOCK_BORROWING_SUCCESS);
         return new Response<List<StockBorrowingDTO>>().withData(response);
+    }
+    
+    private void sendSynRequest(String type, List<Long> listId) {
+        try {
+            jmsSender.sendMessage(type, listId);
+        } catch (Exception ex) {
+            log.error("khoi tao jmsSender", ex);
+        }
+    }
+    
+    private void sendSynRequestByCode(String type, List<String> lstCodes) {
+        try {
+        	if(!lstCodes.isEmpty()) {
+        		jmsSender.sendMessageByCode(type, lstCodes);
+        	}
+        } catch (Exception ex) {
+            log.error("Cannot send request", ex);
+        }
     }
 }

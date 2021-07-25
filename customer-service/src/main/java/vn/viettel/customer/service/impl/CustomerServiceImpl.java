@@ -66,9 +66,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Autowired
     AreaClient areaClient;
-    
-    @Autowired
-    JMSSender jmsSender;
 
     @Override
     public <D extends BaseDTO> D update(D item, Class<D> clazz) {
@@ -231,7 +228,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult, null);
-        sendSynRequest(Arrays.asList(customerResult.getId()));
         return customerDTO;
     }
 
@@ -370,7 +366,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Customer newCustomer = this.mapCustomerUpdate(customerDb, request);
         newCustomer = repository.save(newCustomer);
-        sendSynRequest(Arrays.asList(newCustomer.getId()));
         return this.mapCustomerToCustomerResponse(newCustomer, null);
     }
 
@@ -540,15 +535,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return customerDTOS;
     }
     
-	private void sendSynRequest(List<Long> lstIds) {
-		try {
-			if(!lstIds.isEmpty()) {
-				jmsSender.sendMessage(JMSType.customers, lstIds);
-			}
-		} catch (Exception ex) {
-			LogFile.logToFile("CustomerServiceImpl.sendSynRequest", JMSType.customers, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
-		}
-	}
+
 
     @Override
     @Transactional

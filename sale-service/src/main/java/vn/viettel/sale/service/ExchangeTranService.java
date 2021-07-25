@@ -18,8 +18,8 @@ public interface ExchangeTranService {
     Response<List<CategoryDataDTO>> getReasons();
     CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                            Date toDate, Long reasonId, Pageable pageable);
-    ResponseMessage create(ExchangeTransRequest request, Long userId,Long shopId);
-    ResponseMessage update(Long id,ExchangeTransRequest request,Long shopId);
+    ExchangeTransDTO create(ExchangeTransRequest request, Long userId,Long shopId);
+    ExchangeTransDTO update(Long id,ExchangeTransRequest request,Long shopId);
     ExchangeTransDTO getExchangeTrans(Long id);
     ResponseMessage remove(Long id,Long shopId);
     List<ExchangeTransDetailRequest> getBrokenProducts(Long id);

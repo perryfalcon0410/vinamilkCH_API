@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.BadRequestException;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.CustomerService;
@@ -31,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +43,10 @@ public class CustomerController extends BaseController {
 
     @Autowired
     private CustomerService service;
+    
+    @Autowired
+    JMSSender jmsSender;
+    
     private final String root = "/customers";
 
     @ApiOperation(value = "Tìm kiếm danh sách khách hàng")
@@ -97,6 +104,7 @@ public class CustomerController extends BaseController {
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
         Response<CustomerDTO> response = new Response<>();
         CustomerDTO customerDTO = service.create(request, this.getUserId(), this.getShopId());
+        sendSynRequest(Arrays.asList(customerDTO.getId()));
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
         response.setStatusValue("Thêm mới thông tin khách hàng thành công");
         return response.withData(customerDTO);
@@ -143,6 +151,7 @@ public class CustomerController extends BaseController {
         response.setStatusCode(201);
         response.setStatusValue("Cập nhật thông tin khách hàng thành công");
         CustomerDTO customerDTO = service.update(request, this.getUserId(),this.getShopId(), true);
+        sendSynRequest(Arrays.asList(customerDTO.getId()));
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
         return response.withData(customerDTO);
     }
@@ -236,4 +245,14 @@ public class CustomerController extends BaseController {
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {
         return super.handleAPIBadRequestException(ex, request);
     }
+    
+	private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.customers, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("CustomerServiceImpl.sendSynRequest", JMSType.customers, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 }
