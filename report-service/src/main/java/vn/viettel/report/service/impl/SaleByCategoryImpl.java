@@ -18,7 +18,6 @@ import vn.viettel.report.service.SaleByCategoryReportService;
 import vn.viettel.report.service.dto.SaleByCategoryPrintDTO;
 import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
 import vn.viettel.report.service.excel.SalesByCategoryExcel;
-import vn.viettel.report.service.feign.CustomerTypeClient;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.EntityManager;
@@ -37,8 +36,7 @@ import java.util.Date;
 public class SaleByCategoryImpl implements SaleByCategoryReportService {
     @PersistenceContext
     EntityManager entityManager;
-    @Autowired
-    CustomerTypeClient customerTypeClient;
+
     @Autowired
     ShopClient shopClient;
 

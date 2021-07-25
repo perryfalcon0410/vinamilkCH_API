@@ -57,6 +57,8 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
     public VoucherDTO getVoucherBySerial(String serial, Long shopId, Long customerId, List<Long> productIds) {
         if(serial != null) serial = serial.trim();
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
+        if(shopParamDTO == null) throw new ValidateException(ResponseMessage.APPARAM_VOUCHER_NOT_EXITS);
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Integer maxNumber = Integer.valueOf(shopParamDTO.getName()!=null?shopParamDTO.getName():"0");
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
@@ -128,6 +130,16 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         return this.mapVoucherToVoucherDTO(voucher);
     }
 
+
+    @Override
+    public VoucherDTO getFeignVoucher(Long id) {
+        Voucher voucher = repository.getById(id);
+        if(voucher == null) throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        VoucherDTO voucherDTO = modelMapper.map(voucher, VoucherDTO.class);
+        return voucherDTO;
+    }
+
     private VoucherDTO mapVoucherToVoucherDTO(Voucher voucher) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = modelMapper.map(voucher, VoucherDTO.class);
@@ -148,4 +160,5 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
             vouchers.stream().map(this::mapVoucherToVoucherDTO).collect(Collectors.toList());
         return response;
     }
+
 }

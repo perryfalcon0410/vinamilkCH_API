@@ -285,11 +285,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
             String orderNumber = null;
             if (redInvoiceNewDataDTO.getSaleOrderId().size() > 0) {
-                orderNumber = saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(0));
-                List<Long> idSaleOrderList = new ArrayList<>();
-                for (int i = 1; i < redInvoiceNewDataDTO.getSaleOrderId().size(); i++) {
-                    orderNumber = orderNumber + "," + saleOrderRepository.findByIdSale(redInvoiceNewDataDTO.getSaleOrderId().get(i));
-                }
                 CustomerDTO customer = customerClient.getCustomerByIdV1(redInvoiceNewDataDTO.getCustomerId()).getData();
                 CustomerRequest request = modelMapper.map(customer, CustomerRequest.class);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -301,13 +296,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 redInvoiceRecord.setCustomerId(redInvoiceNewDataDTO.getCustomerId());
 
                 ////////////////////////////////////////////////////////////////
-                for (int j = 0; j < redInvoiceNewDataDTO.getSaleOrderId().size(); j++) {
-                    idSaleOrderList.add(redInvoiceNewDataDTO.getSaleOrderId().get(j));
-                }
-
-                ////////////////////////////////////////////////////////////////
-                List<SaleOrder> saleOrders = saleOrderRepository.findAllById(idSaleOrderList);
+                List<SaleOrder> saleOrders = saleOrderRepository.findAllById(redInvoiceNewDataDTO.getSaleOrderId());
                 for (SaleOrder saleOrder : saleOrders) {
+                    if(orderNumber == null) orderNumber = saleOrder.getOrderNumber();
+                    else orderNumber = orderNumber + "," + saleOrder.getOrderNumber();
                     saleOrder.setUsedRedInvoice(true);
                     saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeWorking());
                     saleOrder.setRedInvoiceTaxCode(redInvoiceNewDataDTO.getTaxCode());
@@ -366,7 +358,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             for (Long id : ids) {
                 String saleOrderNumber = redInvoiceRepository.getIdSaleOrder(id);
                 if(saleOrderNumber != null && !saleOrderNumber.trim().equals("")) {
-                    List<SaleOrder> saleOrders = saleOrderRepository.findSaleOrderIdByOrderCode(Arrays.asList(saleOrderNumber.split(",", -1)));
+                    List<SaleOrder> saleOrders = saleOrderRepository.findSaleOrderByOrderCode(Arrays.asList(saleOrderNumber.split(",", -1)));
                     for (SaleOrder saleOrder : saleOrders) {
                         saleOrder.setUsedRedInvoice(false);
                         saleOrderRepository.save(saleOrder);

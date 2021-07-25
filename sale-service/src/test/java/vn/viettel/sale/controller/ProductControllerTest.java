@@ -156,7 +156,7 @@ public class ProductControllerTest extends BaseTest {
         lstDto.add(new OrderProductDTO());
         lstDto.add(new OrderProductDTO());
 
-        given(productService.findProductsByKeyWord(any(), any())).willReturn(lstDto);
+        given(productService.findProductsByKeyWord(any(),any(), any())).willReturn(lstDto);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))

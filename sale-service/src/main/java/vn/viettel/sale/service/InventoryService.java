@@ -21,14 +21,14 @@ public interface InventoryService {
 
     CoverResponse<List<StockCountingExcel>, TotalStockCounting> getByStockCountingId(Long id);
 
-    CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords) throws IOException;
+    CoverResponse<StockCountingImportDTO, InventoryImportInfo> importExcel(Long shopId, MultipartFile file, Pageable pageable, String searchKeywords,Long wareHouseTypeId) throws IOException;
 
     ResponseMessage updateStockCounting(Long stockCountingId, String userAccount, List<StockCountingUpdateDTO> details);
 
     //lay cac sp ton kho
-    Object getAll(Long shopId, String searchKeywords);
+    Object getAll(Long shopId, String searchKeywords,Long wareHouseTypeId);
 
     Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
 
-    Boolean checkInventoryInDay(Long shopId);
+    Boolean checkInventoryInDay(Long wareHouseTypeId, Long shopId);
 }

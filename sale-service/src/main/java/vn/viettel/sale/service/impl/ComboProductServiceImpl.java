@@ -49,12 +49,24 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
         List<ComboProduct> comboProducts = repository.findAll(
             Specification.where(ComboProductSpecification.hasKeyWord(keyWord)).and(ComboProductSpecification.hasStatus(status)));
         Long customerTypeId = null;
-        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
-        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
+//        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
+//        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
+
         List<Long> lstProductIds = comboProducts.stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
         if(lstProductIds.isEmpty()) return dtos;
-        List<Price> prices = productPriceRepo.findProductPrice(lstProductIds, customerTypeId, LocalDateTime.now());
-        dtos = comboProducts.stream().map(item -> convertToComboProductDTO(item, prices)).collect(Collectors.toList());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, LocalDateTime.now());
+
+        for (ComboProduct combo: comboProducts) {
+            for (Price price : prices) {
+                if (price.getProductId().equals(combo.getRefProductId())) {
+                    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+                    ComboProductDTO dto = modelMapper.map(combo, ComboProductDTO.class);
+                    dto.setProductPrice(price.getPrice());
+                    dtos.add(dto);
+                    break;
+                }
+            }
+        }
 
         return dtos;
     }
@@ -66,13 +78,13 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
         //Lấy giá theo Kh type = -1,  ASC lấy giá đầu tiền
         Long customerTypeId = null;
 
-        List<Price> prices1 = productPriceRepo.findProductPrice(Arrays.asList(comboProduct.getRefProductId()), customerTypeId, LocalDateTime.now());
+        List<Price> prices1 = productPriceRepo.findProductPriceWithType(Arrays.asList(comboProduct.getRefProductId()), customerTypeId, LocalDateTime.now());
         ComboProductDTO dto = this.convertToComboProductDTO(comboProduct, prices1);
         List<ComboProductDetail> details = comboProductDetailRepo.findByComboProductIdAndStatus(comboProductId, 1);
         if(details != null){
             List<Long> lstProductIds = details.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             List<Product> products = productRepo.getProducts(lstProductIds, 1);
-            List<Price> prices = productPriceRepo.findProductPrice(lstProductIds, customerTypeId, LocalDateTime.now());
+            List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, LocalDateTime.now());
             List<ComboProductDetailDTO> detailDTOS = details.stream().map( detail -> {
                 ComboProductDetailDTO detailDTO = this.convertToComboProductDetailDTO(detail, products, prices);
                 detailDTO.setComboProductCode(dto.getProductCode());

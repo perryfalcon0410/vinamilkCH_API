@@ -22,6 +22,8 @@ import vn.viettel.promotion.service.feign.SaleClient;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RPT_ZV23Impl implements RPT_ZV23Service {
@@ -37,9 +39,8 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
     SaleClient saleClient;
 
     public RPT_ZV23DTO checkSaleOrderZV23(String promotionCode, Long customerId, Long shopId) {
-        List<RPT_ZV23> rpt_zv23s = rpt_zv23Repository.checkZV23Require(promotionCode, customerId, shopId, new Date());
-        if(rpt_zv23s.size() == 0) return null;
-        return modelMapper.map(rpt_zv23s.get(0), RPT_ZV23DTO.class);
+        RPT_ZV23 rpt_zv23 = rpt_zv23Repository.checkZV23Require(promotionCode, customerId, shopId);
+        return modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
     }
 
     public TotalPriceZV23DTO VATorNotZV23(Long promotionId, Integer quantity) {
@@ -81,5 +82,13 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
         rpt_zv23Repository.save(rpt);
         return true;
     }
+
+    @Override
+    public List<RPT_ZV23DTO> findByProgramIds(Set<Long> programIds, Long customerId, Long shopId) {
+        List<RPT_ZV23> rpts = rpt_zv23Repository.getByProgramIds(programIds, customerId, shopId);
+        List<RPT_ZV23DTO> dtos = rpts.stream().map(r -> modelMapper.map(r, RPT_ZV23DTO.class)).collect(Collectors.toList());
+        return dtos;
+    }
+
 }
 

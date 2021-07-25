@@ -77,9 +77,9 @@ public class OrderReturnController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
-                                                                                        @RequestParam(value = "searchKeywords", required = false, defaultValue = "") String searchKeywords,
-                                                                                        @RequestParam(value = "product", required = false, defaultValue = "") String product,
+    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false) String orderNumber,
+                                                                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+                                                                                        @RequestParam(value = "product", required = false) String product,
                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                         @RequestParam(value = "toDate", required = false) Date toDate) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));

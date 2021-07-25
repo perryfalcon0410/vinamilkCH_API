@@ -22,4 +22,11 @@ public interface VoucherService extends BaseService {
      * Lấy danh sách voucher theo sale orde id
      */
     List<VoucherDTO> getVoucherBySaleOrderId(long id);
+
+    /*
+     * Lấy voucher theo id trong bán hàng gọi từ service sale
+     */
+    VoucherDTO getFeignVoucher(Long id);
+
+
 }

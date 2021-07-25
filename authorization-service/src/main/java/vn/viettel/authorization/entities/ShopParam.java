@@ -18,7 +18,7 @@ public class ShopParam extends BaseEntity {
     @Column(name = "ID", nullable = false)
     private Long id;
     @Column(name = "SHOP_ID")
-    private String shopId;
+    private Long shopId;
     @Column(name = "TYPE")
     private String type;
     @Column(name = "CODE")

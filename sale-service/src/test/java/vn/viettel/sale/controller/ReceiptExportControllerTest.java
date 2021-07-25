@@ -112,8 +112,8 @@ public class ReceiptExportControllerTest extends BaseTest {
     public void removeReceiptExport() throws Exception {
         String uri = V1 + root + "/remove/1?type=2";
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        List<String> ids = new ArrayList<String>();
-        ids.add("");
+        List<List<String>> ids = new ArrayList<List<String>>();
+        ids.add(Arrays.asList(""));
         given(receiptExportService.removeReceiptExport(any(), any(),any())).willReturn(ids);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri)

@@ -49,37 +49,32 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
 
     @Override
     public Long getWarehouseTypeByShopId(Long shopId) {
-        CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
-        if(customerType == null) customerType = repository.getCustomerTypeDefault().orElse(null);
-        if(customerType!=null) return customerType.getWareHouseTypeId();
+        List<CustomerType> customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
+        if(customerTypes == null || customerTypes.isEmpty()) customerTypes = repository.getCustomerTypeDefault();
+        if(customerTypes!=null || !customerTypes.isEmpty()) return customerTypes.get(0).getWareHouseTypeId();
         return null;
     }
 
     @Override
     public CustomerTypeDTO getCusTypeByShopId(long shopId) {
-        CustomerType customerType = repository.getWareHouseTypeIdByShopId(shopId);
-        return modelMapper.map(customerType, CustomerTypeDTO.class);
+        List<CustomerType> customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
+        if(customerTypes == null || customerTypes.isEmpty()) return null;
+        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
     }
 
     @Override
     public CustomerTypeDTO getCustomerTypeDefaut() {
-        CustomerType customerType = repository.getCustomerTypeDefault()
-                .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS));
-        return modelMapper.map(customerType, CustomerTypeDTO.class);
+        List<CustomerType> customerTypes = repository.getCustomerTypeDefault();
+        if(customerTypes == null || customerTypes.isEmpty())
+            throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
     }
 
     @Override
-    public CustomerTypeDTO findByCustomerTypeId(Long customerTypeId) {
-        CustomerType customerType = repository.findCustomerTypeById(customerTypeId).orElse(null);
-        if (customerType != null) {
-            return modelMapper.map(customerType, CustomerTypeDTO.class);
-        } else {
-            return null;
-        }
+    public CustomerTypeDTO getCusTypeByCustomerId(long customerId) {
+        List<CustomerType> customerTypes = repository.getByCustomerId(customerId);
+        if(customerTypes == null || customerTypes.isEmpty()) return null;
+        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
     }
 
-    @Override
-    public Long getWarehouseTypeIdByCustomer(Long id) {
-        return repository.findWarehouseTypeIdByCustomer(id);
-    }
 }

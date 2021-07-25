@@ -23,7 +23,7 @@ public interface ProductService extends BaseService {
 
     OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> products);
 
-    List<OrderProductDTO> findProductsByKeyWord(Long shopId, String keyWord);
+    List<OrderProductDTO> findProductsByKeyWord(Long shopId, Long customerId, String keyWord);
 
     List<ProductDataSearchDTO> findAllProduct(Long shopId, String keyWord);
 

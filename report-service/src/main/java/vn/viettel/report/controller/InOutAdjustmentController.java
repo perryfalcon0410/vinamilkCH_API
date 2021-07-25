@@ -4,11 +4,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -17,14 +14,10 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.InOutAdjustmentFilter;
-import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.service.InOutAdjustmentService;
-import vn.viettel.report.service.ShopImportReportService;
 import vn.viettel.report.service.dto.InOutAdjusmentDTO;
-import vn.viettel.report.service.dto.ShopImportDTO;
-import vn.viettel.report.service.dto.ShopImportTotalDTO;
+import vn.viettel.report.service.dto.InOutAdjustmentTotalDTO;
 import vn.viettel.report.service.excel.InOutAdjustmentExcel;
-import vn.viettel.report.service.excel.ShopImportExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.servlet.http.HttpServletResponse;
@@ -46,10 +39,10 @@ public class InOutAdjustmentController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Page<InOutAdjusmentDTO>> find (@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
+    public Response<CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO>> find (@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes);
-        Page<InOutAdjusmentDTO> dtos = inOutAdjustmentService.find(filter,pageable);
-        return new Response<Page<InOutAdjusmentDTO>>().withData(dtos);
+        CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO> dtos = inOutAdjustmentService.find(filter,pageable);
+        return new Response<CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO>>().withData(dtos);
     }
     @GetMapping(value = { V1 + root+ "/excel"})
     @ApiOperation(value = "Xuất excel báo cáo nhập xuất điều chỉnh")

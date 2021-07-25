@@ -82,20 +82,18 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
     @Override
     public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Pageable pageable) {
-        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if (keyWord != null)
+            keyWord = VNCharacterUtils.removeAccent(keyWord.trim()).toUpperCase(Locale.ROOT);
 
-        String keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         boolean hasQty = false;
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (warehouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        CustomerTypeDTO customerType = getCustomerType(shopId, customerId);
 
         if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
-        return repository.findOrderProductTopSale(shopId, customer.getCustomerTypeId(), warehouseTypeId, null,
-                keyUpper, fromDate, toDate, hasQty, pageable);
+        return repository.findOrderProductTopSale(shopId, customerType.getId(), customerType.getWareHouseTypeId(), customerId,
+                keyWord, fromDate, toDate, hasQty, pageable);
     }
 
     @Override
@@ -150,26 +148,25 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public OrderProductsDTO changeCustomerType(Long customerTypeId, Long shopId, List<OrderProductRequest> productsRequest) {
         OrderProductsDTO orderProductsDTO = new OrderProductsDTO();
 
-        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        CustomerTypeDTO customerType = customerTypeClient.getCusTypeById(customerTypeId);
+        if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         List<OrderProductOnlineDTO> productDTOS = productsRequest.stream().map(product ->
-                this.mapProductIdToProductDTO(product, wareHouseTypeId, customerTypeId, shopId, orderProductsDTO))
+                this.mapProductIdToProductDTO(product, customerType.getWareHouseTypeId(), customerTypeId, shopId, orderProductsDTO))
                 .collect(Collectors.toList());
         orderProductsDTO.setProducts(productDTOS);
         return orderProductsDTO;
     }
 
     @Override
-    public List<OrderProductDTO> findProductsByKeyWord(Long shopId, String keyWord) {
+    public List<OrderProductDTO> findProductsByKeyWord(Long shopId, Long customerId, String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
-        Long customerTypeId = null;
+        CustomerTypeDTO customerTypeId = getCustomerType(shopId, customerId);
         List<OrderProductDTO> rp = new ArrayList<>();
-        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
-        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
+
         if(products!=null && !products.isEmpty()){
-            List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
+            List<Price> prices = productPriceRepo.findProductPriceWithType(products.stream().map(item -> item.getId()).collect(Collectors.toList()), customerTypeId.getId(), LocalDateTime.now());
             return products.stream().map(item -> {
                         OrderProductDTO dto = modelMapper.map(item, OrderProductDTO.class);
                         if(prices != null){
@@ -245,21 +242,30 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return dto;
     }
 
+    private CustomerTypeDTO getCustomerType(Long shopId, Long customerId){
+        CustomerTypeDTO customerType = null;
+        if(customerId != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(customerId);
+        if(customerType == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+
+        return customerType;
+    }
+
     @Override
     public OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId) {
-        CustomerDTO customer = customerClient.getCustomerByIdV1(customerId).getData();
-        if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        CustomerTypeDTO customerType = getCustomerType(shopId, customerId);
 
-        Long wareHouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if(wareHouseTypeId == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
+        if(products == null || products.isEmpty()) return null;
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), products.get(0).getId());
 
-        Product product = repository.getByBarCodeAndStatus(barcode, 1).orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND));
-        StockTotal stockTotal = stockTotalRepo.getStockTotal(shopId, wareHouseTypeId, product.getId()).orElseThrow(() -> new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND));
-        Price price = productPriceRepo.getProductPrice(product.getId(), customer.getCustomerTypeId()).orElseThrow(() -> new ValidateException(ResponseMessage.PRICE_NOT_FOUND));
+        List<Price> prices = productPriceRepo.findProductPriceWithType(Arrays.asList(products.get(0).getId()), customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));
+        if(prices == null || prices.isEmpty() ) return null;
 
-        OrderProductDTO orderProductDTO = modelMapper.map(product, OrderProductDTO.class);
-        orderProductDTO.setPrice(price.getPrice());
-        orderProductDTO.setStockTotal(stockTotal.getQuantity());
+        OrderProductDTO orderProductDTO = modelMapper.map(products.get(0), OrderProductDTO.class);
+        orderProductDTO.setPrice(prices.get(0).getPrice());
+        if(stockTotals == null || stockTotals.isEmpty())
+            orderProductDTO.setStockTotal(stockTotals.get(0).getQuantity());
 
         return orderProductDTO;
     }
@@ -273,7 +279,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         OrderProductOnlineDTO dto = modelMapper.map(product, OrderProductOnlineDTO.class);
         dto.setProductId(product.getId());
         dto.setQuantity(productRequest.getQuantity());
-        List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
+        List<Price> productPrices = productPriceRepo.findProductPriceWithType(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
         if (productPrices != null && !productPrices.isEmpty()) dto.setPrice(productPrices.get(0).getPrice());
         if(stockTotals != null && !stockTotals.isEmpty())
             dto.setStockTotal(stockTotals.get(0).getQuantity());

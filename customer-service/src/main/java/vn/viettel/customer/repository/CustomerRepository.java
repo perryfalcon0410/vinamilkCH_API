@@ -22,11 +22,13 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
     List<Customer> getCustomerInfo(Integer status, List<Long> customerIds);
 
-    @Query(value = "SELECT * FROM customers WHERE SHOP_ID =:shopId AND STATUS = 1 " +
-            "            ORDER BY CUSTOMER_CODE DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", nativeQuery = true)
-    Customer getCustomerNumber(@Param("shopId") Long shopId);
+    @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId " +
+            " AND c.customerCode NOT LIKE '%.KA___' " +
+            " AND c.id = (SELECT MAX (cus.id) FROM Customer cus WHERE cus.shopId =:shopId AND cus.customerCode NOT LIKE '%.KA___' ) " +
+            " ORDER BY c.id desc , c.createdAt desc ")
+    List<Customer> getCustomerNumber(@Param("shopId") Long shopId);
 
-    @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = 1 "
+    @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = true "
             + " AND c.status = 1 ")
     Optional<Customer> getCustomerDefault(Long shopId);
 

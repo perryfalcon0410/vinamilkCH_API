@@ -118,7 +118,7 @@ public class ComboProductTransServiceImpl
         List<ComboProductDetail> comboProductDetails = comboProductDetailRepo.getComboProductDetail(
                 combos.stream().map(item -> item.getComboProductId()).distinct().collect(Collectors.toList()), 1);
         List<Long> lstProductIds = comboProductDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-        List<Price> prices = productPriceRepo.findProductPrice(lstProductIds, customerTypeId, LocalDateTime.now());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, LocalDateTime.now());
         HashMap<Long,Integer> lstSaveStockTotal = new HashMap<>();
         List<Long> lstProductIds1 = request.getDetails().stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
         lstProductIds1.forEach(lstProductIds::add);
@@ -137,6 +137,12 @@ public class ComboProductTransServiceImpl
                 if(stockTotal1 == null){
                     stockTotal1 = stockTotalService.createStockTotal(shopId, warehouseTypeId, combo.getRefProductId(), combo.getQuantity(), false);
                     newStockTotal.add(stockTotal1);
+                }else{
+                    int value = combo.getQuantity();
+                    if (lstSaveStockTotal.containsKey(stockTotal1.getId())) {
+                        value += lstSaveStockTotal.get(stockTotal1.getId());
+                    }
+                    lstSaveStockTotal.put(stockTotal1.getId(), value);
                 }
             } else {
                 if (stockTotal1 == null || stockTotal1.getQuantity() < combo.getQuantity()) {
@@ -165,7 +171,9 @@ public class ComboProductTransServiceImpl
             cbDetail.setAmount(combo.getPrice()*combo.getQuantity());
             comboProducts.add(cbDetail);
 
-            comboProductDetails.forEach(comboProductDetail -> {
+
+            List<ComboProductDetail> details = comboProductDetails.stream().filter(f -> f.getComboProductId().equals(combo.getComboProductId())).collect(Collectors.toList());
+            details.forEach(comboProductDetail -> {
                 if(comboProductDetail.getFactor() == null || comboProductDetail.getFactor() < 1 )
                     throw new ValidateException(ResponseMessage.COMBO_PRODUCT_FACTOR_REJECT);
 
@@ -184,7 +192,7 @@ public class ComboProductTransServiceImpl
                             quatity += lstSaveStockTotal.get(stockTotal.getId());
                         }
                         lstSaveStockTotal.put(stockTotal.getId(), value);
-                    }
+                    }else stockTotalService.showMessage(comboProductDetail.getProductId(), true);
                     if(quatity < combo.getQuantity()*comboProductDetail.getFactor()) {
                         Product product = productRepo.findById(comboProductDetail.getProductId()).get();
                         messageErorr.append(product.getProductCode() + " - " + product.getProductName() + " - " + stockTotal.getQuantity().toString() +", ");
@@ -324,7 +332,7 @@ public class ComboProductTransServiceImpl
         List<ComboProductTranDetailRequest> combos = request.getDetails();
         List<ComboProduct> comboProducts = comboProductRepo.findAllById(combos.stream().map(item -> item.getComboProductId()).collect(Collectors.toList()));
         List<Long> lstProductIds = comboProducts.stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
-        List<Price> prices = productPriceRepo.findProductPrice(lstProductIds, customerTypeId, LocalDateTime.now());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, LocalDateTime.now());
         for(ComboProductTranDetailRequest combo: combos) {
             if(combo.getPrice()!=null && combo.getPrice() <= 0 ) throw new ValidateException(ResponseMessage.PRICE_REJECT);
             ComboProduct comboProduct = null;

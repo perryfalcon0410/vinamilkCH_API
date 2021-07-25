@@ -28,7 +28,7 @@ public class ComboProductSpecification {
             return criteriaBuilder.or(
                 criteriaBuilder.like(root.get(ComboProduct_.productName), "%" + keyWord + "%"),
                 criteriaBuilder.like(root.get(ComboProduct_.productNameText), "%" + nameLowerCase + "%"),
-                criteriaBuilder.like(root.get(ComboProduct_.productCode), "%" + nameLowerCase + "%"));
+                criteriaBuilder.like(criteriaBuilder.upper(root.get(ComboProduct_.productCode)), "%" + nameLowerCase + "%"));
         };
     }
 

@@ -139,11 +139,11 @@ public class CustomerTradeDTO {
 
     @ApiModelProperty(notes = "Ngày tạo")
     @Column(name = "CREATED_AT")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @ApiModelProperty(notes = "Ngày cập nhật")
     @Column(name = "UPDATED_AT")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @ApiModelProperty(notes = "Người tạo")
     @Column(name = "CREATED_BY")
@@ -155,11 +155,11 @@ public class CustomerTradeDTO {
 
     @ApiModelProperty(notes = "Ngày mua hàng cuối")
     @Column(name = "LAST_ORDER_DATE")
-    private Date lastOrderDate;
+    private LocalDateTime lastOrderDate;
 
     @ApiModelProperty(notes = "Doanh số tích lũy")
     @Column(name = "SALE_AMOUNT")
-    private String saleAmount;
+    private Double saleAmount;
 
 
 }

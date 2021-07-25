@@ -20,6 +20,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,23 +33,23 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<ReturnGoodsDTO> callStoreProcedure(Long shopId, String reciept, Date fromDate, Date toDate, String reason, String productKW) {
+    private List<ReturnGoodsDTO> callStoreProcedure(ReturnGoodsReportsRequest filter) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_RETURNED_GOODS", ReturnGoodsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(2, Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(4, Date.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(5, Date.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(4, LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(5, LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
-        if(shopId == null) shopId = 0L;
-        query.setParameter(2, Integer.valueOf(shopId.toString()));
-        query.setParameter(3, reciept);
-        query.setParameter(4, fromDate);
-        query.setParameter(5, toDate);
-        query.setParameter(6, reason);
-        query.setParameter(7, productKW);
+
+        query.setParameter(2, filter.getShopId());
+        query.setParameter(3, filter.getReciept());
+        query.setParameter(4, filter.getFromDate());
+        query.setParameter(5, filter.getToDate());
+        query.setParameter(6, filter.getReason());
+        query.setParameter(7, filter.getProductKW());
 
         query.execute();
 
@@ -58,8 +59,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
 
     @Override
     public CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsRequest filter, Pageable pageable) {
-        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
+        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(filter);
         ReportTotalDTO totalDTO = new ReportTotalDTO();
         List<ReturnGoodsDTO> dtoList = new ArrayList<>();
 
@@ -82,8 +82,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
 
     @Override
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException {
-        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
+        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
         ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
@@ -104,8 +103,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     public ReportPrintIndustryTotalDTO getDataPrint(ReturnGoodsReportsRequest filter) {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReportPrintIndustryTotalDTO printDTO = new ReportPrintIndustryTotalDTO();
-        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getReciept().toUpperCase(Locale.ROOT), filter.getFromDate(), filter.getToDate(), filter.getReason(), filter.getProductKW().toUpperCase(Locale.ROOT));
+        List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(filter);
         ReturnGoodsDTO totalInfo = reportDTOS.get(reportDTOS.size() - 1);
         List<ReturnGoodsDTO> listResults = reportDTOS.subList(0, reportDTOS.size() - 2);
         Map<Long, List<ReturnGoodsDTO>> cats = listResults.stream().collect(Collectors.groupingBy(ReturnGoodsDTO::getIndustryId));
@@ -153,8 +151,8 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         printDTO.setShopName(shopDTO.getShopName());
         printDTO.setShopTel(shopDTO.getMobiPhone());
         printDTO.setAddress(shopDTO.getAddress());
-        printDTO.setFromDate(DateUtils.convertDateToLocalDateTime(filter.getFromDate()));
-        printDTO.setToDate(DateUtils.convertDateToLocalDateTime(filter.getToDate()));
+        printDTO.setFromDate(filter.getFromDate());
+        printDTO.setToDate(filter.getToDate());
         printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
         printDTO.setTotalInfo(totalInfo);
         printDTO.setData(dataByCat);

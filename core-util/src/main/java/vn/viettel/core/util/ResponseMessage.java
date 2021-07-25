@@ -94,7 +94,7 @@ public enum ResponseMessage {
     NOT_YOUR_COMPANY(6050, "NOT_YOUR_COMPANY"),
     STOCK_NOT_FOUND(6051, "STOCK_NOT_FOUND"),
     USER_UPDATE_FAILED(6052, "USER_UPDATE_FAILED"),
-    PRODUCT_OUT_OF_STOCK(6100, "Số lượng sản phẩm %s vượt quá tồn kho ( %s1 )"),
+    PRODUCT_OUT_OF_STOCK(6100, "Số lượng sản phẩm %s vượt quá tồn kho ( %s )"),
     INVALID_USERNAME_OR_PASSWORD(6156, "INVALID_USERNAME_OR_PASSWORD"),
     USER_ROLE_MUST_BE_NOT_BLANK(6160, "USER_ROLE_MUST_BE_NOT_BLANK"),
     USER_STATUS_MUST_BE_NOT_BLANK(6161, "USER_STATUS_MUST_BE_NOT_BLANK"),
@@ -300,7 +300,7 @@ public enum ResponseMessage {
     MGG_SALE_AMOUNT_REJECT(9085,"Tổng tiền đơn hàng chưa đủ điều kiện dùng mã giảm giá %s"),
     ONLINE_NUMBER_MAX_LENGTH_STRING(9086, "Số đơn online không vượt quá 50 ký tự"),
     PRODUCT_PRICE_NOT_FOUND(9087, "Giá sản phẩm '%s' không tìm thấy"),
-    PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm '%s' không có trong kho"),
+    PRODUCT_STOCK_TOTAL_NOT_FOUND(9088, "Sản phẩm %s không tìm thấy thông tin tồn kho"),
     PROMOTION_CODE_NOT_ENOUGH_VALUE(9075, "Số suất không đủ cho khuyến mãi mã giảm giá %s"),
     SHOP_DOES_HAVE_DAY_RETURN(9076,"Cửa hàng không được phép trả hàng"),
     PRODUCT_NOT_EXISTS(9077, "Không tìm thấy sản phẩm %s"),
@@ -316,6 +316,8 @@ public enum ResponseMessage {
     RED_INVOICE_REMARK_MAX_LENGTH_STRING(9086, "Ghi chú vượt quá số ký tự quy định."),
     PROMOTION_OVER_BILL(9087, "Không thể tạo đơn hàng có doanh số < 0."),
     PO_ORIGINAL_NOT_FOUND(9088, "Không tìm thấy đơn PO gốc."),
+    DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT(9089, "Không tìm thấy kho của đơn."),
+    INVENTORY_OVER_DATE(9090, "Hết hạn kiểm kê."),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
@@ -339,6 +341,7 @@ public enum ResponseMessage {
     VOUCHER_PRODUCT_REJECT(11010, "Vui lòng chọn đúng sản phẩm để sử dụng voucher"),
     VOUCHER_PROGRAM_DATE_REJECT(11011, "Chương trình voucher đã hết hiệu lực hoặc chưa được kích hoạt"),
     VOUCHER_PROGRAM_IS_USED(11012, "Voucher đã sử dụng"),
+    APPARAM_VOUCHER_NOT_EXITS(11013, "Bạn chưa được khai báo sử dụng chức năng. Vui lòng liên hệ bộ phận hỗ trợ để được tư vấn."),
     /**
      * Product 12000-12999
      */

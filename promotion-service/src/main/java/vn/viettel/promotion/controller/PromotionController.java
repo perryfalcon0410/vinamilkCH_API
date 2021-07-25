@@ -210,6 +210,17 @@ public class PromotionController extends BaseController {
         return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
     }
 
+    @GetMapping(value = { V1 + root + "/RPT-ZV23"})
+    @ApiOperation(value = "Lấy Danh sách  rpt zv23")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<List<RPT_ZV23DTO>> findByProgramIds(@RequestParam Set<Long> programIds, @RequestParam Long customerId) {
+        List<RPT_ZV23DTO> response = rpt_zv23Service.findByProgramIds(programIds, customerId, this.getShopId());
+        return new Response<List<RPT_ZV23DTO>>().withData(response);
+    }
+
     @PutMapping(value = { V1 + root + "/RPT-ZV23/{id}"})
     @ApiOperation(value = "Cập nhật thông tin bảng rpt-zv23 trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -243,7 +254,7 @@ public class PromotionController extends BaseController {
         return new Response<Boolean>().withData(result);
     }
 
-    @RoleFeign
+
     @GetMapping(value = { V1 + root + "/promotion-sale-product/{programId}"})
     @ApiOperation(value = "Lấy sản phảm KM tay")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -254,4 +265,5 @@ public class PromotionController extends BaseController {
         List<PromotionSaleProductDTO> response = promotionProgramService.findPromotionSaleProductByProgramId(programId);
         return new Response<List<PromotionSaleProductDTO>>().withData(response);
     }
+
 }

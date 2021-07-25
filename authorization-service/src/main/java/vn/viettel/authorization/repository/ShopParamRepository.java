@@ -15,13 +15,16 @@ public interface ShopParamRepository extends BaseRepository<ShopParam> {
             "AND STATUS = 1 AND SHOP_ID = :id", nativeQuery = true)
     ShopParam isManuallyCreatable(Long id);
 
-    @Query(value = "SELECT NAME FROM SHOP_PARAM WHERE TYPE = 'SALEMT_TH' AND CODE = 'NTKH' " +
-            "AND STATUS = 1 AND SHOP_ID = :id", nativeQuery = true)
-    String dayReturn(Long id);
+//    @Query(value = "SELECT NAME FROM SHOP_PARAM WHERE TYPE = 'SALEMT_TH' AND CODE = 'NTKH' " +
+//            "AND STATUS = 1 AND SHOP_ID = :id", nativeQuery = true)
+//    String dayReturn(Long id);
 
     @Query(value = "SELECT * FROM SHOP_PARAM WHERE TYPE =:type AND CODE =:code AND SHOP_ID =:shopId AND STATUS = 1", nativeQuery = true)
     Optional<ShopParam> getShopParam(String type, String code, Long shopId);
 
     @Query(value = "SELECT * FROM SHOP_PARAM WHERE TYPE = 'SALEMT_LIMIT_DAY_RETURN' AND CODE = 'IMPORT_TRANS_RETURN' AND SHOP_ID =:shopId AND STATUS = 1", nativeQuery = true)
     ShopParam getImportSaleReturn(Long shopId);
+
+    @Query(value = "Select s from ShopParam s Where s.type = 'SALEMT_TH' And s.code = 'NTKH' And s.status = 1 And s.shopId =:shopId ")
+    ShopParam dayReturn(Long shopId);
 }

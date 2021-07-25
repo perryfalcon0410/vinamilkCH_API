@@ -63,12 +63,15 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     @Override
     public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
-        List<Long> customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+        List<Long> customerIds = null;
         int type = 1;
-        if (customerIds == null || customerIds.isEmpty()) {
-            type = -1;
-            customerIds = Arrays.asList(1L);
+        if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+            if (customerIds == null || customerIds.isEmpty()) {
+                customerIds = Arrays.asList(-1L);
+            }
         }
+
         String orderNumber = saleOrderFilter.getOrderNumber();
         if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
         LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
@@ -95,6 +98,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder, List<CustomerDTO> customers, List<UserDTO> users) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
+        dto.setCustomerPurchase(saleOrder.getMemberCardAmount());
         if(customers != null){
             for(CustomerDTO customer : customers){
                 if(customer.getId().equals(saleOrder.getCustomerId())){
@@ -121,7 +125,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(!saleOrderDetails.isEmpty()) {
             List<Product> products = productRepository.getProducts(saleOrderDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()), null);
             orderDetail.setOrderDetail(getDetail(saleOrderDetails, products));
-            orderDetail.setPromotion(getPromotion(saleOrderDetails/*, products*/));
+            orderDetail.setPromotion(getPromotion(saleOrderDetails));
         }
         orderDetail.setInfos(getInfos(saleOrderId, orderNumber));
         orderDetail.setDiscount(getDiscount(saleOrderId, orderNumber));
@@ -195,14 +199,24 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
     public List<DiscountDTO> getDiscount(long saleOrderId, String orderNumber) {
         List<DiscountDTO> discountDTOList = new ArrayList<>();
+        SaleOrder saleOrder = repository.getById(saleOrderId);
+        if(saleOrder == null) return discountDTOList;
+
+        //tiền voucher
         List<VoucherDTO> voucherDTOS = promotionClient.getVoucherBySaleOrderIdV1(saleOrderId).getData();
+        int count = 0;
+        double total = 0;
         if (voucherDTOS.size() > 0) {
             for (VoucherDTO voucher : voucherDTOS) {
+                count++;
                 DiscountDTO discountDTO = new DiscountDTO();
                 discountDTO.setPromotionName(voucher.getVoucherName());
                 discountDTO.setPromotionType("Voucher");
                 discountDTO.setVoucherType(voucher.getVoucherCode());
                 discountDTO.setDiscountPrice(voucher.getPrice());
+                if(count == voucherDTOS.size())
+                    discountDTO.setDiscountPrice(saleOrder.getTotalVoucher() - total);
+                total += voucher.getPrice();
                 discountDTOList.add(discountDTO);
             }
         }
@@ -210,12 +224,16 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<PromotionProgramDiscountDTO> promotionProgramDiscounts =
                 promotionClient.listPromotionProgramDiscountByOrderNumberV1(orderNumber).getData();
         if (promotionProgramDiscounts != null) {
+            count = 0;
+            total = 0;
             for (PromotionProgramDiscountDTO promotionProgramDiscount : promotionProgramDiscounts) {
                 DiscountDTO discountDTO = new DiscountDTO();
                 discountDTO.setDiscountPrice(promotionProgramDiscount.getDiscountAmount());
+                if(count == promotionProgramDiscounts.size())
+                    discountDTO.setDiscountPrice(saleOrder.getDiscountCodeAmount() - total);
+                total += promotionProgramDiscount.getDiscountAmount();
                 discountDTO.setPromotionType("Mã giảm giá");
-                PromotionProgramDTO promotionProgram =
-                        promotionClient.getByIdV1(promotionProgramDiscount.getId()).getData();
+                PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionProgramDiscount.getId()).getData();
                 discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
                 discountDTO.setVoucherType(promotionProgram.getPromotionProgramCode());
                 discountDTOList.add(discountDTO);
@@ -226,14 +244,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(lstSaleOrderDiscount != null){
             HashMap<Long,DiscountDTO> map = new HashMap<>();
             for(SaleOrderDiscount saleOrderDiscount : lstSaleOrderDiscount){
-                if(saleOrderDiscount.getDiscountAmount() != null) {
+                if(saleOrderDiscount.getDiscountAmountVat() != null) {
                     if (map.containsKey(saleOrderDiscount.getPromotionProgramId())) {
                         map.get(saleOrderDiscount.getPromotionProgramId()).setDiscountPrice(
-                                map.get(saleOrderDiscount.getPromotionProgramId()).getDiscountPrice() + saleOrderDiscount.getDiscountAmount().doubleValue()
+                                map.get(saleOrderDiscount.getPromotionProgramId()).getDiscountPrice() + saleOrderDiscount.getDiscountAmountVat().doubleValue()
                         );
                     } else {
                         DiscountDTO discountDTO = new DiscountDTO();
-                        discountDTO.setDiscountPrice(saleOrderDiscount.getDiscountAmount().doubleValue());
+                        discountDTO.setDiscountPrice(saleOrderDiscount.getDiscountAmountVat().doubleValue());
                         discountDTO.setPromotionType(saleOrderDiscount.getPromotionType());
                         discountDTO.setVoucherType(saleOrderDiscount.getPromotionCode());
                         discountDTO.setPromotionName(saleOrderDiscount.getPromotionName());
@@ -247,21 +265,12 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         return discountDTOList;
     }
 
-    public List<PromotionDTO> getPromotion(List<SaleOrderDetail> saleOrderDetails/*, List<Product> products*/) {
+    public List<PromotionDTO> getPromotion(List<SaleOrderDetail> saleOrderDetails) {
         if(saleOrderDetails == null || saleOrderDetails.isEmpty()) return null;
         List<PromotionDTO> promotionDTOList = new ArrayList<>();
         for (SaleOrderDetail promotionDetail : saleOrderDetails) {
             if(promotionDetail.getIsFreeItem()) {
                 PromotionDTO promotionDTO = new PromotionDTO();
-                /*if (products != null) {
-                    for (Product product : products) {
-                        if (product.getId().equals(promotionDetail.getProductId())) {
-                            promotionDTO.setProductNumber(product.getProductCode());
-                            promotionDTO.setProductName(product.getProductName());
-                            break;
-                        }
-                    }
-                }*/
                 promotionDTO.setProductNumber(promotionDetail.getProductCode());
                 promotionDTO.setProductName(promotionDetail.getProductName());
                 promotionDTO.setQuantity(promotionDetail.getQuantity());
@@ -392,32 +401,19 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         }
         //add km
         List<String> lstCheck = Arrays.asList("ZV19", "ZV20", "ZV23");
-        PrintZMZV19ZV20ZV23DTO zMZV19ZV20ZV23 = new PrintZMZV19ZV20ZV23DTO();
+
         HashMap<String,PrintZMZV19ZV20ZV23DTO> lstZM = new HashMap<>();
         for (SaleOrderDiscount item : lstSaleOrderDiscount) {
-            if (item.getPromotionType() != null && "zm".equalsIgnoreCase(item.getPromotionType().trim() ) && item.getDiscountAmountVat() != null) {
+            if (item.getPromotionType() != null && ("zm".equalsIgnoreCase(item.getPromotionType().trim() )
+            || lstCheck.contains(item.getPromotionType().trim() ) ) && item.getDiscountAmountVat() != null) {
                 if(lstZM.containsKey(item.getPromotionCode())){
-                    lstZM.get(item.getPromotionCode()).setAmount(lstZM.get(item.getPromotionCode()).getAmount() + item.getDiscountAmountVat());
+                    lstZM.get(item.getPromotionCode()).setAmount(lstZM.get(item.getPromotionCode()).getAmount() - item.getDiscountAmountVat());
                 }else{
                     PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
                     zm.setPromotionName(item.getPromotionName());
                     zm.setPromotionCode(item.getPromotionCode());
                     zm.setAmount(-item.getDiscountAmountVat());
                     lstZM.put(item.getPromotionCode(), zm);
-                }
-            }else if (item.getPromotionType() != null && lstCheck.contains(item.getPromotionType().trim() ) ) {
-                double amount = 0;
-                if (zMZV19ZV20ZV23.getAmount() != null) amount = zMZV19ZV20ZV23.getAmount();
-                if (item.getDiscountAmountVat() != null) amount += - item.getDiscountAmountVat();
-                zMZV19ZV20ZV23.setAmount(amount);
-                if(zMZV19ZV20ZV23.getPromotionCode() == null){
-                    zMZV19ZV20ZV23.setPromotionCode(item.getPromotionCode());
-                    zMZV19ZV20ZV23.setPromotionName(item.getPromotionName());
-                }else{
-                    if(!zMZV19ZV20ZV23.getPromotionCode().contains(item.getPromotionCode())) {
-                        zMZV19ZV20ZV23.setPromotionCode(zMZV19ZV20ZV23.getPromotionCode() + ", " + item.getPromotionCode());
-                        zMZV19ZV20ZV23.setPromotionName(zMZV19ZV20ZV23.getPromotionName() + ", " + item.getPromotionName());
-                    }
                 }
             }else {
                 for (Map.Entry<String, PrintProductSaleOrderDTO> group : details.entrySet()) {
@@ -472,7 +468,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setProducts(printProductSaleOrderDTO);
         }
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
-        if(zMZV19ZV20ZV23.getAmount() != null) lstZMValue.add(zMZV19ZV20ZV23);
         if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
 
         return print;
@@ -531,10 +526,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 so.setTotalPromotion((double) 0);
             if (so.getDiscountCodeAmount() == null)
                 so.setDiscountCodeAmount((double) 0);
-            saleOrder.setTotalPromotion(Math.round(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount())); //tiền giảm giá
+            if (so.getTotalPromotionVat() != null)
+                saleOrder.setTotalPromotion(so.getTotalPromotionVat());
+//            saleOrder.setTotalPromotion(Math.round(so.getAutoPromotion() + so.getZmPromotion() + so.getTotalVoucher() + so.getDiscountCodeAmount())); //tiền giảm giá
+
             if (so.getCustomerPurchase() == null)
                 so.setCustomerPurchase((double) 0);
-            saleOrder.setCustomerPurchase(Math.round(so.getMemberCardAmount()));//tiền tích lũy
+            if (so.getMemberCardAmount() != null)
+                saleOrder.setCustomerPurchase(Math.round(so.getMemberCardAmount()));//tiền tích lũy
             if (so.getTotal() == null)
                 so.setTotal((double) 0);
             saleOrder.setTotal(Math.round(so.getTotal()));//tiền phải trả

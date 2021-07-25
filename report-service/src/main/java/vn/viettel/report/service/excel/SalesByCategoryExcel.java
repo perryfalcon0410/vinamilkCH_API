@@ -67,7 +67,7 @@ public class SalesByCategoryExcel {
         ExcelPoiUtils.addCell(sheet, col++, row, "ĐỊA CHỈ", formatBold);
         ExcelPoiUtils.addCell(sheet, col++, row, "TẦN SUẤT", formatBold);
         List<String> categoryHeader = tableDynamicDTO.getCategory();
-        for (int i = 0; i < categoryHeader.size()-1; i++) {
+        for (int i = 0; i < categoryHeader.size(); i++) {
             String cat = categoryHeader.get(i);
             ExcelPoiUtils.addCell(sheet, col++, row, cat, formatBold);
         }

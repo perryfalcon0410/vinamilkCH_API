@@ -1,6 +1,5 @@
 package vn.viettel.sale.service;
 
-import vn.viettel.core.db.entity.BaseEntity;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.sale.entities.StockTotal;
 
@@ -17,4 +16,8 @@ public interface StockTotalService extends BaseService {
     StockTotal updateWithLock(Long shopId, Long wareHouseId, Long productId, Integer value);
 
     StockTotal createStockTotal(Long shopId, Long wareHouseId, Long productId, Integer value, boolean autoSave);
+
+    void validateStockTotal(List<StockTotal> stockTotals, Long productId, Integer value);
+
+    void showMessage(Long productId, boolean notFound);
 }

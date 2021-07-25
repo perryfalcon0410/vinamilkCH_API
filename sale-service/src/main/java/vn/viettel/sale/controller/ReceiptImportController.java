@@ -167,24 +167,24 @@ public class ReceiptImportController extends BaseController {
     public Response<String> removeReceiptImport(HttpServletRequest request,
                                     @ApiParam("Id đơn nhập hàng")@PathVariable long id,
                                     @ApiParam("Loại phiếu nhập")@RequestParam Integer type ) {
-        List<String> syncIds = receiptService.removeReceiptImport( id,type,this.getUserName(),this.getShopId());
+        List<List<String>> syncIds = receiptService.removeReceiptImport( id,type,this.getUserName(),this.getShopId());
          ResponseMessage message = ResponseMessage.DELETE_FAILED;
          if(syncIds != null) {
 		    switch (type) {
 		        case 0:
-		        		sendSynRequest(JMSType.po_trans, Arrays.asList(Long.parseLong(syncIds.get(0))));
-		        		sendSynRequest(JMSType.po_confirm, Arrays.asList(Long.parseLong(syncIds.get(1))));
+		        		sendSynRequest(JMSType.po_trans, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+		        		sendSynRequest(JMSType.po_confirm, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
 		        		message = ResponseMessage.DELETE_SUCCESSFUL;
 		        		break;
 		        case 1:
-			            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(Long.parseLong(syncIds.get(0))));
-			            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(Long.parseLong(syncIds.get(1))));
-			            sendSynRequestByCode(JMSType.sale_orders_adjustment, Arrays.asList(syncIds.get(2)));
+			            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+			            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+			            sendSynRequestByCode(JMSType.sale_orders_adjustment, syncIds.get(2));
 		            	message = ResponseMessage.DELETE_SUCCESSFUL;
 		            	break;
 		        case 2:
-		                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(Long.parseLong(syncIds.get(0))));
-		                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(Long.parseLong(syncIds.get(1))));
+		                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+		                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
 		        		message = ResponseMessage.DELETE_SUCCESSFUL;
 		        		break;
 		    }

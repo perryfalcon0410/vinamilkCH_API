@@ -9,6 +9,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -22,7 +23,7 @@ public class PromotionProductDTO implements Cloneable{
     private Long id;
     @ApiModelProperty(notes = "Ngày bán")
     @Column(name = "ORDER_DATE")
-    private Date orderDate;
+    private LocalDateTime orderDate;
     @ApiModelProperty(notes = "Id ngành hàng")
     @Column(name = "PRODUCT_CAT_ID")
     private Long productCatId;

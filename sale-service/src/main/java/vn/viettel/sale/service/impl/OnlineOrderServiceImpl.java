@@ -124,18 +124,17 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         List<OrderProductOnlineDTO> products = new ArrayList<>();
+        Long customerType = null;
         //TH 1 khách hàng thì load giá SP luôn
         if(customerDTOS.size() == 1) {
             CustomerDTO customer = customerDTOS.get(0);
-            for (OnlineOrderDetail detail: orderDetails) {
-                OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, customer.getCustomerTypeId(), shopId, warehouseTypeId);
-                products.add(productOrder);
-            }
+            customerType = customer.getCustomerTypeId();
         }else{
-            for (OnlineOrderDetail detail: orderDetails) {
-                OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, null, shopId, warehouseTypeId);
-                products.add(productOrder);
-            }
+
+        }
+        for (OnlineOrderDetail detail: orderDetails) {
+            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, customerType, shopId, warehouseTypeId);
+            products.add(productOrder);
         }
 
         onlineOrderDTO.setProducts(products);
@@ -329,7 +328,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         double price = 0;
         if(customerTypeId != null) {
-            List<Price> productPrices = productPriceRepo.findProductPrice(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
+            List<Price> productPrices = productPriceRepo.findProductPriceWithType(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
             if(productPrices == null || productPrices.isEmpty()) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
             price = productPrices.get(0).getPrice();
         }

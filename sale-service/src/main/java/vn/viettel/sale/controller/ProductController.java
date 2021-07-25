@@ -79,11 +79,10 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
-                                                               @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
+                                                               @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false) String keyWord,
                                                                @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                                                                @ApiParam("Kiểm tra tồn kho ") @RequestParam(name = "checkStockTotal", required = false, defaultValue = "1") Integer checkStocktotal, Pageable pageable) {
         if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        if (keyWord != null) keyWord = keyWord.trim();
         Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerId, checkStocktotal, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
@@ -139,8 +138,9 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false) String keyWord) {
-        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), keyWord);
+    public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false) String keyWord,
+            @RequestParam(required = false) Long customerId) {
+        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), customerId, keyWord);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<List<OrderProductDTO>>().withData(response);
     }

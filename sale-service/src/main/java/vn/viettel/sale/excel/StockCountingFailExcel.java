@@ -181,7 +181,7 @@ public class StockCountingFailExcel {
     private void writeDataLines() {
         int rowCount = 10;
         int stt = 0;
-
+        DataFormat dataFormat = workbook.createDataFormat();
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontHeight(11);
@@ -191,10 +191,11 @@ public class StockCountingFailExcel {
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
+        style.setDataFormat(dataFormat.getFormat("#,###"));
 
 
         CellStyle dataStyle2 = style;
-        DataFormat dataFormat = workbook.createDataFormat();
+
         dataStyle2.setDataFormat(dataFormat.getFormat("#,###"));
 
 

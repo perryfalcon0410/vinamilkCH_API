@@ -28,7 +28,7 @@ public interface ReceiptExportService {
     List<Long> updateReceiptExport(ReceiptExportUpdateRequest request, Long id,Long shopId);
 
     /** Xóa phiếu xuất hàng **/
-    List<String> removeReceiptExport(Integer type,Long id,Long shopId);
+    List<List<String>> removeReceiptExport(Integer type,Long id,Long shopId);
 
     /** Lấy danh sách phiếu nhập PO **/
     Page<PoTransDTO> getListPoTrans( String transCode, String redInvoiceNo, String internalNumber, String poNo, LocalDateTime fromDate, LocalDateTime toDate,Long shopId, Pageable pageable);
