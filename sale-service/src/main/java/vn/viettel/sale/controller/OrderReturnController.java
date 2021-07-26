@@ -107,7 +107,7 @@ public class OrderReturnController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_ORDER_RETURN_SUCCESS);
         response.setStatusValue("Tạo hóa đơn trả thành công");
         SaleOrder newOrderReturn = orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName());
-        if(newOrderReturn != null) {
+        if(newOrderReturn != null && newOrderReturn.getId() != null) {
         	sendSynRequest(Arrays.asList(newOrderReturn.getId()));
         }
         return response.withData(newOrderReturn);

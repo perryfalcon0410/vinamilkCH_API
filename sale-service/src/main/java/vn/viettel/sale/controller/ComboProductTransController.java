@@ -79,7 +79,7 @@ public class ComboProductTransController extends BaseController {
     )
     public Response<String> create(HttpServletRequest request, @Valid @ApiParam("Thông tin tạo mới xuất, nhập combo") @RequestBody ComboProductTranRequest comboRequest) {
     	ComboProductTranDTO dto = comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
-    	if(dto != null) {
+    	if(dto != null && dto.getId() != null) {
     		sendSynRequest(JMSType.combo_product_trans, Arrays.asList(dto.getId()));
     	}
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_COMBO_PRODUCT_TRANS_SUCCESS);

@@ -75,17 +75,27 @@ public class ReceiptExportController extends BaseController {
         if(syncIds != null) {
 	        switch (rq.getImportType()){
 	        case 0:
-	               	sendSynRequest(JMSType.po_trans, Arrays.asList(syncIds.get(0)));
+		        	if(validateListOneItem(syncIds)) {
+		               	sendSynRequest(JMSType.po_trans, Arrays.asList(syncIds.get(0)));
+		        	}
 	               	message = ResponseMessage.CREATED_SUCCESSFUL;
 	               	break;
 	        case 1:
-	               	sendSynRequest(JMSType.stock_adjustment, Arrays.asList(syncIds.get(0)));
-	               	sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(syncIds.get(1)));
+	        		if(validateListOneItem(syncIds)) {
+		               	sendSynRequest(JMSType.stock_adjustment, Arrays.asList(syncIds.get(0)));
+		        	}
+	        		if(validateListTwoItem(syncIds)) {
+		               	sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(syncIds.get(1)));
+		        	}
 	               	message = ResponseMessage.CREATED_SUCCESSFUL;
 	               	break;
 	        case 2:
-	                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(syncIds.get(0)));
-	                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(syncIds.get(1)));
+	        		if(validateListOneItem(syncIds)) {
+	        			sendSynRequest(JMSType.stock_borrowing, Arrays.asList(syncIds.get(0)));
+	        		}
+	        		if(validateListTwoItem(syncIds)) {
+	        			sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(syncIds.get(1)));
+	        		}
 	        		message = ResponseMessage.CREATED_SUCCESSFUL;
 	        		break;
 	        }
@@ -137,23 +147,35 @@ public class ReceiptExportController extends BaseController {
     public Response<String> removeReceiptExport(HttpServletRequest request,
                                                 @ApiParam("Loại phiếu xuất")@RequestParam Integer type,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
-        List<List<String>> synsIds = receiptExportService.removeReceiptExport(type,Id,this.getShopId());
+        List<List<String>> syncIds = receiptExportService.removeReceiptExport(type,Id,this.getShopId());
         ResponseMessage message = ResponseMessage.UPDATE_SUCCESSFUL;
-        if(synsIds != null) {
+        if(syncIds != null) {
         switch (type){
 	        case 0:
-	        		sendSynRequest(JMSType.po_trans, Arrays.asList(Long.parseLong(synsIds.get(0).get(0))));
+	        		if(validateListStringOneItem(syncIds)) {
+	        			sendSynRequest(JMSType.po_trans, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+	        		}
 	        		message = ResponseMessage.DELETE_SUCCESSFUL;
 	        		break;
 	        case 1:
-	            	sendSynRequest(JMSType.stock_adjustment, Arrays.asList(Long.parseLong(synsIds.get(0).get(0))));
-	            	sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(Long.parseLong(synsIds.get(1).get(0))));
-	            	sendSynRequestByCode(JMSType.sale_orders_adjustment, synsIds.get(2));
+	        		if(validateListStringOneItem(syncIds)) {
+	        			sendSynRequest(JMSType.stock_adjustment, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+	        		}
+	        		if(validateListStringTwoItem(syncIds)) {
+	        			sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+	        		}
+	        		if(validateListStringThreeItem(syncIds)) {
+	        			sendSynRequestByCode(JMSType.sale_orders_adjustment, syncIds.get(2));
+	        		}
 	            	message = ResponseMessage.DELETE_SUCCESSFUL;
 	            	break;
 	        case 2:
-	             	sendSynRequest(JMSType.stock_borrowing, Arrays.asList(Long.parseLong(synsIds.get(0).get(0))));
-	             	sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(Long.parseLong(synsIds.get(1).get(0))));
+	        		if(validateListStringOneItem(syncIds)) {
+	        			sendSynRequest(JMSType.stock_borrowing, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+	        		}
+	        		if(validateListStringTwoItem(syncIds)) {
+	             		sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+	             	}
 	             	message = ResponseMessage.DELETE_SUCCESSFUL;
 	             	break;
         	}
@@ -208,7 +230,9 @@ public class ReceiptExportController extends BaseController {
     
     private void sendSynRequest(String type, List<Long> listId) {
         try {
-            jmsSender.sendMessage(type, listId);
+        	if(!listId.isEmpty()) {
+        		jmsSender.sendMessage(type, listId);
+        	}
         } catch (Exception ex) {
             log.error("khoi tao jmsSender", ex);
         }
@@ -222,5 +246,26 @@ public class ReceiptExportController extends BaseController {
         } catch (Exception ex) {
             log.error("Cannot send request", ex);
         }
+    }
+    
+    
+    private boolean validateListOneItem (List<Long> lst) {
+    	return lst != null && !lst.isEmpty() && lst.get(0) != null;
+    }
+    
+    private boolean validateListTwoItem (List<Long> lst) {
+    	return lst != null && !lst.isEmpty() && lst.size() == 2 && lst.get(1) != null;
+    }
+    
+    private boolean validateListStringOneItem (List<List<String>> lst) {
+    	return lst != null && !lst.isEmpty() && lst.get(0) != null && !lst.get(0).isEmpty() && lst.get(0).get(0) != null;
+    }
+    
+    private boolean validateListStringTwoItem (List<List<String>> lst) {
+    	return lst != null && !lst.isEmpty() && lst.size() > 1 && lst.get(1) != null && !lst.get(1).isEmpty() && lst.get(1).get(0) != null;
+    }
+    
+    private boolean validateListStringThreeItem (List<List<String>> lst) {
+    	return lst != null && !lst.isEmpty() && lst.size() > 2 && lst.get(2) != null && !lst.get(2).isEmpty() && lst.get(2).get(0) != null;
     }
 }

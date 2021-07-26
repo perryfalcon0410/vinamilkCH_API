@@ -85,20 +85,30 @@ public class ReceiptImportController extends BaseController {
         if(syncIds != null) {
 	        switch (rq.getImportType()) {
 		        case 0:
-			            sendSynRequest(JMSType.po_trans, Arrays.asList(syncIds.get(0)));
-			            if(syncIds.size() == 2) {
+		        		if(validateListOneItem(syncIds)) {
+		        			sendSynRequest(JMSType.po_trans, Arrays.asList(syncIds.get(0)));
+		        		}
+			            if(validateListTwoItem(syncIds)) {
 			            	sendSynRequest(JMSType.po_confirm, Arrays.asList(syncIds.get(1)));
 			            }
 			            message = ResponseMessage.CREATED_SUCCESSFUL;
 			            break;
 		        case 1:
-			            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(syncIds.get(0)));
-			            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(syncIds.get(1)));
+		        		if(validateListOneItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_adjustment, Arrays.asList(syncIds.get(0)));
+		        		}
+		        		if(validateListTwoItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(syncIds.get(1)));
+		        		}
 			            message = ResponseMessage.CREATED_SUCCESSFUL;
 			            break;
 		        case 2:
-			            sendSynRequest(JMSType.stock_borrowing, Arrays.asList(syncIds.get(0)));
-			            sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(syncIds.get(1)));
+		        		if(validateListOneItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_borrowing, Arrays.asList(syncIds.get(0)));
+		        		}
+		        		if(validateListTwoItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(syncIds.get(1)));
+		        		}
 			            message = ResponseMessage.CREATED_SUCCESSFUL;
 			            break;
 	        }
@@ -172,19 +182,33 @@ public class ReceiptImportController extends BaseController {
          if(syncIds != null) {
 		    switch (type) {
 		        case 0:
-		        		sendSynRequest(JMSType.po_trans, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
-		        		sendSynRequest(JMSType.po_confirm, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+		        		if(validateListStringOneItem(syncIds)) {
+		        			sendSynRequest(JMSType.po_trans, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+		        		}
+		        		if(validateListStringTwoItem(syncIds)) {
+		        			sendSynRequest(JMSType.po_confirm, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+		        		}
 		        		message = ResponseMessage.DELETE_SUCCESSFUL;
 		        		break;
 		        case 1:
-			            sendSynRequest(JMSType.stock_adjustment, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
-			            sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
-			            sendSynRequestByCode(JMSType.sale_orders_adjustment, syncIds.get(2));
+		        		if(validateListStringOneItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_adjustment, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+		        		}
+		        		if(validateListStringTwoItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_adjustment_trans, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+		        		}
+		        		if(validateListStringThreeItem(syncIds)) {
+		        			sendSynRequestByCode(JMSType.sale_orders_adjustment, syncIds.get(2));
+		        		}
 		            	message = ResponseMessage.DELETE_SUCCESSFUL;
 		            	break;
 		        case 2:
-		                sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
-		                sendSynRequest(JMSType.stock_borrowing, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+		        		if(validateListStringOneItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_borrowing_trans, Arrays.asList(Long.parseLong(syncIds.get(0).get(0))));
+		        		}
+		        		if(validateListStringTwoItem(syncIds)) {
+		        			sendSynRequest(JMSType.stock_borrowing, Arrays.asList(Long.parseLong(syncIds.get(1).get(0))));
+		        		}
 		        		message = ResponseMessage.DELETE_SUCCESSFUL;
 		        		break;
 		    }
@@ -373,5 +397,25 @@ public class ReceiptImportController extends BaseController {
         } catch (Exception ex) {
             log.error("Cannot send request", ex);
         }
+    }
+    
+    private boolean validateListOneItem (List<Long> lst) {
+    	return lst != null && !lst.isEmpty() && lst.get(0) != null;
+    }
+    
+    private boolean validateListTwoItem (List<Long> lst) {
+    	return lst != null && !lst.isEmpty() && lst.size() == 2 && lst.get(1) != null;
+    }
+    
+    private boolean validateListStringOneItem (List<List<String>> lst) {
+    	return lst != null && !lst.isEmpty() && lst.get(0) != null && !lst.get(0).isEmpty() && lst.get(0).get(0) != null;
+    }
+    
+    private boolean validateListStringTwoItem (List<List<String>> lst) {
+    	return lst != null && !lst.isEmpty() && lst.size() > 1 && lst.get(1) != null && !lst.get(1).isEmpty() && lst.get(1).get(0) != null;
+    }
+    
+    private boolean validateListStringThreeItem (List<List<String>> lst) {
+    	return lst != null && !lst.isEmpty() && lst.size() > 2 && lst.get(2) != null && !lst.get(2).isEmpty() && lst.get(2).get(0) != null;
     }
 }

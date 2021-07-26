@@ -90,7 +90,7 @@ public class ExchangeTransController extends BaseController {
     @PostMapping(value = { V1 + root + "/create"})
     public Response<String> create(@Valid @RequestBody ExchangeTransRequest request, HttpServletRequest httpRequest) {
     	ExchangeTransDTO dto = service.create(request, this.getUserId(),this.getShopId());
-    	if(dto != null) {
+    	if(dto != null && dto.getId() != null) {
     		sendSynRequest(JMSType.exchange_trans, Arrays.asList(dto.getId()));
     	}
         Response response = new Response();
@@ -124,7 +124,7 @@ public class ExchangeTransController extends BaseController {
     @PutMapping(value = { V1 + root + "/update/{id}"})
     public Response<String> update(@PathVariable Long id,@RequestBody  ExchangeTransRequest request, HttpServletRequest httpRequest) {
     	ExchangeTransDTO dto = service.update(id,request,this.getShopId());
-    	if(dto != null) {
+    	if(dto != null && dto.getId() != null) {
     		sendSynRequest(JMSType.exchange_trans, Arrays.asList(dto.getId()));
     	}
         Response response = new Response();

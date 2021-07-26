@@ -104,7 +104,9 @@ public class CustomerController extends BaseController {
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
         Response<CustomerDTO> response = new Response<>();
         CustomerDTO customerDTO = service.create(request, this.getUserId(), this.getShopId());
-        sendSynRequest(Arrays.asList(customerDTO.getId()));
+        if(customerDTO != null && customerDTO.getId() != null) {
+        	sendSynRequest(Arrays.asList(customerDTO.getId()));
+        }
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
         response.setStatusValue("Thêm mới thông tin khách hàng thành công");
         return response.withData(customerDTO);
@@ -151,7 +153,9 @@ public class CustomerController extends BaseController {
         response.setStatusCode(201);
         response.setStatusValue("Cập nhật thông tin khách hàng thành công");
         CustomerDTO customerDTO = service.update(request, this.getUserId(),this.getShopId(), true);
-        sendSynRequest(Arrays.asList(customerDTO.getId()));
+        if(customerDTO != null && customerDTO.getId() != null) {
+        	sendSynRequest(Arrays.asList(customerDTO.getId()));
+        }
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
         return response.withData(customerDTO);
     }

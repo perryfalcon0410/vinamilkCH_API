@@ -552,7 +552,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             userLogOnTime.setMacAddress(macAddress);
 
             userLogOnTime = userLogRepository.save(userLogOnTime);
-            sendSynRequest(Arrays.asList(userLogOnTime.getId()));
+            if(userLogOnTime!= null && userLogOnTime.getId() != null) {
+            	sendSynRequest(Arrays.asList(userLogOnTime.getId()));
+            }
         } catch (SocketException e) {
             System.out.println(e.getMessage());
         } catch (UnknownHostException e) {
