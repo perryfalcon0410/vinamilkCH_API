@@ -109,12 +109,7 @@ public class ComboProductTransServiceImpl
         //Lấy giá theo Kh type = -1,  ASC lấy giá đầu tiền
         Long customerTypeId = null;
 
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (warehouseTypeId == null)
-            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
-
-
-        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, warehouseTypeId, shopId, customerTypeId);
+        ComboProductTrans comboProductTran = this.createComboProductTransEntity(request, request.getWarehouseTypeId(), shopId, customerTypeId);
 
         List<ComboProductTransDetail> comboProducts = new ArrayList<>();
         List<ComboProductTranDetailRequest> combos = request.getDetails();
@@ -126,7 +121,7 @@ public class ComboProductTransServiceImpl
         List<Long> lstProductIds1 = request.getDetails().stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
         lstProductIds1.forEach(lstProductIds::add);
         lstProductIds.stream().distinct();
-        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, lstProductIds);
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, request.getWarehouseTypeId(), lstProductIds);
         List<StockTotal> newStockTotal = new ArrayList<>();
 
         // Đối với nhập chuyển đổi type =1  các sp con ko đủ số xuất: Hiển thị mã SP - tên SP-số lượng tồn .Nếu có >= 2 Sp không đủ tồn kho thì hiển thị tất cả
@@ -138,7 +133,7 @@ public class ComboProductTransServiceImpl
             if (request.getTransType().equals(1)) {
                 //Combo cha chưa có tồn kho - tạo mới stock total
                 if(stockTotal1 == null){
-                    stockTotal1 = stockTotalService.createStockTotal(shopId, warehouseTypeId, combo.getRefProductId(), combo.getQuantity(), false);
+                    stockTotal1 = stockTotalService.createStockTotal(shopId, request.getWarehouseTypeId(), combo.getRefProductId(), combo.getQuantity(), false);
                     newStockTotal.add(stockTotal1);
                 }else{
                     int value = combo.getQuantity();
@@ -204,7 +199,7 @@ public class ComboProductTransServiceImpl
                     quatity = combo.getQuantity() * comboProductDetail.getFactor();
                     //Combo con chưa có tồn kho - tạo mới stock total
                     if(stockTotal == null){
-                        stockTotal = stockTotalService.createStockTotal(shopId, warehouseTypeId, comboProductDetail.getProductId(), quatity, false);
+                        stockTotal = stockTotalService.createStockTotal(shopId, request.getWarehouseTypeId(), comboProductDetail.getProductId(), quatity, false);
                         newStockTotal.add(stockTotal);
                     }else {
                         int value = quatity;
