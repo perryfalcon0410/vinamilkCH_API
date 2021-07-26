@@ -3,6 +3,7 @@ package vn.viettel.sale.service.impl;
 import com.amazonaws.services.dynamodbv2.xspec.L;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
@@ -28,10 +30,7 @@ import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.PromotionClient;
-import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDate;
@@ -60,6 +59,11 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     @Autowired
     ShopClient shopClient;
 
+    @Autowired
+    ApparamClient apparamClient;
+
+    @Value( "${sale.delivery.type.apparam}" )
+    private String apParamDeliveryType;
 
     @Override
     public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
@@ -290,6 +294,8 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         UserDTO user = userClient.getUserByIdV1(saleOrder.getSalemanId());
         if (shop == null) return null;
 
+        ApParamDTO apParam = apparamClient.getApParamByTypeAndvalue(apParamDeliveryType, saleOrder.getDeliveryType().toString()).getData();
+
         PrintSaleOrderDTO print = new PrintSaleOrderDTO();
         print.setShopName(shop.getShopName());
         print.setShopAddress(shop.getAddress());
@@ -304,7 +310,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         print.setOrderNumber(saleOrder.getOrderNumber());
         print.setCustomerPurchase(saleOrder.getTotalCustomerPurchase());
         print.setAmount(saleOrder.getAmount());
-        print.setDeliveryType(saleOrder.getDeliveryType());
+        if(apParam!=null) print.setDeliveryType(apParam.getApParamName());
         double amountNotVat = 0;
         //map ctkm với các sản phẩm mua
         HashMap<String, PrintProductSaleOrderDTO> details = new HashMap<>();
@@ -410,6 +416,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     lstZM.get(item.getPromotionCode()).setAmount(lstZM.get(item.getPromotionCode()).getAmount() - item.getDiscountAmountVat());
                 }else{
                     PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
+                    zm.setPromotionType(item.getPromotionType());
                     zm.setPromotionName(item.getPromotionName());
                     zm.setPromotionCode(item.getPromotionCode());
                     zm.setAmount(-item.getDiscountAmountVat());
@@ -468,6 +475,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setProducts(printProductSaleOrderDTO);
         }
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
+        //Xắp xếp ZM trước sau đó ts các ZV19->23
+        Collections.sort(lstZMValue, Comparator.comparing(PrintZMZV19ZV20ZV23DTO::getPromotionType));
+
         if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
 
         return print;

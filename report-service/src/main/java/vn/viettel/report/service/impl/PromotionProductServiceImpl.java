@@ -61,10 +61,10 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
     //data sheet 2
     private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions) throws CloneNotSupportedException {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Map<String, PromotionProductDTO> maps = new HashMap<>();
         for(PromotionProductDTO promotion: promotions) {
-            String key = dateFormat.format(promotion.getOrderDate())+ promotion.getProductCode();
+            LocalDateTime dateTime = promotion.getOrderDate();
+            String key = String.valueOf(dateTime.getYear()) + dateTime.getMonth() + dateTime.getDayOfMonth() + promotion.getProductCode();
             if(maps.containsKey(key)){
                 PromotionProductDTO dto = maps.get(key);
                 dto.setQuantity(dto.getQuantity() + promotion.getQuantity());

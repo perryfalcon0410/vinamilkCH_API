@@ -35,6 +35,10 @@ public class ComboProductTranRequest extends BaseRequest {
     @NotNull(responseMessage = ResponseMessage.TRANS_TYPE_MUST_BE_NOT_NULL)
     private Integer transType;
 
+    @ApiModelProperty(notes = "Loại kho")
+    @NotNull(responseMessage = ResponseMessage.WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll)
+    private Long warehouseTypeId;
+
     @ApiModelProperty(notes = "Ghi chú")
     @MaxTextLength(length = 3950, responseMessage = ResponseMessage.MAX_LENGTH_STRING)
     private String note;

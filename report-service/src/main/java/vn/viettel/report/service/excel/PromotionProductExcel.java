@@ -117,8 +117,9 @@ public class PromotionProductExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPromotionCode(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOnlineNumber(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOrderType(), format);
-            }
 
+            }
+            ExcelPoiUtils.autoSizeAllColumns(sheet1, 11);
             Row rowTotalFooter = sheet1.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
@@ -127,8 +128,8 @@ public class PromotionProductExcel {
             ExcelPoiUtils.createCell(rowTotalFooter, 9, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 10, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 11, null, format2);
+
         }
-        ExcelPoiUtils.autoSizeAllColumns(sheet1, 11);
     }
 
     private void createTableSheet2() {
@@ -167,14 +168,14 @@ public class PromotionProductExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format);
             }
-
+            ExcelPoiUtils.autoSizeAllColumns(sheet2, 8);
             Row rowTotalFooter = sheet2.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalFooter, 5, "Tổng:", format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 7, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 8, this.promotionProductTotal.getQuantity(), format2);
         }
-        ExcelPoiUtils.autoSizeAllColumns(sheet2, 8);
+
     }
 
     private void createTableSheet3() {
@@ -210,13 +211,13 @@ public class PromotionProductExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format);
             }
-
+            ExcelPoiUtils.autoSizeAllColumns(sheet3, 7);
             Row rowTotalFooter = sheet3.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalFooter, 5, "Tổng:", format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 7, this.promotionProductTotal.getQuantity(), format2);
         }
-        ExcelPoiUtils.autoSizeAllColumns(sheet3, 7);
+
     }
 
     public ByteArrayInputStream export() throws IOException {

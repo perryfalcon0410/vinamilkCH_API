@@ -39,7 +39,7 @@ public class PrintSaleOrderDTO {
     private String customerAddress;
 
     @ApiModelProperty(notes = "Phương thức vận chuyển")
-    private Integer deliveryType;
+    private String deliveryType;
 
     @ApiModelProperty(notes = "Doanh số tích lũy")
     private Double customerPurchase;
