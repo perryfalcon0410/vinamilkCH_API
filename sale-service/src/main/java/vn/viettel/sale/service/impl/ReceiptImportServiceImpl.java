@@ -1231,41 +1231,62 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     private String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        Integer reciNum = repository.countImport(LocalDateTime.now().with(firstDayOfYear()));
+        List<PoTrans> pos = repository.getLastPoTrans( 1, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!pos.isEmpty()) {
+            String str = pos.get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMPP.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
     private String createBorrowingTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = stockBorrowingTransRepository.countImport(LocalDateTime.now().with(firstDayOfYear()));
+        List<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastBorrowTrans(1, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!borrTrans.isEmpty()) {
+            String str = borrTrans.get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDCB.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
 
     private String createInternalCodeAdjust(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = stockAdjustmentTransRepository.countImport(LocalDateTime.now().with(firstDayOfYear()));
+        List<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastAdjustTrans(1, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!stockAdjustmentTrans.isEmpty()) {
+            String str = stockAdjustmentTrans.get(0).getInternalNumber();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDCT.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
 

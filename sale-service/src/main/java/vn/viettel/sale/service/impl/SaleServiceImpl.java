@@ -763,8 +763,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         int month = now.getMonthValue();
         LocalDateTime start =  DateUtils.convertFromDate(now);
         LocalDateTime end =  DateUtils.convertToDate(now);
+        List<SaleOrder> saleOrders = repository.getLastSaleOrderNumber(shop.getId(), start);
+
+        int STT = 1;
+        if(!saleOrders.isEmpty()) {
+            String str = saleOrders.get(0).getOrderNumber();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         String  year = Integer.toString(now.getYear()).substring(2);
-        int STT = repository.countSaleOrder(start,end,shop.getId()) + 1;
+
+      //  int STT = repository.countSaleOrder(start,end,shop.getId()) + 1;
         return  "SAL." +  shop.getShopCode() + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
     }
 
