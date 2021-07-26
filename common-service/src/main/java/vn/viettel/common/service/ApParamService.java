@@ -26,4 +26,10 @@ public interface ApParamService extends BaseService {
 //    lấy danh sách theo list id
 //     */
 //    List<ApParamDTO> getApParamByIds(List<Long> apParamIds);
+
+    /*
+    lấy loại đơn online trong chọn đơn online
+    */
+    ApParamDTO getApParamOnlineOrder(String discription);
+
 }

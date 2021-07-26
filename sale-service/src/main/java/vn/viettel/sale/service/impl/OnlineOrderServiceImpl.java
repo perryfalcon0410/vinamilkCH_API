@@ -140,6 +140,10 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         onlineOrderDTO.setProducts(products);
         onlineOrderDTO.setCustomers(customerDTOS);
 
+        //Set order type
+        ApParamDTO apParam = apparamClient.getApParamOnlineOrderV1(onlineOrder.getSourceName()).getData();
+        onlineOrderDTO.setType(apParam);
+
         return onlineOrderDTO;
     }
 

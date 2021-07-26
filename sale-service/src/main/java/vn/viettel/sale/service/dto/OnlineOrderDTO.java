@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.service.dto.BaseDTO;
 
@@ -47,6 +48,9 @@ public class OnlineOrderDTO extends BaseDTO {
 
     @ApiModelProperty(notes = "Thông tin khách hàng")
     private List<CustomerDTO> customers;
+
+    @ApiModelProperty(notes = "Loại đơn online")
+    private ApParamDTO type;
 
     public void addQuantity(int quantity) {
         this.quantity += quantity;

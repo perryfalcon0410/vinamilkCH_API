@@ -845,9 +845,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     orderComboDetail.setAutoPromotionNotVat(roundValue((detail.getProductPriceNotVat() * detail.getFactor() * item.getQuantity()) * percentZVInTax / 100));
                     orderComboDetail.setTotal(roundValue(orderComboDetail.getAmount() - (orderComboDetail.getZmPromotionVat() + orderComboDetail.getAutoPromotionVat())));
 
-
                     listOrderComboDetail.add(orderComboDetail);
-                    break;
                 }
             }
         }
