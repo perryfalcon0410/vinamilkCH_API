@@ -28,7 +28,7 @@ public interface InventoryService {
     //lay cac sp ton kho
     Object getAll(Long shopId, String searchKeywords,Long wareHouseTypeId);
 
-    Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Boolean override);
+    Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId,Long wareHouseTypeId, Boolean override);
 
     Boolean checkInventoryInDay(Long wareHouseTypeId, Long shopId);
 }

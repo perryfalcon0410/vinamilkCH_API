@@ -24,8 +24,9 @@ public class StockAdjustmentDTO extends BaseDTO {
     private Long wareHouseTypeId;
     private Long reasonId;
     private String description;
+    private String wareHouseTypeName;
 
-    public StockAdjustmentDTO(Long id, String adjustmentCode, LocalDateTime adjustmentDate, Long shopId, Integer type, Integer status, Long wareHouseTypeId, Long reasonId, String description) {
+    public StockAdjustmentDTO(Long id, String adjustmentCode, LocalDateTime adjustmentDate, Long shopId, Integer type, Integer status, Long wareHouseTypeId, Long reasonId, String description,String wareHouseTypeName) {
         this.setId(id);
         this.adjustmentCode = adjustmentCode;
         this.adjustmentDate = adjustmentDate;
@@ -35,5 +36,6 @@ public class StockAdjustmentDTO extends BaseDTO {
         this.wareHouseTypeId = wareHouseTypeId;
         this.reasonId = reasonId;
         this.description = description;
+        this.wareHouseTypeName = wareHouseTypeName;
     }
 }

@@ -196,6 +196,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         .and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasTypeImport())
                         .and(ReceiptSpecification.hasGreaterDay(dateTime)).and(ReceiptSpecification.hasNotReturn()).and(ReceiptSpecification.hasShopId(shopId))
                         ,pageable);
+        //List<WareHouseType> wareHouseTypeName = wareHouseTypeRepository.findAllById(poTrans.stream().map(e->e.getWareHouseTypeId()).collect(Collectors.toList()));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return poTrans.map(e -> modelMapper.map(e, PoTransDTO.class));
     }

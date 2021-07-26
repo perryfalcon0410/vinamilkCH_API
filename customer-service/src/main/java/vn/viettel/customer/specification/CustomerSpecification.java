@@ -99,12 +99,12 @@ public final class CustomerSpecification {
             if (searchKeywords == null) {
                 return criteriaBuilder.conjunction();
             }
-            Expression<String> fullNameAccent = criteriaBuilder.concat(criteriaBuilder.concat(root.get(Customer_.lastName), " "), root.get(Customer_.firstName));
-            return criteriaBuilder.or(criteriaBuilder.like(fullNameAccent, "%" + searchKeywords + "%"),
+            return  criteriaBuilder.or(
                     criteriaBuilder.like(root.get(Customer_.nameText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
                     criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords),
-                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords));
+                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords)
+            );
         };
     }
 
