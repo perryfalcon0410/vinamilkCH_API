@@ -416,6 +416,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                     lstZM.get(item.getPromotionCode()).setAmount(lstZM.get(item.getPromotionCode()).getAmount() - item.getDiscountAmountVat());
                 }else{
                     PrintZMZV19ZV20ZV23DTO zm = new PrintZMZV19ZV20ZV23DTO();
+                    zm.setPromotionType(item.getPromotionType());
                     zm.setPromotionName(item.getPromotionName());
                     zm.setPromotionCode(item.getPromotionCode());
                     zm.setAmount(-item.getDiscountAmountVat());
@@ -474,6 +475,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setProducts(printProductSaleOrderDTO);
         }
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
+        //Xắp xếp ZM trước sau đó ts các ZV19->23
+        Collections.sort(lstZMValue, Comparator.comparing(PrintZMZV19ZV20ZV23DTO::getPromotionType));
+
         if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
 
         return print;
