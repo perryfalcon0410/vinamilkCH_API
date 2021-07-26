@@ -1963,8 +1963,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             return null;
         }).distinct().filter(Objects::nonNull).collect(Collectors.toList());
 
-        List<PromotionProgramDTO> zvUsedInDay = saleOrderDiscountRepo.countDiscountUsed(shopId, customer.getId(), promtionIds);
-        List<PromotionProgramDTO> zvFreeItemUsedInDay = saleOrderDiscountRepo.countDiscountUsedFreeItem(shopId, customer.getId(), programCodes);
+        List<PromotionProgramDTO> zvUsedInDay = new ArrayList<>();
+        List<PromotionProgramDTO> zvFreeItemUsedInDay = new ArrayList<>();
+        if(!promtionIds.isEmpty()) zvUsedInDay = saleOrderDiscountRepo.countDiscountUsed(shopId, customer.getId(), promtionIds);
+        if(!programCodes.isEmpty()) zvFreeItemUsedInDay = saleOrderDiscountRepo.countDiscountUsedFreeItem(shopId, customer.getId(), programCodes);
+
         Map<Long, Integer> numberOfZVUsedInDay = zvUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionGroupId, PromotionProgramDTO::getPromotionDateTime));
         Map<String, Integer> numberOfZVFreeItemUsedInDay = zvFreeItemUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionProgramCode, PromotionProgramDTO::getPromotionDateTime));
 

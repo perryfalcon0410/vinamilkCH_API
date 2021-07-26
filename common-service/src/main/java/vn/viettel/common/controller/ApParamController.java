@@ -158,5 +158,17 @@ public class ApParamController extends BaseController {
         ApParamDTO apParamDTO = apParamService.getApParamByTypeAndvalue(type, value);
         return new Response<ApParamDTO>().withData(apParamDTO);
     }
+
+    @ApiOperation(value = "Lấy loại đơn online trong đơn online")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/online-order/type"})
+    public Response<ApParamDTO> getApParamOnlineOrder(@RequestParam(required = false) String discription) {
+        ApParamDTO apParamDTO = apParamService.getApParamOnlineOrder(discription);
+        return new Response<ApParamDTO>().withData(apParamDTO);
+    }
+
 }
 

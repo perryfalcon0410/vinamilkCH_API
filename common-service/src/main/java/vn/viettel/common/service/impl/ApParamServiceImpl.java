@@ -1,5 +1,6 @@
 package vn.viettel.common.service.impl;
 
+import com.google.common.base.Splitter;
 import org.springframework.stereotype.Service;
 import vn.viettel.common.entities.ApParam;
 import vn.viettel.common.repository.ApParamRepository;
@@ -9,9 +10,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,7 +95,40 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
         ApParam apParam = repository.findByTypeAndValueAndStatus(type, value, 1).orElseThrow(() -> new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS));
         return modelMapper.map(apParam , ApParamDTO.class);
     }
+
+    /*
+       nếu k có cai nào thỏa thì order by theo value lấy đầu tiên
+       nếu có nhiều hơn 1 cũng order by theo value lấy đầu tiên
+     */
+    @Override
+    public ApParamDTO getApParamOnlineOrder(String discription) {
+        List<ApParam> apParams = repository.getOnlineOrderType();
+        if (apParams.isEmpty()) return null;
+        //Do value là String mà của loại đơn là số nến sort số theo String bị sai nên convert sang số rồi sort.
+        List<ApParamDTO> apParamDTOS = apParams.stream().map(a -> {
+            ApParamDTO dto = modelMapper.map(a , ApParamDTO.class);
+            if(a.getValue()!=null) dto.setIntValue(Integer.valueOf(a.getValue()));
+            return dto;
+        }).collect(Collectors.toList());
+
+        Collections.sort(apParamDTOS, Comparator.comparing(ApParamDTO::getIntValue,Comparator.nullsLast(Comparator.naturalOrder())));
+
+        if(discription != null) {
+            discription = discription.trim().toUpperCase(Locale.ROOT);
+            for(ApParamDTO app: apParamDTOS) {
+                if(app.getDescription()!=null) {
+                    String[] splitted = Arrays.stream(app.getDescription().split(",")).map(String::trim).toArray(String[]::new);
+                    List<String> strings = new ArrayList<String>(Arrays.asList(splitted));
+                    strings.replaceAll(String::toUpperCase);
+                    if(strings.contains(discription)) return app;
+                }
+            }
+        }
+
+        return apParamDTOS.get(0);
+    }
 }
+
 
 
 
