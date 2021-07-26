@@ -132,14 +132,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
         return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
     }
-
     @Override
     public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim()))
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.replaceAll("^\\s+", "")))
                         .and(CustomerSpecification.hasStatus(1L)),pageable);
-
         List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(customers.getContent().size() != 0)

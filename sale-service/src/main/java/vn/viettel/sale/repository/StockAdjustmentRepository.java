@@ -13,7 +13,9 @@ public interface StockAdjustmentRepository extends BaseRepository<StockAdjustmen
     List<StockAdjustment> getStockAdjustment(Long shopId);
 
     @Query("SELECT NEW vn.viettel.sale.service.dto.StockAdjustmentDTO(sa.id, sa.adjustmentCode, sa.adjustmentDate, sa.shopId, sa.type," +
-            " sa.status, sa.wareHouseTypeId, sa.reasonId, sa.description)" +
-            " FROM StockAdjustment sa WHERE sa.shopId =:shopId AND sa.type = 2 AND sa.status = 1 ")
+            " sa.status, sa.wareHouseTypeId, sa.reasonId, sa.description,w.wareHouseTypeName)" +
+            " FROM StockAdjustment sa" +
+            " JOIN WareHouseType w on w.id = sa.wareHouseTypeId " +
+            " WHERE sa.shopId =:shopId AND sa.type = 2 AND sa.status = 1 ")
     List<StockAdjustmentDTO> getStockAdjustmentExport(Long shopId);
 }

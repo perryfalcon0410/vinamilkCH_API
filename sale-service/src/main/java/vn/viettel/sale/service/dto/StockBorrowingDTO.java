@@ -25,7 +25,21 @@ public class StockBorrowingDTO extends BaseDTO {
     private Integer totalQuantity;
     private Float totalAmount;
     private String note;
+    private String wareHouseTypeName;
 
+    public StockBorrowingDTO(Long id, String poBorrowCode, Long shopId, Long toShopId, LocalDateTime borrowDate, Integer status, Long wareHouseTypeId, Integer totalQuantity, Float totalAmount, String note,String wareHouseTypeName) {
+        this.setId(id);
+        this.poBorrowCode = poBorrowCode;
+        this.shopId = shopId;
+        this.toShopId = toShopId;
+        this.borrowDate = borrowDate;
+        this.status = status;
+        this.wareHouseTypeId = wareHouseTypeId;
+        this.totalQuantity = totalQuantity;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.wareHouseTypeName = wareHouseTypeName;
+    }
     public StockBorrowingDTO(Long id, String poBorrowCode, Long shopId, Long toShopId, LocalDateTime borrowDate, Integer status, Long wareHouseTypeId, Integer totalQuantity, Float totalAmount, String note) {
         this.setId(id);
         this.poBorrowCode = poBorrowCode;
