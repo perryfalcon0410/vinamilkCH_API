@@ -29,8 +29,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     List<Customer> getCustomerNumber(@Param("shopId") Long shopId);
 
     @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = true "
-            + " AND c.status = 1 ")
-    Optional<Customer> getCustomerDefault(Long shopId);
+            + " AND c.status = 1 ORDER BY c.updatedAt DESC")
+    List<Customer> getCustomerDefault(Long shopId);
 
     @Query(value = "SELECT c.ID FROM CUSTOMERS c where ( c.CUSTOMER_CODE like %:nameOrCode% OR c.NAME_TEXT like %:nameOrCode% ) and c.MOBIPHONE like %:customerPhone ",
             nativeQuery = true)

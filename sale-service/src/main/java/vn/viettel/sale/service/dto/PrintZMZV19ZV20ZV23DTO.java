@@ -11,6 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @ApiModel(description = "Thông khuyến mãi zv19, zv20, zv21, zv23")
 public class PrintZMZV19ZV20ZV23DTO {
+    @ApiModelProperty(notes = "Loại chương trình")
+    private String promotionType;
+
     @ApiModelProperty(notes = "Tên chương trình khuyến mãi")
     private String promotionName;
 
@@ -19,4 +22,6 @@ public class PrintZMZV19ZV20ZV23DTO {
 
     @ApiModelProperty(notes = "Tiền khuyến mãi")
     private Double amount;
+
+
 }

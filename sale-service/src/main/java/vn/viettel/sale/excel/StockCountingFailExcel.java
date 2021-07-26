@@ -34,12 +34,12 @@ public class StockCountingFailExcel {
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Stock_Counting_Fail");
         ////////// CUSTOMER HEADER /////////////////////////////
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
+     /*   sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A3:I3"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));*/
         CellStyle customerStyle = workbook.createCellStyle();
         XSSFFont customerHeader = (XSSFFont) workbook.createFont();
         customerHeader.setBold(true);
@@ -55,11 +55,11 @@ public class StockCountingFailExcel {
         customerAddressStyle.setFont(customerAddressHeader);
 
         ////////// COMPANY HEADER /////////////////////////////
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A6:P6"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A7:P7"));
-        Row header = sheet.createRow(5);
-        Row dateRow = sheet.createRow(6);
-        Row row = sheet.createRow(8);
+       /* sheet.addMergedRegion(CellRangeAddress.valueOf("A6:P6"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A7:P7"));*/
+        Row header = sheet.createRow(0);
+        Row dateRow = sheet.createRow(1);
+        Row row = sheet.createRow(3);
         headerStyle = workbook.createCellStyle();
         XSSFFont font = (XSSFFont) workbook.createFont();
         font.setFontHeight(10);
@@ -73,7 +73,6 @@ public class StockCountingFailExcel {
         headerStyle.setBorderLeft(BorderStyle.THIN);
         headerStyle.setBorderRight(BorderStyle.THIN);
         headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
         CellStyle titleStyle = workbook.createCellStyle();
         XSSFFont fontHeader = (XSSFFont) workbook.createFont();
         fontHeader.setFontHeight(15);
@@ -115,15 +114,15 @@ public class StockCountingFailExcel {
         CellStyle totalRowStyleRGB2 = totalRowStyleRGB;
         DataFormat dataFormat = workbook.createDataFormat();
         totalRowStyleRGB2.setDataFormat(dataFormat.getFormat("#,###"));
-
+/*
         ExcelPoiUtils.createCell(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowDown,7, totalAmount, totalRowStyleRGB2);
         ExcelPoiUtils.createCell(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,11, totalChange, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,11, totalChange, totalRowStyleRGB);*/
         ///// FILLED ROW ///////////
-        CellStyle style = workbook.createCellStyle();
+  /*      CellStyle style = workbook.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
@@ -137,7 +136,7 @@ public class StockCountingFailExcel {
         ExcelPoiUtils.createCell(totalRowDown,12, null, totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowDown,13, null, totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowDown,14, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,15, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowDown,15, null, totalRowStyleRGB);*/
 
         ExcelPoiUtils.createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
         ExcelPoiUtils.createCell(dateRow, 0, DateUtils.formatDate2StringDate(date), customerAddressStyle);
@@ -158,7 +157,7 @@ public class StockCountingFailExcel {
         ExcelPoiUtils.createCell(row, 14, "ĐVT LẺ", headerStyle);
         ExcelPoiUtils.createCell(row, 15, "Lỗi", headerStyle);
 
-        Row totalRowUp = sheet.createRow(9);
+       /* Row totalRowUp = sheet.createRow(9);
         ExcelPoiUtils.createCell(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowUp,7, totalAmount, totalRowStyleRGB2);
@@ -175,11 +174,11 @@ public class StockCountingFailExcel {
         ExcelPoiUtils.createCell(totalRowUp,12, null, totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowUp,13, null, totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowUp,14, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,15, null, totalRowStyleRGB);
+        ExcelPoiUtils.createCell(totalRowUp,15, null, totalRowStyleRGB);*/
     }
 
     private void writeDataLines() {
-        int rowCount = 10;
+        int rowCount =4;
         int stt = 0;
         DataFormat dataFormat = workbook.createDataFormat();
         CellStyle style = workbook.createCellStyle();

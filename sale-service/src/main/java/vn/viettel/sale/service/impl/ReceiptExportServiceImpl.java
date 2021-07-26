@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,7 +194,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         .and(ReceiptSpecification.hasPoCoNo(poCoNo)).and(ReceiptSpecification.hasFromDateToDateRedInvoice(fromDate, toDate))
                         .and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasTypeImport())
                         .and(ReceiptSpecification.hasGreaterDay(dateTime)).and(ReceiptSpecification.hasNotReturn()).and(ReceiptSpecification.hasShopId(shopId))
-                , pageable);
+                        ,pageable);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return poTrans.map(e -> modelMapper.map(e, PoTransDTO.class));
     }
@@ -337,6 +338,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poTransDetailRepository.save(poTransDetail1);
         }
         stockTotalService.updateWithLock(idAndValues);
+        if(total_quantity==0) throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
         poRecord.setTotalQuantity(total_quantity);
         poRecord.setTotalAmount(total_amount);
         poRecord.setNumSku(countNumSKU.size());
@@ -518,8 +520,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public List<Long> updatePoTransExport(ReceiptExportUpdateRequest request, Long id,Long shopId) {
         PoTrans poTrans = repository.getById(id);
         if(poTrans == null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
-
-//        if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
         if (poTrans.getTransDate().isBefore(DateUtils.convertFromDate(LocalDateTime.now())))
             throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         else {
@@ -540,9 +540,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     PoTransDetail poTransDetail = poTransDetails.get(i);
                     for (int j = 0; j < request.getListProductRemain().size(); j++) {
                         if (poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())) {
-                            if (request.getListProductRemain().get(j).getQuantity() > (poTransDetailImport.get(i).getQuantity()-poTransDetailImport.get(i).getReturnAmount()))
+                            int slTra = (request.getListProductRemain().get(j).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
+                            int slConLai = (poTransDetailImport.get(i).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
+                            if (slTra>slConLai)
                                 throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
-
                             poTransDetailImport.get(i).setReturnAmount(poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(j).getQuantity() - poTransDetail.getQuantity()));
                             StockTotal st = null;
                             if (stockTotals != null) {

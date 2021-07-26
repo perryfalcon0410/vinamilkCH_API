@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -200,7 +202,11 @@ public class ReceiptExportController extends BaseController {
                                                      @ApiParam("Số nội bộ")@RequestParam(value = "internalNumber",required = false) String internalNumber,
                                                      @ApiParam("Số PO")@RequestParam(value = "poNo",required = false) String poNo,
                                                      @ApiParam("Từ ngày nhập")@RequestParam(value = "fromDate",required = false ) Date fromDate,
-                                                     @ApiParam("Đến ngày nhập")@RequestParam(value = "toDate",required = false) Date toDate, Pageable pageable) {
+                                                     @ApiParam("Đến ngày nhập")@RequestParam(value = "toDate",required = false) Date toDate,
+                                                     @SortDefault.SortDefaults({
+                                                             @SortDefault(sort = "transDate", direction = Sort.Direction.DESC),
+                                                             @SortDefault(sort = "transCode", direction = Sort.Direction.DESC)
+                                                     })Pageable pageable) {
         Page<PoTransDTO> response = receiptExportService.getListPoTrans(transCode,redInvoiceNo,internalNumber,poNo,DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PO_TRANS_SUCCESS);
         return new Response<Page<PoTransDTO>>().withData(response);

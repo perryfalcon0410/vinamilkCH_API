@@ -480,11 +480,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerDefault(Long shopId) {
-        Customer customer = repository.getCustomerDefault(shopId)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST));
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
-
-        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customer.getId()).orElse(null);
+        List<Customer> customers = repository.getCustomerDefault(shopId);
+        if(customers.isEmpty()) throw new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST);
+        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customers.get(0), null);
+        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customers.get(0).getId()).orElse(null);
         if(memberCustomer != null){
             customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
         }
@@ -493,10 +492,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerDefaultByShop(Long shopId) {
-        Optional<Customer> cus = repository.getCustomerDefault(shopId);
-        if(!cus.isPresent()) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        List<Customer> customers = repository.getCustomerDefault(shopId);
+        if(customers.isEmpty()) throw new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        CustomerDTO cusDTO = modelMapper.map(cus.get(), CustomerDTO.class);
+        CustomerDTO cusDTO = modelMapper.map(customers.get(0), CustomerDTO.class);
         return  cusDTO;
     }
 
