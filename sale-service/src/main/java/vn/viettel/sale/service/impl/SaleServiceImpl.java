@@ -269,12 +269,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                     // tổng số lượng sản phẩm khuyến mãi
                     if(inputPro.getProducts()!=null && !inputPro.getProducts().isEmpty()){
+                        //kiểm tra nếu km tay tổng số isEditable = {Boolean@18816} false lượng km > 0
                         int totalQty = 0;
                         for(FreeProductDTO product: inputPro.getProducts()){
                             totalQty += product.getQuantity()!=null?product.getQuantity():0;
                         }
                         inputPro.setTotalQty(totalQty);
-                        //kiểm tra nếu km tay tổng số isEditable = {Boolean@18816} false lượng km > 0
+
                         if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                             if(inputPro.getTotalQty() < 1) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                         }else {//km tự động
@@ -282,21 +283,28 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 List<String> groupLevels = dbPro.getProducts().stream().map(ie ->ie.getGroupOneFreeItem()).distinct().collect(Collectors.toList());
 
                                 for(String group : groupLevels){
+                                     totalQty = 0;
+                                    for(FreeProductDTO product: inputPro.getProducts()){
+                                        if(group.equalsIgnoreCase(product.getGroupOneFreeItem())) {
+                                            totalQty += product.getQuantity()!=null?product.getQuantity():0;
+                                        }
+                                    }
+
                                     List<Integer> lstMax = dbPro.getProducts().stream().map(ie -> {
                                         if(group.equals(ie.getGroupOneFreeItem())) return ie.getQuantityMax();
                                         return null;
                                     }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
                                     if(lstMax.size() == 1){ // cùng max value
                                         if(dbPro.getEditable() == null || dbPro.getEditable() == 0){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
-                                            if(inputPro.getTotalQty() != lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                                            if(totalQty != lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                                         }else{ // được tặng số lượng nhỏ hơn số cơ cấu
                                             //TODO
                                         }
                                     }else{ // khác max value
                                         if(dbPro.getEditable() == null || dbPro.getEditable() == 0 ){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
                                             for(FreeProductDTO product: inputPro.getProducts()){
-                                                if(product.getQuantity() != null && product.getQuantity() > 0){
-                                                    if(inputPro.getTotalQty() < product.getQuantityMax() || inputPro.getTotalQty() > product.getQuantityMax())
+                                                if(product.getQuantity() != null && product.getQuantity() > 0 && group.equalsIgnoreCase(product.getGroupOneFreeItem())){
+                                                    if(totalQty < product.getQuantityMax() || totalQty > product.getQuantityMax())
                                                         throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                                                 }
                                             }

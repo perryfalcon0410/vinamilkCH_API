@@ -297,7 +297,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     saleOrder.setUsedRedInvoice(true);
                     saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeWorking());
                     saleOrder.setRedInvoiceTaxCode(redInvoiceNewDataDTO.getTaxCode());
-                    saleOrder.setRedInvoiceCompanyName(redInvoiceNewDataDTO.getOfficeAddress());
+                    saleOrder.setRedInvoiceAddress(redInvoiceNewDataDTO.getOfficeAddress());
                     saleOrder.setRedInvoiceRemark(redInvoiceNewDataDTO.getNoteRedInvoice());
                     saleOrderRepository.save(saleOrder);
                 }
@@ -330,6 +330,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 redInvoiceDetailRepository.save(redInvoiceDetailRecord);
             }
         }
+
 
         return redInvoiceDTO;
     }
