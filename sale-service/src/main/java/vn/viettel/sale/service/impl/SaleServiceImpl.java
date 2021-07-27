@@ -490,7 +490,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(request.getTotalOrderAmount() < promotionInVat)
                 throw new ValidateException(ResponseMessage.PROMOTION_OVER_BILL);
 
-            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
+            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
             createSaleOrderComboDetail(saleOrderDetails, combos, customer.getCustomerTypeId()).stream().forEachOrdered(listOrderComboDetails::add);
             createSaleOrderComboDiscount(saleOrderDiscounts, combos).stream().forEachOrdered(listOrderComboDiscounts::add);
 
@@ -514,7 +514,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //           salePromotionCalculation.getPaymentAmount().intValue() != request.getPaymentAmount().intValue())
 //                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }else{
-            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), new ArrayList<>(mapProductOrder.keySet()));
+            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
             createSaleOrderComboDetail(saleOrderDetails, combos, customer.getCustomerTypeId()).stream().forEachOrdered(listOrderComboDetails::add);
         }
 
