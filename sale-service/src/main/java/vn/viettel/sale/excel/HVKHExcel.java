@@ -80,11 +80,6 @@ public class HVKHExcel {
     }
 
     private void createTableSheet1() {
-
-
-
-
-
         int rowTable = 0;
         Row rowHeader = sheet1.createRow(rowTable++);
         ExcelPoiUtils.createCell(rowHeader, 0, "STT", styleTableHeader);
@@ -96,7 +91,7 @@ public class HVKHExcel {
         ExcelPoiUtils.createCell(rowHeader, 6, "MÃ SỐ THUẾ DOANH NGHIỆP", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 7, "TỔNG SỐ TIỀN (VNĐ)", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 8, "KHO", styleTableHeader);
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 8);
         if(!hddtos.isEmpty())
         {
             for (int i = 0; i < hddtos.size(); i++) {
@@ -115,6 +110,7 @@ public class HVKHExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getWareHouse(), styleTableValue);
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 8);
     }
 
     private void createTableSheet2() {
@@ -129,7 +125,7 @@ public class HVKHExcel {
         ExcelPoiUtils.createCell(rowHeader, 6, "SỐ LƯỢNG", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 7, "KHO", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 8, "LOẠI ĐƠN HÀNG", styleTableHeader);
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet2, 22);
         if(!ctdtos.isEmpty())
         {
             for (int i = 0; i < ctdtos.size(); i++) {
@@ -147,6 +143,7 @@ public class HVKHExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getRedInvoiceType(), styleTableValue);
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 8);
     }
 
     public XSSFCellStyle getTableHeaderStyle() {

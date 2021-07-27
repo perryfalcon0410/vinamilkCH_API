@@ -54,18 +54,11 @@ import java.util.*;
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(filter.getFromDate())+"  ĐẾN NGÀY: "+DateUtils.formatDate2StringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));
         //
         headers = NameHeader.header.split(";");
-        headers1 = NameHeader.header1.split(";");
         if(null != headers && headers.length >0){
             for(String h : headers) {
                 ExcelPoiUtils.addCell(sheet, col++, row + 6, h, style.get(ExcelPoiUtils.BOLD_10));
-                boolean result = Arrays.stream(headers1).anyMatch(h::equals);
-                if (result) {
-                    if (h.equals("SỐ PO")) {
-                        ExcelPoiUtils.addCell(sheet, col_++, row + 7, "TỔNG :", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
-                    } else
-                        ExcelPoiUtils.addCell(sheet, col_++, row + 7, "", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
-                }
             }
+            ExcelPoiUtils.autoSizeAllColumns(sheet, 24);
         }
     }
     private void writeDataLines() {
@@ -74,6 +67,34 @@ import java.util.*;
         CellStyle format = style.get(ExcelPoiUtils.DATA);
         CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+        CellStyle formatCurrencyBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
+
+        Row rowTotalHeader = sheet.createRow(row);
+        ExcelPoiUtils.createCell(rowTotalHeader, 0, null, format);
+        ExcelPoiUtils.createCell(rowTotalHeader, 1, null, format);
+        ExcelPoiUtils.createCell(rowTotalHeader, 2, null, format);
+        ExcelPoiUtils.createCell(rowTotalHeader, 3, null, format);
+        ExcelPoiUtils.createCell(rowTotalHeader, 4, "Tổng:", formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 5, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 6, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 7, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 8, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 9, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 10,  data.getInfo().getTotalQuantity(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 11, data.getInfo().getTotalWholeSale(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 12, data.getInfo().getTotalRetail(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 13, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 14, data.getInfo().getTotalAmount(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 15, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 16, data.getInfo().getTotal(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 17, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 18, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 19, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 20, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 21, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 22, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 23, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalHeader, 24, null, formatBold);
 
         for (ShopImportDTO s : data.getResponse()){
             stt++;col=0;row++;
@@ -88,9 +109,9 @@ import java.util.*;
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductName(),format);
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),format);
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getWholesale(),format);
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getRetail(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),formatCurrency);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getWholesale(),formatCurrency);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getRetail(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getPriceNotVat(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getAmount(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),formatCurrency);
@@ -105,36 +126,34 @@ import java.util.*;
             ExcelPoiUtils.addCell(sheet,col++,row,s.getReturnCode(),format);
             if(col > lastCol) lastCol = col;
         }
-        row= row+1;
-        if(null != headers && headers.length >0){
-            for(String h : headers) {
-                boolean result = Arrays.stream(headers1).anyMatch(h::equals);
-                if (result) {
-                    if (h.equals("SỐ PO")) {
-                        ExcelPoiUtils.addCell(sheet,col_++, row, "TỔNG :", formatBold);
-                    } else
-                        ExcelPoiUtils.addCell(sheet,col_++, row, "", formatBold);
-                }
-            }
-        }
-        for(String h : headers) {
-            if(h.equals("SỐ LƯỢNG")){
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalQuantity(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalQuantity(), formatBold);
-            }else if(h.equals("SL PACKET")){
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalWholeSale(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalWholeSale(), formatBold);
-            }else if (h.equals("SL LẺ")){
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalRetail(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalRetail(), formatBold);
-            }else if(h.equals("THÀNH TIỀN")){
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotalAmount(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotalAmount(), formatBold);
-            }else if(h.equals("TỔNG CỘNG")){
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), row, data.getInfo().getTotal(), formatBold);
-                ExcelPoiUtils.addCell(sheet,Arrays.asList(headers).indexOf(h), 9, data.getInfo().getTotal(), formatBold);
-            }
-        }
+
+        Row rowTotalFooter = sheet.createRow(row);
+        ExcelPoiUtils.createCell(rowTotalFooter, 0, null, format);
+        ExcelPoiUtils.createCell(rowTotalFooter, 1, null, format);
+        ExcelPoiUtils.createCell(rowTotalFooter, 2, null, format);
+        ExcelPoiUtils.createCell(rowTotalFooter, 3, null, format);
+        ExcelPoiUtils.createCell(rowTotalFooter, 4, "Tổng:", formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 5, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 6, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 7, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 8, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 9, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 10,  data.getInfo().getTotalQuantity(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 11, data.getInfo().getTotalWholeSale(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 12, data.getInfo().getTotalRetail(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 13, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 14, data.getInfo().getTotalAmount(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 15, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 16, data.getInfo().getTotal(), formatCurrencyBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 17, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 18, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 19, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 20, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 21, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 22, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 23, null, formatBold);
+        ExcelPoiUtils.createCell(rowTotalFooter, 24, null, formatBold);
+
         ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
     }
 

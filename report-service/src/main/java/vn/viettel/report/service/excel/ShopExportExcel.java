@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ShopExportExcel {
     private static final String FONT_NAME= "Times New Roman";
@@ -120,6 +121,10 @@ public class ShopExportExcel {
     }
 
     private void createTableSheet1() {
+        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
+        CellStyle formatCurrencyBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
+
         int rowTable = 9;
 
         Row rowHeader = sheet1.createRow(rowTable++);
@@ -146,22 +151,26 @@ public class ShopExportExcel {
         ExcelPoiUtils.createCell(rowHeader, 20, "CHUỖI CỬA HÀNG", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 21, "NHÓM SẢN PHẨM", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 22, "GHI CHÚ", styleTableHeader);
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 22);
         if(!exportGoodsDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
+            ExcelPoiUtils.createCell(rowTotalHeader, 0, null, styleTableValue);
+            ExcelPoiUtils.createCell(rowTotalHeader, 1, null, styleTableValue);
+            ExcelPoiUtils.createCell(rowTotalHeader, 2, null, styleTableValue);
+            ExcelPoiUtils.createCell(rowTotalHeader, 3, null, styleTableValue);
             ExcelPoiUtils.createCell(rowTotalHeader, 4, "Tổng:", styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 5, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 6, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 7, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 8, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 9, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalHeader, 10, totalReport.getTotalQuantity(), styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalHeader, 11, totalReport.getTotalPacketQuantity(), styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalHeader, 12, totalReport.getTotalUnitQuantity(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 10, totalReport.getTotalQuantity(), formatCurrencyBold);
+            ExcelPoiUtils.createCell(rowTotalHeader, 11, totalReport.getTotalPacketQuantity(), formatCurrencyBold);
+            ExcelPoiUtils.createCell(rowTotalHeader, 12, totalReport.getTotalUnitQuantity(), formatCurrencyBold);
             ExcelPoiUtils.createCell(rowTotalHeader, 13, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalHeader, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 14, totalReport.getTotalAmountNotVat(), formatCurrencyBold);
             ExcelPoiUtils.createCell(rowTotalHeader, 15, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalHeader, 16, totalReport.getTotalAmountVat(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalHeader, 16, totalReport.getTotalAmountVat(), formatCurrencyBold);
 
             ExcelPoiUtils.createCell(rowTotalHeader, 17, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalHeader, 18, null, styleCellTotalTable);
@@ -186,13 +195,13 @@ public class ShopExportExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductInfoName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getWholesale(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getRetail(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPriceNotVat(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPriceNotVat(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPriceVat(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getWholesale(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getRetail(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPriceNotVat(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPriceNotVat(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPriceVat(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom2(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getShopName(), styleTableValue);
@@ -203,27 +212,32 @@ public class ShopExportExcel {
             }
 
             Row rowTotalFooter = sheet1.createRow(rowTable++);
+            ExcelPoiUtils.createCell(rowTotalHeader, 0, null, styleTableValue);
+            ExcelPoiUtils.createCell(rowTotalHeader, 1, null, styleTableValue);
+            ExcelPoiUtils.createCell(rowTotalHeader, 2, null, styleTableValue);
+            ExcelPoiUtils.createCell(rowTotalHeader, 3, null, styleTableValue);
             ExcelPoiUtils.createCell(rowTotalFooter, 4, "Tổng:", styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 5, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 6, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 7, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 8, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 9, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalFooter, 10, totalReport.getTotalQuantity(), styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalFooter, 11, totalReport.getTotalPacketQuantity(), styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalFooter, 12, totalReport.getTotalUnitQuantity(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 10, totalReport.getTotalQuantity(), formatCurrencyBold);
+            ExcelPoiUtils.createCell(rowTotalFooter, 11, totalReport.getTotalPacketQuantity(), formatCurrencyBold);
+            ExcelPoiUtils.createCell(rowTotalFooter, 12, totalReport.getTotalUnitQuantity(), formatCurrencyBold);
             ExcelPoiUtils.createCell(rowTotalFooter, 13, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalFooter, 14, totalReport.getTotalAmountNotVat(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 14, totalReport.getTotalAmountNotVat(), formatCurrencyBold);
             ExcelPoiUtils.createCell(rowTotalFooter, 15, null, styleCellTotalTable);
-            ExcelPoiUtils.createCell(rowTotalFooter, 16, totalReport.getTotalAmountVat(), styleCellTotalTable);
+            ExcelPoiUtils.createCell(rowTotalFooter, 16, totalReport.getTotalAmountVat(), formatCurrencyBold);
             ExcelPoiUtils.createCell(rowTotalFooter, 17, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 18, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 19, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 20, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 21, null, styleCellTotalTable);
             ExcelPoiUtils.createCell(rowTotalFooter, 22, null, styleCellTotalTable);
+            ExcelPoiUtils.autoSizeAllColumns(sheet1, 22);
         }
-        ExcelPoiUtils.autoSizeAllColumns(sheet1, 22);
+
     }
 
     public XSSFCellStyle getTableHeaderStyle() {

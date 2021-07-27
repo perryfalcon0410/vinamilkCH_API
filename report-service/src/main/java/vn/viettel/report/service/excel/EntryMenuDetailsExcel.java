@@ -72,6 +72,7 @@ public class EntryMenuDetailsExcel {
         ExcelPoiUtils.createCell(rowHeader, 5, "NGAYTT", format1);
         ExcelPoiUtils.createCell(rowHeader, 6, "SOTIEN", format1);
         ExcelPoiUtils.createCell(rowHeader, 7, "HDKM", format1);
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 7);
 
         if(!entryMenuDetailsDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);

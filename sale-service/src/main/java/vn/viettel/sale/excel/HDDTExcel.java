@@ -106,7 +106,7 @@ public class HDDTExcel {
         ExcelPoiUtils.createCell(rowHeader, 20, "TẢI FILE PDF", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 21, "KEY", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 22, "SERIAL", styleTableHeader);
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 22);
 
         if(!hddtExcelDTOS.isEmpty()) {
             for (int i = 0; i < hddtExcelDTOS.size(); i++) {
@@ -127,7 +127,7 @@ public class HDDTExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPriceNotVat(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTotalAmount(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getGTGT(), styleTableValue);
@@ -139,6 +139,7 @@ public class HDDTExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
             }
         }
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, 22);
     }
 
     private XSSFCellStyle getTableHeaderStyle() {

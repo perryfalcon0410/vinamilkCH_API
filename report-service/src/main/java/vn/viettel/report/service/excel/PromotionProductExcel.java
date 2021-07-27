@@ -39,6 +39,7 @@ public class PromotionProductExcel {
     private CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
     private CellStyle format2 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
     private CellStyle format4 = style.get(ExcelPoiUtils.DATA_CURRENCY);
+    private CellStyle format5 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
 
     public PromotionProductExcel(ShopDTO shopDTO, ShopDTO parentShop, PromotionProductDTO total, PromotionProductFilter filter) {
         this.shop = shopDTO;
@@ -92,7 +93,7 @@ public class PromotionProductExcel {
 
         if(!promotionDetails.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
-            ExcelPoiUtils.createCell(rowTotalHeader, 5, this.promotionProductTotal.getQuantity(), format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 5, this.promotionProductTotal.getQuantity(), format5);
             ExcelPoiUtils.createCell(rowTotalHeader, 6, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 7, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 8, null, format2);
@@ -121,7 +122,7 @@ public class PromotionProductExcel {
             }
             ExcelPoiUtils.autoSizeAllColumns(sheet1, 11);
             Row rowTotalFooter = sheet1.createRow(rowTable++);
-            ExcelPoiUtils.createCell(rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), format5);
             ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 7, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 8, null, format2);

@@ -8,7 +8,7 @@ import vn.viettel.sale.entities.HddtExcel;
 import java.util.List;
 
 public interface CTDVKHRepository extends JpaRepository<CTDVKH, Long> {
-    @Query(value =  "SELECT detail.id, detail.shopId, red_in.invoiceNumber, pro.productCode, pro.uom1, detail.quantity " +
+    @Query(value =  "SELECT  NEW vn.viettel.sale.entities.CTDVKH(detail.id, detail.shopId, red_in.invoiceNumber, pro.productCode, pro.uom1, detail.quantity )" +
             "FROM   RedInvoiceDetail detail " +
             "JOIN   RedInvoice red_in on red_in.id = detail.redInvoiceId " +
             "JOIN   Product pro on pro.id = detail.productId " +

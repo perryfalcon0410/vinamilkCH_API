@@ -129,7 +129,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 3, 9, null, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 4, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 5, 9, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 6, 9, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 6, 9, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
         ExcelPoiUtils.addCell(sheet1, 7, 9, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 8, 9, this.reportRequest.getTotalDTO().getTotalAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
         ExcelPoiUtils.addCell(sheet1, 9, 9, this.reportRequest.getTotalDTO().getTotalRefunds(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
@@ -146,7 +146,7 @@ public class ReturnGoodsExcel {
             ExcelPoiUtils.addCell(sheet1, 3, rowMerge, null, style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet1, 4, rowMerge, null, style.get(ExcelPoiUtils.DATA));
             ExcelPoiUtils.addCell(sheet1, 5, rowMerge, null, style.get(ExcelPoiUtils.DATA));
-            ExcelPoiUtils.addCell(sheet1, 6, rowMerge, returnGoodsDTOS.get(i).getTotalQuantity(), style.get(ExcelPoiUtils.DATA));
+            ExcelPoiUtils.addCell(sheet1, 6, rowMerge, returnGoodsDTOS.get(i).getTotalQuantity(), style.get(ExcelPoiUtils.DATA_CURRENCY));
             ExcelPoiUtils.addCell(sheet1, 7, rowMerge, null, style.get(ExcelPoiUtils.DATA_CURRENCY));
             ExcelPoiUtils.addCell(sheet1, 8, rowMerge, returnGoodsDTOS.get(i).getTotalAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
             ExcelPoiUtils.addCell(sheet1, 9, rowMerge, returnGoodsDTOS.get(i).getTotalRefunds(), style.get(ExcelPoiUtils.DATA_CURRENCY));
@@ -165,14 +165,13 @@ public class ReturnGoodsExcel {
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getProductCode(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getProductName(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getUnit(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.addCell(sheet1, col++, row, data.getQuantity(), style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet1, col++, row, data.getQuantity(), style.get(ExcelPoiUtils.DATA_CURRENCY));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getPrice(), style.get(ExcelPoiUtils.DATA_CURRENCY));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getAmount(), style.get(ExcelPoiUtils.DATA_CURRENCY));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getRefunds(), style.get(ExcelPoiUtils.DATA_CURRENCY));
                 ExcelPoiUtils.addCell(sheet1, col++, row, DateUtils.formatDate2StringDateTime(data.getPayDay()), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getReasonForPayment(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getFeedback(), style.get(ExcelPoiUtils.DATA));
-                ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
             }
             rowMerge = row + 1;
         }
@@ -182,7 +181,7 @@ public class ReturnGoodsExcel {
         ExcelPoiUtils.addCell(sheet1, 3, dataSize + 10, null, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 4, dataSize + 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 5, dataSize + 10, "Tổng:", style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
-        ExcelPoiUtils.addCell(sheet1, 6, dataSize + 10, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
+        ExcelPoiUtils.addCell(sheet1, 6, dataSize + 10, this.reportRequest.getTotalDTO().getTotalQuantity(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
         ExcelPoiUtils.addCell(sheet1, 7, dataSize + 10, null, style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2));
         ExcelPoiUtils.addCell(sheet1, 8, dataSize + 10, this.reportRequest.getTotalDTO().getTotalAmount(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
         ExcelPoiUtils.addCell(sheet1, 9, dataSize + 10, this.reportRequest.getTotalDTO().getTotalRefunds(), style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY));
