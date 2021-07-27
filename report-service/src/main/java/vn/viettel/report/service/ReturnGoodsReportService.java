@@ -8,12 +8,13 @@ import vn.viettel.report.service.dto.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 public interface ReturnGoodsReportService {
     CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> getReturnGoodsReport(ReturnGoodsReportsRequest filter, Pageable pageable);
 
-    ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException;
+    ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException, ParseException;
 
     ReportPrintIndustryTotalDTO getDataPrint(ReturnGoodsReportsRequest filter);
 }

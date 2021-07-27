@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -78,7 +79,7 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "fromDate") Date fromDate,
             @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "productKW", required = false,defaultValue = "") String productKW, HttpServletResponse response) throws IOException {
+            @RequestParam(value = "productKW", required = false,defaultValue = "") String productKW, HttpServletResponse response) throws IOException, ParseException {
 
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(),
                 reciept.toUpperCase(Locale.ROOT), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW.toUpperCase(Locale.ROOT));

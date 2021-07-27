@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
@@ -14,9 +15,10 @@ import vn.viettel.report.service.dto.ReturnGoodsReportTotalDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
+import java.util.*;
 
 public class ReturnGoodsExcel {
     private static final String FONT_NAME = "Times New Roman";
@@ -26,14 +28,20 @@ public class ReturnGoodsExcel {
 
     private ShopDTO shopDTO;
     private ChangeReturnGoodsReportRequest reportRequest;
+
+    //List hóa đơn
     private List<ReturnGoodsReportTotalDTO> returnGoodsDTOS = new ArrayList<>();
+    //list Sp
     private List<List<ReturnGoodsDTO>> listArrayList = new ArrayList<>();
+
+
     private ReturnGoodsReportsRequest filter;
     private int rowNum = 1;
     private Map<String, CellStyle> style;
 
+
     public ReturnGoodsExcel(
-            ShopDTO shopDTO, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsRequest filter) {
+            ShopDTO shopDTO, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsRequest filter) throws ParseException {
         this.shopDTO = shopDTO;
         this.reportRequest = reportRequest;
         this.filter = filter;
@@ -44,6 +52,7 @@ public class ReturnGoodsExcel {
                 returnGoodsDTOS.add(new ReturnGoodsReportTotalDTO(returnGoodsDTO.getReturnCode(), returnGoodsDTO.getReciept(), returnGoodsDTO.getFullName()));
             }
         }
+        Collections.sort(returnGoodsDTOS, Comparator.comparing(ReturnGoodsReportTotalDTO::getReturnCode));
         for (ReturnGoodsReportTotalDTO totalDTO : returnGoodsDTOS) {
             int totalQuantity = 0;
             Double totalAmount = 0.0;
@@ -61,6 +70,10 @@ public class ReturnGoodsExcel {
             totalDTO.setTotalQuantity(totalQuantity);
             totalDTO.setTotalAmount(totalAmount);
             totalDTO.setTotalRefunds(totalRefunds);
+
+            RuleBasedCollator ru = new RuleBasedCollator(Constants.rules);
+            Collections.sort(dtoList, (ReturnGoodsDTO t1, ReturnGoodsDTO t2)->ru.compare(t1.getIndustry(), t2.getIndustry()) );
+
             listArrayList.add(dtoList);
         }
     }
