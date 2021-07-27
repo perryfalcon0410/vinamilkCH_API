@@ -20,7 +20,6 @@ import java.util.List;
 public class WareHouseTypeServiceImpl extends BaseServiceImpl<WareHouseType, WareHouseTypeRepository> implements WareHouseTypeService {
     @Autowired
     CustomerTypeClient customerTypeClient;
-
     @Override
     public List<WareHouseTypeDTO> index(Long shopId) {
         List<WareHouseType> wareHouseTypes = repository.findAll();
