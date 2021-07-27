@@ -80,8 +80,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         Page<StockCounting> stockCountings = repository.findAll(Specification
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
                         .and(InventorySpecification.hasFromDateToDate(fromDate, toDate)
-                        .and(InventorySpecification.hasWareHouse(warehouseTypeId))
-                        .and(InventorySpecification.hasShopId(shopId)))
+                                .and(InventorySpecification.hasWareHouse(warehouseTypeId))
+                                .and(InventorySpecification.hasShopId(shopId)))
                 , pageable);
         List<Long> ids = stockCountings.stream().map(item -> item.getWareHouseTypeId()).distinct().collect(Collectors.toList());
         List<WareHouseType> wareHouseTypes = wareHouseTypeRepository.findAllById((ids != null && !ids.isEmpty()) ? ids : Arrays.asList(0L));
@@ -105,11 +105,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if (countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
         Long customerTypeId = null;
-        CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(customerType != null) customerTypeId = customerType.getId();
+        /*CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        if(customerType != null) customerTypeId = customerType.getId();*/
 
-        List<Price> prices = priceRepository.findProductPriceWithType(countingDetails.stream().map(item -> item.getProductId())
-                .collect(Collectors.toList()), customerTypeId, LocalDateTime.now());
+        List<Price> prices = priceRepository.findProductPriceWithType1(countingDetails.stream().map(item -> item.getProductId())
+                .collect(Collectors.toList()), wareHouseTypeId, LocalDateTime.now());
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -155,6 +155,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         StockCounting stockCounting = repository.findById(id).get();
         if (stockCounting == null) throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
         List<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id);
+        List<StockTotal> listSt = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId()
+                , result.stream().map(e -> e.getProductId()).distinct().collect(Collectors.toList()));
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -164,19 +166,25 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setCountingCode(stockCounting.getStockCountingCode());
         totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
         totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
-        for (StockCountingExcel countingExcel : result) {
-            if (countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
-            if (countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
-            countingExcel.setTotalAmount(countingExcel.getPrice() == null ? 0D : countingExcel.getPrice() * countingExcel.getStockQuantity());
-            countingExcel.setPacketQuantity((double) (countingExcel.getInventoryQuantity() / countingExcel.getConvfact()));
-            countingExcel.setUnitQuantity((double) (countingExcel.getInventoryQuantity() % countingExcel.getConvfact()));
-            countingExcel.setChangeQuantity(countingExcel.getStockQuantity() - countingExcel.getInventoryQuantity());
-            totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + countingExcel.getStockQuantity());
-            totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + countingExcel.getInventoryQuantity());
-            totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
-            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * (countingExcel.getPrice() == null ? 0D : countingExcel.getPrice())));
-            totalStockCounting.setTotalPacket((int) (totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity()));
-            totalStockCounting.setTotalUnit((int) (totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity()));
+        for (StockTotal st : listSt) {
+            for (StockCountingExcel countingExcel : result) {
+                if (st.getProductId().equals(countingExcel.getProductId())) {
+                    countingExcel.setStockQuantity(st.getQuantity());
+                    if (countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
+                    if (countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
+                    countingExcel.setTotalAmount(countingExcel.getPrice() == null ? 0D : countingExcel.getPrice() * countingExcel.getStockQuantity());
+                    countingExcel.setPacketQuantity((double) (countingExcel.getInventoryQuantity() / countingExcel.getConvfact()));
+                    countingExcel.setUnitQuantity((double) (countingExcel.getInventoryQuantity() % countingExcel.getConvfact()));
+                    countingExcel.setChangeQuantity(countingExcel.getStockQuantity() - countingExcel.getInventoryQuantity());
+                    totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + countingExcel.getStockQuantity());
+                    totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + countingExcel.getInventoryQuantity());
+                    totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
+                    totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * (countingExcel.getPrice() == null ? 0D : countingExcel.getPrice())));
+                    totalStockCounting.setTotalPacket((int) (totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity()));
+                    totalStockCounting.setTotalUnit((int) (totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity()));
+                }
+            }
+
         }
         CoverResponse<List<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
         return response;
@@ -255,7 +263,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         StockCounting stockCounting = repository.findById(stockCountingId).get();
         if (stockCounting == null)
             throw new ValidateException(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
-        if(stockCounting.getCountingDate().isBefore(DateUtils.convertFromDate(LocalDateTime.now())))
+        if (stockCounting.getCountingDate().isBefore(DateUtils.convertFromDate(LocalDateTime.now())))
             throw new ValidateException(ResponseMessage.INVENTORY_OVER_DATE);
 
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
@@ -270,8 +278,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
                 if (stockCountingDetail.getProductId() == details.get(i).getProductId()) {
                     stockCountingDetail.setQuantity(details.get(i).getPacketQuantity() * details.get(i).getConvfact() + details.get(i).getUnitQuantity());
-                    for (StockTotal stockTotal : stockTotals){
-                        if(stockTotal.getProductId().equals(stockCountingDetail.getProductId())){
+                    for (StockTotal stockTotal : stockTotals) {
+                        if (stockTotal.getProductId().equals(stockCountingDetail.getProductId())) {
                             stockCountingDetail.setStockQuantity(stockTotal.getQuantity());
                             break;
                         }
@@ -285,10 +293,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId,Long wareHouseTypeId, Boolean override) {
+    public Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Long wareHouseTypeId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-       /* WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);*/
+        /* WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);*/
         List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId, shopId);
         StockCounting stockCounting = new StockCounting();
 

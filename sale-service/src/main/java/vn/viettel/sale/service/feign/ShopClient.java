@@ -22,14 +22,12 @@ public interface ShopClient {
     @GetMapping("api/v1/users/shops/editable/online-order/{shopId}")
     Response<Boolean> isEditableOnlineOrderV1(@PathVariable Long shopId);
 
-    @RoleFeign
     @GetMapping( "api/v1/users/shops/manually-creatable/online-order/{shopId}")
     Response<Boolean> isManuallyCreatableOnlineOrderV1(@PathVariable Long shopId);
 
     @GetMapping("api/v1/users/shops/day-return/{shopId}")
     Response<String> dayReturn(@PathVariable Long shopId);
 
-    @RoleFeign
     @GetMapping("api/v1/users/shops/import-trans-return/{shopId}")
     String getImportSaleReturn(@PathVariable Long shopId);
 

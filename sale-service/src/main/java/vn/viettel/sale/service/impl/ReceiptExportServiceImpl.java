@@ -255,6 +255,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         poTransDetail.setTransId(poRecord.getId());
                         poTransDetail.setTransDate(transDate);
                         poTransDetail.setProductId(poTransDetails.get(i).getProductId());
+                        if(poTransDetails.get(i).getReturnAmount()==null) poTransDetails.get(i).setReturnAmount(0);
                         poTransDetail.setQuantity(poTransDetails.get(i).getQuantity()-poTransDetails.get(i).getReturnAmount());
                         poTransDetail.setPrice(poTransDetails.get(i).getPrice());
                         poTransDetail.setShopId(shopId);

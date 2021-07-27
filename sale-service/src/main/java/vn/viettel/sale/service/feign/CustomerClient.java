@@ -18,7 +18,6 @@ import java.util.Map;
 @Service
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerClient {
-    @RoleFeign
     @GetMapping("/api/v1/customers/{id}")
     Response<CustomerDTO> getCustomerByIdV1(@PathVariable(name = "id") Long id);
 
