@@ -81,14 +81,15 @@ public class StockTotalReportExcel {
             Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
             CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
             CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
+            CellStyle formatCry = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
             CellStyle center = style.get(ExcelPoiUtils.CENTER);
             ExcelPoiUtils.addCell(sheet,0,row, null ,format);
             ExcelPoiUtils.addCell(sheet,1,row,null ,format);
             ExcelPoiUtils.addCell(sheet,2,row, null ,format);
-            ExcelPoiUtils.addCell(sheet,4,row, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
-            ExcelPoiUtils.addCell(sheet,5,row, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
-            ExcelPoiUtils.addCell(sheet,6,row, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
-            ExcelPoiUtils.addCell(sheet,8,row, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,4,row, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatCry);
+            ExcelPoiUtils.addCell(sheet,5,row, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatCry);
+            ExcelPoiUtils.addCell(sheet,6,row, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatCry);
+            ExcelPoiUtils.addCell(sheet,8,row, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatCry);
 
             for (StockTotalReportDTO data : stockTotalExcelRequest.getStockTotals()) {
                 stt++;col=0;row++;
@@ -115,10 +116,10 @@ public class StockTotalReportExcel {
             ExcelPoiUtils.addCell(sheet,0,row + 1, null ,format);
             ExcelPoiUtils.addCell(sheet,1,row + 1,null ,format);
             ExcelPoiUtils.addCell(sheet,2,row + 1, null ,format);
-            ExcelPoiUtils.addCell(sheet,4,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatBold);
-            ExcelPoiUtils.addCell(sheet,5,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatBold);
-            ExcelPoiUtils.addCell(sheet,6,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatBold);
-            ExcelPoiUtils.addCell(sheet,8,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatBold);
+            ExcelPoiUtils.addCell(sheet,4,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalQuantity() ,formatCry);
+            ExcelPoiUtils.addCell(sheet,5,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalPackageQuantity() ,formatCry);
+            ExcelPoiUtils.addCell(sheet,6,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalUnitQuantity() ,formatCry);
+            ExcelPoiUtils.addCell(sheet,8,row + 1, stockTotalExcelRequest.getTotalInfo().getTotalAmount() ,formatCry);
             ExcelPoiUtils.autoSizeAllColumns(sheet, lastCol);
         }
     }

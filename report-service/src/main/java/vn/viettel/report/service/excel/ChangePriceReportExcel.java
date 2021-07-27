@@ -107,6 +107,7 @@ public class ChangePriceReportExcel {
                     }
                 }
             }
+            ExcelPoiUtils.autoSizeAllColumns(sheet, 9);
         }
     }
     private void writeDataLines() {

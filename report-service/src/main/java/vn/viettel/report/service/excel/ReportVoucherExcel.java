@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ReportVoucherExcel {
     private static final String FONT_NAME= "Times New Roman";
@@ -117,6 +118,8 @@ public class ReportVoucherExcel {
     }
 
     private void createTableSheet1() {
+        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
         int rowTable = 9;
 
         Row rowHeader = sheet1.createRow(rowTable++);
@@ -163,7 +166,7 @@ public class ReportVoucherExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOrderNumber(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOrderShopCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getOrderDate()), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getOrderAmount(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getOrderAmount(), formatCurrency);
             }
         }
         ExcelPoiUtils.autoSizeAllColumns(sheet1, 17);

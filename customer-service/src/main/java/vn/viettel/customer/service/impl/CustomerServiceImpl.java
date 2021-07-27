@@ -370,7 +370,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     private Customer mapCustomerUpdate(Customer customer, CustomerRequest request) {
-        if(request.getIdNo().isEmpty()) request.setIdNo(null);
+        if(request.getIdNo()!=null && request.getIdNo().isEmpty()) request.setIdNo(null);
 
         if(request.getFirstName()!=null) customer.setFirstName(request.getFirstName());
         if(request.getLastName()!=null) customer.setLastName(request.getLastName());

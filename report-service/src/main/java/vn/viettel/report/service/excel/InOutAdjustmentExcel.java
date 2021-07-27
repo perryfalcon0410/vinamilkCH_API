@@ -53,6 +53,7 @@ public class InOutAdjustmentExcel {
             for(String h : headers) {
                 ExcelPoiUtils.addCell(sheet, col++, row + 6, h, style.get(ExcelPoiUtils.BOLD_10));
             }
+            ExcelPoiUtils.autoSizeAllColumns(sheet, 12);
         }
     }
     private void writeDataLines() {
@@ -72,7 +73,7 @@ public class InOutAdjustmentExcel {
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductName(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getUom1(),format);
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,s.getQuantity(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getPrice(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getTotal(),formatCurrency);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getWarehouseTypeName(),format);
