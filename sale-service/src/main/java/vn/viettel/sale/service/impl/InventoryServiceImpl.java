@@ -79,7 +79,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Long shopId, Pageable pageable) {
         Page<StockCounting> stockCountings = repository.findAll(Specification
                         .where(InventorySpecification.hasCountingCode(stockCountingCode))
-                        .and(InventorySpecification.hasFromDateToDate(fromDate, toDate).and(InventorySpecification.hasWareHouse(warehouseTypeId)).and(InventorySpecification.hasShopId(shopId)))
+                        .and(InventorySpecification.hasFromDateToDate(fromDate, toDate)
+                        .and(InventorySpecification.hasWareHouse(warehouseTypeId))
+                        .and(InventorySpecification.hasShopId(shopId)))
                 , pageable);
         List<Long> ids = stockCountings.stream().map(item -> item.getWareHouseTypeId()).distinct().collect(Collectors.toList());
         List<WareHouseType> wareHouseTypes = wareHouseTypeRepository.findAllById((ids != null && !ids.isEmpty()) ? ids : Arrays.asList(0L));

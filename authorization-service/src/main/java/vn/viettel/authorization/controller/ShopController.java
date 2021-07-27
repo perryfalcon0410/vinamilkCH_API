@@ -89,8 +89,8 @@ public class ShopController extends BaseController {
         return new Response<ShopParamDTO>().withData(dto);
     }
     @GetMapping(value = V1 + root + "/import-trans-return/{shopId}")
-    ShopParamDTO getImportTransReturn(@PathVariable Long shopId) {
-        ShopParamDTO dto = shopService.getImportSaleReturn(shopId);
+    String getImportTransReturn(@PathVariable Long shopId) {
+        String dto = shopService.getImportSaleReturn(shopId);
         return dto;
     }
 

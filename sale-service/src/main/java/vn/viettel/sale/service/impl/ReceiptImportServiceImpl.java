@@ -459,7 +459,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                     if(poConfirm != null && poConfirm.get() != null)
                         dto.setSoNo(poConfirm.get().getSaleOrderNumber());
-                    dto.setExport(ptd.getReturnAmount());
+                    dto.setExport((ptd.getReturnAmount()==null?0:ptd.getReturnAmount()));
                     rs.add(dto);
                 }
             }
@@ -482,7 +482,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     }
                     dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                     dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
-                    dto.setExport(ptd.getReturnAmount());
+                    dto.setExport((ptd.getReturnAmount()==null?0:ptd.getReturnAmount()));
                     rs1.add(dto);
                 }
             }

@@ -94,13 +94,10 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     }
 
     @Override
-    public ShopParamDTO getImportSaleReturn(Long shopId) {
-        ShopParam shopParam = shopParamRepo.getImportSaleReturn(shopId);
+    public String getImportSaleReturn(Long shopId) {
+        String shopParam = shopParamRepo.getImportSaleReturn(shopId);
         if(shopParam == null) throw new ValidateException(ResponseMessage.SHOP_PARAM_NOT_FOUND);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ShopParamDTO shopParamDTO = modelMapper.map(shopParam, ShopParamDTO.class);
-
-        return shopParamDTO;
+        return shopParam;
     }
 
     @Override

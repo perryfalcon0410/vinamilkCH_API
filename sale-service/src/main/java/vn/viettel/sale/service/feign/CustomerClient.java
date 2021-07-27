@@ -9,6 +9,7 @@ import vn.viettel.core.messaging.MemberCustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.RptCusMemAmountRequest;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
+import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.Map;
 @Service
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerClient {
-
+    @RoleFeign
     @GetMapping("/api/v1/customers/{id}")
     Response<CustomerDTO> getCustomerByIdV1(@PathVariable(name = "id") Long id);
 
