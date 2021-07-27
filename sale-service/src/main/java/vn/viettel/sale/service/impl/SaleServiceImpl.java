@@ -326,8 +326,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         List<Price> productPrices1 = priceRepository.findProductPriceWithType(productIds, customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
 
                         for (FreeProductDTO ipP : inputPro.getProducts()){
-                            if (checkProductInPromotion(lstSalePromotions, inputPro.getProgramId(), ipP.getProductId(), ipP.getQuantity())
-                             && ipP.getQuantity() != null && ipP.getQuantity() > 0){
+                            if (!checkProductInPromotion(lstSalePromotions, inputPro.getProgramId(), ipP.getProductId(), ipP.getQuantity()))
+                                throw new ValidateException(ResponseMessage.PRODUCT_NOT_IN_PROMOTION, ipP.getProductCode(), inputPro.getPromotionProgramName());
+
+                            if (ipP.getQuantity() != null && ipP.getQuantity() > 0){
 
                                 if (!mapProductWithQty.containsKey(ipP.getProductId())) {
                                     mapProductWithQty.put(ipP.getProductId(), ipP.getQuantity());
@@ -393,8 +395,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //                                        }
 //                                    }
 //                                }
-                            }else{
-                                throw new ValidateException(ResponseMessage.PRODUCT_NOT_IN_PROMOTION, ipP.getProductCode(), inputPro.getPromotionProgramName());
                             }
                         }
                     }else if (inputPro.getAmount() != null && dbPro.getAmount() != null){
@@ -817,7 +817,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     // get product combo
     private List<SaleOrderComboDetail> createSaleOrderComboDetail(List<SaleOrderDetail> products, List<ComboProductDetailDTO> combos, Long customerTypeId) {
         List<SaleOrderComboDetail> listOrderComboDetail = new ArrayList<>();
-        if (products == null) return  listOrderComboDetail;
+        if (products == null || products.isEmpty() || combos == null || combos.isEmpty()) return  listOrderComboDetail;
 
         List<Price> productPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
                 customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
