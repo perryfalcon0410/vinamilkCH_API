@@ -213,9 +213,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             customerIds = customerDTO.getId();
 
             for (RedInvoiceDataDTO dataDTO : dtos) {
-                totalQuantity += dataDTO.getQuantity();
-                totalAmount += dataDTO.getAmount();
-                totalValueAddedTax += dataDTO.getValueAddedTax();
+                totalQuantity += (dataDTO.getQuantity()==null?0:dataDTO.getQuantity());
+                totalAmount += (dataDTO.getAmount()==null?0D:dataDTO.getAmount());
+                totalValueAddedTax += (dataDTO.getValueAddedTax()==null?0D:dataDTO.getValueAddedTax());
 
             }
             TotalRedInvoiceResponse totalRedInvoiceResponse = new TotalRedInvoiceResponse(

@@ -31,7 +31,7 @@ public interface ShopClient {
 
     @RoleFeign
     @GetMapping("api/v1/users/shops/import-trans-return/{shopId}")
-    ShopParamDTO getImportSaleReturn(@PathVariable Long shopId);
+    String getImportSaleReturn(@PathVariable Long shopId);
 
     @GetMapping("api/v1/users/shops/code/{code}")
     Response<ShopDTO> getByShopCode(@PathVariable String code);

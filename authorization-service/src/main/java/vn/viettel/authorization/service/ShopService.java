@@ -15,7 +15,7 @@ public interface ShopService {
     String dayReturn(Long id);
     ShopParamDTO getShopParam(String type, String code, Long shopId);
     ShopParamDTO updateShopParam(ShopParamRequest request, Long id);
-    ShopParamDTO getImportSaleReturn(Long shopId);
+    String getImportSaleReturn(Long shopId);
     /*
         Lấy level chỉnh sửa customer của shop theo id
      */
