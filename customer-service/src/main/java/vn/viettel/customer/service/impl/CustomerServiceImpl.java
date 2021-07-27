@@ -419,6 +419,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getDayOrderNumber()!=null) customerDb.setDayOrderNumber(request.getDayOrderNumber());
         if(request.getMonthOrderAmount()!=null) customerDb.setMonthOrderAmount(request.getMonthOrderAmount());
         if(request.getMonthOrderNumber()!=null) customerDb.setMonthOrderNumber(request.getMonthOrderNumber());
+        if(request.getWorkingOffice()!=null) customerDb.setWorkingOffice(request.getWorkingOffice());
+        if(request.getTaxCode()!=null) customerDb.setTaxCode(request.getTaxCode());
+        if(request.getOfficeAddress()!=null) customerDb.setOfficeAddress(request.getOfficeAddress());
         customerDb.setLastOrderDate(LocalDateTime.now());
         repository.save(customerDb);
         return this.mapCustomerToCustomerResponse(customerDb, null);
