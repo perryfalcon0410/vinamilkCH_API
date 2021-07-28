@@ -104,7 +104,7 @@ public class SellExcel {
             ExcelPoiUtils.createCell(rowTotalHeader, 10, this.sellDTO.getTotalQuantity(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 11, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 12, this.sellDTO.getTotalTotal(), format3);
-            ExcelPoiUtils.createCell(rowTotalHeader, 13, this.sellDTO.getTotalPromotion(), format3);
+            ExcelPoiUtils.createCell(rowTotalHeader, 13, this.sellDTO.getTotalPromotionNotVAT(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 14, this.sellDTO.getTotalPay(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 15, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 16, null, format2);
@@ -132,7 +132,7 @@ public class SellExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTotal(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPromotion(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPromotionNotVAT(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPay(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getNote(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getEmployeeCode(), format);

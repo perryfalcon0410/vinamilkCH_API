@@ -499,8 +499,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 throw new ValidateException(ResponseMessage.PROMOTION_OVER_BILL);
 
             List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
-            createSaleOrderComboDetail(saleOrderDetails, combos, customer.getCustomerTypeId()).stream().forEachOrdered(listOrderComboDetails::add);
-            createSaleOrderComboDiscount(saleOrderDiscounts, combos).stream().forEachOrdered(listOrderComboDiscounts::add);
+            if(!combos.isEmpty()) {
+                List<Price> subProductPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
+                        customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+                createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
+                createSaleOrderComboDiscount(saleOrderDiscounts, combos, subProductPrices).stream().forEachOrdered(listOrderComboDiscounts::add);
+            }
 
             //3. kiểm tra số tiền km có đúng
             SalePromotionCalculationRequest calculationRequest = new SalePromotionCalculationRequest();
@@ -523,7 +527,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //                throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOT_CORRECT);
         }else{
             List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
-            createSaleOrderComboDetail(saleOrderDetails, combos, customer.getCustomerTypeId()).stream().forEachOrdered(listOrderComboDetails::add);
+            if(!combos.isEmpty()) {
+                List<Price> subProductPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
+                        customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+                createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
+            }
         }
 
         //check warehouse
@@ -823,12 +831,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     // get product combo
-    private List<SaleOrderComboDetail> createSaleOrderComboDetail(List<SaleOrderDetail> products, List<ComboProductDetailDTO> combos, Long customerTypeId) {
+    private List<SaleOrderComboDetail> createSaleOrderComboDetail(List<SaleOrderDetail> products, List<ComboProductDetailDTO> combos, List<Price> productPrices) {
         List<SaleOrderComboDetail> listOrderComboDetail = new ArrayList<>();
         if (products == null || products.isEmpty() || combos == null || combos.isEmpty()) return  listOrderComboDetail;
 
-        List<Price> productPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
-                customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
+//        List<Price> productPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
+//                customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
 
         for (SaleOrderDetail item : products) {
             double amountInTax = 0;
@@ -891,7 +899,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     // create combo discount SaleOrderDiscount
-    private List<SaleOrderComboDiscount> createSaleOrderComboDiscount(List<SaleOrderDiscount> orderDiscounts, List<ComboProductDetailDTO> combos) {
+    private List<SaleOrderComboDiscount> createSaleOrderComboDiscount(List<SaleOrderDiscount> orderDiscounts, List<ComboProductDetailDTO> combos, List<Price> productPrices ) {
         List<SaleOrderComboDiscount> lstComboDiscount = new ArrayList<>();
         if (orderDiscounts == null) return  lstComboDiscount;
 
@@ -901,8 +909,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             for (ComboProductDetailDTO detail : combos) {
                 if(orderDiscount.getProductId().equals(detail.getRefProductId())) {
                     if(detail.getFactor() == null) detail.setFactor(0);
-                    amountInTax += detail.getProductPrice() * detail.getFactor();
-                    amountExTax += detail.getProductPriceNotVat() * detail.getFactor();
+                    Price price = getPrice(productPrices, detail.getProductId());
+                    amountInTax += price.getPrice() * detail.getFactor();
+                    amountExTax += price.getPriceNotVat() * detail.getFactor();
                 }
             }
             double percent = 0;
@@ -917,17 +926,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             for (ComboProductDetailDTO detail : combos) {
                 if (orderDiscount.getProductId().equals(detail.getRefProductId())) {
                     SaleOrderComboDiscount comboDiscount = new SaleOrderComboDiscount();
+                    Price price = getPrice(productPrices, detail.getProductId());
                     comboDiscount.setComboProductId(detail.getComboProductId());
                     comboDiscount.setPromotionCode(orderDiscount.getPromotionCode());
                     comboDiscount.setPromotionProgramId(orderDiscount.getPromotionProgramId());
                     comboDiscount.setIsAutoPromotion(orderDiscount.getIsAutoPromotion());
                     comboDiscount.setLevelNumber(orderDiscount.getLevelNumber() == null ? 1 : orderDiscount.getLevelNumber());
                     comboDiscount.setProductId(detail.getProductId());
-                    if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
+//                    if(detail.getProductPrice() == null) detail.setProductPrice(0.0);
                     if(detail.getFactor() == null) detail.setFactor(0);
-                    comboDiscount.setDiscountAmount(convertToFloat(roundValue((detail.getProductPrice() * detail.getFactor()) * percent / 100)));
-                    comboDiscount.setDiscountAmountVat(convertToFloat(roundValue((detail.getProductPrice() * detail.getFactor()) * percentInTax / 100)));
-                    comboDiscount.setDiscountAmountNotVat(convertToFloat(roundValue((detail.getProductPriceNotVat() * detail.getFactor()) * percentExTax / 100)));
+                    comboDiscount.setDiscountAmount(convertToFloat(roundValue((price.getPrice() * detail.getFactor()) * percent / 100)));
+                    comboDiscount.setDiscountAmountVat(convertToFloat(roundValue((price.getPrice() * detail.getFactor()) * percentInTax / 100)));
+                    comboDiscount.setDiscountAmountNotVat(convertToFloat(roundValue((price.getPriceNotVat() * detail.getFactor()) * percentExTax / 100)));
 
                     lstComboDiscount.add(comboDiscount);
                 }
