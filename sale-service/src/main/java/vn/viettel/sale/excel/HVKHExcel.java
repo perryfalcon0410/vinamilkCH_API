@@ -118,7 +118,7 @@ public class HVKHExcel {
         Row rowHeader = sheet2.createRow(rowTable++);
         ExcelPoiUtils.createCell(rowHeader, 0, "STT", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 1, "MÃ CỬA HÀNG", styleTableHeader);
-        ExcelPoiUtils.createCell(rowHeader, 2, "TÊN SHOP TO", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 2, "TÊN SHIP TO", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 3, "SỐ HÓA ĐƠN LẺ", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 4, "MÃ SẢN PHẨM", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 5, "ĐƠN VỊ TÍNH", styleTableHeader);
