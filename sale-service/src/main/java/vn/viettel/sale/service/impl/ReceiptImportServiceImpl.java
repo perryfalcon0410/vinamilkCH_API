@@ -915,8 +915,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
                     /** delete **/
                     for (PoTransDetail podId : poTransDetails) {
-                        if(podId.getReturnAmount()!=0||podId.getReturnAmount()!=null) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
                         if (!listUpdate.contains(podId.getId())) {
+                            if((podId.getReturnAmount()==null?0:podId.getReturnAmount())>0) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
                             StockTotal stockTotal = null;
                             if(stockTotals != null){
                                 for(StockTotal st : stockTotals){
@@ -1005,6 +1005,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetail.setTransId(poTrans.getId());
                             poTransDetail.setPrice(0D);
                             poTransDetail.setPriceNotVat(0D);
+                            poTransDetail.setReturnAmount(0);
                             poTransDetail.setShopId(poTrans.getShopId());
                             poTransDetail.setTransDate(poTrans.getTransDate());
                             StockTotal stockTotal = null;
@@ -1091,7 +1092,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             HashMap<Long,Integer> idAndValues = new HashMap<>();
 
             for (PoTransDetail ptd : poTransDetails) {
-                if(ptd.getReturnAmount()!=0||ptd.getReturnAmount()!=null) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
+                if(ptd.getReturnAmount()>0) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
                 Integer qty = null;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){
