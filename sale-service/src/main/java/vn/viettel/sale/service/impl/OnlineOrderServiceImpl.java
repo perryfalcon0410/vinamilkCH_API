@@ -19,6 +19,7 @@ import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.*;
@@ -150,12 +151,17 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     @Override
     public String checkOnlineNumber(String code) {
         ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
-        if(apParam == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         LocalDateTime date = LocalDateTime.now();
-        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
-        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
-                .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
-        if(!onlineOrders.isEmpty())
+//        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
+//        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
+//                .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
+        LocalDateTime daysAgo = null;
+        if(apParam!=null && apParam.getValue() !=null) {
+            daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
+        }
+        List<SaleOrder> saleOrders = saleOrderRepository.checkOnlineNumber(code, daysAgo);
+
+        if(!saleOrders.isEmpty())
             throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
         return code;
     }

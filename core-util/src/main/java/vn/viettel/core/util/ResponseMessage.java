@@ -133,6 +133,7 @@ public enum ResponseMessage {
     PRODUCT_NOT_IN_PROMOTION(6193, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
     PROMOTION_AMOUNT_NOT_CORRECT(6194, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
     NO_PERMISSION_TYPE_2(6195, "Nhân viên không quản lý đơn vị nào có trạng thái đang hoạt động. Vui lòng liên hệ quản trị để biết thêm thông tin"),
+    NO_FORM_FUNCIION_ACCESSS(6196, "Không có màn hình nào được gán cho vai trò này"),
 
     /**
      * CUSTOMER: 7000 -> 7999
