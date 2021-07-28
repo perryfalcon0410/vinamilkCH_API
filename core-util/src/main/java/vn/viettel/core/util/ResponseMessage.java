@@ -318,6 +318,7 @@ public enum ResponseMessage {
     DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT(9089, "Không tìm thấy kho của đơn."),
     INVENTORY_OVER_DATE(9090, "Hết hạn kiểm kê."),
     WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(9091, "Loại kho không được để trống"),
+    RECEIPT_IMPORT_HAS_BEEN_RETURNED(9092, "Phiếu nhập đã được trả"),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999

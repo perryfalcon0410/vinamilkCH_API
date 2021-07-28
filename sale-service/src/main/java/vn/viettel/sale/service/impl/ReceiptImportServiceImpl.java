@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.impl;
 
+import org.apache.regexp.RE;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -914,6 +915,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
                     /** delete **/
                     for (PoTransDetail podId : poTransDetails) {
+                        if(podId.getReturnAmount()!=0||podId.getReturnAmount()!=null) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
                         if (!listUpdate.contains(podId.getId())) {
                             StockTotal stockTotal = null;
                             if(stockTotals != null){
@@ -1089,6 +1091,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             HashMap<Long,Integer> idAndValues = new HashMap<>();
 
             for (PoTransDetail ptd : poTransDetails) {
+                if(ptd.getReturnAmount()!=0||ptd.getReturnAmount()!=null) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
                 Integer qty = null;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){

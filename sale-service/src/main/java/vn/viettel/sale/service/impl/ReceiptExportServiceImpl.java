@@ -187,7 +187,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Override
     public Page<PoTransDTO> getListPoTrans(String transCode, String redInvoiceNo, String internalNumber, String poCoNo, LocalDateTime fromDate, LocalDateTime toDate, Long shopId, Pageable pageable) {
         String returnDay = shopClient.getImportSaleReturn(shopId);
-        if (returnDay == null) returnDay="1";
+        if (returnDay == null) throw new ValidateException(ResponseMessage.DATE_RETURN_MUST_NOT_BE_NULL);
         LocalDateTime dateTime = LocalDateTime.now().minusDays(Integer.valueOf(returnDay));
         Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(transCode))
                         .and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasInternalNumber(internalNumber))
@@ -294,10 +294,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 for (int j = 0; j < request.getLitQuantityRemain().size(); j++) {
                     if (poTransDetails.get(i).getId().equals(request.getLitQuantityRemain().get(j).getId())) {
                         countNumSKU.add(request.getLitQuantityRemain().get(j).getProductId());
-                        if (poTransDetails.get(i).getQuantity() == null)
-                            throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                        if (poTransDetails.get(i).getAmount() == null)
-                            throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
+                        if (poTransDetails.get(i).getQuantity() == null) poTransDetails.get(i).setQuantity(0);
+                        if (poTransDetails.get(i).getAmount() == null) poTransDetails.get(i).setAmount(0D);
                         PoTransDetail poTransDetail = new PoTransDetail();
                         poTransDetail.setTransId(poRecord.getId());
                         poTransDetail.setTransDate(transDate);

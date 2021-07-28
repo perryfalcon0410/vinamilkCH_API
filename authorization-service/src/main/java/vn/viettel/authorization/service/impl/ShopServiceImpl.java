@@ -96,7 +96,7 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     @Override
     public String getImportSaleReturn(Long shopId) {
         String shopParam = shopParamRepo.getImportSaleReturn(shopId);
-        if(shopParam == null) throw new ValidateException(ResponseMessage.SHOP_PARAM_NOT_FOUND);
+        if(shopParam == null) shopParam="1";
         return shopParam;
     }
 

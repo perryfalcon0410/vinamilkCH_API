@@ -26,7 +26,7 @@ public interface ShopParamRepository extends BaseRepository<ShopParam> {
     ShopParam getImportSaleReturn(Long shopId);*/
 
     @Query(value = "SELECT dta.NAME FROM (\n" +
-            "    SELECT sm.NAME, sp.ID, ROW_NUMBER() OVER(ORDER BY sp.LL DESC) AS RNR\n" +
+            "    SELECT sm.NAME, sp.ID, ROW_NUMBER() OVER(ORDER BY sp.LL ASC ) AS RNR\n" +
             "    FROM SHOP_PARAM sm\n" +
             "    JOIN(\n" +
             "        SELECT sp.ID, LEVEL AS LL\n" +
