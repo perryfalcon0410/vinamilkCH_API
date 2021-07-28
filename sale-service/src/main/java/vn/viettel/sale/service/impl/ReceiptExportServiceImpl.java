@@ -484,7 +484,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockBorrowingDetail> sbds = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
         Integer totalQuantity = 0;
         Double totalAmount = 0D;
-
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockBorrowing.getWareHouseTypeId(),
                 sbds.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
         for (StockBorrowingDetail sad : sbds) {
@@ -743,8 +742,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         int STT = 1;
         if(!borrTrans.isEmpty()) {
             String str = borrTrans.get(0).getRedInvoiceNo();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
+            String numberString = str.substring(str.length() - 3);
+            STT = Integer.valueOf(numberString);
         }
 
         StringBuilder reciCode = new StringBuilder();
