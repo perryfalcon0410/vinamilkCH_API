@@ -62,34 +62,34 @@ public class SellDTO {
     private Integer quantity;
     @ApiModelProperty(notes = "Tổng số lượng")
     @Column(name = "TOTAL_QUANTITY")
-    private Integer totalQuantity;
+    private Long totalQuantity;
     @ApiModelProperty(notes = "Giá bán")
     @Column(name = "PRICE")
-    private Float price;
+    private Double price;
     @ApiModelProperty(notes = "Tổng cộng")
     @Column(name = "TOTAL")
-    private Float total;
+    private Double total;
     @ApiModelProperty(notes = "Tổng tổng cộng")
     @Column(name = "TOTAL_TOTAL")
-    private Float totalTotal;
+    private Double totalTotal;
     @ApiModelProperty(notes = "Khuyến mãi chưa thuế (trước thuế)")
     @Column(name = "PROMOTION_NOT_VAT")
-    private Float promotionNotVAT;
+    private Double promotionNotVAT;
     @ApiModelProperty(notes = "Tổng khuyến mãi chưa thuế")
     @Column(name = "TOTAL_PROMOTION_NOT_VAT")
-    private Float totalPromotionNotVAT;
+    private Double totalPromotionNotVAT;
     @ApiModelProperty(notes = "Khuyến mãi sau thuế")
     @Column(name = "PROMOTION")
-    private Float promotion;
+    private Double promotion;
     @ApiModelProperty(notes = "Tổng khuyến mãi sau thuế")
     @Column(name = "TOTAL_PROMOTION")
-    private Float totalPromotion;
+    private Double totalPromotion;
     @ApiModelProperty(notes = "Thanh toán")
     @Column(name = "PAY")
-    private Float pay;
+    private Double pay;
     @ApiModelProperty(notes = "Tổng thanh toán")
     @Column(name = "TOTAL_PAY")
-    private Float totalPay;
+    private Double totalPay;
     @ApiModelProperty(notes = "Mã nhân viên")
     @Column(name = "EMPLOYEE_CODE")
     private String employeeCode;

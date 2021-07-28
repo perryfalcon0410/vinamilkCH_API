@@ -23,8 +23,9 @@ public class ReportSellDTO {
     private String address;
     private String tel;
     private Integer someBills;
-    private Integer totalQuantity;
-    private Float totalTotal;
-    private Float totalPromotion;
-    private Float totalPay;
+    private Long totalQuantity;
+    private Double totalTotal;
+    private Double totalPromotionNotVat;
+    private Double totalPromotion;
+    private Double totalPay;
 }

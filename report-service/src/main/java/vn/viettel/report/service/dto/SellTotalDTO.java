@@ -11,9 +11,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SellTotalDTO {
     private Integer someBills;
-    private Integer totalQuantity;
-    private Float totalTotal;
-    private Float totalPromotionNotVAT;
-    private Float totalPromotion;
-    private Float totalPay;
+    private Long totalQuantity;
+    private Double totalTotal;
+    private Double totalPromotionNotVAT;
+    private Double totalPromotion;
+    private Double totalPay;
 }
