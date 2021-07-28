@@ -20,10 +20,4 @@ public interface StockBorrowingTransRepository extends BaseRepository<StockBorro
             " ORDER BY p.id desc, p.createdAt desc ")
     List<StockBorrowingTrans> getLastBorrowTrans(Integer type, LocalDateTime startDate);
 
-//    @Query(value = "SELECT COUNT(sbt.id) FROM StockBorrowingTrans sbt WHERE sbt.type = 1 AND sbt.transDate >= :date")
-//    int countImport(LocalDateTime date);
-//
-//    @Query(value = "SELECT COUNT(sbt.id) FROM StockBorrowingTrans sbt WHERE sbt.type = 2 AND sbt.transDate >= :date")
-//    int countExport(LocalDateTime date);
-
 }

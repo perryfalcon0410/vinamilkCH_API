@@ -32,6 +32,7 @@ import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 import vn.viettel.sale.xml.*;
 
+import javax.persistence.EntityManager;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -295,6 +296,10 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 }
                 newDataSet.setHeader(header);
                 newDataSets.add(newDataSet);
+                //update onlineOrder
+                onlineOrder.setVnmSynStatus(1);
+                onlineOrder.setVnmSynTime(LocalDateTime.now());
+                repository.save(onlineOrder);
             }
             dataSet.setLstNewDataSet(newDataSets);
             xstream.toXMLFile(dataSet);
@@ -375,6 +380,5 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         int i = fullName.lastIndexOf(' ');
         return fullName.substring(i+1).trim();
     }
-
 
 }

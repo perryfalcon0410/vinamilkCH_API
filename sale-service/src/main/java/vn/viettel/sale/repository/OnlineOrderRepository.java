@@ -15,5 +15,5 @@ public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaS
     List<OnlineOrder> findOnlineOrderExportXml(Long shopId);
 
     @Query(value = "SELECT DISTINCT shopId FROM OnlineOrder WHERE synStatus = 1 AND vnmSynStatus = 0")
-    List<BigDecimal> findALLShopId();
+    List<Long> findALLShopId();
 }

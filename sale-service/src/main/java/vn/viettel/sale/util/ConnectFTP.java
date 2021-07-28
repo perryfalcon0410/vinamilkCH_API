@@ -1,6 +1,8 @@
 package vn.viettel.sale.util;
 
 import com.jcraft.jsch.*;
+import org.apache.commons.io.FileUtils;
+import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
@@ -16,55 +18,48 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicReference;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.sftp.SFTPClient;
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 public class ConnectFTP {
 
-    private ChannelSftp channelSftp;
-    private Session jschSession = null;
+    private SSHClient client;
     private String readFile = ".xml";
 
     public ConnectFTP(String server, String portStr, String userName, String password) {
         if(!StringUtils.stringIsNullOrEmpty(server) && !StringUtils.stringIsNullOrEmpty(userName)){
+            AtomicReference<String> strServer = new AtomicReference<>("");
+            AtomicReference<String> strUser = new AtomicReference<>("");
+            AtomicReference<String> strPass = new AtomicReference<>("");
+            strServer.set(server);
+            strUser.set(userName);
+            strPass.set(password);
+
             try {
-                if(channelSftp == null){
-                    int port = 22;
-
-                    if(!StringUtils.stringIsNullOrEmpty(portStr)){
-                        port = Integer.parseInt(portStr);
-                    }
-
-                    JSch jsch = new JSch();
-//                    File privateKey = new File(SFTPPRIVATEKEY);
-//                    if(privateKey.exists() && privateKey.isFile())
-//                        jsch.addIdentity(SFTPPRIVATEKEY);
-                    jschSession = jsch.getSession(userName, server, port);
-                    if (!StringUtils.stringIsNullOrEmpty(password)) {
-                        jschSession.setPassword(password);
-                    }
-                    jschSession.setConfig("StrictHostKeyChecking", "no");
-                    jschSession.setTimeout(60000);
-                    //	        if (aliveMax != null) session.setServerAliveCountMax(aliveMax);
-                    jschSession.connect();
-                    channelSftp = (ChannelSftp) jschSession.openChannel("sftp");
-                    channelSftp.connect();
-                }else if(channelSftp != null && !channelSftp.isConnected()){
-                    channelSftp.connect();
-                }
+                client = new SSHClient();
+                client.addHostKeyVerifier(new PromiscuousVerifier());
+                client.connect(strServer.get());
+                client.authPassword(strUser.get(), strPass.get());
             } catch (Exception ex) {
                 throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());
             }
         }else{
-            channelSftp = null;
+            client = null;
         }
     }
 
     public void disconnectServer(){
-        if(channelSftp != null && channelSftp.isConnected()){
-            channelSftp.exit();
-            if (jschSession != null) {
-                jschSession.disconnect();
+        if(client != null && client.isConnected()){
+            try {
+                client.close();
+                client.disconnect();
+            } catch (Exception ex) {
+                throw new ApplicationException("Can not disconnect to server: " + ex.getMessage());
             }
         }
     }
@@ -75,26 +70,16 @@ public class ConnectFTP {
                 if (StringUtils.stringIsNullOrEmpty(locationPath)) {
                     locationPath = "/" + "kch_pos" + "/" + "downorderpos";
                 }
-                if (channelSftp != null && channelSftp.isConnected()) {
-                    String path = "";
-//            locationPath = locationPath.replaceAll("\\\\", "/");
-                    for (String dir : locationPath.split("/")) {
-                        if (!StringUtils.stringIsNullOrEmpty(dir)) {
-                            path = path + "/" + dir;
-                            try {
-                                channelSftp.mkdir(path);
-                            } catch (Exception ee) {
-                            }
-                        }
-                    }
+                Path pathLocation = Paths.get(locationPath).toAbsolutePath().normalize();
+                Files.createDirectories(pathLocation);
+                Path targetLocation = pathLocation.resolve(fileName);
+                Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+                if(client != null && client.isConnected()){
+                    SFTPClient sftpClient = client.newSFTPClient();
                     String remotePath = locationPath + "/" + fileName;
-                    channelSftp.put(inputStream, remotePath);
-                } else {
-//            locationPath = "C:\\" + locationP,,,ath;
-                    Path pathLocation = Paths.get(locationPath).toAbsolutePath().normalize();
-                    Files.createDirectories(pathLocation);
-                    Path targetLocation = pathLocation.resolve(fileName);
-                    Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                    sftpClient.put(remotePath, remotePath);
+                    sftpClient.close();
                 }
                 return true;
             }
@@ -112,23 +97,24 @@ public class ConnectFTP {
                 locationPath = "/" + "kch_pos" + "/" + "neworder";
             }
             if(containsStr == null) containsStr = "";
-            if(channelSftp != null && channelSftp.isConnected()){
-                channelSftp.cd(locationPath);
-                Vector<ChannelSftp.LsEntry> listOfFiles = channelSftp.ls(locationPath);
-                for (ChannelSftp.LsEntry entry : listOfFiles){
-                    if (entry.getFilename().endsWith(readFile) && entry.getFilename().toUpperCase(Locale.ROOT).contains(containsStr.toUpperCase(Locale.ROOT).trim())) {
-                        InputStream inputStream = channelSftp.get(locationPath +  "/" + entry.getFilename());
-                        mapinputStreams.put(entry.getFilename(), inputStream);
-                    }
-                }
-            }else{
-                File folder = new File(locationPath);
-                File[] listOfFiles = folder.listFiles();
 
-                for (File file : listOfFiles){
-                    if (file.isFile() && file.getName().endsWith(readFile) && file.getName().contains(containsStr)) {
-                        mapinputStreams.put(file.getName(), new FileInputStream(file));
-                    }
+            File directory = new File(locationPath);
+            if (! directory.exists()){
+                directory.mkdir();
+            }
+
+            if(client != null && client.isConnected()){
+                FileUtils.cleanDirectory(directory);
+                SFTPClient sftpClient = client.newSFTPClient();
+                sftpClient.get(locationPath, locationPath);
+                sftpClient.close();
+            }
+
+            File[] listOfFiles = directory.listFiles();
+
+            for (File file : listOfFiles){
+                if (file.isFile() && file.getName().endsWith(readFile) && file.getName().contains(containsStr)) {
+                    mapinputStreams.put(file.getName(), new FileInputStream(file));
                 }
             }
         }catch (Exception ex) {
@@ -145,13 +131,18 @@ public class ConnectFTP {
                 String fromFile = fromPath + "/" + fileName;
                 if(StringUtils.stringIsNullOrEmpty(toPath)) toPath = "/backup";
                 String toFile = toPath + "/" + destinationFile;
-                if (channelSftp != null && channelSftp.isConnected()) {
-                        channelSftp.rename(fromFile ,toFile);
-                        channelSftp.cd(toPath);
-                        channelSftp.rm(fromFile );
+
+                if(client != null && client.isConnected()){
+                    SFTPClient sftpClient = client.newSFTPClient();
+                    sftpClient.rename(fromFile ,toFile);
+                    sftpClient.rm(fromFile );
+                    sftpClient.close();
                 } else {
+                    File directory = new File(toPath);
+                    if (! directory.exists()){
+                        directory.mkdir();
+                    }
                     Path source = Paths.get(fromFile);
-//                    if (Files.exists(source))
                     Path target = Paths.get(toFile);
                     Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
                 }

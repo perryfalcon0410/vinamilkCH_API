@@ -1,5 +1,6 @@
 package vn.viettel.sale.schedule;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,14 +13,18 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.OnlineOrder;
+import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.repository.OnlineOrderRepository;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.util.ConnectFTP;
+import vn.viettel.sale.xml.Header;
+import vn.viettel.sale.xml.NewDataSet;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +51,13 @@ public class SchedulerManager{
 		return securityContexHolder.getContext().getShopId();
 	}
 
-//	@Scheduled(cron = "* */1 * * * *")
+	@Scheduled(cron = "* */10 * * * *")
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	@SchedulerLock(name = "getOnlineOrder")
 	public void getOnlineOrder() throws InterruptedException {
 		List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
-		String readPath = "/pos/neworder", backupPath = "/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
-				, destinationMessage = "/pos/ordermessage", failName = "VES_ORDERMESSAGE_";
+		String readPath = "/home/kch/pos/neworder", backupPath = "/home/kch/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
+				, destinationMessage = "/home/kch/pos/ordermessage", failName = "VES_ORDERMESSAGE_";
 		if(apParamDTOList != null){
 			for(ApParamDTO app : apParamDTOList){
 				if(app.getApParamCode() == null || "FTP_ORDER".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();
@@ -92,15 +99,16 @@ public class SchedulerManager{
 		connectFTP.disconnectServer();
 	}
 
-//	@Scheduled(cron = "* */1 * * * *")
+	@Scheduled(cron = "* */10 * * * *")
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	@SchedulerLock(name = "uploadOnlineOrder")
 	public void uploadOnlineOrder() throws InterruptedException {
-		List<BigDecimal> shops = onlineOrderRepository.findALLShopId();
+		List<Long> shops = onlineOrderRepository.findALLShopId();
 		if(shops.size() > 0) {
 
 			//set ap param value
 			List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
-			String uploadDestination = "/pos/downorderpos", successName = "ORDERPOS_";
-			ConnectFTP connectFTP = connectFTP(apParamDTOList);
+			String uploadDestination = "/home/kch/pos/downorderpos", successName = "ORDERPOS_";
 			if (apParamDTOList != null) {
 				for (ApParamDTO app : apParamDTOList) {
 					if (app.getApParamCode() == null || "FTP_UPLOAD".equalsIgnoreCase(app.getApParamCode().trim()))
@@ -109,8 +117,8 @@ public class SchedulerManager{
 						successName = app.getValue().trim();
 				}
 			}
-			for (BigDecimal detail : shops) {
-				Long shopId = Long.parseLong(detail.toString());
+			ConnectFTP connectFTP = connectFTP(apParamDTOList);
+			for (Long shopId : shops) {
 				List<OnlineOrder> onlineOrders = onlineOrderRepository.findOnlineOrderExportXml(shopId);
 				ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
 				if (onlineOrders != null && !onlineOrders.isEmpty()) {
@@ -129,7 +137,7 @@ public class SchedulerManager{
 	}
 
 	private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
-		String server = null, portStr = null, userName = null, password = null;
+		String server = "192.168.100.112", portStr = null, userName = "kch", password = "Viett3l$Pr0ject";
 		if(apParamDTOList != null){
 			for(ApParamDTO app : apParamDTOList){
 				if(app.getApParamCode() == null || "FTP_SERVER".equalsIgnoreCase(app.getApParamCode().trim())) server = app.getValue().trim();
