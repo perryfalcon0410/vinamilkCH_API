@@ -410,26 +410,26 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     private List<HDDTO> getDataHdDvkh(String ids) {
         List<Long> redIds = Arrays.stream(ids.split(",")).map(item -> {Long rs = 0L; try{rs = Long.parseLong(item);}catch(Exception e){} return rs; }).distinct().collect(Collectors.toList());
         List<RedInvoice> redInvoices = redInvoiceRepository.findAllById(redIds);
-        List<HDDTO> hddtos = null;
+        List<HDDTO> hddtos = new ArrayList<>();
         Map<Integer, CustomerDTO> lstCustomer = customerClient.getAllCustomerToRedInvocieV1().getData();
         Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
-        hddtos = redInvoices.stream().map(data -> {
-            HDDTO hddto = modelMapper.map(data, HDDTO.class);
+        for(RedInvoice redInvoice:redInvoices) {
+            HDDTO hddto = modelMapper.map(redInvoice, HDDTO.class);
             String fullname = "";
-            if (data.getCustomerId() != null) {
-                CustomerDTO customerDTO = lstCustomer.get(Math.toIntExact(data.getCustomerId()));
+            if (redInvoice.getCustomerId() != null) {
+                CustomerDTO customerDTO = lstCustomer.get(Math.toIntExact(redInvoice.getCustomerId()));
                 if (customerDTO != null) {
                     fullname += customerDTO.getLastName() + " " + customerDTO.getFirstName();
                     hddto.setFullName(fullname);
                 }
             }
-            if (data.getShopId() != null) {
-                ShopDTO shopDTO = shopDTOS.get(Math.toIntExact(data.getShopId()));
+            if (redInvoice.getShopId() != null) {
+                ShopDTO shopDTO = shopDTOS.get(Math.toIntExact(redInvoice.getShopId()));
                 if (shopDTO != null)
                     hddto.setShopCode(shopDTO.getShopCode());
             }
-            return hddto;
-        }).collect(Collectors.toList());
+            hddtos.add(hddto);
+        }
         return hddtos;
     }
 
