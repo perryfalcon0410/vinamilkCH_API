@@ -30,4 +30,8 @@ public interface OnlineOrderService extends BaseService {
 
     InputStream exportXmlFile(List<OnlineOrder> onlineOrders) throws Exception;
 
+    void getOnlineOrderSchedule();
+
+    void uploadOnlineOrderSchedule();
+
 }

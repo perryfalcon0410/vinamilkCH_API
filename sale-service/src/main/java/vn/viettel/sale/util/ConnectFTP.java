@@ -103,15 +103,20 @@ public class ConnectFTP {
                 directory.mkdir();
             }
 
+
             if(client != null && client.isConnected()){
-                FileUtils.cleanDirectory(directory);
+                File[] listOfFiles = directory.listFiles();
+                for (File file : listOfFiles){
+                    file.delete();
+                }
+               // FileUtils.cleanDirectory(directory);
+
                 SFTPClient sftpClient = client.newSFTPClient();
                 sftpClient.get(locationPath, locationPath);
                 sftpClient.close();
             }
 
             File[] listOfFiles = directory.listFiles();
-
             for (File file : listOfFiles){
                 if (file.isFile() && file.getName().endsWith(readFile) && file.getName().contains(containsStr)) {
                     mapinputStreams.put(file.getName(), new FileInputStream(file));

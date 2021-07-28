@@ -16,6 +16,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.Assert;
 
 import javax.persistence.EntityManagerFactory;
@@ -24,6 +25,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
+@EnableTransactionManagement
 @ComponentScan(basePackages = "vn.viettel.core.security.config")
 public class ScheduleConfig {
 
@@ -43,6 +45,15 @@ public class ScheduleConfig {
 	{
 		return new JpaTransactionManager(entityManagerFactory);
 	}
+
+//	@Bean
+//    public RequestInterceptor requestInterceptor() {
+//        return (RequestTemplate requestTemplate) -> {
+//            String token = AuthorizationType.FEIGN_AUTH + " " + secretKey;
+//            requestTemplate.header(HttpHeaders.AUTHORIZATION, token);
+//        };
+//
+//    }
 
 	@Bean
 	public LockProvider lockProvider(DataSource dataSource) {
