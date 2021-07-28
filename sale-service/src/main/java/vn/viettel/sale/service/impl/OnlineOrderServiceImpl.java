@@ -201,7 +201,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrder.setSourceName(header.getSourceName());
                 onlineOrder.setOrderId(header.getOrderID());
                 onlineOrder.setOrderNumber(header.getOrderNumber());
-//                onlineOrder.setCreatedAt(header.getCreatedAt());
+///             onlineOrder.setCreatedAt(header.getCreatedAt());
                 onlineOrder.setTotalLineValue(header.getTotalLineValue());
                 onlineOrder.setDiscountCode(header.getDiscountCode());
                 onlineOrder.setDiscountValue(header.getDiscountValue());
@@ -214,9 +214,17 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrder.setShippingAddress(header.getShippingAddress());
                 onlineOrder.setCustomerDOB(header.getCustomerBirthday());
                 onlineOrder.setOrderStatus(header.getOrderStatus());
-                onlineOrder.setVnmSynStatus(0);
+                 onlineOrder.setVnmSynStatus(0);
                 onlineOrder.setNote(header.getNote());
                 Long id = repository.save(onlineOrder).getId();
+
+                /*
+                String adrress = header.getCustomerAddress();
+                if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
+                repository.schedulerInsertOnlineOrder(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote());
+                  */
 
                 //online order detail
                 for(Line line : lines){
