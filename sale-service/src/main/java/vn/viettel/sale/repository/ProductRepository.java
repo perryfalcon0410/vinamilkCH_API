@@ -132,7 +132,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             " LEFT JOIN SaleOrder od ON od.id = ods.saleOrderId " +
             "   AND od.shopId = :shopId AND(:customerId IS NULL OR od.customerId =:customerId) AND od.type = 1 AND ods.isFreeItem = false " +
             "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
-            " WHERE p.status = 1 AND ( :keyUpper IS NULL OR p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper% ) " +
+            " WHERE p.status = 1 AND ( :keyUpper IS NULL OR p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper%  OR UPPER(p.barCode) LIKE %:keyUpper% ) " +
             " GROUP BY p.id, p.productName, p.productCode, price.price, st.quantity, p.status, p.uom1, p.isCombo, p.comboProductId, mi.url " +
             " ORDER BY p.productCode, p.productName, coalesce(SUM(ods.quantity), 0) DESC ")
     Page<OrderProductDTO> findOrderProductTopSale(Long shopId, Long customerTypeId, Long warehouseId, Long customerId, String keyUpper,
