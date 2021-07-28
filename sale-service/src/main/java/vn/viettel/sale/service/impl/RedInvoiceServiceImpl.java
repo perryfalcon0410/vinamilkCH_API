@@ -274,21 +274,9 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
 
-            if (redInvoiceNewDataDTO.getNoteRedInvoice().length() > 4000)
-                throw new ValidateException(ResponseMessage.MAX_LENGTH_STRING);
-
             String orderNumber = null;
             if (redInvoiceNewDataDTO.getSaleOrderId().size() > 0) {
-                CustomerDTO customer = customerClient.getCustomerByIdV1(redInvoiceNewDataDTO.getCustomerId()).getData();
-                CustomerRequest request = modelMapper.map(customer, CustomerRequest.class);
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                request.setId(redInvoiceNewDataDTO.getCustomerId());
-                request.setWorkingOffice(redInvoiceNewDataDTO.getOfficeWorking());
-                request.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
-                request.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
-                customerClient.updateFeignV1(redInvoiceNewDataDTO.getCustomerId(), request);
                 redInvoiceRecord.setCustomerId(redInvoiceNewDataDTO.getCustomerId());
-
                 ////////////////////////////////////////////////////////////////
                 List<SaleOrder> saleOrders = saleOrderRepository.findAllById(redInvoiceNewDataDTO.getSaleOrderId());
                 for (SaleOrder saleOrder : saleOrders) {
@@ -323,14 +311,19 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
                 redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
                 redInvoiceDetailRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
-                if (productDataDTO.getNoteRedInvoiceDetail().length() > 4000) {
-                    throw new ValidateException(ResponseMessage.MAX_LENGTH_STRING);
-                }
                 redInvoiceDetailRecord.setNote(productDataDTO.getNoteRedInvoiceDetail());
                 redInvoiceDetailRepository.save(redInvoiceDetailRecord);
             }
-        }
 
+            CustomerDTO customer = customerClient.getCustomerByIdV1(redInvoiceNewDataDTO.getCustomerId()).getData();
+            CustomerRequest request = modelMapper.map(customer, CustomerRequest.class);
+            request.setId(redInvoiceNewDataDTO.getCustomerId());
+            request.setWorkingOffice(redInvoiceNewDataDTO.getOfficeWorking());
+            request.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
+            request.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
+            customerClient.updateFeignV1(redInvoiceNewDataDTO.getCustomerId(), request);
+
+        }
 
         return redInvoiceDTO;
     }
