@@ -124,4 +124,9 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "        GROUP BY pro.productName " +
             "        ORDER BY coalesce(SUM(detail.quantity), 0) DESC, pro.productName ")
     Page<String> getTopFiveFavoriteProducts(Long customerId, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
+
+
+    @Query(value = "Select so From SaleOrder so Where so.onlineNumber = :onlineNumber And (:startDate Is null Or so.orderDate >= :startDate)")
+    List<SaleOrder> checkOnlineNumber(String onlineNumber, LocalDateTime startDate);
+
 }

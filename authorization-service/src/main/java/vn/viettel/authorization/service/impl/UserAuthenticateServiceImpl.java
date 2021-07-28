@@ -368,23 +368,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                     List<FormDTO> formSubComponents = allFormSubComponents.stream().filter(form -> form.getParentFormId().equals(formCom.getId())).collect(Collectors.toList());
                     //type =3
                     for(FormDTO formSub: formSubComponents) {
-                        formSub.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formSub.getId())).map(c -> {
-                            c.setShowStatus(2);
-                            return c;
-                        }).collect(Collectors.toList()));
+                        formSub.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formSub.getId())).collect(Collectors.toList()));
                     }
                     formCom.setSubForms(formSubComponents);
-                    formCom.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formCom.getId())).map(c -> {
-                        c.setShowStatus(2);
-                        return c;
-                    }).collect(Collectors.toList()));
+                    formCom.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formCom.getId())).collect(Collectors.toList()));
                 }
 
                 formDTO.setSubForms(formComponents);
-                formDTO.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formModule.getId())).map(c -> {
-                    c.setShowStatus(2);
-                    return c;
-                }).collect(Collectors.toList()));
+                formDTO.setControls(allControlDTOS.stream().filter(c -> c.getFormId()!=null && c.getFormId().equals(formModule.getId())).collect(Collectors.toList()));
             }
             formDTOS.addAll(allFormModules);
 
@@ -393,9 +384,16 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
              * Ko full quyền FunctionAccess lưu từ cha -> con ,loại case con có mà cha ko có
              */
             Set<Long> permissionIds = permissions.stream().map(Permission::getId).collect(Collectors.toSet());
-            List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionIds(permissionIds);
+            //Các form trong functionAccess status = 1
+            List<FunctionAccess> formAccess = functionAccessRepository.findForms(permissionIds);
+
+            if(formAccess.isEmpty()) throw new ValidateException(ResponseMessage.NO_FORM_FUNCIION_ACCESSS);
+
+            List<FunctionAccess> functionAccess = functionAccessRepository.findByPermissionIds(permissionIds, formAccess.stream().map(f ->f.getFormId()).collect(Collectors.toSet()));
+
             //Gộp permissions cũng 1 form
             Map<Long, List<FunctionAccess>> formMaps = functionAccess.stream().collect(Collectors.groupingBy(FunctionAccess::getFormId));
+
             //Tất cả các from
             List<Form> formsAllCtl = formRepository.findByIdInAndStatus(new ArrayList<>(formMaps.keySet()), 1);
             List<FormDTO> allForms = formsAllCtl.stream().map(form -> modelMapper.map(form, FormDTO.class)).collect(Collectors.toList());
@@ -420,7 +418,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
             List<FormDTO> formComponents = allForms.stream().filter(form -> form.getType() == 2 && form.getParentFormId()!=null && parentModuleIds.contains(form.getParentFormId())).collect(Collectors.toList());
             Map<Long, List<FormDTO>> componentMaps = formComponents.stream().collect(Collectors.groupingBy(FormDTO::getParentFormId));
-            List<Long> parentComponentIds = formModules.stream().map(FormDTO::getId).collect(Collectors.toList());
+            List<Long> parentComponentIds = formComponents.stream().map(FormDTO::getId).collect(Collectors.toList());
 
             List<FormDTO> formSubComponents = allForms.stream().filter(form -> form.getType() == 3 && form.getParentFormId()!=null && parentComponentIds.contains(form.getParentFormId())).collect(Collectors.toList());
             Map<Long, List<FormDTO>> subComponentMaps = formSubComponents.stream().collect(Collectors.groupingBy(FormDTO::getParentFormId));
@@ -428,17 +426,28 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             //Gộp các control cùng Form
             Map<Long, List<ControlDTO>> controlMaps = controlDTOs.stream().collect(Collectors.groupingBy(ControlDTO::getFormId));
 
+
+            //FormId - showStatus
+            Map<Long, Integer> formsMapsAccess = new HashMap<>();
+            for (FunctionAccess dto : formAccess){
+                if(!formsMapsAccess.containsKey(dto.getFormId())) {
+                    formsMapsAccess.put(dto.getFormId(), dto.getShowStatus());
+                }
+            }
             //subcomponent
             for(FormDTO module: formSubComponents) {
+                module.setShowStatus(formsMapsAccess.get(module.getId()));
                 module.setControls(controlMaps.get(module.getId()));
             }
             //component
             for(FormDTO module: formComponents) {
+                module.setShowStatus(formsMapsAccess.get(module.getId()));
                 module.setSubForms(subComponentMaps.get(module.getId()));
                 module.setControls(controlMaps.get(module.getId()));
             }
             //module
             for(FormDTO module: formModules) {
+                module.setShowStatus(formsMapsAccess.get(module.getId()));
                 module.setSubForms(componentMaps.get(module.getId()));
                 module.setControls(controlMaps.get(module.getId()));
                 formDTOS.add(module);

@@ -27,7 +27,7 @@ public class SellsReportsRequest {
     private Integer salesChannel;
     private String customerKW;
     private String phoneNumber;
-    private Integer fromInvoiceSales;
-    private Integer toInvoiceSales;
+    private Double fromInvoiceSales;
+    private Double toInvoiceSales;
 
 }
