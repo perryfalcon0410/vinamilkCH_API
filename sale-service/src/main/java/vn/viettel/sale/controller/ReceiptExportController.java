@@ -264,14 +264,14 @@ public class ReceiptExportController extends BaseController {
     }
     
     private boolean validateListStringOneItem (List<List<String>> lst) {
-    	return lst != null && !lst.isEmpty() && lst.get(0) != null && !lst.get(0).isEmpty() && lst.get(0).get(0) != null;
+    	return lst != null && !lst.isEmpty() && lst.get(0) != null && !lst.get(0).isEmpty() && lst.get(0).get(0) != null && !lst.get(0).get(0).isEmpty();
     }
     
     private boolean validateListStringTwoItem (List<List<String>> lst) {
-    	return lst != null && !lst.isEmpty() && lst.size() > 1 && lst.get(1) != null && !lst.get(1).isEmpty() && lst.get(1).get(0) != null;
+    	return lst != null && !lst.isEmpty() && lst.size() > 1 && lst.get(1) != null && !lst.get(1).isEmpty() && lst.get(1).get(0) != null && !lst.get(1).get(0).isEmpty();
     }
     
     private boolean validateListStringThreeItem (List<List<String>> lst) {
-    	return lst != null && !lst.isEmpty() && lst.size() > 2 && lst.get(2) != null && !lst.get(2).isEmpty() && lst.get(2).get(0) != null;
+    	return lst != null && !lst.isEmpty() && lst.size() > 2 && lst.get(2) != null && !lst.get(2).isEmpty() && lst.get(2).get(0) != null && !lst.get(2).get(0).isEmpty();
     }
 }
