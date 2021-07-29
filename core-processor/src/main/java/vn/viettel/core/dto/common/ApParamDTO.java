@@ -1,5 +1,6 @@
 package vn.viettel.core.dto.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,8 @@ public class ApParamDTO extends BaseDTO {
     private String type;
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
     private Integer status;
+
+    @JsonIgnore
+    private Integer intValue;
+
 }

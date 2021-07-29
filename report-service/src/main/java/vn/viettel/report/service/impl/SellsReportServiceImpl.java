@@ -46,7 +46,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDate fromDate, LocalDate toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Integer fromInvoiceSales, Integer toInvoiceSales) {
+    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDate fromDate, LocalDate toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Double fromInvoiceSales, Double toInvoiceSales) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SELL", SellDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -59,8 +59,8 @@ public class SellsReportServiceImpl implements SellsReportService {
         query.registerStoredProcedureParameter(8, Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(9, String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(10, String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(11, Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(12, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(11, Double.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(12, Double.class, ParameterMode.IN);
 
         query.setParameter(2, Integer.valueOf(shopId.toString()));
         query.setParameter(3, orderNumber);
@@ -111,6 +111,8 @@ public class SellsReportServiceImpl implements SellsReportService {
             int end = Math.min((start + pageable.getPageSize()), reportDTOS.size());
             dtoList = reportDTOS.subList(start, end);
         }
+
+
 
         Page<SellDTO> page = new PageImpl<>(dtoList, pageable, reportDTOS.size());
         CoverResponse response = new CoverResponse(page, totalDTO);
@@ -165,6 +167,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             dto.setSomeBills(sellDTO.getSomeBills());
             dto.setTotalQuantity(sellDTO.getTotalQuantity());
             dto.setTotalTotal(sellDTO.getTotalTotal());
+            dto.setTotalPromotionNotVat(sellDTO.getTotalPromotionNotVAT());
             dto.setTotalPromotion(sellDTO.getTotalPromotion());
             dto.setTotalPay(sellDTO.getTotalPay());
             this.removeDataList(reportDTOS);

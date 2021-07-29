@@ -51,7 +51,7 @@ public class SaleOrderDTO extends BaseDTO {
     @ApiModelProperty(notes = "Mã số thuế trên hóa đơn đỏ")
     private String redInvoiceTaxCode;
     @ApiModelProperty(notes = "Địa chỉ hóa đơn đỏ")
-    private String radInvoiceAddress;
+    private String redInvoiceAddress;
 
     public double getAmount() {
         return (double)Math.round(amount);

@@ -17,8 +17,11 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.*;
@@ -29,8 +32,10 @@ import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
+import vn.viettel.sale.util.ConnectFTP;
 import vn.viettel.sale.xml.*;
 
+import javax.persistence.EntityManager;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -38,10 +43,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineOrderRepository> implements OnlineOrderService {
@@ -140,18 +142,27 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         onlineOrderDTO.setProducts(products);
         onlineOrderDTO.setCustomers(customerDTOS);
 
+        //Set order type
+        ApParamDTO apParam = apparamClient.getApParamOnlineOrderV1(onlineOrder.getSourceName()).getData();
+        onlineOrderDTO.setType(apParam);
+
         return onlineOrderDTO;
     }
 
     @Override
     public String checkOnlineNumber(String code) {
         ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
-        if(apParam == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         LocalDateTime date = LocalDateTime.now();
-        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
-        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
-                .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
-        if(!onlineOrders.isEmpty())
+//        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
+//        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
+//                .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
+        LocalDateTime daysAgo = null;
+        if(apParam!=null && apParam.getValue() !=null) {
+            daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
+        }
+        List<SaleOrder> saleOrders = saleOrderRepository.checkOnlineNumber(code, daysAgo);
+
+        if(!saleOrders.isEmpty())
             throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
         return code;
     }
@@ -190,7 +201,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrder.setSourceName(header.getSourceName());
                 onlineOrder.setOrderId(header.getOrderID());
                 onlineOrder.setOrderNumber(header.getOrderNumber());
-                onlineOrder.setCreatedAt(header.getCreatedAt());
+///             onlineOrder.setCreatedAt(header.getCreatedAt());
                 onlineOrder.setTotalLineValue(header.getTotalLineValue());
                 onlineOrder.setDiscountCode(header.getDiscountCode());
                 onlineOrder.setDiscountValue(header.getDiscountValue());
@@ -203,14 +214,22 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrder.setShippingAddress(header.getShippingAddress());
                 onlineOrder.setCustomerDOB(header.getCustomerBirthday());
                 onlineOrder.setOrderStatus(header.getOrderStatus());
-                onlineOrder.setVnmSynStatus(0);
+                 onlineOrder.setVnmSynStatus(0);
                 onlineOrder.setNote(header.getNote());
                 Long id = repository.save(onlineOrder).getId();
+
+                /*
+                String adrress = header.getCustomerAddress();
+                if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
+                repository.schedulerInsertOnlineOrder(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote());
+                  */
 
                 //online order detail
                 for(Line line : lines){
                     OnlineOrderDetail detail = new OnlineOrderDetail();
-                    detail.setOnlineOrderId(100L);
+                    detail.setOnlineOrderId(id);
                     detail.setSku(line.getSku());
                     detail.setProductName(line.getProductName());
                     detail.setQuantity(line.getQuantity());
@@ -266,6 +285,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public InputStream exportXmlFile(List<OnlineOrder> onlineOrders) throws Exception {
         xstream.processAnnotations(classes);
         DataSet dataSet = new DataSet();
@@ -285,6 +305,11 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 }
                 newDataSet.setHeader(header);
                 newDataSets.add(newDataSet);
+                //update onlineOrder
+//                onlineOrder.setVnmSynStatus(1);
+//                onlineOrder.setVnmSynTime(LocalDateTime.now());
+//                repository.save(onlineOrder);
+                repository.schedulerUpdateOnlineOrder(1, LocalDateTime.now(), onlineOrder.getId());
             }
             dataSet.setLstNewDataSet(newDataSets);
             xstream.toXMLFile(dataSet);
@@ -294,6 +319,105 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
         return null;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void getOnlineOrderSchedule() {
+        List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
+        String readPath = "/home/kch/pos/neworder", backupPath = "/home/kch/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
+                , destinationMessage = "/home/kch/pos/ordermessage", failName = "VES_ORDERMESSAGE_";
+        if(apParamDTOList != null){
+            for(ApParamDTO app : apParamDTOList){
+                if(app.getApParamCode() == null || "FTP_ORDER".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_ONLINE_BACKUP".equalsIgnoreCase(app.getApParamCode().trim())) backupPath = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_FILE_NEW".equalsIgnoreCase(app.getApParamCode().trim())) newOrder = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_FILE_CANCEL".equalsIgnoreCase(app.getApParamCode().trim())) cancelOrder = app.getValue().trim();
+                if (app.getApParamCode() == null || "FTP_MESSAGE".equalsIgnoreCase(app.getApParamCode().trim()))
+                    destinationMessage = app.getValue().trim();
+                if (app.getApParamCode() == null || "FTP_FILE_FAIL".equalsIgnoreCase(app.getApParamCode().trim()))
+                    failName = app.getValue().trim();
+            }
+        }
+        ConnectFTP connectFTP = connectFTP(apParamDTOList);
+        //read new order
+        HashMap<String, InputStream> newOrders = connectFTP.getFiles(readPath, newOrder);
+        if(newOrders != null){
+            for (Map.Entry<String, InputStream> entry : newOrders.entrySet()){
+                try {
+                    this.syncXmlOnlineOrder(entry.getValue());
+                    connectFTP.moveFile(readPath, backupPath, entry.getKey());
+                }catch (Exception ex) {
+                    LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
+                }
+            }
+        }
+
+        //read cancel order
+        HashMap<String, InputStream> cancelOrders = connectFTP.getFiles(readPath, cancelOrder);
+        if(cancelOrders != null){
+            for (Map.Entry<String, InputStream> entry : cancelOrders.entrySet()){
+                try {
+                    this.syncXmlToCancelOnlineOrder(entry.getValue());
+                    connectFTP.moveFile(readPath, backupPath, entry.getKey());
+                }catch (Exception ex) {
+                    LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
+                }
+            }
+        }
+        connectFTP.disconnectServer();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void uploadOnlineOrderSchedule() {
+        List<Long> shops = repository.findALLShopId();
+        if(shops.size() > 0) {
+
+            //set ap param value
+            List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
+
+            String uploadDestination = "/home/kch/pos/downorderpos", successName = "ORDERPOS_";
+            if (apParamDTOList != null) {
+                for (ApParamDTO app : apParamDTOList) {
+                    if (app.getApParamCode() == null || "FTP_UPLOAD".equalsIgnoreCase(app.getApParamCode().trim()))
+                        uploadDestination = app.getValue().trim();
+                    if (app.getApParamCode() == null || "FTP_FILE_SUC".equalsIgnoreCase(app.getApParamCode().trim()))
+                        successName = app.getValue().trim();
+                }
+            }
+            ConnectFTP connectFTP = connectFTP(apParamDTOList);
+            for (Long shopId : shops) {
+                List<OnlineOrder> onlineOrders = repository.findOnlineOrderExportXml(shopId);
+                ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+                if (onlineOrders != null && !onlineOrders.isEmpty()) {
+                    try {
+                        String fileName = successName + StringUtils.createXmlFileName(shopDTO.getShopCode());
+                        InputStream inputStream = this.exportXmlFile(onlineOrders);
+                        if (inputStream != null)
+                            connectFTP.uploadFile(inputStream, fileName, uploadDestination);
+                    } catch (Exception ex) {
+                        LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
+                    }
+                }
+            }
+            connectFTP.disconnectServer();
+        }
+    }
+
+
+    private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
+        String server = "192.168.100.112", portStr = null, userName = "kch", password = "Viett3l$Pr0ject";
+        if(apParamDTOList != null){
+            for(ApParamDTO app : apParamDTOList){
+                if(app.getApParamCode() == null || "FTP_SERVER".equalsIgnoreCase(app.getApParamCode().trim())) server = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_USER".equalsIgnoreCase(app.getApParamCode().trim())) userName = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_PASS".equalsIgnoreCase(app.getApParamCode().trim())) password = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
+            }
+        }
+        return new ConnectFTP(server, portStr, userName, password);
+    }
+
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefaultV1().getData();
@@ -365,6 +489,5 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         int i = fullName.lastIndexOf(' ');
         return fullName.substring(i+1).trim();
     }
-
 
 }

@@ -133,6 +133,7 @@ public enum ResponseMessage {
     PRODUCT_NOT_IN_PROMOTION(6193, "Không tìm thấy sản phẩm %s trong CTKM %s1 hoặc số lượng vượt quá số lượng khuyến mãi."),
     PROMOTION_AMOUNT_NOT_CORRECT(6194, "Tiền khuyến mãi hoặc tiền phải trả chưa đúng."),
     NO_PERMISSION_TYPE_2(6195, "Nhân viên không quản lý đơn vị nào có trạng thái đang hoạt động. Vui lòng liên hệ quản trị để biết thêm thông tin"),
+    NO_FORM_FUNCIION_ACCESSS(6196, "Không có màn hình nào được gán cho vai trò này"),
 
     /**
      * CUSTOMER: 7000 -> 7999
@@ -318,6 +319,7 @@ public enum ResponseMessage {
     DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT(9089, "Không tìm thấy kho của đơn."),
     INVENTORY_OVER_DATE(9090, "Hết hạn kiểm kê."),
     WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(9091, "Loại kho không được để trống"),
+    RECEIPT_IMPORT_HAS_BEEN_RETURNED(9092, "Phiếu nhập đã được trả"),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999

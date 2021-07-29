@@ -3,6 +3,7 @@ package vn.viettel.sale.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -60,6 +61,8 @@ public class PoTrans extends BaseEntity {
     private Integer totalQuantity;
     @Column(name = "TOTAL_AMOUNT")
     private Double totalAmount;
+    @Formula("(SELECT w.WAREHOUSE_TYPE_NAME FROM WAREHOUSE_TYPE w  WHERE w.ID = WAREHOUSE_TYPE_ID )")
+    private String  wareHouseTypeName;
 
 }
 

@@ -185,16 +185,16 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     @Override
     public Page<PoTransDTO> getListPoTrans(String transCode, String redInvoiceNo, String internalNumber, String poCoNo, LocalDateTime fromDate, LocalDateTime toDate, Long shopId, Pageable pageable) {
-        ShopParamDTO shopParamDTO = shopClient.getImportSaleReturn(shopId);
-        if (shopParamDTO == null || shopParamDTO.getId() == null)
-            throw new ValidateException(ResponseMessage.SHOP_PARAM_NOT_FOUND);
-        LocalDateTime dateTime = LocalDateTime.now().minusDays(Integer.valueOf(shopParamDTO.getName()));
+        String returnDay = shopClient.getImportSaleReturn(shopId);
+        if (returnDay == null) throw new ValidateException(ResponseMessage.DATE_RETURN_MUST_NOT_BE_NULL);
+        LocalDateTime dateTime = LocalDateTime.now().minusDays(Integer.valueOf(returnDay));
         Page<PoTrans> poTrans = repository.findAll(Specification.where(ReceiptSpecification.hasTransCode(transCode))
                         .and(ReceiptSpecification.hasRedInvoiceNo(redInvoiceNo)).and(ReceiptSpecification.hasInternalNumber(internalNumber))
                         .and(ReceiptSpecification.hasPoCoNo(poCoNo)).and(ReceiptSpecification.hasFromDateToDateRedInvoice(fromDate, toDate))
                         .and(ReceiptSpecification.hasStatus()).and(ReceiptSpecification.hasTypeImport())
                         .and(ReceiptSpecification.hasGreaterDay(dateTime)).and(ReceiptSpecification.hasNotReturn()).and(ReceiptSpecification.hasShopId(shopId))
                         ,pageable);
+        //List<WareHouseType> wareHouseTypeName = wareHouseTypeRepository.findAllById(poTrans.stream().map(e->e.getWareHouseTypeId()).collect(Collectors.toList()));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return poTrans.map(e -> modelMapper.map(e, PoTransDTO.class));
     }
@@ -252,6 +252,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         poTransDetail.setTransId(poRecord.getId());
                         poTransDetail.setTransDate(transDate);
                         poTransDetail.setProductId(poTransDetails.get(i).getProductId());
+                        if(poTransDetails.get(i).getReturnAmount()==null) poTransDetails.get(i).setReturnAmount(0);
                         poTransDetail.setQuantity(poTransDetails.get(i).getQuantity()-poTransDetails.get(i).getReturnAmount());
                         poTransDetail.setPrice(poTransDetails.get(i).getPrice());
                         poTransDetail.setShopId(shopId);
@@ -290,10 +291,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 for (int j = 0; j < request.getLitQuantityRemain().size(); j++) {
                     if (poTransDetails.get(i).getId().equals(request.getLitQuantityRemain().get(j).getId())) {
                         countNumSKU.add(request.getLitQuantityRemain().get(j).getProductId());
-                        if (poTransDetails.get(i).getQuantity() == null)
-                            throw new ValidateException(ResponseMessage.QUANTITY_CAN_NOT_BE_NULL);
-                        if (poTransDetails.get(i).getAmount() == null)
-                            throw new ValidateException(ResponseMessage.AMOUNT_CAN_NOT_BE_NULL);
+                        if (poTransDetails.get(i).getQuantity() == null) poTransDetails.get(i).setQuantity(0);
+                        if (poTransDetails.get(i).getAmount() == null) poTransDetails.get(i).setAmount(0D);
                         PoTransDetail poTransDetail = new PoTransDetail();
                         poTransDetail.setTransId(poRecord.getId());
                         poTransDetail.setTransDate(transDate);
@@ -486,7 +485,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         List<StockBorrowingDetail> sbds = stockBorrowingDetailRepository.findByBorrowingId(stockBorrowing.getId());
         Integer totalQuantity = 0;
         Double totalAmount = 0D;
-
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockBorrowing.getWareHouseTypeId(),
                 sbds.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
         for (StockBorrowingDetail sad : sbds) {
@@ -709,14 +707,22 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     private String createPoTransExportCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = repository.countExport(LocalDateTime.now().with(firstDayOfYear()));
+        List<PoTrans> pos = repository.getLastPoTrans(2, LocalDateTime.now().with(firstDayOfYear()));
+
+        int STT = 1;
+        if(!pos.isEmpty()) {
+            String str = pos.get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSP.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
 
@@ -724,14 +730,21 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public String createStockBorrowTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = stockBorrowingTransRepository.countExport(LocalDateTime.now().with(firstDayOfYear()));
+        List<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastBorrowTrans(2, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!borrTrans.isEmpty()) {
+            String str = borrTrans.get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSB.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
 
@@ -741,7 +754,14 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         String yy = df.format(Calendar.getInstance().getTime());
         String mm = String.valueOf(currentDate.getMonthValue());
         String dd = String.valueOf(currentDate.getDayOfMonth());
-        int reciNum = stockBorrowingTransRepository.countExport(LocalDateTime.now().with(firstDayOfYear()));
+        List<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastBorrowTrans(2, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!borrTrans.isEmpty()) {
+            String str = borrTrans.get(0).getRedInvoiceNo();
+            String numberString = str.substring(str.length() - 3);
+            STT = Integer.valueOf(numberString);
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXP_");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
@@ -750,21 +770,27 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(mm.length() < 2 ? "0" + mm : mm);
         reciCode.append(dd.length() < 2 ? "0" + dd : dd);
         reciCode.append("_");
-        reciCode.append(CreateCodeUtils.formatReceINumberVer2(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumberVer2(STT));
         return reciCode.toString();
     }
 
     private String createInternalExportCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = stockAdjustmentTransRepository.countExport(LocalDateTime.now().with(firstDayOfYear()));
+        List<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastAdjustTrans(2, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!stockAdjustmentTrans.isEmpty()) {
+            String str = stockAdjustmentTrans.get(0).getInternalNumber();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXST.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
     

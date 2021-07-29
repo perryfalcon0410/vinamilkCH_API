@@ -103,7 +103,7 @@ public class SaleOrder extends BaseEntity {
     @Column(name = "RED_INVOICE_TAXCODE")
     private String redInvoiceTaxCode;
     @Column(name = "RED_INVOICE_ADDRESS")
-    private String radInvoiceAddress;
+    private String redInvoiceAddress;
     @Column(name = "RED_INVOICE_REMARK")
     private String redInvoiceRemark;
     @Column(name = "REASON_ID")

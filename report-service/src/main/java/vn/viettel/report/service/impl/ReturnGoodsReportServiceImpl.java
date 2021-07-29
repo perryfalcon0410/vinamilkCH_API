@@ -20,6 +20,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,7 +82,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException {
+    public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException, ParseException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();

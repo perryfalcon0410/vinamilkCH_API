@@ -68,7 +68,6 @@ public class CustomerNotTradeExcel {
         for (CustomerReportDTO data : customers) {
             stt++;
             col = 0;
-            row++;
             ExcelPoiUtils.addCell(sheet, col++, row, stt, format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerCode(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), format);
@@ -76,6 +75,7 @@ public class CustomerNotTradeExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, DateUtils.formatDate2StringDate(data.getBirthDay()), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getGender(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), format);
+            row++;
         }
 
         ExcelPoiUtils.autoSizeAllColumns(sheet, col);

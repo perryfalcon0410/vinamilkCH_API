@@ -85,7 +85,7 @@ public class NewOrderReturnDTO {
     @ApiModelProperty(notes = "mã số fax")
     private String redInvoiceTaxCode;
     @ApiModelProperty(notes = "địa chỉ cơ quan")
-    private String radInvoiceAddress;
+    private String redInvoiceAddress;
     @ApiModelProperty(notes = "ghi chú trên hóa đơn đỏ")
     private String redInvoiceRemark;
     @ApiModelProperty(notes = "id lý do")

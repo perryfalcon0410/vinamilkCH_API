@@ -29,6 +29,8 @@ public class FormDTO {
 
     private Integer orderNumber;
 
+    private Integer showStatus = 2;
+
     List<FormDTO> subForms;
 
     List<ControlDTO> controls;

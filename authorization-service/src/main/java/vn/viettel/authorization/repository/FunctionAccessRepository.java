@@ -12,14 +12,21 @@ public interface FunctionAccessRepository extends BaseRepository<FunctionAccess>
     // Form module ko có control, form nhỏ nhất ms có control mà FunctionAccess lưu đủ 3 type
     @Query("Select DISTINCT f From FunctionAccess f " +
                 "Join Form fo On f.formId = fo.id " +
-                "Left Join Control c On f.controlId = c.id " +
                 "Join Permission p On p.id = f.permissionId " +
-            "Where f.permissionId In :permisionIds " +
+            "Where f.permissionId In :permisionIds And f.status = 1 And fo.status = 1 And p.status = 1 And f.controlId Is Null")
+    List<FunctionAccess> findForms(Set<Long> permisionIds);
+
+    @Query("Select DISTINCT f From FunctionAccess f " +
+            "Join Form fo On f.formId = fo.id " +
+            "Left Join Control c On f.controlId = c.id " +
+            "Join Permission p On p.id = f.permissionId " +
+            "Where f.permissionId In :permisionIds And f.formId In :formIds " +
             "And f.status = 1 And fo.status = 1 And p.status = 1 " +
             "And (" +
             "(f.controlId is null And c.status is null ) " +
             "OR " +
             "(f.controlId is not null And c.status = 1 ) " +
             ") ")
-    List<FunctionAccess> findByPermissionIds(Set<Long> permisionIds);
+    List<FunctionAccess> findByPermissionIds(Set<Long> permisionIds, Set<Long> formIds);
+
 }

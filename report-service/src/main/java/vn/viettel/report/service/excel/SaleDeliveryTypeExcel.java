@@ -120,6 +120,7 @@ public class SaleDeliveryTypeExcel {
         ExcelPoiUtils.createCell(row, 10, "LOẠI GIAO HÀNG", colNameStyle);
         ExcelPoiUtils.createCell(row, 11, "SỐ ĐƠN ONLINE", colNameStyle);
         ExcelPoiUtils.createCell(row, 12, "LOẠI", colNameStyle);
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 12);
 
         CellStyle dataStyle = workbook.createCellStyle();
         XSSFFont dataFont = (XSSFFont) workbook.createFont();

@@ -90,6 +90,7 @@ public class SellExcel {
         ExcelPoiUtils.createCell(rowHeader, 19, "NHÓM SẢN PHẨM", format1);
         ExcelPoiUtils.createCell(rowHeader, 20, "SỐ ĐƠN ONLINE", format1);
         ExcelPoiUtils.createCell(rowHeader, 21, "LOẠI", format1);
+        ExcelPoiUtils.autoSizeAllColumns(sheet1, lastCol);
 
         if (!sellDTOS.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
@@ -103,7 +104,7 @@ public class SellExcel {
             ExcelPoiUtils.createCell(rowTotalHeader, 10, this.sellDTO.getTotalQuantity(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 11, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 12, this.sellDTO.getTotalTotal(), format3);
-            ExcelPoiUtils.createCell(rowTotalHeader, 13, this.sellDTO.getTotalPromotion(), format3);
+            ExcelPoiUtils.createCell(rowTotalHeader, 13, this.sellDTO.getTotalPromotionNotVAT(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 14, this.sellDTO.getTotalPay(), format3);
             ExcelPoiUtils.createCell(rowTotalHeader, 15, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 16, null, format2);
@@ -131,9 +132,9 @@ public class SellExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTotal(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPromotion(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPromotionNotVAT(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPay(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getNote(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getNote(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getEmployeeCode(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getEmployeeName(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, shopDTO.getShopName(), format);

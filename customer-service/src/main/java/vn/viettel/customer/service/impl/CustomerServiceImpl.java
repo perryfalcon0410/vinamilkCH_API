@@ -16,6 +16,7 @@ import vn.viettel.core.dto.customer.*;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.AgeCalculator;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
@@ -136,14 +137,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
         return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
     }
-
     @Override
     public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.trim()))
+                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.replaceAll("^\\s+", "")))
                         .and(CustomerSpecification.hasStatus(1L)),pageable);
-
         List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(customers.getContent().size() != 0)
@@ -223,6 +222,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         //set full name
         String fullName = customerRecord.getLastName()+" "+customerRecord.getFirstName();
         customerRecord.setNameText(VNCharacterUtils.removeAccent(fullName).toUpperCase(Locale.ROOT));
+
+        //Lưu ko có time -> đầu ngày
+        if(request.getIdNoIssuedDate()!=null) customerRecord.setIdNoIssuedDate(DateUtils.convertFromDate(request.getIdNoIssuedDate()));
 
         customerRecord.setShopId(shopId);
         Customer customerResult = repository.save(customerRecord);
@@ -371,6 +373,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     private Customer mapCustomerUpdate(Customer customer, CustomerRequest request) {
+        if(request.getIdNo()!=null && request.getIdNo().isEmpty()) request.setIdNo(null);
+
         if(request.getFirstName()!=null) customer.setFirstName(request.getFirstName());
         if(request.getLastName()!=null) customer.setLastName(request.getLastName());
 
@@ -383,9 +387,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getCustomerTypeId()!=null) customer.setCustomerTypeId(request.getCustomerTypeId());
         if(request.getStatus()!=null) customer.setStatus(request.getStatus());
         if(request.getIsPrivate()!=null) customer.setIsPrivate(request.getIsPrivate());
-        if(request.getIdNo()!=null) customer.setIdNo(request.getIdNo());
-        if(request.getIdNoIssuedDate()!=null) customer.setIdNoIssuedDate(request.getIdNoIssuedDate());
-        if(request.getIdNoIssuedPlace()!=null) customer.setIdNoIssuedPlace(request.getIdNoIssuedPlace());
+
+        if(request.getIdNo()!=null){
+            customer.setIdNo(request.getIdNo());
+        }else {
+            customer.setIdNoIssuedDate(null);
+            customer.setIdNoIssuedPlace(null);
+        }
+        if(request.getIdNo()!=null && request.getIdNoIssuedDate()!=null) customer.setIdNoIssuedDate(DateUtils.convertFromDate(request.getIdNoIssuedDate()));//đầu ngày
+        if(request.getIdNo()!=null && request.getIdNoIssuedPlace()!=null) customer.setIdNoIssuedPlace(request.getIdNoIssuedPlace());
+
         if(request.getMobiPhone()!=null) customer.setMobiPhone(request.getMobiPhone());
         if(request.getEmail()!=null) customer.setEmail(request.getEmail());
         //setAddress();setAreaId(),setStreet();
@@ -411,6 +422,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getDayOrderNumber()!=null) customerDb.setDayOrderNumber(request.getDayOrderNumber());
         if(request.getMonthOrderAmount()!=null) customerDb.setMonthOrderAmount(request.getMonthOrderAmount());
         if(request.getMonthOrderNumber()!=null) customerDb.setMonthOrderNumber(request.getMonthOrderNumber());
+        if(request.getWorkingOffice()!=null) customerDb.setWorkingOffice(request.getWorkingOffice());
+        if(request.getTaxCode()!=null) customerDb.setTaxCode(request.getTaxCode());
+        if(request.getOfficeAddress()!=null) customerDb.setOfficeAddress(request.getOfficeAddress());
         customerDb.setLastOrderDate(LocalDateTime.now());
         repository.save(customerDb);
         return this.mapCustomerToCustomerResponse(customerDb, null);

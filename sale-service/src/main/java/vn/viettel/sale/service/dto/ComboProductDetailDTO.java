@@ -49,15 +49,15 @@ public class ComboProductDetailDTO extends BaseDTO {
 
     //constructor dùng để lấy repository -> ko được sửa, xóa
     public ComboProductDetailDTO(Long comboProductId, Long refProductId, String comboProductCode, Integer numProduct, Long productId,
-                                 String productCode, String productName, Double productPrice, Double productPriceNotVat, Integer factor){
+                                 String productCode, String productName,/* Double productPrice, Double productPriceNotVat,*/ Integer factor){
         this.comboProductId = comboProductId;
         this.comboProductCode = comboProductCode;
         this.productId = productId;
-        this.productPrice = productPrice;
+//        this.productPrice = productPrice;
         this.numProduct = numProduct;
         this.productCode = productCode;
         this.productName = productName;
-        this.productPriceNotVat = productPriceNotVat;
+//        this.productPriceNotVat = productPriceNotVat;
         this.factor = factor;
         this.refProductId = refProductId;
     }

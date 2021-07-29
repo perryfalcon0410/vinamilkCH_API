@@ -38,7 +38,6 @@ public class FeignClientAuthenticateConfig {
 //            String token = AuthorizationType.FEIGN_AUTH + " " + secretKey;
 //            requestTemplate.header(HttpHeaders.AUTHORIZATION, token);
 //        };
-//
 //    }
 
     @Bean
@@ -48,6 +47,7 @@ public class FeignClientAuthenticateConfig {
     }
 
     public static String getBearerTokenHeader() {
+        if(RequestContextHolder.getRequestAttributes() == null) return null;
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization");
     }
 

@@ -229,19 +229,19 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (productReturn.getQuantity() < 0) {
                 productReturnDTO.setTotalPrice(productReturn.getAmount() * -1);
                 productReturnDTO.setQuantity(productReturn.getQuantity() * -1);
-                productReturnDTO.setPaymentReturn(productReturn.getTotal() * -1);
-                productReturnDTO.setPricePerUnit(productReturn.getPrice() * -1);
+                productReturnDTO.setPricePerUnit(roundValue(productReturn.getPrice()));
+                productReturnDTO.setPaymentReturn(roundValue(productReturnDTO.getTotalPrice() - productReturnDTO.getDiscount()));
             } else {
                 productReturnDTO.setTotalPrice(productReturn.getAmount());
                 productReturnDTO.setQuantity(productReturn.getQuantity());
-                productReturnDTO.setPaymentReturn(productReturn.getTotal());
                 productReturnDTO.setPricePerUnit(productReturn.getPrice());
+                productReturnDTO.setPaymentReturn(roundValue(productReturnDTO.getTotalPrice() - productReturnDTO.getDiscount()));
             }
             productReturnDTOList.add(productReturnDTO);
             totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + productReturnDTO.getQuantity());
-            totalResponse.setTotalAmount(totalResponse.getTotalAmount() + productReturnDTO.getTotalPrice());
-            totalResponse.setTotalDiscount(totalResponse.getTotalDiscount() + productReturnDTO.getDiscount());
-            totalResponse.setAllTotal(totalResponse.getAllTotal() + productReturnDTO.getPaymentReturn());
+            totalResponse.setTotalAmount(roundValue(totalResponse.getTotalAmount() + productReturnDTO.getTotalPrice()));
+            totalResponse.setTotalDiscount(roundValue(totalResponse.getTotalDiscount() + productReturnDTO.getDiscount()));
+            totalResponse.setAllTotal(roundValue(totalResponse.getAllTotal() + productReturnDTO.getPaymentReturn()));
         }
 
         CoverResponse<List<ProductReturnDTO>, TotalOrderReturnDetail> coverResponse =
@@ -601,4 +601,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
     }
 
+    private double roundValue(Double value){
+        if(value == null) return 0;
+        return Math.round(value);
+    }
 }

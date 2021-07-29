@@ -186,7 +186,7 @@ public class CustomerController extends BaseController {
     }
 
     /*
-        Cập nhật KH bên bán hàng
+        Cập nhật KH bên bán hàng-hóa đơn đỏ
      */
     @RoleFeign
     @PutMapping(value = { V1 + root + "/feign/update/{id}"})

@@ -49,7 +49,7 @@ public class SaleOrderDTO extends BaseDTO {
     private Boolean usedRedInvoice;
     private String redInvoiceCompanyName;
     private String redInvoiceTaxCode;
-    private String radInvoiceAddress;
+    private String redInvoiceAddress;
     private String redInvoiceRemark;
     private Long reasonId;
     private String reasonDesc;

@@ -29,4 +29,9 @@ public interface OnlineOrderService extends BaseService {
     void syncXmlToCancelOnlineOrder(InputStream inputStream) throws Exception;
 
     InputStream exportXmlFile(List<OnlineOrder> onlineOrders) throws Exception;
+
+    void getOnlineOrderSchedule();
+
+    void uploadOnlineOrderSchedule();
+
 }

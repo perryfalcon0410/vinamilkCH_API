@@ -1,6 +1,7 @@
 package vn.viettel.sale.service.impl;
 
 import org.apache.logging.log4j.util.Strings;
+import org.apache.regexp.RE;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -461,7 +462,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                     if(poConfirm != null && poConfirm.get() != null)
                         dto.setSoNo(poConfirm.get().getSaleOrderNumber());
-                    dto.setExport(ptd.getReturnAmount());
+                    dto.setExport((ptd.getReturnAmount()==null?0:ptd.getReturnAmount()));
                     rs.add(dto);
                 }
             }
@@ -484,7 +485,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     }
                     dto.setTotalPrice(ptd.getPrice() * ptd.getQuantity());
                     dto.setSoNo(poConfirm!=null?poConfirm.get().getSaleOrderNumber():null);
-                    dto.setExport(ptd.getReturnAmount());
+                    dto.setExport((ptd.getReturnAmount()==null?0:ptd.getReturnAmount()));
                     rs1.add(dto);
                 }
             }
@@ -928,6 +929,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     /** delete **/
                     for (PoTransDetail podId : poTransDetails) {
                         if (!listUpdate.contains(podId.getId())) {
+                            if((podId.getReturnAmount()==null?0:podId.getReturnAmount())>0) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
                             StockTotal stockTotal = null;
                             if(stockTotals != null){
                                 for(StockTotal st : stockTotals){
@@ -1016,6 +1018,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                             poTransDetail.setTransId(poTrans.getId());
                             poTransDetail.setPrice(0D);
                             poTransDetail.setPriceNotVat(0D);
+                            poTransDetail.setReturnAmount(0);
                             poTransDetail.setShopId(poTrans.getShopId());
                             poTransDetail.setTransDate(poTrans.getTransDate());
                             StockTotal stockTotal = null;
@@ -1103,6 +1106,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             HashMap<Long,Integer> idAndValues = new HashMap<>();
 
             for (PoTransDetail ptd : poTransDetails) {
+                if(ptd.getReturnAmount()>0) throw new ValidateException(ResponseMessage.RECEIPT_IMPORT_HAS_BEEN_RETURNED);
                 Integer qty = null;
                 if(stockTotals != null){
                     for(StockTotal st: stockTotals){
@@ -1261,41 +1265,62 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     private String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        Integer reciNum = repository.countImport(LocalDateTime.now().with(firstDayOfYear()));
+        List<PoTrans> pos = repository.getLastPoTrans( 1, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!pos.isEmpty()) {
+            String str = pos.get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMPP.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
     private String createBorrowingTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = stockBorrowingTransRepository.countImport(LocalDateTime.now().with(firstDayOfYear()));
+        List<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastBorrowTrans(1, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!borrTrans.isEmpty()) {
+            String str = borrTrans.get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDCB.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
 
     private String createInternalCodeAdjust(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        int reciNum = stockAdjustmentTransRepository.countImport(LocalDateTime.now().with(firstDayOfYear()));
+        List<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastAdjustTrans(1, LocalDateTime.now().with(firstDayOfYear()));
+        int STT = 1;
+        if(!stockAdjustmentTrans.isEmpty()) {
+            String str = stockAdjustmentTrans.get(0).getInternalNumber();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDCT.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
-        reciCode.append(CreateCodeUtils.formatReceINumber(reciNum));
+        reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
 

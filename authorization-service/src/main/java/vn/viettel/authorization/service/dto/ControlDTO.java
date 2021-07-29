@@ -21,6 +21,6 @@ public class ControlDTO {
 
     private String description;
 
-    private Integer showStatus;
+    private Integer showStatus = 2;
 
 }
