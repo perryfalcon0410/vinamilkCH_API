@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.dto.*;
 
@@ -31,4 +32,6 @@ public interface InventoryService {
     Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId,Long wareHouseTypeId, Boolean override);
 
     Boolean checkInventoryInDay(Long wareHouseTypeId, Long shopId);
+
+    StockCounting getStockCountingById(Long id);
 }

@@ -26,6 +26,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.excel.SampleExcel;
 import vn.viettel.sale.excel.StockCountingAllExcel;
@@ -126,8 +127,9 @@ public class InventoryController extends BaseController {
     public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
         List<StockCountingExcel> export = inventoryService.getByStockCountingId(id).getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        LocalDateTime countingDate = inventoryService.getStockCountingById(id).getCountingDate();
         StockCountingFilledExcel stockCountingFilledExcel =
-                new StockCountingFilledExcel(export, shop, LocalDateTime.now());
+                new StockCountingFilledExcel(export, shop, countingDate);
         ByteArrayInputStream in = stockCountingFilledExcel.export();
 
         response.setContentType("application/octet-stream");
