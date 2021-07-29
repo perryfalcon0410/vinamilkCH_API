@@ -36,4 +36,5 @@ public class PoConfirmDTO extends BaseDTO {
     private String importCode;
     private String importUser;
     private Long wareHouseTypeId;
+    private String wareHouseTypeName;
 }
