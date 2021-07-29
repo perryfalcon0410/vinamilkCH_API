@@ -419,7 +419,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
 
     private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
-        String server = "192.168.100.112", portStr = null, userName = "kch", password = "Viett3l$Pr0ject";
+        String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
                 if(app.getApParamCode() == null || "FTP_SERVER".equalsIgnoreCase(app.getApParamCode().trim())) server = app.getValue().trim();
