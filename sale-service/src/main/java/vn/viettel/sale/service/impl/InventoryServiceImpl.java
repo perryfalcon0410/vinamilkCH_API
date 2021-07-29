@@ -276,7 +276,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         for (int i = 0; i < details.size(); i++) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
-                if (stockCountingDetail.getProductId() == details.get(i).getProductId()) {
+                if (stockCountingDetail.getProductId().equals(details.get(i).getProductId())) {
                     stockCountingDetail.setQuantity(details.get(i).getPacketQuantity() * details.get(i).getConvfact() + details.get(i).getUnitQuantity());
                     for (StockTotal stockTotal : stockTotals) {
                         if (stockTotal.getProductId().equals(stockCountingDetail.getProductId())) {
