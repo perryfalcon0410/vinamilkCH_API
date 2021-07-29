@@ -52,13 +52,13 @@ public class SchedulerManager{
 //		return securityContexHolder.getContext().getShopId();
 //	}
 
-	@Scheduled(cron = "* */10 * * * *")
+	//@Scheduled(cron = "* */10 * * * *")
 	@SchedulerLock(name = "getOnlineOrder")
 	public void getOnlineOrder() throws InterruptedException {
 		onlineOrderService.getOnlineOrderSchedule();
 	}
 
-	@Scheduled(cron = "* */10 * * * *")
+	//@Scheduled(cron = "* */10 * * * *")
 	@SchedulerLock(name = "uploadOnlineOrder")
 	public void uploadOnlineOrder() throws InterruptedException {
 		onlineOrderService.uploadOnlineOrderSchedule();

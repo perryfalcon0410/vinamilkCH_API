@@ -337,8 +337,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     @Transactional(rollbackFor = Exception.class)
     public void getOnlineOrderSchedule() {
         List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
-        String readPath = "/home/kch/pos/neworder", backupPath = "/home/kch/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
-                , destinationMessage = "/home/kch/pos/ordermessage", failName = "VES_ORDERMESSAGE_";
+        String readPath = "/home/ftpimt/pos/neworder", backupPath = "/home/ftpimt/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
+                , destinationMessage = "/home/ftpimt/pos/ordermessage", failName = "VES_ORDERMESSAGE_";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
                 if(app.getApParamCode() == null || "FTP_ORDER".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();
@@ -389,7 +389,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             //set ap param value
             List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
 
-            String uploadDestination = "/home/kch/pos/downorderpos", successName = "ORDERPOS_";
+            String uploadDestination = "/home/ftpimt/pos/downorderpos", successName = "ORDERPOS_";
             if (apParamDTOList != null) {
                 for (ApParamDTO app : apParamDTOList) {
                     if (app.getApParamCode() == null || "FTP_UPLOAD".equalsIgnoreCase(app.getApParamCode().trim()))

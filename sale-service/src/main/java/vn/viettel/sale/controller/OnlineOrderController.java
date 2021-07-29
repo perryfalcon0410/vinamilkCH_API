@@ -82,4 +82,17 @@ public class OnlineOrderController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.ONLINE_ORDER_NUMBER_SUCCESS);
         return new Response<String>().withData(response);
     }
+
+
+    @GetMapping(value = { V1 + root + "/test"})
+    @ApiOperation(value = "Kiểm tra trùng mã đơn online tạo tay")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<String> abc(HttpServletRequest request) {
+        onlineOrderService.getOnlineOrderSchedule();
+        return new Response<String>().withData("response");
+    }
+
 }
