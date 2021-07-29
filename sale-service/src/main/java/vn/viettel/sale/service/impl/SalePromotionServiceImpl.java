@@ -1915,8 +1915,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         int index = 0;
         for (FreeProductDTO freeProductDTO : lstFreeProduct) {
             double qty = 0;
+            String group = "G";
             for (PromotionProgramDetailDTO item : lstPromtionDtl) {
                 if(item.getFreeProductId().equals(freeProductDTO.getProductId())){
+                    group = item.getProductId().toString();
                     qty = item.getFreeQty() * multi; break;
                 }
             }
@@ -1934,7 +1936,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             freeProductDTO.setQuantityMax((int) qty);
             freeProductDTO.setLevelNumber(level);
             if("zv03".equalsIgnoreCase(program.getType().trim()) || "zv06".equalsIgnoreCase(program.getType().trim()))
-                freeProductDTO.setGroupOneFreeItem(freeProductDTO.getProductCode() + level);
+                freeProductDTO.setGroupOneFreeItem(group + level);
             else freeProductDTO.setGroupOneFreeItem("G" + level);
             lstProductPromotion.add(freeProductDTO);
         }

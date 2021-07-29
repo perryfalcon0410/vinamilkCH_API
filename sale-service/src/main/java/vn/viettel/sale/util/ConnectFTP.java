@@ -1,8 +1,5 @@
 package vn.viettel.sale.util;
 
-import com.jcraft.jsch.*;
-import org.apache.commons.io.FileUtils;
-import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
@@ -18,9 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicReference;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
