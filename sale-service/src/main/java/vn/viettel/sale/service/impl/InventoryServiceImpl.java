@@ -339,6 +339,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return true;
     }
 
+    @Override
+    public StockCounting getStockCountingById(Long id) {
+        StockCounting stockCounting = repository.findById(id).get();
+        return stockCounting;
+    }
+
     public List<StockCountingExcel> readDataExcel(MultipartFile file) throws IOException {
         String path = file.getOriginalFilename();
 
