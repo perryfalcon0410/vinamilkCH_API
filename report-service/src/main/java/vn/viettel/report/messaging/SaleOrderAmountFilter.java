@@ -27,8 +27,8 @@ public class SaleOrderAmountFilter {
 
     private String phoneNumber;
 
-    private Float fromAmount;
+    private Double fromAmount;
 
-    private Float toAmount;
+    private Double toAmount;
 
 }

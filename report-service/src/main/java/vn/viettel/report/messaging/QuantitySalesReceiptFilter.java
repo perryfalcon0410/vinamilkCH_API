@@ -25,8 +25,8 @@ public class QuantitySalesReceiptFilter {
 
     private String phoneNumber;
 
-    private Integer fromQuantity;
+    private Long fromQuantity;
 
-    private Integer toQuantity;
+    private Long toQuantity;
 
 }

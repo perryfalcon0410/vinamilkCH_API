@@ -218,13 +218,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 onlineOrder.setNote(header.getNote());
                 Long id = repository.save(onlineOrder).getId();
 
-                /*
-                String adrress = header.getCustomerAddress();
-                if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
-                repository.schedulerInsertOnlineOrder(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
-                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote());
-                  */
+
+//                String adrress = header.getCustomerAddress();
+//                if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
+                // chỉ trả về số lượng dòng bị đổi ko trả về dc id hay đối tượng
+//                repository.schedulerInsertOnlineOrder(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+//                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+//                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote());
 
                 //online order detail
                 for(Line line : lines){
