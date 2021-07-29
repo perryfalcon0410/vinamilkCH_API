@@ -29,7 +29,7 @@ public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaS
             ", DISCOUNT_CODE, DISCOUNT_VALUE, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_ADDRESS, SHIPPING_ADDRESS, CUSTOMER_BIRTHDAY, ORDER_STATUS, VNM_SYN_STATUS, NOTE) " +
             "VALUES (:shopId, :sysStatus, :soureName, :orderId, :orderNumber, :totalLineValue, :discountCode, :discountValue " +
             ", :customerName, :customerPhone, :cusAddress, :shippingAddress, :customerDOB, :orderStatus, :vnmSynStatus, :note)", nativeQuery = true)
-    Long schedulerInsertOnlineOrder( Long shopId, Integer sysStatus, String soureName, Long orderId, String orderNumber,
+    Integer schedulerInsertOnlineOrder( Long shopId, Integer sysStatus, String soureName, Long orderId, String orderNumber,
         Float totalLineValue, String discountCode, Float discountValue, String customerName, String customerPhone, String cusAddress,
                                     String shippingAddress, LocalDateTime customerDOB, String orderStatus, Integer vnmSynStatus, String note);
 

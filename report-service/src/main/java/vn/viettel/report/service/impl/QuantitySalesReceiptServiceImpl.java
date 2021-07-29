@@ -101,12 +101,12 @@ public class QuantitySalesReceiptServiceImpl implements QuantitySalesReceiptServ
                     cs.setString(8, filter.getPhoneNumber());
 
                     if (filter.getFromQuantity() != null)
-                        cs.setFloat(9, filter.getFromQuantity());
-                    else cs.setNull(9, Types.INTEGER);
+                        cs.setLong(9, filter.getFromQuantity());
+                    else cs.setNull(9, Types.LONGNVARCHAR);
 
                     if (filter.getToQuantity() != null)
-                        cs.setFloat(10, filter.getToQuantity());
-                    else cs.setNull(10, Types.INTEGER);
+                        cs.setLong(10, filter.getToQuantity());
+                    else cs.setNull(10, Types.LONGNVARCHAR);
 
                     cs.execute();
                     ResultSet rs = (ResultSet) cs.getObject(1);

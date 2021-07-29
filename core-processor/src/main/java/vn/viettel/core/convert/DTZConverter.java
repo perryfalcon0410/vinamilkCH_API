@@ -20,7 +20,7 @@ public class DTZConverter extends AbstractSingleValueConverter {
     public Object fromString(String dtz) {
         try {
             DateFormat formatter;
-            formatter = new SimpleDateFormat("yyyy-MM-dd");
+            formatter = new SimpleDateFormat("dd/MM/dd");
             Date date = formatter.parse(dtz);
             LocalDateTime localDateTime = DateUtils.convertFromDate(date);
             return localDateTime;

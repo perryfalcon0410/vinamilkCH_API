@@ -47,8 +47,8 @@ public class SaleOrderController extends BaseController {
                        @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                        @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                        @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
-                       @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromAmount,
-                       @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toAmount, Pageable pageable) {
+                       @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Double fromAmount,
+                       @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Double toAmount, Pageable pageable) {
         SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
         TableDynamicDTO table = saleOrderAmountService.findAmounts(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
@@ -67,8 +67,8 @@ public class SaleOrderController extends BaseController {
                     @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                     @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                     @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
-                    @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Float fromAmount,
-                    @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Float toAmount,
+                    @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Double fromAmount,
+                    @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Double toAmount,
                                                                         HttpServletResponse response) throws IOException {
         SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
 

@@ -48,8 +48,8 @@ public class QuantitySalesReceiptController extends BaseController{
                                                  @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                  @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                                                  @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
-                                                 @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Integer fromQuantity,
-                                                 @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Integer toQuantity, Pageable pageable) {
+                                                 @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Long fromQuantity,
+                                                 @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Long toQuantity, Pageable pageable) {
         QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
         TableDynamicDTO table = quantitySalesReceiptService.findQuantity(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
@@ -68,8 +68,8 @@ public class QuantitySalesReceiptController extends BaseController{
                                   @ApiParam("Tìm theo nhóm khách hàng") @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                   @ApiParam("Tìm theo họ tên hoặc mã khách hàng") @RequestParam(value = "keySearch", required = false, defaultValue = "") String nameOrCodeCustomer,
                                   @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
-                                  @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Integer fromQuantity,
-                                  @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Integer toQuantity,
+                                  @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Long fromQuantity,
+                                  @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Long toQuantity,
                                   HttpServletResponse response) throws IOException {
         QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
 

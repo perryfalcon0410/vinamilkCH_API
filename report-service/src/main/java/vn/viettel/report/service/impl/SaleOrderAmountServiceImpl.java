@@ -105,12 +105,12 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
                     cs.setString(8, filter.getPhoneNumber());
 
                     if (filter.getFromAmount() != null)
-                        cs.setFloat(9, filter.getFromAmount());
-                    else cs.setNull(9, Types.INTEGER);
+                        cs.setDouble(9, filter.getFromAmount());
+                    else cs.setNull(9, Types.DOUBLE);
 
                     if (filter.getToAmount() != null)
-                        cs.setFloat(10, filter.getToAmount());
-                    else cs.setNull(10, Types.INTEGER);
+                        cs.setDouble(10, filter.getToAmount());
+                    else cs.setNull(10, Types.DOUBLE);
 
                     cs.execute();
                     ResultSet rs = (ResultSet) cs.getObject(1);
