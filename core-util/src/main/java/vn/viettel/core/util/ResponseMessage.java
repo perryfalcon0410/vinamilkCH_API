@@ -351,6 +351,7 @@ public enum ResponseMessage {
     INDUSTRY_ARE_NOT_DIFFERENT(12001, "Các sản phẩm in trong hóa đơn phải cùng ngành hàng"),
     PRODUCT_CODE_DOES_NOT_EMPTY(12002, "Mã sản phẩm không được để trống"),
     PACKAGE_OR_UINT_QUANTITY_MUST_NOT_BE_NULL(12003, "Số lượng pakage hoặc số lượng lẻ không được phép để trống"),
+    PRODUCT_DOES_NOT_EXISTS_IN_WAREHOUSE(12004, "Sản phẩm không tồn tại trong kho"),
     /**
      * RPT_ZV23 13000-13500
      */
