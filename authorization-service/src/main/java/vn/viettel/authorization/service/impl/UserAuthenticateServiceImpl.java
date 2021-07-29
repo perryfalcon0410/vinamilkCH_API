@@ -93,7 +93,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         int maxWrongTime = user.getMaxWrongTime()!=null?user.getMaxWrongTime():0;
 
         Response<Object> response = new Response<>();
-        if (wrongTime > maxWrongTime) {
+        if (wrongTime >= maxWrongTime) {
             if (loginInfo.getCaptchaCode() == null) {
                 response.setData(new CaptchaDTO(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN, user.getCaptcha()));
                 return response.withError(ResponseMessage.ENTER_CAPTCHA_TO_LOGIN);
@@ -109,9 +109,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         if (!passwordEncoder.matches(loginInfo.getPassword().toUpperCase(), user.getPassword())) {
             wrongTime += 1;
-            if (wrongTime > maxWrongTime) {
+            if (wrongTime >= maxWrongTime) {
                 String captcha = generateCaptchaString();
-                if(maxWrongTime == wrongTime - 1)  user.setWrongTime(wrongTime);//vd max/min <> 4/5
+                if(maxWrongTime == wrongTime - 1)  user.setWrongTime(wrongTime);
                 user.setCaptcha(captcha);
                 repository.save(user);
                 response.setData(new CaptchaDTO(ResponseMessage.INCORRECT_PASSWORD, user.getCaptcha()));

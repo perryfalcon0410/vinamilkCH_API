@@ -1,8 +1,5 @@
 package vn.viettel.sale.util;
 
-import com.jcraft.jsch.*;
-import org.apache.commons.io.FileUtils;
-import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
@@ -18,9 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicReference;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
@@ -36,14 +30,16 @@ public class ConnectFTP {
             AtomicReference<String> strServer = new AtomicReference<>("");
             AtomicReference<String> strUser = new AtomicReference<>("");
             AtomicReference<String> strPass = new AtomicReference<>("");
+            AtomicReference<String> strPort= new AtomicReference<>("");
             strServer.set(server);
             strUser.set(userName);
             strPass.set(password);
+            strPort.set(portStr);
 
             try {
                 client = new SSHClient();
                 client.addHostKeyVerifier(new PromiscuousVerifier());
-                client.connect(strServer.get());
+                client.connect(strServer.get(), Integer.valueOf(strPort.get()));
                 client.authPassword(strUser.get(), strPass.get());
             } catch (Exception ex) {
                 throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());

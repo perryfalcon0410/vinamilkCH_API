@@ -273,10 +273,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId(),
                 stockCountingDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
-
+        if(stockTotals.size()==0) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS_IN_WAREHOUSE);
         for (int i = 0; i < details.size(); i++) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
-                if (stockCountingDetail.getProductId() == details.get(i).getProductId()) {
+                if (stockCountingDetail.getProductId().equals(details.get(i).getProductId())) {
                     stockCountingDetail.setQuantity(details.get(i).getPacketQuantity() * details.get(i).getConvfact() + details.get(i).getUnitQuantity());
                     for (StockTotal stockTotal : stockTotals) {
                         if (stockTotal.getProductId().equals(stockCountingDetail.getProductId())) {
@@ -296,8 +296,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Long wareHouseTypeId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        /* WareHouseTypeDTO wareHouseType = receiptImportService.getWareHouseTypeName(shopId);*/
-        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId, shopId);
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId,shopId);
+        Long countId = repository.countId(shopId);
         StockCounting stockCounting = new StockCounting();
 
         if (countingNumberInDay.size() > 0) {
@@ -309,7 +309,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             }
         }
 
-        stockCounting.setStockCountingCode(createStockCountingCode(countingNumberInDay));
+        stockCounting.setStockCountingCode(createStockCountingCode(countId));
         stockCounting.setCountingDate(LocalDateTime.now());
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseTypeId);
@@ -352,7 +352,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return null;
     }
 
-    public String createStockCountingCode(List<StockCounting> countingInDay) {
+    public String createStockCountingCode(Long countingInDay) {
         LocalDate myLocal = LocalDate.now();
         StringBuilder code = new StringBuilder("KK");
         String codeNum = "00000";
@@ -363,11 +363,12 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         String strDate = formatter.format(date);
         code.append(strDate);
         code.append(".");
-        code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
-        if (countingInDay.size() == 0)
+        code.append("0000");
+        //code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
+        if (countingInDay == 0)
             code.append(1);
         else
-            code.append(countingInDay.size());
+            code.append(countingInDay+1);
 
         return code.toString();
     }

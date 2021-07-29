@@ -11,4 +11,11 @@ public interface StockCountingRepository extends BaseRepository<StockCounting>, 
     @Query(value = "SELECT * FROM STOCK_COUNTING WHERE WAREHOUSE_TYPE_ID = :id AND SHOP_ID = :shopId AND " +
             "TO_CHAR(COUNTING_DATE,'DDMMYY') = TO_CHAR(SYSDATE,'DDMMYY')", nativeQuery = true)
     List<StockCounting> findByWareHouseTypeId(Long id, Long shopId);
+    @Query(value = "SELECT * FROM STOCK_COUNTING WHERE SHOP_ID = :shopId AND " +
+            "TO_CHAR(COUNTING_DATE,'DDMMYY') = TO_CHAR(SYSDATE,'DDMMYY')", nativeQuery = true)
+    List<StockCounting> findByWareHouseTypeIdToDay(Long shopId);
+
+    @Query(value = "SELECT count(ID) FROM STOCK_COUNTING WHERE SHOP_ID = :shopId AND " +
+            "TO_CHAR(COUNTING_DATE,'DDMMYY') = TO_CHAR(SYSDATE,'DDMMYY')", nativeQuery = true)
+    Long countId(Long shopId);
 }
