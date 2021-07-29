@@ -29,6 +29,7 @@ public class FTPServiceImpl implements FTPService {
         AtomicReference<String> strServer = new AtomicReference<>("");
         AtomicReference<String> strUser = new AtomicReference<>("");
         AtomicReference<String> strPass = new AtomicReference<>("");
+        AtomicReference<String> strPost = new AtomicReference<>("");
 
         apParamDTOList.forEach(apParamDTO -> {
             switch (apParamDTO.getApParamCode()) {
@@ -47,6 +48,9 @@ public class FTPServiceImpl implements FTPService {
                 case "FOLDER_LOCAL_FTP":
                     strFolderLocal.set(apParamDTO.getValue());
                     break;
+                case "PORT_FTP":
+                    strPost.set(apParamDTO.getValue());
+                    break;
                 default:
                     break;
             }
@@ -54,7 +58,7 @@ public class FTPServiceImpl implements FTPService {
 
         SSHClient client = new SSHClient();
         client.addHostKeyVerifier(new PromiscuousVerifier());
-        client.connect(strServer.get());
+        client.connect(strServer.get(), Integer.valueOf(strPost.get()));
         client.authPassword(strUser.get(), strPass.get());
         return client;
     }

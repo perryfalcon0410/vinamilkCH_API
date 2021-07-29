@@ -128,5 +128,4 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "Select so From SaleOrder so Where so.onlineNumber = :onlineNumber And (:startDate Is null Or so.orderDate >= :startDate)")
     List<SaleOrder> checkOnlineNumber(String onlineNumber, LocalDateTime startDate);
-
 }

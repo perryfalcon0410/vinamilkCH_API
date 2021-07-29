@@ -195,7 +195,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     message = ResponseMessage.SHOP_NOT_FOUND.statusCodeValue();
                     continue;
                 }
-
+/*
                 onlineOrder.setShopId(shopDTO.getId());
                 onlineOrder.setSynStatus(0);
                 onlineOrder.setSourceName(header.getSourceName());
@@ -217,15 +217,22 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                  onlineOrder.setVnmSynStatus(0);
                 onlineOrder.setNote(header.getNote());
                 Long id = repository.save(onlineOrder).getId();
+*/
 
+                String adrress = header.getCustomerAddress();
+                if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
+                repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
 
-//                String adrress = header.getCustomerAddress();
-//                if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
-                // chỉ trả về số lượng dòng bị đổi ko trả về dc id hay đối tượng
-//                repository.schedulerInsertOnlineOrder(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
-//                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-//                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote());
+                OnlineOrder onlineOrderDB = repository.findFirstByOrderByIdDesc();
 
+                for(Line line : lines){
+                    onlineOrderDetailRepo.schedulerInsert(shopDTO.getId(), onlineOrderDB.getId(), line.getSku(), line.getProductName(), line.getQuantity(), line.getOriginalPrice(),
+                            line.getRetailsPrice(), line.getLineValue(), line.getCharacter1Name(), line.getCharacter1Value(), line.getCharacter2Name(), line.getCharacter2Value(),
+                            line.getCharacter3Name(), line.getCharacter3Value(), line.getPromotionName(),  LocalDateTime.now());
+                }
+            /*
                 //online order detail
                 for(Line line : lines){
                     OnlineOrderDetail detail = new OnlineOrderDetail();
@@ -233,18 +240,20 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     detail.setSku(line.getSku());
                     detail.setProductName(line.getProductName());
                     detail.setQuantity(line.getQuantity());
+                    detail.setOriginalPrice(line.getOriginalPrice());
+                    detail.setRetailsPrice(line.getRetailsPrice());
+                    detail.setLineValue(line.getLineValue());
                     detail.setCharacter1Name(line.getCharacter1Name());
                     detail.setCharacter1Value(line.getCharacter1Value());
                     detail.setCharacter2Name(line.getCharacter2Name());
                     detail.setCharacter2Value(line.getCharacter2Value());
                     detail.setCharacter3Name(line.getCharacter3Name());
                     detail.setCharacter3Value(line.getCharacter3Value());
-                    detail.setOriginalPrice(line.getOriginalPrice());
-                    detail.setRetailsPrice(line.getRetailsPrice());
-                    detail.setLineValue(line.getLineValue());
                     detail.setPromotionName(line.getPromotionName());
                     onlineOrderDetailRepo.save(detail);
                 }
+            */
+
             }catch (Exception e) {
                 message = e.getMessage();
             }
@@ -268,10 +277,14 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         OnlineOrder onlineOrder = repository.findByOrderNumber(header.getOrderNumber());
                         if (onlineOrder != null) {
                             if (onlineOrder.getSynStatus() == 0) {
-                                onlineOrder.setSynStatus(-1);
                                 String orderNumber = onlineOrder.getOrderNumber() + "_HUY";
-                                onlineOrder.setOrderNumber(orderNumber);
-                                repository.save(onlineOrder);
+                                repository.schedulerCancel(-1, orderNumber, onlineOrder.getId());
+
+
+//                                onlineOrder.setSynStatus(-1);
+//                                String orderNumber = onlineOrder.getOrderNumber() + "_HUY";
+//                                onlineOrder.setOrderNumber(orderNumber);
+//                                repository.save(onlineOrder);
                             }
                         }
                     }
@@ -309,7 +322,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 //                onlineOrder.setVnmSynStatus(1);
 //                onlineOrder.setVnmSynTime(LocalDateTime.now());
 //                repository.save(onlineOrder);
-                repository.schedulerUpdateOnlineOrder(1, LocalDateTime.now(), onlineOrder.getId());
+                repository.schedulerUpdate(1, LocalDateTime.now(), onlineOrder.getId());
             }
             dataSet.setLstNewDataSet(newDataSets);
             xstream.toXMLFile(dataSet);
@@ -406,7 +419,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
 
     private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
-        String server = "192.168.100.112", portStr = null, userName = "kch", password = "Viett3l$Pr0ject";
+        String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
                 if(app.getApParamCode() == null || "FTP_SERVER".equalsIgnoreCase(app.getApParamCode().trim())) server = app.getValue().trim();
