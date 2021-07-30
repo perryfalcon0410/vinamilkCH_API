@@ -82,4 +82,5 @@ public class OnlineOrderController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.ONLINE_ORDER_NUMBER_SUCCESS);
         return new Response<String>().withData(response);
     }
+
 }

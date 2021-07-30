@@ -622,7 +622,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             for (int i = 0; i < poTransDetails.size(); i++) {
                 PoTransDetail ptd = poTransDetails.get(i);
                 poTransDetailsImport.get(i).setReturnAmount(poTransDetailsImport.get(i).getReturnAmount() - ptd.getQuantity());
-                stockTotalService.updateWithLock(shopId, poTrans.getWareHouseTypeId(), ptd.getProductId(), ptd.getQuantity());
+                stockTotalService.updateWithLock(shopId, poTrans.getWareHouseTypeId(), ptd.getProductId(), ptd.getQuantity(),2);
             }
             poTrans.setStatus(-1);
             poTrans = repository.save(poTrans);
@@ -646,7 +646,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<StockAdjustmentTransDetail> stockAdjustmentTransDetails = stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(stockAdjustmentTrans.get().getId());
             List<String> orderNumbers = new ArrayList<String>();
             for (StockAdjustmentTransDetail satd :stockAdjustmentTransDetails ){
-                stockTotalService.updateWithLock(shopId,stockAdjustmentTrans.get().getWareHouseTypeId(), satd.getProductId(), satd.getQuantity());
+                stockTotalService.updateWithLock(shopId,stockAdjustmentTrans.get().getWareHouseTypeId(), satd.getProductId(), satd.getQuantity(),2);
             }
             if(stockAdjustmentTrans.get().getRedInvoiceNo() != null && !stockAdjustmentTrans.get().getRedInvoiceNo().isEmpty()) {
                 List<SaleOrder> orders = saleOrderRepository.findSaleOrderByOrderCode(Arrays.asList(stockAdjustmentTrans.get().getRedInvoiceNo()));
@@ -686,7 +686,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             List<List<String>> syncIds = new ArrayList<List<String>>();
             String stockBorrowingId = Strings.EMPTY; 
             for (StockBorrowingTransDetail sbtd : stockBorrowingTransDetails) {
-                stockTotalService.updateWithLock(shopId, stockBorrowingTrans.getWareHouseTypeId(), sbtd.getProductId(), sbtd.getQuantity());
+                stockTotalService.updateWithLock(shopId, stockBorrowingTrans.getWareHouseTypeId(), sbtd.getProductId(), sbtd.getQuantity(),2);
             }
             stockBorrowingTrans.setStatus(-1);
             StockBorrowing sb = stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId()).get();

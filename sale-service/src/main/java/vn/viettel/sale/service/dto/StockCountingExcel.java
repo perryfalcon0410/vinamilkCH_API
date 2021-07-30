@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,10 +37,10 @@ public class StockCountingExcel {
     private Double totalAmount;
 
     @ExcelCellName("SL PACKAGE KIỂM KÊ")
-    private Double packetQuantity;
+    private String packetQuantity;
 
     @ExcelCellName("SL LẺ KIỂM KÊ")
-    private Double unitQuantity;
+    private String unitQuantity;
 
     @ExcelCellName("TỔNG SỐ LƯỢNG KỂM KÊ")
     private Integer inventoryQuantity;
@@ -59,6 +61,7 @@ public class StockCountingExcel {
     private String error;
 
     private Long productId;
+
 
     public StockCountingExcel(Long productId, String productCode, String productName, String productGroup, String productCategory,
                               Double price, Integer stockQuantity, String unit, String packetUnit, Integer convfact, Integer inventoryQuantity ){

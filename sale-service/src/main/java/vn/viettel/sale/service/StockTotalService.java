@@ -15,6 +15,9 @@ public interface StockTotalService extends BaseService {
 
     StockTotal updateWithLock(Long shopId, Long wareHouseId, Long productId, Integer value);
 
+    /**With @type=2, block creates record in stock total on delete**/
+    StockTotal updateWithLock(Long shopId, Long wareHouseId, Long productId, Integer value,Integer type);
+
     StockTotal createStockTotal(Long shopId, Long wareHouseId, Long productId, Integer value, boolean autoSave);
 
     void validateStockTotal(List<StockTotal> stockTotals, Long productId, Integer value);

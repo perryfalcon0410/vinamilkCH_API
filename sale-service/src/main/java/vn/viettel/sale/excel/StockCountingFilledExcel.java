@@ -98,7 +98,7 @@ public class StockCountingFilledExcel {
             totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
             totalAmount = totalAmount + exchange.getTotalAmount();
             totalChange = totalChange + exchange.getChangeQuantity();
-            totalUnitQuantity = totalUnitQuantity + exchange.getUnitQuantity();
+            totalUnitQuantity = totalUnitQuantity + Integer.valueOf(exchange.getUnitQuantity());
             totalInventoryQuantity = totalInventoryQuantity + exchange.getInventoryQuantity();
         }
         int size = stockCountingExcels.size();
