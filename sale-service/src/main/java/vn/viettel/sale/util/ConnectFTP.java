@@ -62,6 +62,7 @@ public class ConnectFTP {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
+            throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());
         }
     }
 
@@ -73,29 +74,16 @@ public class ConnectFTP {
             }
             if(containsStr == null) containsStr = "";
 
-            File directory = new File(locationPath);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-
             if(ftpClient != null && ftpClient.isConnected()){
-                File[] listOfFiles = directory.listFiles();
-                for (File file : listOfFiles){
-                    file.delete();
-                }
-
-
-
-                // FileUtils.cleanDirectory(directory);
-//                SFTPClient sftpClient = ftpClient.newSFTPClient();
-//                sftpClient.get(locationPath, locationPath);
-//                sftpClient.close();
-            }
-
-            File[] listOfFiles = directory.listFiles();
-            for (File file : listOfFiles){
-                if (file.isFile() && file.getName().endsWith(readFile) && file.getName().contains(containsStr)) {
-                    mapinputStreams.put(file.getName(), new FileInputStream(file));
+                boolean status = ftpClient.changeWorkingDirectory(locationPath);
+                if(status){
+                    FTPFile[] lstFiles = ftpClient.listFiles();
+                    for (int i = 0; i < lstFiles.length; i++) {
+                        InputStream inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
+                        if (inputStream != null) {
+                            mapinputStreams.put(lstFiles[i].getName(), inputStream);
+                        }
+                    }
                 }
             }
         }catch (Exception ex) {
