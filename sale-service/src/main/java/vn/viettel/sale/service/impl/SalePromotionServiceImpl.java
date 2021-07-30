@@ -1414,7 +1414,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         salePromotion.setProducts(lstProductPromotion);
         int totalDisQty = 0;
         for(FreeProductDTO item : lstProductPromotion){
-            totalDisQty += item.getQuantity();
+            if(item.getQuantity() != null)
+                totalDisQty += item.getQuantity();
         }
         salePromotion.setTotalQty(totalDisQty);
         salePromotion.setLstProductId(lstProductIds);
