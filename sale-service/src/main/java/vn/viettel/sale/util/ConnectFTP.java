@@ -8,9 +8,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.util.StringUtils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,13 +72,25 @@ public class ConnectFTP {
 
             if(ftpClient != null && ftpClient.isConnected()){
                 boolean status = ftpClient.changeWorkingDirectory(locationPath);
+                ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                 if(status){
                     FTPFile[] lstFiles = ftpClient.listFiles();
+                    InputStream inputStream = null;
+
                     for (int i = 0; i < lstFiles.length; i++) {
                         if (lstFiles[i].isFile() && lstFiles[i].getName().endsWith(readFile) && lstFiles[i].getName().contains(containsStr)) {
-                            InputStream inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
+                            inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
                             if (inputStream != null) {
-                                mapinputStreams.put(lstFiles[i].getName(), inputStream);
+                                inputStream.mark(0);
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                byte[] buffer = new byte[1024];
+                                int len;
+                                while ((len = inputStream.read(buffer)) > -1 ) {
+                                    baos.write(buffer, 0, len);
+                                }
+                                baos.flush();
+                                mapinputStreams.put(lstFiles[i].getName(), new ByteArrayInputStream(baos.toByteArray()));
+                                inputStream.reset();
                             }
                         }
                     }

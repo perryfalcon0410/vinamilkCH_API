@@ -533,6 +533,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     PoTransDetail poTransDetail = poTransDetails.get(i);
                     for (int j = 0; j < request.getListProductRemain().size(); j++) {
                         if (poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())) {
+
                             int slTra = (request.getListProductRemain().get(j).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
                             int slConLai = (poTransDetailImport.get(i).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
                             if (slTra>slConLai)
@@ -547,7 +548,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                             value += idAndValues.get(stockTotal.getId());
                                         }
                                         idAndValues.put(stockTotal.getId(), value);
-                                        if ((stockTotal.getQuantity() - value) < 0)
+                                        if ((stockTotal.getQuantity() + value) < 0)
                                             throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS,
                                                     request.getListProductRemain().get(j).getProductCode() + "-" + request.getListProductRemain().get(j).getProductName());
                                         st = stockTotal;
