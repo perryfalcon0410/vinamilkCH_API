@@ -117,7 +117,6 @@ public class ChangePriceReportExcel {
         CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
         CellStyle format1 = style.get(ExcelPoiUtils.BOLD_9);
         CellStyle format2 = style.get(ExcelPoiUtils.BOLD_9_LEFT);
-        CellStyle format3 = style.get(ExcelPoiUtils.BORDER_RIGHT);
         ExcelPoiUtils.addCell(sheet,4,9, changePriceReport.getReportTotal().getTotalQuantity() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         ExcelPoiUtils.addCell(sheet,6,9, changePriceReport.getReportTotal().getTotalPriceInput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));
         ExcelPoiUtils.addCell(sheet,8,9, changePriceReport.getReportTotal().getTotalPriceOutput() ,style.get(ExcelPoiUtils.BOLD_10_CL255_204_153));

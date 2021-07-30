@@ -52,10 +52,12 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(5, Long.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
         storedProcedure.setParameter(2, filter.getFromDate());
         storedProcedure.setParameter(3, filter.getToDate());
         storedProcedure.setParameter(4, filter.getProductCodes());
+        storedProcedure.setParameter(5, filter.getShopId());
         storedProcedure.execute();
         List<InOutAdjusmentDTO> data =  storedProcedure.getResultList();
         return new Response<List<InOutAdjusmentDTO>>().withData(data);
