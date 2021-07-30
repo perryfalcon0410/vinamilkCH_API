@@ -34,12 +34,6 @@ public class StockCountingFailExcel {
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Stock_Counting_Fail");
         ////////// CUSTOMER HEADER /////////////////////////////
-     /*   sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A3:I3"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J1:Q1"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J2:Q2"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J3:Q3"));*/
         CellStyle customerStyle = workbook.createCellStyle();
         XSSFFont customerHeader = (XSSFFont) workbook.createFont();
         customerHeader.setBold(true);
@@ -89,7 +83,7 @@ public class StockCountingFailExcel {
             totalQuantityStock = totalQuantityStock + (exchange.getStockQuantity()==null?0:exchange.getStockQuantity());
             totalAmount = totalAmount + (exchange.getTotalAmount()==null?0:exchange.getTotalAmount());
             totalChange = totalChange + (exchange.getChangeQuantity()==null?0:exchange.getChangeQuantity());
-            totalUnitQuantity = totalUnitQuantity + (exchange.getUnitQuantity()==null ? 0 : exchange.getUnitQuantity());
+            totalUnitQuantity = totalUnitQuantity + (Double.valueOf(exchange.getUnitQuantity())==null ? 0 : Double.valueOf(exchange.getUnitQuantity()));
             totalInventoryQuantity = totalInventoryQuantity + (exchange.getInventoryQuantity()==null ? 0 : exchange.getInventoryQuantity());
         }
         int size = stockCountingExcels.size();
@@ -114,29 +108,6 @@ public class StockCountingFailExcel {
         CellStyle totalRowStyleRGB2 = totalRowStyleRGB;
         DataFormat dataFormat = workbook.createDataFormat();
         totalRowStyleRGB2.setDataFormat(dataFormat.getFormat("#,###"));
-/*
-        ExcelPoiUtils.createCell(totalRowDown,4, "Tổng cộng", totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,5, totalQuantityStock, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,7, totalAmount, totalRowStyleRGB2);
-        ExcelPoiUtils.createCell(totalRowDown,9, totalUnitQuantity, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,10, totalInventoryQuantity, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,11, totalChange, totalRowStyleRGB);*/
-        ///// FILLED ROW ///////////
-  /*      CellStyle style = workbook.createCellStyle();
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        ExcelPoiUtils.createCell(totalRowDown,0, null, style);
-        ExcelPoiUtils.createCell(totalRowDown,1, null, style);
-        ExcelPoiUtils.createCell(totalRowDown,2, null, style);
-        ExcelPoiUtils.createCell(totalRowDown,3, null, style);
-        ExcelPoiUtils.createCell(totalRowDown,6, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,8, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,12, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,13, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,14, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowDown,15, null, totalRowStyleRGB);*/
 
         ExcelPoiUtils.createCell(header, 0, "KIỂM KÊ HÀNG", titleStyle);
         ExcelPoiUtils.createCell(dateRow, 0, DateUtils.formatDate2StringDate(date), customerAddressStyle);
@@ -157,24 +128,6 @@ public class StockCountingFailExcel {
         ExcelPoiUtils.createCell(row, 14, "ĐVT LẺ", headerStyle);
         ExcelPoiUtils.createCell(row, 15, "Lỗi", headerStyle);
 
-       /* Row totalRowUp = sheet.createRow(9);
-        ExcelPoiUtils.createCell(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,7, totalAmount, totalRowStyleRGB2);
-        ExcelPoiUtils.createCell(totalRowUp,11, totalChange, totalRowStyleRGB);
-        /// FILLED ROW /////////////////////
-        ExcelPoiUtils.createCell(totalRowUp,0, null, style);
-        ExcelPoiUtils.createCell(totalRowUp,1, null, style);
-        ExcelPoiUtils.createCell(totalRowUp,2, null, style);
-        ExcelPoiUtils.createCell(totalRowUp,3, null, style);
-        ExcelPoiUtils.createCell(totalRowUp,6, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,8, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,9, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,10, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,12, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,13, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,14, null, totalRowStyleRGB);
-        ExcelPoiUtils.createCell(totalRowUp,15, null, totalRowStyleRGB);*/
     }
 
     private void writeDataLines() {
@@ -190,7 +143,7 @@ public class StockCountingFailExcel {
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
-        style.setDataFormat(dataFormat.getFormat("#,###"));
+        style.setDataFormat(dataFormat.getFormat("text"));
 
 
         CellStyle dataStyle2 = style;

@@ -37,10 +37,10 @@ public class StockCountingExcel {
     private Double totalAmount;
 
     @ExcelCellName("SL PACKAGE KIỂM KÊ")
-    private Double packetQuantity;
+    private String packetQuantity;
 
     @ExcelCellName("SL LẺ KIỂM KÊ")
-    private Double unitQuantity;
+    private String unitQuantity;
 
     @ExcelCellName("TỔNG SỐ LƯỢNG KỂM KÊ")
     private Integer inventoryQuantity;

@@ -58,6 +58,21 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         return updateEntity(entity, value);
     }
 
+    @Override
+    public StockTotal updateWithLock(Long shopId, Long wareHouseId, Long productId, Integer value, Integer type) {
+        if(shopId == null || wareHouseId == null || productId == null || value == null) return null;
+        StockTotal entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
+        if(entity==null){
+            if(type == 2) {
+                showMessage(productId, true);
+            }else {
+                if (entity == null && value > 0) return createStockTotal(shopId, wareHouseId, productId, value, true);
+                if(entity == null && value < 0) showMessage(productId, true);
+            }
+        }
+        return updateEntity(entity, value);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public StockTotal createStockTotal(Long shopId, Long wareHouseId, Long productId, Integer value, boolean autoSave){
         if(shopId == null || productId == null || value == null) return null;
