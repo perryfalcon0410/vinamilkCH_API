@@ -32,6 +32,7 @@ import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
+import vn.viettel.sale.util.ConnectFTP;
 import vn.viettel.sale.util.ConnectSSH;
 import vn.viettel.sale.xml.*;
 
@@ -347,7 +348,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     failName = app.getValue().trim();
             }
         }
-        ConnectSSH connectFTP = connectFTP(apParamDTOList);
+        ConnectFTP connectFTP = connectFTP(apParamDTOList);
         //read new order
         HashMap<String, InputStream> newOrders = connectFTP.getFiles(readPath, newOrder);
         if(newOrders != null){
@@ -373,48 +374,48 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 }
             }
         }
-        connectFTP.disconnectServer();
+        connectFTP.disconnectFTPServer();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void uploadOnlineOrderSchedule() {
-        List<Long> shops = repository.findALLShopId();
-        if(shops.size() > 0) {
-
-            //set ap param value
-            List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
-
-            String uploadDestination = "/home/ftpimt/pos/downorderpos", successName = "ORDERPOS_";
-            if (apParamDTOList != null) {
-                for (ApParamDTO app : apParamDTOList) {
-                    if (app.getApParamCode() == null || "FTP_UPLOAD".equalsIgnoreCase(app.getApParamCode().trim()))
-                        uploadDestination = app.getValue().trim();
-                    if (app.getApParamCode() == null || "FTP_FILE_SUC".equalsIgnoreCase(app.getApParamCode().trim()))
-                        successName = app.getValue().trim();
-                }
-            }
-            ConnectSSH connectFTP = connectFTP(apParamDTOList);
-            for (Long shopId : shops) {
-                List<OnlineOrder> onlineOrders = repository.findOnlineOrderExportXml(shopId);
-                ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-                if (onlineOrders != null && !onlineOrders.isEmpty()) {
-                    try {
-                        String fileName = successName + StringUtils.createXmlFileName(shopDTO.getShopCode());
-                        InputStream inputStream = this.exportXmlFile(onlineOrders);
-                        if (inputStream != null)
-                            connectFTP.uploadFile(inputStream, fileName, uploadDestination);
-                    } catch (Exception ex) {
-                        LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
-                    }
-                }
-            }
-            connectFTP.disconnectServer();
-        }
+//        List<Long> shops = repository.findALLShopId();
+//        if(shops.size() > 0) {
+//
+//            //set ap param value
+//            List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
+//
+//            String uploadDestination = "/home/ftpimt/pos/downorderpos", successName = "ORDERPOS_";
+//            if (apParamDTOList != null) {
+//                for (ApParamDTO app : apParamDTOList) {
+//                    if (app.getApParamCode() == null || "FTP_UPLOAD".equalsIgnoreCase(app.getApParamCode().trim()))
+//                        uploadDestination = app.getValue().trim();
+//                    if (app.getApParamCode() == null || "FTP_FILE_SUC".equalsIgnoreCase(app.getApParamCode().trim()))
+//                        successName = app.getValue().trim();
+//                }
+//            }
+//            ConnectSSH connectFTP = connectFTP(apParamDTOList);
+//            for (Long shopId : shops) {
+//                List<OnlineOrder> onlineOrders = repository.findOnlineOrderExportXml(shopId);
+//                ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+//                if (onlineOrders != null && !onlineOrders.isEmpty()) {
+//                    try {
+//                        String fileName = successName + StringUtils.createXmlFileName(shopDTO.getShopCode());
+//                        InputStream inputStream = this.exportXmlFile(onlineOrders);
+//                        if (inputStream != null)
+//                            connectFTP.uploadFile(inputStream, fileName, uploadDestination);
+//                    } catch (Exception ex) {
+//                        LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
+//                    }
+//                }
+//            }
+//            connectFTP.disconnectServer();
+//        }
     }
 
 
-    private ConnectSSH connectFTP(List<ApParamDTO> apParamDTOList){
+    private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
         String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
@@ -424,7 +425,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
             }
         }
-        return new ConnectSSH(server, portStr, userName, password);
+        return new ConnectFTP(server, portStr, userName, password);
     }
 
 
