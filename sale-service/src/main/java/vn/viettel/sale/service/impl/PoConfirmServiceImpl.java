@@ -3,17 +3,16 @@ package vn.viettel.sale.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.convert.XStreamTranslator;
-import vn.viettel.sale.entities.PoConfirm;
-import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.PoConfirm;
 import vn.viettel.sale.entities.PoDetail;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.repository.PoConfirmRepository;
@@ -143,9 +142,10 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 if(app.getApParamCode() == null || "FTP_FILE_NEW_PO".equalsIgnoreCase(app.getApParamCode().trim())) newPo = app.getValue().trim();
             }
         }
-        ConnectFTP connectFTP = getConnectFTP(apParamDTOList);
-        //read new po
+        ConnectFTP connectFTP = getConnectFTP2(apParamDTOList);
+
         HashMap<String, InputStream> newPos = connectFTP.getFiles(readPath, newPo);
+
         if(newPos != null){
             for (Map.Entry<String, InputStream> entry : newPos.entrySet()){
                 try {
@@ -154,15 +154,20 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                     stt++;
                 }catch (Exception ex) {
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
+                }finally {
+                    connectFTP.disconnectFTPServer();
                 }
             }
+
             return new PoConfirmXmlDTO(true, "Đồng bộ thành công "+stt+" file");
         }
 
+        connectFTP.disconnectFTPServer();
         return new PoConfirmXmlDTO(true, "Không có file đồng bộ");
     }
 
-    public static ConnectFTP getConnectFTP(List<ApParamDTO> apParamDTOList) {
+
+    public static ConnectFTP getConnectFTP2(List<ApParamDTO> apParamDTOList) {
         String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
@@ -174,4 +179,5 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
         }
         return new ConnectFTP(server, portStr, userName, password);
     }
+
 }

@@ -1,12 +1,14 @@
 package vn.viettel.sale.util;
 
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.util.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,48 +18,76 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import net.schmizz.sshj.SSHClient;
-import net.schmizz.sshj.sftp.SFTPClient;
-import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 public class ConnectFTP {
 
-    private SSHClient client;
+    private FTPClient ftpClient;
     private String readFile = ".xml";
 
     public ConnectFTP(String server, String portStr, String userName, String password) {
-        if(!StringUtils.stringIsNullOrEmpty(server) && !StringUtils.stringIsNullOrEmpty(userName)){
-            AtomicReference<String> strServer = new AtomicReference<>("");
-            AtomicReference<String> strUser = new AtomicReference<>("");
-            AtomicReference<String> strPass = new AtomicReference<>("");
-            AtomicReference<String> strPort= new AtomicReference<>("");
-            strServer.set(server);
-            strUser.set(userName);
-            strPass.set(password);
-            strPort.set(portStr);
+        AtomicReference<String> strServer = new AtomicReference<>("");
+        AtomicReference<String> strUser = new AtomicReference<>("");
+        AtomicReference<String> strPass = new AtomicReference<>("");
+        AtomicReference<String> strPort = new AtomicReference<>("");
+        strServer.set(server);
+        strUser.set(userName);
+        strPass.set(password);
+        strPort.set(portStr);
 
-            try {
-                client = new SSHClient();
-                client.addHostKeyVerifier(new PromiscuousVerifier());
-                client.connect(strServer.get(), Integer.valueOf(strPort.get()));
-                client.authPassword(strUser.get(), strPass.get());
-            } catch (Exception ex) {
-                throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());
+        ftpClient = new FTPClient();
+        int FTP_TIMEOUT = 60000;
+
+        try {
+            System.out.println("connecting ftp server...");
+            // connect to ftp server
+            ftpClient.setDefaultTimeout(FTP_TIMEOUT);
+            ftpClient.connect(strServer.get(), Integer.parseInt(strPort.get()));
+            // run the passive mode command
+            ftpClient.enterLocalPassiveMode();
+            // check reply code
+            if (!FTPReply.isPositiveCompletion(ftpClient.getReplyCode())) {
+                disconnectFTPServer();
+                throw new IOException("FTP server not respond!");
+            } else {
+                ftpClient.setSoTimeout(FTP_TIMEOUT);
+                // login ftp server
+                if (!ftpClient.login(strUser.get(), strPass.get())) {
+                    throw new IOException("Username or password is incorrect!");
+                }
+                ftpClient.setDataTimeout(FTP_TIMEOUT);
+                System.out.println("connected");
             }
-        }else{
-            client = null;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());
         }
     }
 
-    public void disconnectServer(){
-        if(client != null && client.isConnected()){
-            try {
-                client.close();
-                client.disconnect();
-            } catch (Exception ex) {
-                throw new ApplicationException("Can not disconnect to server: " + ex.getMessage());
+    public HashMap<String, InputStream> getFiles(String locationPath, String containsStr){
+        HashMap<String,InputStream> mapinputStreams = new HashMap<>();
+        try {
+            if(StringUtils.stringIsNullOrEmpty(locationPath)){
+                locationPath = "/" + "kch_pos" + "/" + "neworder";
             }
+            if(containsStr == null) containsStr = "";
+
+            if(ftpClient != null && ftpClient.isConnected()){
+                boolean status = ftpClient.changeWorkingDirectory(locationPath);
+                if(status){
+                    FTPFile[] lstFiles = ftpClient.listFiles();
+                    for (int i = 0; i < lstFiles.length; i++) {
+                        InputStream inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
+                        if (inputStream != null) {
+                            mapinputStreams.put(lstFiles[i].getName(), inputStream);
+                        }
+                    }
+                }
+            }
+        }catch (Exception ex) {
+            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
         }
+
+        return mapinputStreams;
     }
 
     public boolean uploadFile(InputStream inputStream, String fileName, String locationPath ){
@@ -66,16 +96,16 @@ public class ConnectFTP {
                 if (StringUtils.stringIsNullOrEmpty(locationPath)) {
                     locationPath = "/" + "kch_pos" + "/" + "downorderpos";
                 }
-                Path pathLocation = Paths.get(locationPath).toAbsolutePath().normalize();
-                Files.createDirectories(pathLocation);
-                Path targetLocation = pathLocation.resolve(fileName);
-                Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-                if(client != null && client.isConnected()){
-                    SFTPClient sftpClient = client.newSFTPClient();
-                    String remotePath = locationPath + "/" + fileName;
-                    sftpClient.put(remotePath, remotePath);
-                    sftpClient.close();
+                if(ftpClient != null && ftpClient.isConnected()){
+                    ftpClient.setFileTransferMode(FTPClient.BINARY_FILE_TYPE);
+                    ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+                    ftpClient.storeFile(locationPath + "/" + fileName, inputStream);
+                    ftpClient.sendNoOp();
+                } else {
+                    Path pathLocation = Paths.get(locationPath).toAbsolutePath().normalize();
+                    Files.createDirectories(pathLocation);
+                    Path targetLocation = pathLocation.resolve(fileName);
+                    Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
                 }
                 return true;
             }
@@ -86,45 +116,6 @@ public class ConnectFTP {
         return false;
     }
 
-    public HashMap<String,InputStream> getFiles(String locationPath, String containsStr){
-        HashMap<String,InputStream> mapinputStreams = new HashMap<>();
-        try {
-            if(StringUtils.stringIsNullOrEmpty(locationPath)){
-                locationPath = "/" + "kch_pos" + "/" + "neworder";
-            }
-            if(containsStr == null) containsStr = "";
-
-            File directory = new File(locationPath);
-            if (! directory.exists()){
-                directory.mkdir();
-            }
-
-
-            if(client != null && client.isConnected()){
-                File[] listOfFiles = directory.listFiles();
-                for (File file : listOfFiles){
-                    file.delete();
-                }
-               // FileUtils.cleanDirectory(directory);
-
-                SFTPClient sftpClient = client.newSFTPClient();
-                sftpClient.get(locationPath, locationPath);
-                sftpClient.close();
-            }
-
-            File[] listOfFiles = directory.listFiles();
-            for (File file : listOfFiles){
-                if (file.isFile() && file.getName().endsWith(readFile) && file.getName().contains(containsStr)) {
-                    mapinputStreams.put(file.getName(), new FileInputStream(file));
-                }
-            }
-        }catch (Exception ex) {
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
-        }
-
-        return mapinputStreams;
-    }
-
     public boolean moveFile(String fromPath, String toPath, String fileName){
         try {
             if(!StringUtils.stringIsNullOrEmpty(fileName)) {
@@ -132,17 +123,10 @@ public class ConnectFTP {
                 String fromFile = fromPath + "/" + fileName;
                 if(StringUtils.stringIsNullOrEmpty(toPath)) toPath = "/backup";
                 String toFile = toPath + "/" + destinationFile;
-
-                if(client != null && client.isConnected()){
-                    SFTPClient sftpClient = client.newSFTPClient();
-                    sftpClient.rename(fromFile ,toFile);
-                    sftpClient.rm(fromFile );
-                    sftpClient.close();
+                if (ftpClient != null && ftpClient.isConnected()) {
+                    ftpClient.rename(fromFile ,toFile);
+                    ftpClient.deleteFile(fromFile );
                 } else {
-                    File directory = new File(toPath);
-                    if (! directory.exists()){
-                        directory.mkdir();
-                    }
                     Path source = Paths.get(fromFile);
                     Path target = Paths.get(toFile);
                     Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
@@ -155,7 +139,16 @@ public class ConnectFTP {
         return false;
     }
 
-    public void setReadFile(String readFile){
-        if(!StringUtils.stringIsNullOrEmpty(readFile)) this.readFile = readFile;
+    public void disconnectFTPServer() {
+        if (ftpClient != null && ftpClient.isConnected()) {
+            try {
+                ftpClient.logout();
+                ftpClient.disconnect();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
+
+
 }
