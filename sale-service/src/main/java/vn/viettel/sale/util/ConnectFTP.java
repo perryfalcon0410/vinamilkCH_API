@@ -8,6 +8,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.util.StringUtils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -76,9 +77,11 @@ public class ConnectFTP {
                 if(status){
                     FTPFile[] lstFiles = ftpClient.listFiles();
                     for (int i = 0; i < lstFiles.length; i++) {
-                        InputStream inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
-                        if (inputStream != null) {
-                            mapinputStreams.put(lstFiles[i].getName(), inputStream);
+                        if (lstFiles[i].isFile() && lstFiles[i].getName().endsWith(readFile) && lstFiles[i].getName().contains(containsStr)) {
+                            InputStream inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
+                            if (inputStream != null) {
+                                mapinputStreams.put(lstFiles[i].getName(), inputStream);
+                            }
                         }
                     }
                 }
