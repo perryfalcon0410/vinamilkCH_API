@@ -17,6 +17,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,35 +99,53 @@ public class ConnectFTP {
         return mapinputStreams;
     }
 
-
-
-    /**
-     * get list from ftp server
-     *
-     * @param path
-     * @return List<FTPFile>
-     */
-    private List<FTPFile> getListFileFromFTPServer(FTPClient ftpClient, String path, final String ext) {
-        List<FTPFile> listFiles = new ArrayList<FTPFile>();
+    public boolean uploadFile(InputStream inputStream, String fileName, String locationPath ){
         try {
-            // list file ends with "jar"
-            FTPFile[] ftpFiles = ftpClient.listFiles(path, new FTPFileFilter() {
-                public boolean accept(FTPFile file) {
-                    return file.getName().endsWith(ext);
+            if(inputStream != null && !StringUtils.stringIsNullOrEmpty(fileName)) {
+                if (StringUtils.stringIsNullOrEmpty(locationPath)) {
+                    locationPath = "/" + "kch_pos" + "/" + "downorderpos";
                 }
-            });
-            if (ftpFiles.length > 0) {
-                for (FTPFile ftpFile : ftpFiles) {
-                    // add file to listFiles
-                    if (ftpFile.isFile()) {
-                        listFiles.add(ftpFile);
-                    }
+                if(ftpClient != null && ftpClient.isConnected()){
+                    ftpClient.setFileTransferMode(FTPClient.BINARY_FILE_TYPE);
+                    ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+                    ftpClient.storeFile(locationPath + "/" + fileName, inputStream);
+                    ftpClient.sendNoOp();
+                } else {
+                    Path pathLocation = Paths.get(locationPath).toAbsolutePath().normalize();
+                    Files.createDirectories(pathLocation);
+                    Path targetLocation = pathLocation.resolve(fileName);
+                    Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
                 }
+                return true;
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        }catch (Exception ex) {
+            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP upload error: " + ex.getMessage());
         }
-        return listFiles;
+
+        return false;
+    }
+
+    public boolean moveFile(String fromPath, String toPath, String fileName){
+        try {
+            if(!StringUtils.stringIsNullOrEmpty(fileName)) {
+                String destinationFile = "ReadAt" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_" + fileName;
+                String fromFile = fromPath + "/" + fileName;
+                if(StringUtils.stringIsNullOrEmpty(toPath)) toPath = "/backup";
+                String toFile = toPath + "/" + destinationFile;
+                if (ftpClient != null && ftpClient.isConnected()) {
+                    ftpClient.rename(fromFile ,toFile);
+                    ftpClient.deleteFile(fromFile );
+                } else {
+                    Path source = Paths.get(fromFile);
+                    Path target = Paths.get(toFile);
+                    Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+                }
+                return true;
+            }
+        }catch (Exception ex) {
+            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
+        }
+        return false;
     }
 
     public void disconnectFTPServer() {
