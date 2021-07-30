@@ -1,20 +1,13 @@
 package vn.viettel.sale.util;
 
-import net.schmizz.sshj.SSHClient;
-import net.schmizz.sshj.sftp.SFTPClient;
-import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPFileFilter;
 import org.apache.commons.net.ftp.FTPReply;
-import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.util.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -23,9 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ConnectFTP {
@@ -158,40 +149,6 @@ public class ConnectFTP {
             }
         }
     }
-
-
-    public boolean moveFile(String fromPath, String toPath, String fileName){
-        try {
-            if(!StringUtils.stringIsNullOrEmpty(fileName)) {
-                String destinationFile = "ReadAt" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_" + fileName;
-                String fromFile = fromPath + "/" + fileName;
-                if(StringUtils.stringIsNullOrEmpty(toPath)) toPath = "/backup";
-                String toFile = toPath + "/" + destinationFile;
-
-                if(ftpClient != null && ftpClient.isConnected()){
-                    ftpClient.rename(fromFile, toFile);
-              //      ftpClient.removeDirectory(fromFile);
-//                    SFTPClient sftpClient = client.newSFTPClient();
-//                    sftpClient.rename(fromFile ,toFile);
-//                    sftpClient.rm(fromFile );
-//                    sftpClient.close();
-                } else {
-                    File directory = new File(toPath);
-                    if (! directory.exists()){
-                        directory.mkdir();
-                    }
-                    Path source = Paths.get(fromFile);
-                    Path target = Paths.get(toFile);
-                    Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-                }
-                return true;
-            }
-        }catch (Exception ex) {
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
-        }
-        return false;
-    }
-
 
 
 }
