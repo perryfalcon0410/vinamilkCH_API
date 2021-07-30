@@ -32,17 +32,13 @@ import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
-import vn.viettel.sale.util.ConnectFTP;
+import vn.viettel.sale.util.ConnectSSH;
 import vn.viettel.sale.xml.*;
 
-import javax.persistence.EntityManager;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -351,7 +347,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     failName = app.getValue().trim();
             }
         }
-        ConnectFTP connectFTP = connectFTP(apParamDTOList);
+        ConnectSSH connectFTP = connectFTP(apParamDTOList);
         //read new order
         HashMap<String, InputStream> newOrders = connectFTP.getFiles(readPath, newOrder);
         if(newOrders != null){
@@ -398,7 +394,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         successName = app.getValue().trim();
                 }
             }
-            ConnectFTP connectFTP = connectFTP(apParamDTOList);
+            ConnectSSH connectFTP = connectFTP(apParamDTOList);
             for (Long shopId : shops) {
                 List<OnlineOrder> onlineOrders = repository.findOnlineOrderExportXml(shopId);
                 ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
@@ -418,7 +414,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     }
 
 
-    private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
+    private ConnectSSH connectFTP(List<ApParamDTO> apParamDTOList){
         String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
@@ -428,7 +424,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
             }
         }
-        return new ConnectFTP(server, portStr, userName, password);
+        return new ConnectSSH(server, portStr, userName, password);
     }
 
 

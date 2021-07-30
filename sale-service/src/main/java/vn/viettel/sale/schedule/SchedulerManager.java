@@ -3,32 +3,8 @@ package vn.viettel.sale.schedule;
 //import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.logging.LogFile;
-import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.security.context.SecurityContexHolder;
-import vn.viettel.core.util.StringUtils;
-import vn.viettel.sale.entities.OnlineOrder;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.repository.OnlineOrderRepository;
 import vn.viettel.sale.service.OnlineOrderService;
-import vn.viettel.sale.service.feign.ApparamClient;
-import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.util.ConnectFTP;
-import vn.viettel.sale.xml.Header;
-import vn.viettel.sale.xml.NewDataSet;
-
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class SchedulerManager{
@@ -85,7 +61,7 @@ public class SchedulerManager{
 //					failName = app.getValue().trim();
 //			}
 //		}
-//		ConnectFTP connectFTP = connectFTP(apParamDTOList);
+//		ConnectSSH connectFTP = connectFTP(apParamDTOList);
 //		//read new order
 //		HashMap<String, InputStream> newOrders = connectFTP.getFiles(readPath, newOrder);
 //		if(newOrders != null){
@@ -133,7 +109,7 @@ public class SchedulerManager{
 //						successName = app.getValue().trim();
 //				}
 //			}
-//			ConnectFTP connectFTP = connectFTP(apParamDTOList);
+//			ConnectSSH connectFTP = connectFTP(apParamDTOList);
 //			for (Long shopId : shops) {
 //				List<OnlineOrder> onlineOrders = onlineOrderRepository.findOnlineOrderExportXml(shopId);
 //				ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
@@ -152,7 +128,7 @@ public class SchedulerManager{
 //		}
 //	}
 //
-//	private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
+//	private ConnectSSH connectFTP(List<ApParamDTO> apParamDTOList){
 //		String server = "192.168.100.112", portStr = null, userName = "kch", password = "Viett3l$Pr0ject";
 //		if(apParamDTOList != null){
 //			for(ApParamDTO app : apParamDTOList){
@@ -162,6 +138,6 @@ public class SchedulerManager{
 //				if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
 //			}
 //		}
-//		return new ConnectFTP(server, portStr, userName, password);
+//		return new ConnectSSH(server, portStr, userName, password);
 //	}
 }
