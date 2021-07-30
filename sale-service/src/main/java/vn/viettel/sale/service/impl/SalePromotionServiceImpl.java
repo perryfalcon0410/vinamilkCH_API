@@ -1943,8 +1943,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double qty = 0;
             String group = "G";
             for (PromotionProgramDetailDTO item : lstPromtionDtl) {
+
                 if(item.getFreeProductId().equals(freeProductDTO.getProductId())){
-                    group = item.getProductId().toString();
+                    if("zv03".equalsIgnoreCase(program.getType().trim()) || "zv06".equalsIgnoreCase(program.getType().trim())) {
+                        group = item.getProductId().toString();
+                    }
                     qty = item.getFreeQty() * multi; break;
                 }
             }
