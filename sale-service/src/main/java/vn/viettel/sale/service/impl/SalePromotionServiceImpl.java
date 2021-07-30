@@ -1360,10 +1360,22 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 if(forSaving) {
                     double percentInTax = calPercent(allOrderInTax,amountDiscountInTax);
                     double percentExTax = calPercent(allOrderExTax,amountDiscountExTax);
+                    allOrderInTax = 0;
+                    allOrderExTax = 0;
+                    int cnt = 0;
                     for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()) {
                         if (mapOrderNumber.containsKey(productOrder.getProductId())) {
-                            saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), productOrder.getTotalPrice() * percentInTax/100,
-                                    productOrder.getTotalPriceNotVAT() * percentExTax/100, isInclusiveTax));
+                            cnt += 1;
+                            amountOrderInTax = Math.round(productOrder.getTotalPrice() * percentInTax/100);
+                            amountOrderExTax = productOrder.getTotalPriceNotVAT() * percentExTax/100;
+                            if(cnt == mapOrderNumber.size()){
+                                amountOrderInTax = amountDiscountInTax - allOrderInTax;
+                                amountOrderExTax = allOrderExTax - amountDiscountExTax;
+                            }
+                            allOrderInTax += amountOrderInTax;
+                            allOrderExTax += amountOrderExTax;
+                            saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), amountDiscountInTax,
+                                    amountDiscountExTax, isInclusiveTax));
                         }
                     }
                 }
