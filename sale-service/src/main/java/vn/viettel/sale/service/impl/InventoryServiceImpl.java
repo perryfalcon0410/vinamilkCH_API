@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions;
+import io.swagger.models.auth.In;
 import oracle.security.crypto.cert.ValidationException;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,15 +174,15 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     if (countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
                     if (countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
                     countingExcel.setTotalAmount(countingExcel.getPrice() == null ? 0D : countingExcel.getPrice() * countingExcel.getStockQuantity());
-                    countingExcel.setPacketQuantity((double) (countingExcel.getInventoryQuantity() / countingExcel.getConvfact()));
-                    countingExcel.setUnitQuantity((double) (countingExcel.getInventoryQuantity() % countingExcel.getConvfact()));
+                    countingExcel.setPacketQuantity(String.valueOf(countingExcel.getInventoryQuantity() / countingExcel.getConvfact()));
+                    countingExcel.setUnitQuantity(String.valueOf (countingExcel.getInventoryQuantity() % countingExcel.getConvfact()));
                     countingExcel.setChangeQuantity(countingExcel.getStockQuantity() - countingExcel.getInventoryQuantity());
                     totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + countingExcel.getStockQuantity());
                     totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + countingExcel.getInventoryQuantity());
                     totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
                     totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * (countingExcel.getPrice() == null ? 0D : countingExcel.getPrice())));
-                    totalStockCounting.setTotalPacket((int) (totalStockCounting.getTotalPacket() + countingExcel.getPacketQuantity()));
-                    totalStockCounting.setTotalUnit((int) (totalStockCounting.getTotalUnit() + countingExcel.getUnitQuantity()));
+                    totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + Integer.valueOf(countingExcel.getPacketQuantity())));
+                    totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +Integer.valueOf( countingExcel.getUnitQuantity())));
                 }
             }
 
@@ -207,8 +208,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         int importSuccessNumber = 0;
         for (StockCountingExcel e : stockCountingExcels) {
             for (StockCountingDetailDTO countingDetail : stockCountingDetails) {
-                if (e.getUnitQuantity() == null) e.setUnitQuantity(0D);
-                if (e.getPacketQuantity() == null) e.setPacketQuantity(0.0);
+                if (e.getUnitQuantity() == null || e.getUnitQuantity()=="") e.setUnitQuantity("0");
+                if (e.getPacketQuantity() == null || e.getPacketQuantity()=="") e.setPacketQuantity("0");
                 if (e.getProductCode() == null)
                     throw new ValidationException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS.statusCodeValue());
                 if (e.getProductCode().length() > 4000 || e.getPacketQuantity().toString().length() > 7 || e.getUnitQuantity().toString().length() > 7)
@@ -225,9 +226,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                         break;
                     } else {
                         /*if (countingDetail.getProductCode().equals(e.getProductCode().toUpperCase()) ) {*/
-                        int inventoryQuantity = (int) (e.getPacketQuantity() * countingDetail.getConvfact() + e.getUnitQuantity());
-                        countingDetail.setPacketQuantity(e.getPacketQuantity().intValue());
-                        countingDetail.setUnitQuantity(e.getUnitQuantity().intValue());
+                        int inventoryQuantity = (int) (Integer.valueOf(e.getPacketQuantity()) * countingDetail.getConvfact() + Integer.valueOf(e.getUnitQuantity()));
+                        countingDetail.setPacketQuantity(Integer.valueOf(e.getPacketQuantity()));
+                        countingDetail.setUnitQuantity(Integer.valueOf(e.getUnitQuantity()));
                         countingDetail.setInventoryQuantity(inventoryQuantity);
                         countingDetail.setChangeQuantity(inventoryQuantity - countingDetail.getStockQuantity());
                         importSuccessNumber++;
@@ -241,10 +242,25 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     public boolean checkDataType(StockCountingExcel stockCountingExcel) {
-        if (stockCountingExcel.getUnitQuantity().toString().contains("-") || stockCountingExcel.getPacketQuantity().toString().contains("-"))
+        if (stockCountingExcel.getUnitQuantity().contains("-") || stockCountingExcel.getPacketQuantity().contains("-"))
             return false;
-        String a = stockCountingExcel.getUnitQuantity().toString().split("\\.")[1];
-        String b = stockCountingExcel.getPacketQuantity().toString().split("\\.")[1];
+        Double c,d;
+        try{
+             c = Double.valueOf(stockCountingExcel.getUnitQuantity());
+
+        }catch (NumberFormatException e){
+             c = -1D;
+        }
+        try{
+             d = Double.valueOf(stockCountingExcel.getPacketQuantity());
+        }catch (NumberFormatException e){
+             d = -1D;
+        }
+
+        if( c == -1|| d==-1)
+            return false;
+        String a = String.valueOf(c).split("\\.")[1];
+        String b = String.valueOf(d).split("\\.")[1];
         if (!a.equals("0") || !b.equals("0"))
             return false;
         return true;
