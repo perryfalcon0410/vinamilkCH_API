@@ -37,7 +37,7 @@ import java.util.List;
 
 @RestController
 @Api(tags = "API báo cáo khách hàng")
-public class CustomerNotTradeReportController extends BaseController {
+public class    CustomerNotTradeReportController extends BaseController {
     @Autowired
     CustomerNotTradeService service;
     @Autowired
