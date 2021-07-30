@@ -70,27 +70,38 @@ public class ConnectFTP {
             }
             if(containsStr == null) containsStr = "";
 
+            File directory = new File(locationPath);
+            if (! directory.exists()){
+                directory.mkdir();
+            }
+
             if(ftpClient != null && ftpClient.isConnected()){
+                for (File file : directory.listFiles()){
+                    file.delete();
+                }
+
                 boolean status = ftpClient.changeWorkingDirectory(locationPath);
                 ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                 if(status){
-                    FTPFile[] lstFiles = ftpClient.listFiles();
-                    InputStream inputStream = null;
+                    FTPFile[] ftpFiles = ftpClient.listFiles();
+                    if (ftpFiles != null && ftpFiles.length > 0) {
+                        for (FTPFile file : ftpFiles) {
+                            if (file.isFile() && file.getName().endsWith(readFile) && file.getName().contains(containsStr)) {
+                                OutputStream output;
 
-                    for (int i = 0; i < lstFiles.length; i++) {
-                        if (lstFiles[i].isFile() && lstFiles[i].getName().endsWith(readFile) && lstFiles[i].getName().contains(containsStr)) {
-                            inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
-                            if (inputStream != null) {
-                                inputStream.mark(0);
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                byte[] buffer = new byte[1024];
-                                int len;
-                                while ((len = inputStream.read(buffer)) > -1 ) {
-                                    baos.write(buffer, 0, len);
-                                }
-                                baos.flush();
-                                mapinputStreams.put(lstFiles[i].getName(), new ByteArrayInputStream(baos.toByteArray()));
-                                inputStream.reset();
+                                File outfile=new File(locationPath + "/" + file.getName());
+                                outfile.createNewFile();
+                                output = new FileOutputStream(outfile);
+                                //get the file from the remote system
+                                ftpClient.retrieveFile(file.getName(), output);
+                                //close output stream
+                                output.close();
+                            }
+                        }
+
+                        for (File file : directory.listFiles()){
+                            if (file.isFile() && file.getName().endsWith(readFile) && file.getName().contains(containsStr)) {
+                                mapinputStreams.put(file.getName(), new FileInputStream(file));
                             }
                         }
                     }

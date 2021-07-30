@@ -533,7 +533,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     PoTransDetail poTransDetail = poTransDetails.get(i);
                     for (int j = 0; j < request.getListProductRemain().size(); j++) {
                         if (poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())) {
-
+                            if(request.getListProductRemain().get(j).getQuantity() == null)
+                                request.getListProductRemain().get(j).setQuantity(0);
                             int slTra = (request.getListProductRemain().get(j).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
                             int slConLai = (poTransDetailImport.get(i).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
                             if (slTra>slConLai)
