@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.convert.DTZConverter;
+import vn.viettel.core.convert.DTZConverterV3;
 import vn.viettel.core.convert.DoubleConverter;
 import vn.viettel.core.convert.FloatConverter;
 import vn.viettel.sale.entities.OnlineOrderDetail;
@@ -39,7 +40,7 @@ public class Line {
     @XStreamAlias("LOT_NUMBER")
     private String lotNumber;
     @XStreamAlias("EXPIRE_DATE")
-    @XStreamConverter(DTZConverter.class)
+    @XStreamConverter(DTZConverterV3.class)
     private LocalDateTime expireDate;
     @XStreamAlias("Price")
     @XStreamConverter(DoubleConverter.class)

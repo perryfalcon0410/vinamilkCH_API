@@ -30,7 +30,7 @@ public class PoConfirmController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/xml"})
     public Response<Boolean> updatePoCofirm(HttpServletRequest httpRequest){
-        PoConfirmXmlDTO result = poConfirmService.updatePoCofirm();
+        PoConfirmXmlDTO result = poConfirmService.updatePoCofirm(this.getShopId());
         Response<Boolean> response = new Response<>();
         response.setStatusValue(result.getStatus());
         if(result.getResult() == true)
