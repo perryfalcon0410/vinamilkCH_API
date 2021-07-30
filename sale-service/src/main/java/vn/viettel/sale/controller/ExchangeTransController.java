@@ -141,10 +141,13 @@ public class ExchangeTransController extends BaseController {
     })
     @PutMapping(value = { V1 + root + "/remove/{id}"})
     public Response<ResponseMessage> remove(@PathVariable Long id, HttpServletRequest httpRequest) {
-        ResponseMessage message = service.remove(id,this.getShopId());
+    	ExchangeTrans exchangeTrans = service.remove(id,this.getShopId());
+    	if(exchangeTrans != null && exchangeTrans.getId() != null) {
+    		sendSynRequest(JMSType.exchange_trans, Arrays.asList(exchangeTrans.getId()));
+    	}
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        response.setStatusValue(ResponseMessage.DELETE_SUCCESSFUL.statusCodeValue());
+        response.setStatusCode(ResponseMessage.DELETE_SUCCESSFUL.statusCode());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
 
         return response ;

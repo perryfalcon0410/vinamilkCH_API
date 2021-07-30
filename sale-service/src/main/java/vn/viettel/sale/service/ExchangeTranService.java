@@ -6,6 +6,7 @@ import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.sale.entities.ExchangeTrans;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
@@ -21,6 +22,6 @@ public interface ExchangeTranService {
     ExchangeTransDTO create(ExchangeTransRequest request, Long userId,Long shopId);
     ExchangeTransDTO update(Long id,ExchangeTransRequest request,Long shopId);
     ExchangeTransDTO getExchangeTrans(Long id);
-    ResponseMessage remove(Long id,Long shopId);
+    ExchangeTrans remove(Long id,Long shopId);
     List<ExchangeTransDetailRequest> getBrokenProducts(Long id);
 }

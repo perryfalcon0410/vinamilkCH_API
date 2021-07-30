@@ -347,7 +347,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage remove(Long id, Long shopId) {
+    public ExchangeTrans remove(Long id, Long shopId) {
         Optional<ExchangeTrans> exchangeTrans = repository.findById(id);
         if (!exchangeTrans.isPresent()) {
             throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_NOT_FOUND);
@@ -373,7 +373,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             stockTotalService.updateWithLock(shopId, exchangeTrans.get().getWareHouseTypeId(), e.getProductId(), e.getQuantity());
         }
         exchangeTrans.get().setStatus(-1);
-        return ResponseMessage.DELETE_SUCCESSFUL;
+        return exchangeTrans.get();
     }
 
     @Override
