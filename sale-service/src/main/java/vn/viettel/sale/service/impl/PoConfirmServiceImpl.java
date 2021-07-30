@@ -27,12 +27,10 @@ import vn.viettel.sale.xml.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
+@Transactional(rollbackFor = Exception.class) // do hàm syncXmlPo cần để ở classs
 public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRepository> implements PoConfirmService {
     @Autowired
     ShopClient shopClient;
@@ -59,24 +57,53 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void syncXmlPo(InputStream input) throws IOException {
         Class<?>[] classes = new Class[] { Line.class, PODetail.class, POHeader.class, NewData.class, NewDataSet.class};
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
         NewDataSet newDataSet = (NewDataSet) xstream.fromXML(input);
         List<NewData> lstNewData = newDataSet.getLstNewData();
-        lstNewData.stream().forEach(data -> {
+
+        for(NewData  data :lstNewData) {
             POHeader poHeader = data.getPoHeader();
-            if(poHeader != null)
+            if(poHeader != null )
             {
                 //po confirm
-                PoConfirm poConfirm = new PoConfirm();
                 ShopDTO shopDTO = shopClient.getByShopCode(poHeader.getDistCode()).getData();
-                if(shopDTO != null)
-                    poConfirm.setShopId(shopDTO.getId());
-                else
-                    throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+                if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+
+                PoConfirm poConfirmDB = repository.getPoConfirm(shopDTO.getId(), poHeader.getPoNumber());
+                if(poConfirmDB != null && poConfirmDB.getStatus() != 0) continue;
+                if(poConfirmDB != null && poConfirmDB.getStatus() == 0) {
+                    poDetailRepository.deleteByPoId(poConfirmDB.getId());
+                    repository.delete(poConfirmDB);
+                }
+
+                PODetail poDetail = data.getPoDetail();
+                if(poDetail == null || poDetail.getLstLine().isEmpty()) continue;
+
+                List<Line> lines = poDetail.getLstLine();
+                List<String> productCodes = new ArrayList<>();
+
+                for(Line line: lines) {
+                    if (poHeader.getPoNumber().equals(line.getPONumber()) && poHeader.getPoCoNumber().equals(line.getPoCoNumber()) && !productCodes.contains(line.getItemCode())) {
+                        productCodes.add(line.getItemCode());
+                    }
+                }
+
+                List<Product> products = productRepository.findByProductCodes(productCodes);
+                if (products.size() != lines.size()) continue;
+
+                Map<String, Long> mapProduct = new HashMap<>();
+                for(Product product: products) {
+                    if(!mapProduct.containsKey(product.getProductCode()))
+                        mapProduct.put(product.getProductCode(), product.getId());
+                }
+
+                PoConfirm poConfirm = new PoConfirm();
+
+                poConfirm.setShopId(shopDTO.getId());
+
                 poConfirm.setPoNumber(poHeader.getPoNumber());
                 int i = poHeader.getPoCoNumber().lastIndexOf('_');
                 String poCoNum = poHeader.getPoCoNumber().substring(0,i);
@@ -89,33 +116,27 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 Long id = repository.save(poConfirm).getId();
 
                 //po detail
-                PODetail poDetail = data.getPoDetail();
+
                 Double totalAm = 0D;
                 Integer totalQuan = 0;
-                if(poDetail != null)
-                {
-                    List<Line> lines = poDetail.getLstLine();
-                    for(Line line: lines) {
-                        if (poHeader.getPoNumber() == line.getPONumber() && poHeader.getPoCoNumber() == line.getPoCoNumber()) {
-                            PoDetail detail = new PoDetail();
-                            Product product = productRepository.findByProductCode(line.getItemCode());
-                            if (product != null)
-                                detail.setProductId(product.getId());
-                            else
-                                throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
-                            detail.setPoId(id);
-                            detail.setShopId(shopDTO.getId());
-                            detail.setQuantity(line.getQuantity());
-                            detail.setPriceNotVat(line.getPrice());
-                            detail.setVat(line.getVat());
-                            detail.setAmountNotVat(line.getLineTotal());
-                            if(poConfirm.getSaleOrderNumber() == null || poConfirm.getSaleOrderNumber().equals(""))
-                                poConfirm.setSaleOrderNumber(line.getSaleOrderNumber());
-                            detail.setPrice((line.getVat() > 0) ? line.getPrice() + (line.getPrice()*line.getVat()/100) : line.getPrice());
-                            totalAm += line.getLineTotal();
-                            totalQuan += line.getQuantity();
-                            poDetailRepository.save(detail);
-                        }
+                for(Line line: lines) {
+                    if (poHeader.getPoNumber().equals(line.getPONumber()) && poHeader.getPoCoNumber().equals(line.getPoCoNumber())) {
+                        PoDetail detail = new PoDetail();
+                        detail.setPoId(id);
+                        detail.setShopId(shopDTO.getId());
+                        detail.setQuantity(line.getQuantity());
+                        detail.setPriceNotVat(line.getPrice());
+                        detail.setVat(line.getVat());
+                        detail.setAmountNotVat(line.getLineTotal());
+                        detail.setProductId(mapProduct.get(line.getItemCode()));
+                        detail.setOrderDate(poHeader.getOrderDate());
+
+                        if(poConfirm.getSaleOrderNumber() == null || poConfirm.getSaleOrderNumber().equals(""))
+                            poConfirm.setSaleOrderNumber(line.getSaleOrderNumber());
+                        detail.setPrice((line.getVat() > 0) ? line.getPrice() + (line.getPrice()*line.getVat()/100) : line.getPrice());
+                        totalAm += line.getLineTotal();
+                        totalQuan += line.getQuantity();
+                        poDetailRepository.save(detail);
                     }
                 }
 
@@ -127,11 +148,13 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 poConfirm.setPoCode(poCode);
                 repository.save(poConfirm);
             }
-        });
+
+        }
+
     }
 
     @Override
-    public PoConfirmXmlDTO updatePoCofirm() {
+    public PoConfirmXmlDTO updatePoCofirm(Long shopId) {
         int stt = 0;
         List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
         String readPath = "/POCHGTSP/Outbox", backupPath = "/POCHGTSP/Backup", newPo = "_Imp_PO_";
@@ -144,21 +167,24 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
         }
         ConnectFTP connectFTP = getConnectFTP2(apParamDTOList);
 
-        HashMap<String, InputStream> newPos = connectFTP.getFiles(readPath, newPo);
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+
+        HashMap<String, InputStream> newPos = connectFTP.getFiles(readPath, newPo, shopDTO.getShopCode());
 
         if(newPos != null){
             for (Map.Entry<String, InputStream> entry : newPos.entrySet()){
                 try {
                     this.syncXmlPo(entry.getValue());
+                    entry.getValue().close();
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     stt++;
                 }catch (Exception ex) {
+                    System.out.println(ex);
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
-                }finally {
-                    connectFTP.disconnectFTPServer();
                 }
             }
-
+            connectFTP.disconnectFTPServer();
             return new PoConfirmXmlDTO(true, "Đồng bộ thành công "+stt+" file");
         }
 

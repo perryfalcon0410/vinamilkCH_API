@@ -8,8 +8,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.util.StringUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -63,27 +62,62 @@ public class ConnectFTP {
         }
     }
 
-    public HashMap<String, InputStream> getFiles(String locationPath, String containsStr){
+    public HashMap<String, InputStream> getFiles(String locationPath, String containsStr, String shopCode){
         HashMap<String,InputStream> mapinputStreams = new HashMap<>();
-        try {
+       try {
             if(StringUtils.stringIsNullOrEmpty(locationPath)){
                 locationPath = "/" + "kch_pos" + "/" + "neworder";
             }
             if(containsStr == null) containsStr = "";
+            int index = locationPath.lastIndexOf("/");
+            if (index < 1) index = locationPath.lastIndexOf("\\");
+            String localPath = "tmp" + locationPath.substring(index);
 
-            if(ftpClient != null && ftpClient.isConnected()){
+            File directory = new File(localPath);
+            if (! directory.exists()){
+                directory.mkdir();
+            }
+
+            if(ftpClient != null && ftpClient.isConnected() ){
+                if (directory.listFiles() != null && directory.listFiles().length > 0) {
+                    for (File file : directory.listFiles()){
+                        file.delete();
+                    }
+                }
+
                 boolean status = ftpClient.changeWorkingDirectory(locationPath);
+                ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                 if(status){
-                    FTPFile[] lstFiles = ftpClient.listFiles();
-                    for (int i = 0; i < lstFiles.length; i++) {
-                        InputStream inputStream = ftpClient.retrieveFileStream(lstFiles[i].getName());
-                        if (inputStream != null) {
-                            mapinputStreams.put(lstFiles[i].getName(), inputStream);
+                    FTPFile[] ftpFiles = ftpClient.listFiles();
+                    if (ftpFiles != null && ftpFiles.length > 0) {
+                        for (FTPFile file : ftpFiles) {
+                            if (file.isFile() && file.getName().endsWith(readFile) &&
+                            ((shopCode==null || shopCode.isEmpty()) || (shopCode!=null && file.getName().toLowerCase().startsWith(shopCode.trim().toLowerCase())))
+                                && file.getName().toLowerCase().contains(containsStr.toLowerCase())) {
+                                OutputStream output;
+
+                                File outfile=new File(localPath + "/" + file.getName());
+                                outfile.createNewFile();
+                                output = new FileOutputStream(outfile);
+                                //get the file from the remote system
+                                ftpClient.retrieveFile(file.getName(), output);
+                                //close output stream
+                                output.close();
+                            }
+                        }
+
+                        for (File file : directory.listFiles()){
+                            if (file.isFile() && file.getName().endsWith(readFile) &&
+                                    ((shopCode==null || shopCode.isEmpty()) || (shopCode!=null && file.getName().toLowerCase().startsWith(shopCode.trim().toLowerCase())))
+                                    && file.getName().toLowerCase().contains(containsStr.toLowerCase())) {
+                                mapinputStreams.put(file.getName(), new FileInputStream(file));
+                            }
                         }
                     }
                 }
             }
         }catch (Exception ex) {
+            System.out.println(ex);
             LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
         }
 
@@ -122,10 +156,24 @@ public class ConnectFTP {
                 String destinationFile = "ReadAt" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_" + fileName;
                 String fromFile = fromPath + "/" + fileName;
                 if(StringUtils.stringIsNullOrEmpty(toPath)) toPath = "/backup";
+
                 String toFile = toPath + "/" + destinationFile;
                 if (ftpClient != null && ftpClient.isConnected()) {
-                    ftpClient.rename(fromFile ,toFile);
-                    ftpClient.deleteFile(fromFile );
+                   ftpClient.rename(fromFile ,toFile);
+
+/*                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    ftpClient.retrieveFile(fromFile, outputStream);
+                    InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
+
+                    // assuming backup directory is with in current working directory
+                    ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);//binary files
+                    ftpClient.changeWorkingDirectory(toPath);
+                    //this overwrites the existing file
+                    ftpClient.storeUniqueFile(destinationFile, is);
+                    is.close();
+                    outputStream.close();*/
+
+                   ftpClient.deleteFile(fromFile );
                 } else {
                     Path source = Paths.get(fromFile);
                     Path target = Paths.get(toFile);

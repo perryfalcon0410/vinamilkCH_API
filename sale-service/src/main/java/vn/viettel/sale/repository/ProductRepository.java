@@ -21,6 +21,9 @@ import java.util.Optional;
 public interface ProductRepository extends BaseRepository<Product>, JpaSpecificationExecutor<Product> {
     Product findByProductCode(String productCode);
 
+    @Query("SELECT p from Product p where p.productCode In (:productCodes) And p.status = 1")
+    List<Product> findByProductCodes(List<String> productCodes);
+
     Optional<Product> getProductByProductCodeAndStatus(String productCode, Integer status);
 
     /*

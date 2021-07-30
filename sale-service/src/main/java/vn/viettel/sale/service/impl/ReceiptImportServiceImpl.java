@@ -949,18 +949,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                 }
                             }
                             if (stockTotal == null) stockTotalService.showMessage(podId.getProductId(), true);
-//                            if(stockTotal.getQuantity() < 0) {
-//                                String productName = "";
-//                                if(products != null){
-//                                    for(Product product : products){
-//                                        if(product.getId().equals(podId.getProductId())){
-//                                            productName = product.getProductName();
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS, productName, poTrans.getTransCode());
-//                            }
                             deletedPoTransDetails.add(podId);
                         }
                     }
@@ -995,18 +983,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                 }
                             }
                             if (stockTotal == null) stockTotalService.showMessage(rcdr.getProductId(), true);
-//                            if(stockTotal.getQuantity()<0){
-//                                String productName = "";
-//                                if(products != null){
-//                                    for(Product product : products){
-//                                        if(product.getId().equals(rcdr.getProductId())){
-//                                            productName = product.getProductName();
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//                                throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SS,productName,poTrans.getTransCode());
-//                            }
                             po.setQuantity(rcdr.getQuantity());
                             po.setTransDate(poTrans.getTransDate());
                             total += po.getQuantity();

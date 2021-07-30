@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-public class DTZConverter extends AbstractSingleValueConverter {
+public class DTZConverterV2 extends AbstractSingleValueConverter {
 
     @Override
     public boolean canConvert(Class type) {
@@ -20,7 +20,7 @@ public class DTZConverter extends AbstractSingleValueConverter {
     public Object fromString(String dtz) {
         try {
             DateFormat formatter;
-            formatter = new SimpleDateFormat("dd/MM/yyyy");
+            formatter = new SimpleDateFormat("yyyy-MM-dd");
             Date date = formatter.parse(dtz);
             LocalDateTime localDateTime = DateUtils.convertFromDate(date);
             return localDateTime;

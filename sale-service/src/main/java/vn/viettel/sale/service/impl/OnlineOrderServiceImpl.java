@@ -295,12 +295,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
         ConnectFTP connectFTP = connectFTP(apParamDTOList);
         //read new order
-        HashMap<String, InputStream> newOrders = connectFTP.getFiles(readPath, newOrder);
+        HashMap<String, InputStream> newOrders = connectFTP.getFiles(readPath, newOrder, null);
         if(newOrders != null){
             for (Map.Entry<String, InputStream> entry : newOrders.entrySet()){
                 try {
                     this.syncXmlOnlineOrder(entry.getValue());
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
+                    entry.getValue().close();
                 }catch (Exception ex) {
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
@@ -308,12 +309,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
 
         //read cancel order
-        HashMap<String, InputStream> cancelOrders = connectFTP.getFiles(readPath, cancelOrder);
+        HashMap<String, InputStream> cancelOrders = connectFTP.getFiles(readPath, cancelOrder, null);
         if(cancelOrders != null){
             for (Map.Entry<String, InputStream> entry : cancelOrders.entrySet()){
                 try {
                     this.syncXmlToCancelOnlineOrder(entry.getValue());
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
+                    entry.getValue().close();
                 }catch (Exception ex) {
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }

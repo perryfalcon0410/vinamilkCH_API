@@ -11,6 +11,6 @@ import java.io.InputStream;
 public interface PoConfirmService extends BaseService {
     Response<PoConfirm> getPoConfirmById(Long id);
     void syncXmlPo(InputStream input) throws IOException;
-    PoConfirmXmlDTO updatePoCofirm();
+    PoConfirmXmlDTO updatePoCofirm(Long shopId);
 
 }

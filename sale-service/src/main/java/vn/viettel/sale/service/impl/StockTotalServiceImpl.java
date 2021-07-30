@@ -63,7 +63,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         if(shopId == null || wareHouseId == null || productId == null || value == null) return null;
         StockTotal entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         if(entity==null){
-            if(type == 2) {
+            if(type != null && type == 2) {
                 showMessage(productId, true);
             }else {
                 if (entity == null && value > 0) return createStockTotal(shopId, wareHouseId, productId, value, true);

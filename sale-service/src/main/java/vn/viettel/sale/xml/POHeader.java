@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.convert.DTZConverter;
+import vn.viettel.core.convert.DTZConverterV2;
 
 import java.time.LocalDateTime;
 
@@ -29,10 +30,10 @@ public class POHeader {
     @XStreamAlias("ShipToLocation")
     private String shipToLocation;
     @XStreamAlias("OrderDate")
-    @XStreamConverter(DTZConverter.class)
+    @XStreamConverter(DTZConverterV2.class)
     private LocalDateTime orderDate;
     @XStreamAlias("RequestDate")
-    @XStreamConverter(DTZConverter.class)
+    @XStreamConverter(DTZConverterV2.class)
     private LocalDateTime requestDate;
     @XStreamAlias("Status")
     private String status;
