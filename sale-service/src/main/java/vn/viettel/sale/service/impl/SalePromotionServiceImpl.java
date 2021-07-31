@@ -328,9 +328,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion = new SalePromotionDTO();
                 salePromotion.setProgramId(program.getId());
                 salePromotion.setProgramType(program.getType());
-                LimitDto value = getPromotionLimit(salePromotion, shopId);
-                salePromotion.setNumberLimited(value.getLimited());
-                salePromotion.setIsUse(value.isUsed());
+
                 if(freeProducts != null) {
                     List<Long> productFreeIds = freeProducts.stream().map(i -> i.getProductId()).collect(Collectors.toList());
                     List<FreeProductDTO> products = productRepository.findFreeProductDTONoOrders(shopId, warehouseId, productFreeIds);
@@ -344,6 +342,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setProducts(products);
                     salePromotion.setTotalQty(totalQty);
                 }
+                LimitDto value = getPromotionLimit(salePromotion, shopId);
+                salePromotion.setNumberLimited(value.getLimited());
+                salePromotion.setIsUse(value.isUsed());
                 salePromotion.setIsEditable(true);
             }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent
                 List<PromotionProgramDiscountDTO> programDiscount = promotionClient.findPromotionDiscountByPromotion(program.getId()).getData();
@@ -882,23 +883,16 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     private LimitDto getPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
         if(salePromotion != null && salePromotion.getProgramId() != null && shopId != null) {
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(salePromotion.getProgramId(), shopId).getData();
-            if(salePromotion.getProgramType().equalsIgnoreCase("ZM")){
-                if (promotionShopMap.getQuantityMax() == null) return new LimitDto(true, null);
-                else{
-                    double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
-                    if (promotionShopMap.getQuantityMax() >= quantityReceive )
-                        return new LimitDto(true, promotionShopMap.getQuantityMax() - quantityReceive);
-                    else return new LimitDto(false, promotionShopMap.getQuantityMax() - quantityReceive);
-                }
-            } else {
-                Double receiving = salePromotion.getTotalQty()!=null?Double.valueOf(salePromotion.getTotalQty()):salePromotion.getAmount().getAmount();
-                if (promotionShopMap.getQuantityMax() == null) return new LimitDto(true, null);
-                else{
-                    double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
-                    if (promotionShopMap.getQuantityMax() >= (quantityReceive + receiving))
-                        return new LimitDto(true, promotionShopMap.getQuantityMax() - quantityReceive);
-                    else return new LimitDto(false, promotionShopMap.getQuantityMax() - quantityReceive);
-                }
+            double receiving = 0;
+            if(salePromotion.getTotalQty() != null) receiving = salePromotion.getTotalQty();
+            else if(salePromotion.getAmount() != null && salePromotion.getAmount().getAmount() != null) receiving = salePromotion.getAmount().getAmount();
+
+            if (promotionShopMap.getQuantityMax() == null) return new LimitDto(true, null);
+            else{
+                double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+                if (promotionShopMap.getQuantityMax() >= (quantityReceive + receiving))
+                    return new LimitDto(true, promotionShopMap.getQuantityMax() - quantityReceive);
+                else return new LimitDto(false, promotionShopMap.getQuantityMax() - quantityReceive);
             }
         }
 
