@@ -2145,7 +2145,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<SalePromotionDTO> zvAmounts =  results.stream().filter(p -> p.getAmount()!=null && !p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
         Collections.sort(zvAmounts, Comparator.comparing(SalePromotionDTO::getPromotionType));
 
-        List<SalePromotionDTO> zmFreeItems = results.stream().filter(p -> p.getProducts()==null && p.getAmount()==null && p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
+        //p.getProducts() && p.getAmount() == null tặng thoải mái, p.getProducts()!=null tặng sp trong danh sách đó
+        List<SalePromotionDTO> zmFreeItems = results.stream().filter(p -> p.getAmount()==null && p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
         Collections.sort(zmFreeItems, Comparator.comparing(SalePromotionDTO::getPromotionType));
 
         List<SalePromotionDTO> zmAmounts =  results.stream().filter(p -> p.getAmount()!=null && p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
