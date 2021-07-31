@@ -296,7 +296,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                     }).filter(Objects::nonNull).distinct().collect(Collectors.toList());
                                     if(lstMax.size() == 1){ // cùng max value
                                         if(dbPro.getEditable() == null || dbPro.getEditable() == 0){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
-                                            if(totalQty != lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                                            if(totalQty < 1 || totalQty != lstMax.get(0)) throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                                         }else{ // được tặng số lượng nhỏ hơn số cơ cấu
                                             //TODO
                                         }
@@ -304,7 +304,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                         if(dbPro.getEditable() == null || dbPro.getEditable() == 0 ){ // không được sửa tổng số lượng tặng < số lượng cơ cấu
                                             for(FreeProductDTO product: inputPro.getProducts()){
                                                 if(product.getQuantity() != null && product.getQuantity() > 0 && group.equalsIgnoreCase(product.getGroupOneFreeItem())){
-                                                    if(totalQty < product.getQuantityMax() || totalQty > product.getQuantityMax())
+                                                    if(totalQty < 1 || totalQty < product.getQuantityMax() || totalQty > product.getQuantityMax())
                                                         throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                                                 }
                                             }
