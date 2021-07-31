@@ -325,12 +325,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     // kiểm tra tồn kho có đủ
                     if (inputPro.getProducts() != null && !inputPro.getProducts().isEmpty()){
                         List<Long> productIds = inputPro.getProducts().stream().map(item -> item.getProductId()).collect(Collectors.toList());
-//                        List<ComboProductDetailDTO> combosDis = comboProductRepository.findComboProduct(customer.getCustomerTypeId(), productIds);
-//                        if(combosDis != null) {
-//                            for (ComboProductDetailDTO combo : combosDis) {
-//                                if(!productIds.contains(combo.getProductId())) productIds.add(combo.getProductId());
-//                            }
-//                        }
                         List<Price> productPrices1 = priceRepository.findProductPriceWithType(productIds, customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
 
                         for (FreeProductDTO ipP : inputPro.getProducts()){
@@ -433,6 +427,16 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                         if(buyP.getAutoPromotionVat() != null) disAmt = buyP.getAutoPromotionVat();
                                         if(buyP.getZmPromotionVat() != null) disAmt += buyP.getZmPromotionVat();
                                         buyP.setTotal(roundValue(buyP.getAmount() - disAmt));
+
+                                        if (buyP.getPromotionCode() == null) {
+                                            buyP.setPromotionType(dbPro.getProgramType());
+                                            buyP.setPromotionCode(dbPro.getPromotionProgramCode());
+                                            buyP.setPromotionName(dbPro.getPromotionProgramName());
+                                        } else if(!buyP.getPromotionCode().contains(dbPro.getPromotionProgramCode())) {
+                                            buyP.setPromotionType(buyP.getPromotionType() + ", " + dbPro.getProgramType());
+                                            buyP.setPromotionCode(buyP.getPromotionCode() + ", " + dbPro.getPromotionProgramCode());
+                                            buyP.setPromotionName(buyP.getPromotionName() + ", " + dbPro.getPromotionProgramName());
+                                        }
                                     }
                                 }
                             }
@@ -447,22 +451,22 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
                     }
 
-                    //update buying product
-                    if(inputPro.getLstProductId() != null) {
-                        for (SaleOrderDetail buyP : saleOrderDetails) {
-                            if (inputPro.getLstProductId().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
-                                if (buyP.getPromotionCode() == null) {
-                                    buyP.setPromotionType(inputPro.getProgramType());
-                                    buyP.setPromotionCode(inputPro.getPromotionProgramCode());
-                                    buyP.setPromotionName(inputPro.getPromotionProgramName());
-                                } else {
-                                    buyP.setPromotionType(buyP.getPromotionType() + ", " + inputPro.getProgramType());
-                                    buyP.setPromotionCode(buyP.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
-                                    buyP.setPromotionName(buyP.getPromotionName() + ", " + inputPro.getPromotionProgramName());
-                                }
-                            }
-                        }
-                    }
+//                    //update buying product
+//                    if(inputPro.getLstProductId() != null) {
+//                        for (SaleOrderDetail buyP : saleOrderDetails) {
+//                            if (inputPro.getLstProductId().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
+//                                if (buyP.getPromotionCode() == null) {
+//                                    buyP.setPromotionType(inputPro.getProgramType());
+//                                    buyP.setPromotionCode(inputPro.getPromotionProgramCode());
+//                                    buyP.setPromotionName(inputPro.getPromotionProgramName());
+//                                } else {
+//                                    buyP.setPromotionType(buyP.getPromotionType() + ", " + inputPro.getProgramType());
+//                                    buyP.setPromotionCode(buyP.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
+//                                    buyP.setPromotionName(buyP.getPromotionName() + ", " + inputPro.getPromotionProgramName());
+//                                }
+//                            }
+//                        }
+//                    }
                 }
                 else{
                     throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, inputPro.getPromotionProgramName());
