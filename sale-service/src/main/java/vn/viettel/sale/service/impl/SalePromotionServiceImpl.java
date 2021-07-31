@@ -920,7 +920,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // key sản phẩm mua: 1 sp mua có nhiều mức, 1 mức theo 1 sản phẩm sẽ có nhiều item km
         HashMap<Long, HashMap<Integer, List<PromotionProgramDetailDTO>>> mapOrderNumber = new HashMap<>();
         int checkMulti = checkMultipleRecursive(program.getMultiple(), program.getRecursive());
-        int count = 0;
         // gộp sản phẩm nếu có trùng
         for (PromotionProgramDetailDTO dto : details){
             // chỉ lấy những sản phẩm được mua có km
@@ -1033,7 +1032,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                         totalAmountInTax += amtInTax;
                         totalAmountExTax += amtExTax;
-                        count += 1;
                     }
                 }
                 else if ( "zv02".equalsIgnoreCase(type) //Mua 1 sản phẩm, với số lượng xác định, giảm số tiền
@@ -1098,7 +1096,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
             discountDTO.setAmount(salePromotion.getTotalAmtInTax());
 
-            if (("zv01".equalsIgnoreCase(type) || "zv04".equalsIgnoreCase(type)) && count < 2 ){
+            if (("zv01".equalsIgnoreCase(type) || "zv04".equalsIgnoreCase(type)) ){
                 if(!isInclusiveTax) discountDTO.setAmount(salePromotion.getTotalAmtExTax());
             }
             if(forSaving){
