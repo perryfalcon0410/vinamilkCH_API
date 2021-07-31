@@ -406,7 +406,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 spDto.setPercentage(percent);
                 spDto.setMaxAmount(amount);
                 List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percent,
-                        true, salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
+                        isInclusiveTax, salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                 spDto.setDiscountInfo(saveInfo);
             }
             salePromotion.setAmount(spDto);
@@ -647,7 +647,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         pp, isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                 discountDTO.setDiscountInfo(saveInfo);
             }
-            salePromotion.setLstProductId(new ArrayList<>(lstProductHasPromotion.keySet()));
+//            salePromotion.setLstProductId(new ArrayList<>(lstProductHasPromotion.keySet()));
             salePromotion.setPromotionType(0);
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
@@ -1102,7 +1102,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 discountDTO.setDiscountInfo(saveInfo);
             }
             salePromotion.setAmount(discountDTO);
-            salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
+//            salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
 
             return salePromotion;
         }else if (!lstProductPromotion.isEmpty()){
@@ -1395,7 +1395,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             salePromotion.setAmount(discountDTO);
-            salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
+//            salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
             if(forSaving) {
                 discountDTO.setPercentage(percent);
                 discountDTO.setMaxAmount(discountDTO.getAmount());
@@ -1424,7 +1424,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalDisQty += item.getQuantity();
         }
         salePromotion.setTotalQty(totalDisQty);
-        salePromotion.setLstProductId(lstProductIds);
+//        salePromotion.setLstProductId(lstProductIds);
         return salePromotion;
     }
 
@@ -1601,7 +1601,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                     discountDTO.setDiscountInfo(saveInfo);
                 }
-                salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
+//                salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
                 return salePromotion;
             }
         }
@@ -1651,7 +1651,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setAmount(discountDTO);
-                salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
+//                salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
                 return salePromotion;
             }
         }
@@ -1843,7 +1843,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     discountDTO.setAmount(salePromotion.getTotalAmtInTax());
                 }
                 salePromotion.setAmount(discountDTO);
-                salePromotion.setLstProductId(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
+//                salePromotion.setLstProductId(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 if (forSaving) {
                     discountDTO.setPercentage(percent);
                     discountDTO.setMaxAmount(discountDTO.getAmount());
@@ -1898,7 +1898,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setAmount(discountDTO);
-                salePromotion.setLstProductId(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
+//                salePromotion.setLstProductId(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 return salePromotion;
             }
         }
