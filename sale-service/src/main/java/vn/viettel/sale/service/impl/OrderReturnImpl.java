@@ -480,7 +480,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     */
     public CoverResponse<List<SaleOrderDTO>, TotalOrderChoose> getSaleOrderForReturn(SaleOrderChosenFilter filter, Long shopId) {
         String stringDayReturn = shopClient.dayReturn(shopId).getData();
-        if (stringDayReturn == null || stringDayReturn.isEmpty() || stringDayReturn.equals("-1") || stringDayReturn.equals("0"))
+        if (stringDayReturn == null || stringDayReturn.isEmpty() || stringDayReturn.equals("-1"))
             throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
         int dayReturn = Integer.parseInt(stringDayReturn);
         LocalDateTime newFromDate = DateUtils.convertFromDate(LocalDateTime.now().minusDays(dayReturn));
