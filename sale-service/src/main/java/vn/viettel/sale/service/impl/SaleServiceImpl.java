@@ -450,23 +450,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             promotionShopMaps.add(promotionShopMap);
                         }
                     }
-
-//                    //update buying product
-//                    if(inputPro.getLstProductId() != null) {
-//                        for (SaleOrderDetail buyP : saleOrderDetails) {
-//                            if (inputPro.getLstProductId().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
-//                                if (buyP.getPromotionCode() == null) {
-//                                    buyP.setPromotionType(inputPro.getProgramType());
-//                                    buyP.setPromotionCode(inputPro.getPromotionProgramCode());
-//                                    buyP.setPromotionName(inputPro.getPromotionProgramName());
-//                                } else {
-//                                    buyP.setPromotionType(buyP.getPromotionType() + ", " + inputPro.getProgramType());
-//                                    buyP.setPromotionCode(buyP.getPromotionCode() + ", " + inputPro.getPromotionProgramCode());
-//                                    buyP.setPromotionName(buyP.getPromotionName() + ", " + inputPro.getPromotionProgramName());
-//                                }
-//                            }
-//                        }
-//                    }
                 }
                 else{
                     throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, inputPro.getPromotionProgramName());

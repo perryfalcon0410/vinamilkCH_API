@@ -400,6 +400,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double percent = calPercent(totalAmountInTax, amount);
             salePromotion.setTotalAmtInTax(amount);
             salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
+            if(!isInclusiveTax && forDiscountCode == false){
+                spDto.setAmount(salePromotion.getTotalAmtExTax());
+            }
             salePromotion.setIsEditable(false);
 
             if(forSaving) {
@@ -481,6 +484,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
             salePromotion.setIsEditable(true);
             spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
+            if(!isInclusiveTax){
+                spDto.setAmount(salePromotion.getTotalAmtExTax());
+            }
 
             if(forSaving) {
                 spDto.setPercentage(percent);
@@ -647,7 +653,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         pp, isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                 discountDTO.setDiscountInfo(saveInfo);
             }
-//            salePromotion.setLstProductId(new ArrayList<>(lstProductHasPromotion.keySet()));
             salePromotion.setPromotionType(0);
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
@@ -1102,7 +1107,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 discountDTO.setDiscountInfo(saveInfo);
             }
             salePromotion.setAmount(discountDTO);
-//            salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
 
             return salePromotion;
         }else if (!lstProductPromotion.isEmpty()){
@@ -1395,7 +1399,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             salePromotion.setAmount(discountDTO);
-//            salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
             if(forSaving) {
                 discountDTO.setPercentage(percent);
                 discountDTO.setMaxAmount(discountDTO.getAmount());
@@ -1424,7 +1427,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalDisQty += item.getQuantity();
         }
         salePromotion.setTotalQty(totalDisQty);
-//        salePromotion.setLstProductId(lstProductIds);
         return salePromotion;
     }
 
@@ -1601,7 +1603,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                     discountDTO.setDiscountInfo(saveInfo);
                 }
-//                salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
                 return salePromotion;
             }
         }
@@ -1651,7 +1652,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setAmount(discountDTO);
-//                salePromotion.setLstProductId(new ArrayList<>(mapOrderNumber.keySet()));
                 return salePromotion;
             }
         }
@@ -1843,7 +1843,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     discountDTO.setAmount(salePromotion.getTotalAmtInTax());
                 }
                 salePromotion.setAmount(discountDTO);
-//                salePromotion.setLstProductId(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 if (forSaving) {
                     discountDTO.setPercentage(percent);
                     discountDTO.setMaxAmount(discountDTO.getAmount());
@@ -1898,7 +1897,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setAmount(discountDTO);
-//                salePromotion.setLstProductId(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 return salePromotion;
             }
         }
