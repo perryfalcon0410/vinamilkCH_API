@@ -156,7 +156,7 @@ public class ReportVoucherExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getVoucherCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getVoucherName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getSerial(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getChangeUser(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getChangeDate()), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getStatus(), styleTableValue);

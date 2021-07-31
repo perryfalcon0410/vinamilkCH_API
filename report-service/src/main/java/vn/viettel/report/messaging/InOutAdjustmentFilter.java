@@ -12,4 +12,5 @@ public class InOutAdjustmentFilter {
         private Date fromDate;
         private Date toDate;
         private String productCodes;
+        private  Long shopId;
 }

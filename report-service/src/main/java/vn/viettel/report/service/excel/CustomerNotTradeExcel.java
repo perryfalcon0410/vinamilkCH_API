@@ -71,9 +71,9 @@ public class CustomerNotTradeExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, stt, format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerCode(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getPhone(), format);
+            /*ExcelPoiUtils.addCell(sheet, col++, row, data.getPhone(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, DateUtils.formatDate2StringDate(data.getBirthDay()), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getGender(), format);
+            ExcelPoiUtils.addCell(sheet, col++, row, data.getGender(), format);*/
             ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), format);
             row++;
         }

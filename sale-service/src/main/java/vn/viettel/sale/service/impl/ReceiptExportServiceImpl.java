@@ -554,6 +554,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                                             value += idAndValues.get(stockTotal.getId());
                                         }
                                         idAndValues.put(stockTotal.getId(), value);
+
                                         if ((stockTotal.getQuantity() + value) < 0)
                                             throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS,
                                                     request.getListProductRemain().get(j).getProductCode() + "-" + request.getListProductRemain().get(j).getProductName());
