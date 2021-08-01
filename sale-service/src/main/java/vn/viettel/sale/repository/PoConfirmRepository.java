@@ -10,7 +10,7 @@ public interface PoConfirmRepository extends BaseRepository<PoConfirm> {
     @Query(value = "SELECT pc FROM PoConfirm pc WHERE pc.shopId =:shopId AND pc.status = 0 ")
     List<PoConfirm> getPoConfirm(Long shopId);
 
-    @Query(value = "SELECT pc FROM PoConfirm pc WHERE pc.shopId =:shopId AND pc.poNumber = :poNumber ")
-    PoConfirm getPoConfirm(Long shopId, String poNumber);
+    @Query(value = "SELECT pc FROM PoConfirm pc WHERE pc.shopId =:shopId AND pc.poCoNumber = :poCoNumber ")
+    PoConfirm getPoConfirm(Long shopId, String poCoNumber);
 
 }
