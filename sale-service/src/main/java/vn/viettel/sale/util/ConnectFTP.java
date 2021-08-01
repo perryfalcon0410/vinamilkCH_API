@@ -3,6 +3,7 @@ package vn.viettel.sale.util;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.springframework.beans.factory.annotation.Value;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
@@ -22,6 +23,9 @@ public class ConnectFTP {
 
     private FTPClient ftpClient;
     private String readFile = ".xml";
+
+    @Value( "${directory.tmp}" )
+    private String directoryTmp;
 
     public ConnectFTP(String server, String portStr, String userName, String password) {
         AtomicReference<String> strServer = new AtomicReference<>("");
@@ -71,20 +75,26 @@ public class ConnectFTP {
             if(containsStr == null) containsStr = "";
             int index = locationPath.lastIndexOf("/");
             if (index < 1) index = locationPath.lastIndexOf("\\");
-            String localPath = "tmp" + locationPath.substring(index);
+          //  String localPath = "tmp" + locationPath.substring(index);
+         //  System.out.println("localPath - " + localPath );
 
+            String localPath = directoryTmp +  locationPath.substring(index);
             File directory = new File(localPath);
+
+
             if (! directory.exists()){
                 directory.mkdir();
             }
+           System.out.println(" File directory = new File(localPath) - " + localPath );
 
             if(ftpClient != null && ftpClient.isConnected() ){
                 if (directory.listFiles() != null && directory.listFiles().length > 0) {
+                    System.out.println(" directory.listFiles() != null && directory.listFiles().length >  ");
                     for (File file : directory.listFiles()){
-                        file.delete();
+                        if(file.isFile()) file.delete();
                     }
-                }
 
+                }
                 boolean status = ftpClient.changeWorkingDirectory(locationPath);
                 ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
                 if(status){
@@ -95,7 +105,7 @@ public class ConnectFTP {
                             ((shopCode==null || shopCode.isEmpty()) || (shopCode!=null && file.getName().toLowerCase().startsWith(shopCode.trim().toLowerCase())))
                                 && file.getName().toLowerCase().contains(containsStr.toLowerCase())) {
                                 OutputStream output;
-
+                                System.out.println(" File outfile");
                                 File outfile=new File(localPath + "/" + file.getName());
                                 outfile.createNewFile();
                                 output = new FileOutputStream(outfile);
@@ -103,6 +113,7 @@ public class ConnectFTP {
                                 ftpClient.retrieveFile(file.getName(), output);
                                 //close output stream
                                 output.close();
+                                System.out.println(" File outfile end");
                             }
                         }
 
@@ -117,7 +128,7 @@ public class ConnectFTP {
                 }
             }
         }catch (Exception ex) {
-            System.out.println(ex);
+           ex.printStackTrace();
             LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
         }
 
@@ -144,6 +155,7 @@ public class ConnectFTP {
                 return true;
             }
         }catch (Exception ex) {
+            ex.printStackTrace();
             LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP upload error: " + ex.getMessage());
         }
 
@@ -182,6 +194,7 @@ public class ConnectFTP {
                 return true;
             }
         }catch (Exception ex) {
+            ex.printStackTrace();
             LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
         }
         return false;
