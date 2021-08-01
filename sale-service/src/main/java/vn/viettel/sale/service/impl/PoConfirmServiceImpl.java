@@ -16,9 +16,8 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.PoConfirm;
 import vn.viettel.sale.entities.PoDetail;
 import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.repository.PoConfirmRepository;
-import vn.viettel.sale.repository.PoDetailRepository;
-import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.entities.WareHouseType;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.PoConfirmService;
 import vn.viettel.sale.service.dto.PoConfirmXmlDTO;
 import vn.viettel.sale.service.feign.ApparamClient;
@@ -45,6 +44,9 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
     @Autowired
     ApparamClient apparamClient;
 
+    @Autowired
+    WareHouseTypeRepository wareHouseTypeRepo;
+
     XStreamTranslator xstream = XStreamTranslator.getInstance();
 
     @Override
@@ -58,7 +60,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
     }
 
     @Override
-    public void syncXmlPo(InputStream input) throws IOException {
+    public void syncXmlPo(InputStream input, WareHouseType wareHouseType) throws IOException {
         Class<?>[] classes = new Class[] { Line.class, PODetail.class, POHeader.class, NewData.class, NewDataSet.class};
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
@@ -114,6 +116,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 poConfirm.setStatus(0);
                 poConfirm.setInternalNumber(internalNum);
                 poConfirm.setPoCoNumber(poCoNum);
+                poConfirm.setWareHouseTypeId(wareHouseType.getId());
                 Long id = repository.save(poConfirm).getId();
 
                 //po detail
@@ -174,9 +177,12 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
         HashMap<String, InputStream> newPos = connectFTP.getFiles(readPath, newPo, shopDTO.getShopCode());
 
         if(newPos != null){
+            List<WareHouseType> wareHouseTypes = wareHouseTypeRepo.findDefault();
+            if(wareHouseTypes.isEmpty()) return new PoConfirmXmlDTO(true, "Không tìm thấy loại kho");
+            WareHouseType wareHouseType = wareHouseTypes.get(0);
             for (Map.Entry<String, InputStream> entry : newPos.entrySet()){
                 try {
-                    this.syncXmlPo(entry.getValue());
+                    this.syncXmlPo(entry.getValue(), wareHouseType);
                     entry.getValue().close();
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     stt++;
