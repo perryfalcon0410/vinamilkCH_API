@@ -145,8 +145,8 @@ public class ShopExportExcel {
         ExcelPoiUtils.createCell(rowHeader, 14, "THÀNH TIỀN", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 15, "GIÁ SAU THUẾ", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 16, "THÀNH TIỀN", styleTableHeader);
-        ExcelPoiUtils.createCell(rowHeader, 17, "DVT PACKET", styleTableHeader);
-        ExcelPoiUtils.createCell(rowHeader, 18, "DVT LẺ", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 17, "ĐVT PACKET", styleTableHeader);
+        ExcelPoiUtils.createCell(rowHeader, 18, "ĐVT LẺ", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 19, "CỬA HÀNG", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 20, "CHUỖI CỬA HÀNG", styleTableHeader);
         ExcelPoiUtils.createCell(rowHeader, 21, "NHÓM SẢN PHẨM", styleTableHeader);

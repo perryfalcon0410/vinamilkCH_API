@@ -86,7 +86,7 @@ public class ReportVoucherExcel {
             Row row1 = sheet.createRow(1);
             Row row2 = sheet.createRow(2);
             Row row5 = sheet.createRow(5);
-            Row row7 = sheet.createRow(7);
+            Row row8 = sheet.createRow(8);
 
             row.setRowStyle(style);
             row1.setRowStyle(style1);
@@ -112,7 +112,7 @@ public class ReportVoucherExcel {
             ExcelPoiUtils.createCell(row5, 0, "BÁO CÁO DANH SÁCH VOUCHER", style2);
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A8:W8"));
-            ExcelPoiUtils.createCell(row7, 0, "TỪ NGÀY: " +
+            ExcelPoiUtils.createCell(row8, 0, "TỪ NGÀY: " +
                     DateUtils.formatDate2StringDate(fromDate) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(toDate), style1);
         }
     }
