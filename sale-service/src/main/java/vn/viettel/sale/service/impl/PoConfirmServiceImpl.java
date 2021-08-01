@@ -75,7 +75,11 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 ShopDTO shopDTO = shopClient.getByShopCode(poHeader.getDistCode()).getData();
                 if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
-                PoConfirm poConfirmDB = repository.getPoConfirm(shopDTO.getId(), poHeader.getPoNumber());
+                int i = poHeader.getPoCoNumber().lastIndexOf('_');
+                String poCoNum = poHeader.getPoCoNumber().substring(0,i);
+                String internalNum = poHeader.getPoCoNumber().substring(i+1);
+
+                PoConfirm poConfirmDB = repository.getPoConfirm(shopDTO.getId(), poCoNum);
                 if(poConfirmDB != null && poConfirmDB.getStatus() != 0) continue;
                 if(poConfirmDB != null && poConfirmDB.getStatus() == 0) {
                     poDetailRepository.deleteByPoId(poConfirmDB.getId());
@@ -104,14 +108,8 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 }
 
                 PoConfirm poConfirm = new PoConfirm();
-
                 poConfirm.setShopId(shopDTO.getId());
-
                 poConfirm.setPoNumber(poHeader.getPoNumber());
-                int i = poHeader.getPoCoNumber().lastIndexOf('_');
-                String poCoNum = poHeader.getPoCoNumber().substring(0,i);
-                String internalNum = poHeader.getPoCoNumber().substring(i+1);
-
                 poConfirm.setOrderDate(poHeader.getOrderDate());
                 poConfirm.setStatus(0);
                 poConfirm.setInternalNumber(internalNum);
