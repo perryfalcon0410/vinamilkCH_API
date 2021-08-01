@@ -757,7 +757,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         int day = now.getDayOfMonth();
         int month = now.getMonthValue();
         LocalDateTime start =  DateUtils.convertFromDate(now);
-        LocalDateTime end =  DateUtils.convertToDate(now);
         List<SaleOrder> saleOrders = repository.getLastSaleOrderNumber(shop.getId(), start);
 
         int STT = 1;

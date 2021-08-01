@@ -11,17 +11,17 @@ public interface PromotionProgramProductRepository extends BaseRepository<Promot
     @Query(value = "SELECT pp FROM PromotionProgramProduct pp WHERE pp.promotionProgramId IN :promotionIds And pp.status = 1")
     List<PromotionProgramProduct> findByPromotionIds(List<Long> promotionIds);
 
-    @Query(value = "SELECT * FROM PROMOTION_PROGRAM_PRODUCT pr" +
-            " JOIN PROMOTION_PROGRAM p ON p.ID = pr.PROMOTION_PROGRAM_ID" +
-            " AND pr.TYPE = 1 AND pr.STATUS = 1" +
-            " AND p.TYPE = 0 AND p.STATUS = 1 " +
-            " AND p.ID = id", nativeQuery = true)
-    List<PromotionProgramProduct> findApplicableProductsNotVAT(Long id);
+    @Query(value = "SELECT pr FROM PromotionProgramProduct pr" +
+            " JOIN PromotionProgram p ON p.id = pr.promotionProgramId" +
+            " AND pr.type = 1 AND pr.status = 1" +
+            " AND p.type = '0' AND p.status = 1 " +
+            " AND p.id = :programId")
+    List<PromotionProgramProduct> findApplicableProductsNotVAT(Long programId);
 
-    @Query(value = "SELECT * FROM PROMOTION_PROGRAM_PRODUCT pr" +
-            " JOIN PROMOTION_PROGRAM p ON p.ID = pr.PROMOTION_PROGRAM_ID" +
-            " AND pr.TYPE = 1 AND pr.STATUS = 1" +
-            " AND p.TYPE = 1 AND p.STATUS = 1 " +
-            " AND p.ID = id", nativeQuery = true)
-    List<PromotionProgramProduct> findApplicableProducts(Long id);
+    @Query(value = "SELECT pr FROM PromotionProgramProduct pr" +
+            " JOIN PromotionProgram p ON p.id = pr.promotionProgramId" +
+            " AND pr.type = 1 AND pr.status = 1" +
+            " AND p.type = '1' AND p.status = 1 " +
+            " AND p.id = :programId")
+    List<PromotionProgramProduct> findApplicableProducts(Long programId);
 }

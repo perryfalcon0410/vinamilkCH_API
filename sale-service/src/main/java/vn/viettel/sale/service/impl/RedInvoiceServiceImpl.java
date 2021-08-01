@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,13 +13,11 @@ import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.util.StreamUtils;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.excel.HDDTExcel;
 import vn.viettel.sale.excel.HVKHExcel;
@@ -36,7 +33,6 @@ import vn.viettel.sale.specification.RedInvoiceSpecification;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

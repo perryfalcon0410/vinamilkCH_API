@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OnlineOrderDetailRepository extends BaseRepository<OnlineOrderDetail> {
+
     List<OnlineOrderDetail> findByOnlineOrderId(Long id);
-
-
 
     @Modifying
     @Query(value = "Insert into ONLINE_ORDER_DETAIL (SHOP_ID, ONLINE_ORDER_ID, SKU, PRODUCT_NAME, QUANTITY, ORIGINAL_PRICE, RETAILS_PRICE, " +

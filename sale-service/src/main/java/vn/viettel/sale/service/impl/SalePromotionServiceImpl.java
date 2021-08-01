@@ -13,6 +13,7 @@ import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.ValidationUtils;
 import vn.viettel.sale.entities.Price;
@@ -2034,7 +2035,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         List<ProductOrderRequest> productOrders = new ArrayList<>(productsMap.values());
-        List<Price> prices = productPriceRepo.findProductPriceWithType(new ArrayList<>(productsMap.keySet()), customer.getCustomerTypeId(), LocalDateTime.now());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(new ArrayList<>(productsMap.keySet()), customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
         for (ProductOrderRequest product: productOrders) {
             Price price = null;
             for(Price p : prices){

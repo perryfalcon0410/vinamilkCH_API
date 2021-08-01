@@ -3,10 +3,8 @@ package vn.viettel.sale.repository;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.repository.BaseRepository;
-import vn.viettel.sale.service.dto.ProductDetailDTO;
 import vn.viettel.sale.service.dto.RedInvoiceDataDTO;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetail> {

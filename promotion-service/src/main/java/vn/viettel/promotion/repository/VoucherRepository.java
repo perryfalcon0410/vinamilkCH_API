@@ -16,6 +16,6 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
             " And v.serial =:serial And v.isUsed = false And v.status = 1")
     Optional<Voucher> getBySerial(String serial, LocalDateTime firstDay, LocalDateTime lastDay);
 
-    @Query(value = "SELECT * FROM VOUCHERS WHERE IS_USED = 1 AND SALE_ORDER_ID = :ID", nativeQuery = true)
-    List<Voucher> getVoucherBySaleOrderId(long ID);
+    @Query(value = "SELECT v FROM Voucher v WHERE v.isUsed = true AND v.saleOrderId = :saleOrderId")
+    List<Voucher> getVoucherBySaleOrderId(long saleOrderId);
 }

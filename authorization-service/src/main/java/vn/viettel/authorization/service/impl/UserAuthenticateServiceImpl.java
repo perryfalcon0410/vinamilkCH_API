@@ -20,7 +20,6 @@ import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 
-import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -463,13 +462,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     public List<DataPermissionDTO> getDataPermission(Long roleId) {
         List<DataPermissionDTO> result = new ArrayList<>();
-        List<BigDecimal> permissionIds = permissionRepository.findByRoleId(roleId);
+        List<Long> permissionIds = permissionRepository.findByRoleId(roleId);
         if (permissionIds.size() == 0)
             return new ArrayList<>();
-        List<BigDecimal> shopIds = orgAccessRepository.findShopIdByPermissionId(permissionIds);
+        List<Long> shopIds = orgAccessRepository.findShopIdByPermissionId(permissionIds);
 
         for (int i = 0; i < permissionIds.size(); i++) {
-            DataPermissionDTO dataPermissionDTO = new DataPermissionDTO(permissionIds.get(i).longValue(), shopIds.get(i).longValue());
+            DataPermissionDTO dataPermissionDTO = new DataPermissionDTO(permissionIds.get(i).longValue(), shopIds.get(i));
             result.add(dataPermissionDTO);
         }
         return result;

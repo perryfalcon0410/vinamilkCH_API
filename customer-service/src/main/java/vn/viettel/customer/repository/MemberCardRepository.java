@@ -9,13 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemberCardRepository extends BaseRepository<MemberCard> {
+
     Optional<MemberCard> getMemberCardByMemberCardCode(String memberCardCode);
+
     Optional<MemberCard> getMemberCardById(Long id);
+
     Optional<List<MemberCard>> getAllByCustomerTypeId(Long id);
 
-    @Query(value = "SELECT * FROM MEMBER_CARD m " +
-            " JOIN MEMBER_CUSTOMER mc ON m.id = mc.MEMBER_CARD_ID " +
-            " WHERE mc.CUSTOMER_ID =:customerId AND m.STATUS = 1 ", nativeQuery = true)
+    @Query(value = "SELECT m FROM MemberCard m " +
+            " JOIN MemberCustomer mc ON m.id = mc.memberCardId " +
+            " WHERE mc.customerId =:customerId AND m.status = 1 ")
     Optional<MemberCard> getByCustomerId(Long customerId);
 
     @Query(value = "SELECT m FROM MemberCard m " +

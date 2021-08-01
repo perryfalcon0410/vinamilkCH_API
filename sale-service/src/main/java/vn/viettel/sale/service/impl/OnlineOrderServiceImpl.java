@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineOrderRepository> implements OnlineOrderService {
@@ -97,8 +98,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public OnlineOrderDTO getOnlineOrder(Long id, Long shopId, Long userId) {
-        OnlineOrder onlineOrder = repository.findById(id)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
+        OnlineOrder onlineOrder = repository.findById(id).orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()!=null &&  onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
@@ -115,27 +115,29 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
+        if(orderDetails.isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
 
         Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
         if (warehouseTypeId == null)
             throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
-        List<OrderProductOnlineDTO> products = new ArrayList<>();
-        Long customerType = null;
-        //TH 1 khách hàng thì load giá SP luôn
-        if(customerDTOS.size() == 1) {
-            CustomerDTO customer = customerDTOS.get(0);
-            customerType = customer.getCustomerTypeId();
-        }else{
+        List<OrderProductOnlineDTO> orderLines = new ArrayList<>();
+        Long customerType = customerDTOS.get(0).getCustomerTypeId();
+        List<Product> products = productRepo.findByProductCodes(orderDetails.stream().map(item -> item.getSku()).distinct().
+                filter(Objects::nonNull).collect(Collectors.toList()));
+        List<Long> productIds = products.stream().map(item -> item.getId()).collect(Collectors.toList());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(productIds, customerType, DateUtils.convertToDate(LocalDateTime.now()));
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, productIds);
 
-        }
         for (OnlineOrderDetail detail: orderDetails) {
-            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, customerType, shopId, warehouseTypeId);
-            products.add(productOrder);
+            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, products, prices, stockTotals);
+            orderLines.add(productOrder);
+            onlineOrderDTO.addQuantity(productOrder.getQuantity());
+            onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());
         }
 
-        onlineOrderDTO.setProducts(products);
+        onlineOrderDTO.setProducts(orderLines);
         onlineOrderDTO.setCustomers(customerDTOS);
 
         //Set order type
@@ -149,9 +151,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     public String checkOnlineNumber(String code) {
         ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
         LocalDateTime date = LocalDateTime.now();
-//        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
-//        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
-//                .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
         LocalDateTime daysAgo = null;
         if(apParam!=null && apParam.getValue() !=null) {
             daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
@@ -361,7 +360,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
     }
 
-
     private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
         String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
@@ -374,7 +372,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
         return new ConnectFTP(server, portStr, userName, password);
     }
-
 
     private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {
         CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefaultV1().getData();
@@ -403,29 +400,37 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         customerRequest.setStreet(street);
     }
 
-    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
-        Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_EXISTS, detail.getSku()));
+    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, List<Product> products, List<Price> prices, List<StockTotal> stockTotals) {
+        Product product = null;
+        for(Product p : products){
+            if(p.getProductCode().equalsIgnoreCase(detail.getSku())){
+                product = p; break;
+            }
+        }
+        if(product == null) throw new ValidateException(ResponseMessage.PRODUCT_NOT_EXISTS, detail.getSku());
 
         double price = 0;
-        if(customerTypeId != null) {
-            List<Price> productPrices = productPriceRepo.findProductPriceWithType(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
-            if(productPrices == null || productPrices.isEmpty()) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
-            price = productPrices.get(0).getPrice();
+        for(Price p : prices){
+            if(p.getProductId().equals(product.getId())){
+                price = p.getPrice(); break;
+            }
         }
+        if(price < 1) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED, detail.getSku());
 
-        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, Arrays.asList(product.getId()));
-        if(stockTotals == null || stockTotals.isEmpty()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+        StockTotal stockTotal = null;
+        for(StockTotal p : stockTotals){
+            if(p.getProductId().equals(product.getId())){
+                stockTotal = p; break;
+            }
+        }
+        if(stockTotal == null) throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, detail.getSku());
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
         productOrder.setProductId(product.getId());
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(price);
-        productOrder.setStockTotal(stockTotals.get(0).getQuantity());
-
-        onlineOrderDTO.addQuantity(productOrder.getQuantity());
-        onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());
+        productOrder.setStockTotal(stockTotal.getQuantity());
 
         return productOrder;
     }

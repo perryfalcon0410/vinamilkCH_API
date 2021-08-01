@@ -403,7 +403,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Integer totalQuantity = 0;
         Double totalAmount = 0D;
         List<Price> prices = productPriceRepository.findProductPriceWithType(sads.stream().map(item -> item.getProductId()).distinct()
-                .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), ldt);
+                .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), DateUtils.convertToDate(ldt));
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockAdjustment.getWareHouseTypeId(),
                 sads.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
         for (StockAdjustmentDetail sad : sads) {

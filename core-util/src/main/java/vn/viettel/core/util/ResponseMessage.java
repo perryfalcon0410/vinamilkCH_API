@@ -110,7 +110,7 @@ public enum ResponseMessage {
     TYPE_NOT_BE_NULL(6171, "TYPE_NOT_BE_NULL"),
     SALE_ORDER_TYPE_NOT_BE_NULL(6172, "SALE_ORDER_TYPE_NOT_BE_NULL"),
     REQUEST_BODY_NOT_BE_NULL(6173, "Yêu cầu truyền vào không được rỗng"),
-    NO_PRICE_APPLIED(6174, "Không tìm thấy giá được áp dụng cho sản phẩm"),
+    NO_PRICE_APPLIED(6174, "Không tìm thấy giá được áp dụng cho sản phẩm %s"),
     SHOP_IS_NOT_ACTIVE(6175, "Nhân viên thuộc cửa hàng đang tạm ngưng hoạt động. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     NEW_PASSWORD_MUST_BE_NOT_NULL(6176, "Vui lòng nhập mật khẩu mới"),
     CONFIRM_PASSWORD_MUST_BE_NOT_NULL(6176, "Vui lòng nhập mật khẩu xác nhận"),

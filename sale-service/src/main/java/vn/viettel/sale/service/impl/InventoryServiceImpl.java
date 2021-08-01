@@ -105,12 +105,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         if (searchKeywords != null) searchKeywords = searchKeywords.trim().toUpperCase();
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if (countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
-        Long customerTypeId = null;
-        /*CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(customerType != null) customerTypeId = customerType.getId();*/
 
-        List<Price> prices = priceRepository.findProductPriceWithType1(countingDetails.stream().map(item -> item.getProductId())
-                .collect(Collectors.toList()), wareHouseTypeId, LocalDateTime.now());
+        List<Long> customerTypeIds = Arrays.asList(-1L);
+        List<CustomerTypeDTO> customerTypes = customerTypeClient.getCusTypeByWarehouse(wareHouseTypeId);
+        if(!customerTypes.isEmpty()) customerTypeIds = customerTypes.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+
+        List<Price> prices = priceRepository.findProductPriceWithTypes(countingDetails.stream().map(item -> item.getProductId())
+                .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()));
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -312,8 +313,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Long wareHouseTypeId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId,shopId);
-        Long countId = repository.countId(shopId);
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId,shopId,
+                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         StockCounting stockCounting = new StockCounting();
 
         if (countingNumberInDay.size() > 0) {
@@ -325,7 +326,15 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             }
         }
 
-        stockCounting.setStockCountingCode(createStockCountingCode(countId));
+        List<StockCounting> lst = repository.getLastStockCounting(shopId, DateUtils.convertFromDate(LocalDateTime.now()));
+        int STT = 1;
+        if(!lst.isEmpty()) {
+            String str = lst.get(0).getStockCountingCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
+
+        stockCounting.setStockCountingCode(createStockCountingCode(STT));
         stockCounting.setCountingDate(LocalDateTime.now());
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseTypeId);
@@ -349,7 +358,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Override
     public Boolean checkInventoryInDay(Long wareHouseTypeId, Long shopId) {
-        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId, shopId);
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId, shopId,
+                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         if (countingNumberInDay.size() > 0)
             return false;
         return true;
@@ -374,10 +384,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return null;
     }
 
-    public String createStockCountingCode(Long countingInDay) {
+    public String createStockCountingCode(int countingInDay) {
         LocalDate myLocal = LocalDate.now();
         StringBuilder code = new StringBuilder("KK");
-        String codeNum = "00000";
         code.append(myLocal.get(IsoFields.QUARTER_OF_YEAR));
         code.append(".");
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");

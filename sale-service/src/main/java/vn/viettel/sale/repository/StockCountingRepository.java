@@ -5,17 +5,18 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StockCountingRepository extends BaseRepository<StockCounting>, JpaSpecificationExecutor<StockCounting> {
-    @Query(value = "SELECT * FROM STOCK_COUNTING WHERE WAREHOUSE_TYPE_ID = :id AND SHOP_ID = :shopId AND " +
-            "TO_CHAR(COUNTING_DATE,'DDMMYY') = TO_CHAR(SYSDATE,'DDMMYY')", nativeQuery = true)
-    List<StockCounting> findByWareHouseTypeId(Long id, Long shopId);
-    @Query(value = "SELECT * FROM STOCK_COUNTING WHERE SHOP_ID = :shopId AND " +
-            "TO_CHAR(COUNTING_DATE,'DDMMYY') = TO_CHAR(SYSDATE,'DDMMYY')", nativeQuery = true)
-    List<StockCounting> findByWareHouseTypeIdToDay(Long shopId);
 
-    @Query(value = "SELECT count(ID) FROM STOCK_COUNTING WHERE SHOP_ID = :shopId AND " +
-            "TO_CHAR(COUNTING_DATE,'DDMMYY') = TO_CHAR(SYSDATE,'DDMMYY')", nativeQuery = true)
-    Long countId(Long shopId);
+    @Query(value = "SELECT s FROM StockCounting s WHERE s.wareHouseTypeId = :warehouseTypeId AND s.shopId = :shopId AND " +
+            " s.countingDate >= :startDate AND s.countingDate <= :endDate ")
+    List<StockCounting> findByWareHouseTypeId(Long warehouseTypeId, Long shopId, LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query(value = "SELECT s FROM StockCounting s WHERE s.shopId =:shopId " +
+            " And s.createdAt>= :startDate " +
+            " AND s.id = (SELECT MAX (so.id) FROM StockCounting so WHERE so.shopId =:shopId And so.createdAt >= :startDate  ) " +
+            " ORDER BY s.id desc, s.createdAt desc ")
+    List<StockCounting> getLastStockCounting(Long shopId, LocalDateTime startDate);
 }

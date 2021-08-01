@@ -11,6 +11,7 @@ import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerTypeService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,4 +78,10 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
         return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
     }
 
+    @Override
+    public List<CustomerTypeDTO> findByWarehouse(Long warehouseId) {
+        List<CustomerType> customerTypes = repository.getByWarehouse(warehouseId);
+        if(customerTypes == null || customerTypes.isEmpty()) return new ArrayList<>();
+        return customerTypes.stream().map(item -> modelMapper.map(item, CustomerTypeDTO.class)).collect(Collectors.toList());
+    }
 }

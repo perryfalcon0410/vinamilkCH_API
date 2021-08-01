@@ -6,13 +6,13 @@ import vn.viettel.authorization.entities.Role;
 import vn.viettel.authorization.entities.Shop;
 import vn.viettel.core.repository.BaseRepository;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface PermissionRepository extends BaseRepository<Permission> {
-    @Query(value = "SELECT UNIQUE p.ID FROM PERMISSIONS p JOIN ROLE_PERMISSION_MAP r " +
-            "ON p.ID = r.PERMISSION_ID WHERE r.ROLE_ID = :roleId AND p.PERMISSION_TYPE = 2", nativeQuery = true)
-    List<BigDecimal> findByRoleId(Long roleId);
+
+    @Query(value = "SELECT distinct p.id FROM Permission p JOIN RolePermission r " +
+            "ON p.id = r.permissionId WHERE r.roleId = :roleId AND p.permissionType = 2")
+    List<Long> findByRoleId(Long roleId);
 
     //Các roles - shop đang hoạt động có quyền dữ liệu
     @Query("Select distinct r from Permission p " +

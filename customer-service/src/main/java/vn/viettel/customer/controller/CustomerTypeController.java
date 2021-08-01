@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -17,6 +18,7 @@ import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.service.CustomerTypeService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,5 +108,19 @@ public class CustomerTypeController extends BaseController {
         if(customerTypes == null || customerTypes.isEmpty()) return null;
 
         return customerTypes.get(0);
+    }
+
+    @ApiOperation(value = "Tìm kiếm Customer type theo kho")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/getbywarehouse"})
+    public List<CustomerTypeDTO> getCusTypeByWarehouse( @RequestParam Long warehouseId) {
+        if(warehouseId == null) return new ArrayList<>();
+        List<CustomerTypeDTO> customerTypes = customerTypeService.findByWarehouse(warehouseId);
+        if(customerTypes == null || customerTypes.isEmpty()) return new ArrayList<>();
+
+        return customerTypes;
     }
 }

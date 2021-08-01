@@ -9,17 +9,17 @@ import java.util.Optional;
 
 public interface UserRepository extends BaseRepository<User> {
 
-    @Query(value = "SELECT * FROM USERS WHERE UPPER(USER_ACCOUNT) = UPPER(:username) AND STATUS = 1 ", nativeQuery = true)
+    @Query(value = "SELECT u FROM User u WHERE UPPER(u.userAccount) = UPPER(:username) AND u.status = 1 ")
     Optional<User> findByUsername(String username);
 
-    @Query(value = "SELECT * " +
-            "FROM users " +
-            " JOIN role_user ON role_user.user_id = users.id " +
-            " JOIN roles ON role_user.role_id = roles.id" +
-            " JOIN role_permission_map ON role_permission_map.role_id = roles.id" +
-            " JOIN permissions ON role_permission_map.permission_id = permissions.id" +
-            " JOIN org_access ON permissions.id = org_access.permission_id " +
-            "where org_access.shop_id = :shopId and users.status = 1", nativeQuery = true)
+    @Query(value = "SELECT u " +
+            "FROM User u " +
+            " JOIN RoleUser ru ON ru.userId = u.id " +
+            " JOIN Role r ON ru.roleId = r.id" +
+            " JOIN RolePermission rp ON rp.roleId = r.id" +
+            " JOIN Permission p ON rp.permissionId = p.id" +
+            " JOIN OrgAccess o ON p.id = o.permissionId " +
+            "where o.shopId = :shopId and u.status = 1")
     List<User> findAllByShopId(Long shopId);
 
     @Query(value = "SELECT u FROM User u " +
