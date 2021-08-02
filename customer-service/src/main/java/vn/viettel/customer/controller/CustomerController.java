@@ -17,6 +17,7 @@ import vn.viettel.core.exception.BadRequestException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
+import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.StringUtils;
@@ -104,8 +105,8 @@ public class CustomerController extends BaseController {
 
     @RoleFeign
     @PostMapping(value = { V1 + root + "/feign"})
-    public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId) {
-        return new Response<CustomerDTO>().withData(service.create(request, userId, shopId));
+    public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerOnlRequest request, @RequestParam Long shopId) {
+        return new Response<CustomerDTO>().withData(service.createForOnlOrder(request, shopId));
     }
 
     //    @RoleFeign

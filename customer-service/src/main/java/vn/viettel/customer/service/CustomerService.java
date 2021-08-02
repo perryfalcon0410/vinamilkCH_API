@@ -3,6 +3,7 @@ package vn.viettel.customer.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
@@ -15,6 +16,8 @@ import java.util.Map;
 public interface CustomerService extends BaseService {
 
     CustomerDTO create(CustomerRequest customerRequest, Long userId, Long shopId);
+
+    CustomerDTO createForOnlOrder(CustomerOnlRequest customerRequest, Long shopId);
 
     CustomerDTO getCustomerById(Long id,Long shopId);
 

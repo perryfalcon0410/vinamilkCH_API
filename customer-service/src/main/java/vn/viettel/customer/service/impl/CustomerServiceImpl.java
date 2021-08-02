@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.customer.*;
+import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.AgeCalculator;
@@ -227,6 +228,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult, null);
         return customerDTO;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CustomerDTO createForOnlOrder(CustomerOnlRequest request, Long shopId) {
+        ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
+        if (shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+        CustomerTypeDTO customerType = customerTypeService.getCustomerTypeDefaut();
+
+        Customer customer = new Customer();
+        customer.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
+        customer.setShopId(shopId);
+        customer.setFirstName(request.getFirstName());
+        customer.setLastName(request.getLastName());
+        customer.setNameText(VNCharacterUtils.removeAccent(request.getLastName()+" "+request.getFirstName()).toUpperCase(Locale.ROOT));
+        customer.setMobiPhone(request.getMobiPhone());
+        customer.setDob(request.getDob());
+        customer.setCustomerTypeId(customerType.getId());
+        customer.setAddress(request.getAddress());
+        customer.setStatus(request.getStatus());
+        repository.save(customer);
+
+       return this.mapCustomerToCustomerResponse(customer, null);
     }
 
     public String createCustomerCode(Long shopId, String shopCode) {
