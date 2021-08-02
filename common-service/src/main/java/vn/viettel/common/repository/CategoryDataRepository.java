@@ -7,12 +7,13 @@ import vn.viettel.core.repository.BaseRepository;
 import java.util.List;
 
 public interface CategoryDataRepository extends BaseRepository<CategoryData> {
-    @Query(value = "SELECT * FROM CATEGORY_DATA WHERE CATEGORY_GROUP_CODE = 'MASTER_CHANGE'", nativeQuery = true)
+
+    @Query(value = "SELECT cat FROM CategoryData cat WHERE cat.categoryGroupCode = 'MASTER_CHANGE'")
     List<CategoryData> findByCategoryGroupCode();
 
-    @Query(value = "SELECT * FROM CATEGORY_DATA WHERE CATEGORY_GROUP_CODE = 'MASTER_CHANGE' AND ID = :id", nativeQuery = true)
+    @Query(value = "SELECT cat FROM CategoryData cat WHERE cat.categoryGroupCode = 'MASTER_CHANGE' AND cat.id = :id")
     CategoryData getReasonById(Long id);
 
-    @Query(value = "SELECT * FROM CATEGORY_DATA WHERE CATEGORY_GROUP_CODE = 'MASTER_CHANGE' AND STATUS = 1", nativeQuery = true)
+    @Query(value = "SELECT cat FROM CategoryData cat WHERE cat.categoryGroupCode = 'MASTER_CHANGE' AND cat.status = 1")
     List<CategoryData> listReasonExchangeTrans();
 }

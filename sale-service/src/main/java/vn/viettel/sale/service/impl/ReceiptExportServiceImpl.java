@@ -5,6 +5,8 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -401,7 +403,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Integer totalQuantity = 0;
         Double totalAmount = 0D;
         List<Price> prices = productPriceRepository.findProductPriceWithType(sads.stream().map(item -> item.getProductId()).distinct()
-                .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), ldt);
+                .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), DateUtils.convertToDate(ldt));
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockAdjustment.getWareHouseTypeId(),
                 sads.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
         for (StockAdjustmentDetail sad : sads) {
@@ -710,14 +712,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     private String createPoTransExportCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        List<PoTrans> pos = repository.getLastPoTrans(2, LocalDateTime.now().with(firstDayOfYear()));
-
-        int STT = 1;
-        if(!pos.isEmpty()) {
-            String str = pos.get(0).getTransCode();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
-        }
 
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSP.");
@@ -725,6 +719,15 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
+        Page<PoTrans> pos = repository.getLastTransCode(2, reciCode.toString(),
+                LocalDateTime.now().with(firstDayOfYear()), PageRequest.of(0,1));
+
+        int STT = 0;
+        if(!pos.getContent().isEmpty()) {
+            String str = pos.getContent().get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
         reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
@@ -733,20 +736,20 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public String createStockBorrowTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        List<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastBorrowTrans(2, LocalDateTime.now().with(firstDayOfYear()));
-        int STT = 1;
-        if(!borrTrans.isEmpty()) {
-            String str = borrTrans.get(0).getTransCode();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
-        }
-
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXSB.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
+        Page<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastTransCode(2,
+                reciCode.toString(), LocalDateTime.now().with(firstDayOfYear()), PageRequest.of(0, 1));
+        int STT = 1;
+        if(!borrTrans.getContent().isEmpty()) {
+            String str = borrTrans.getContent().get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
         reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
@@ -757,13 +760,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         String yy = df.format(Calendar.getInstance().getTime());
         String mm = String.valueOf(currentDate.getMonthValue());
         String dd = String.valueOf(currentDate.getDayOfMonth());
-        List<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastBorrowTrans(2, LocalDateTime.now().with(firstDayOfYear()));
-        int STT = 1;
-        if(!borrTrans.isEmpty()) {
-            String str = borrTrans.get(0).getRedInvoiceNo();
-            String numberString = str.substring(str.length() - 3);
-            STT = Integer.valueOf(numberString);
-        }
 
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXP_");
@@ -773,6 +769,14 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(mm.length() < 2 ? "0" + mm : mm);
         reciCode.append(dd.length() < 2 ? "0" + dd : dd);
         reciCode.append("_");
+        Page<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastRedInvoiceNo(2,
+                reciCode.toString(), LocalDateTime.now().with(firstDayOfYear()), PageRequest.of(0,1));
+        int STT = 0;
+        if(!borrTrans.getContent().isEmpty()) {
+            String str = borrTrans.getContent().get(0).getRedInvoiceNo();
+            String numberString = str.substring(str.length() - 3);
+            STT = Integer.valueOf(numberString);
+        }
         reciCode.append(CreateCodeUtils.formatReceINumberVer2(STT));
         return reciCode.toString();
     }
@@ -780,19 +784,22 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     private String createInternalExportCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        List<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastAdjustTrans(2, LocalDateTime.now().with(firstDayOfYear()));
-        int STT = 1;
-        if(!stockAdjustmentTrans.isEmpty()) {
-            String str = stockAdjustmentTrans.get(0).getInternalNumber();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
-        }
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EXST.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
+        Pageable pageable = PageRequest.of(0,2);
+        Page<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastInternalCode(2,
+                reciCode.toString(), LocalDateTime.now().with(firstDayOfYear()), pageable);
+        int STT = 0;
+        if(!stockAdjustmentTrans.getContent().isEmpty()) {
+            String str = stockAdjustmentTrans.getContent().get(0).getInternalNumber();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
+
         reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }

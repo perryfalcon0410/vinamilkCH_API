@@ -8,6 +8,7 @@ import vn.viettel.authorization.entities.*;
 import vn.viettel.authorization.repository.*;
 import vn.viettel.authorization.security.ClaimsTokenBuilder;
 import vn.viettel.authorization.security.JwtTokenCreate;
+import vn.viettel.authorization.service.ShopService;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.*;
 import vn.viettel.authorization.service.feign.AreaClient;
@@ -24,7 +25,6 @@ import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.utils.JMSType;
 
-import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -83,6 +83,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     
     @Autowired
     JMSSender jmsSender;
+
+    @Autowired
+    ShopService shopService;
 
     @Override
     public Response<Object> preLogin(LoginRequest loginInfo) {
@@ -467,23 +470,18 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return formDTOS;
     }
 
-
     public List<DataPermissionDTO> getDataPermission(Long roleId) {
         List<DataPermissionDTO> result = new ArrayList<>();
-        List<BigDecimal> permissionIds = permissionRepository.findByRoleId(roleId);
+        List<Long> permissionIds = permissionRepository.findByRoleId(roleId);
         if (permissionIds.size() == 0)
             return new ArrayList<>();
-        List<BigDecimal> shopIds = orgAccessRepository.findShopIdByPermissionId(permissionIds);
+        List<Long> shopIds = orgAccessRepository.findShopIdByPermissionId(permissionIds);
 
         for (int i = 0; i < permissionIds.size(); i++) {
-            DataPermissionDTO dataPermissionDTO = new DataPermissionDTO(permissionIds.get(i).longValue(), shopIds.get(i).longValue());
+            DataPermissionDTO dataPermissionDTO = new DataPermissionDTO(permissionIds.get(i).longValue(), shopIds.get(i));
             result.add(dataPermissionDTO);
         }
         return result;
-    }
-
-    public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {
-        return list.stream().anyMatch(perm -> perm.getFormCode().equalsIgnoreCase(form.getFormCode()));
     }
 
     public String getShopArea(Long areaId) {
@@ -592,15 +590,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public void setOnlineOrderPermission(ShopDTO usedShop, Shop shop) {
-        if (shopParamRepository.isEditable(shop.getId()) != null)
-            usedShop.setEditable(true);
-        else
-            usedShop.setEditable(false);
-
-        if (shopParamRepository.isManuallyCreatable(shop.getId()) != null)
-            usedShop.setManuallyCreatable(true);
-        else
-            usedShop.setManuallyCreatable(false);
+        usedShop.setEditable(shopService.isEditableOnlineOrder(shop.getId()));
+        usedShop.setManuallyCreatable(shopService.isManuallyCreatableOnlineOrder(shop.getId()));
     }
 
 

@@ -19,6 +19,7 @@ import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
@@ -40,6 +41,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineOrderRepository> implements OnlineOrderService {
@@ -97,17 +99,23 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public OnlineOrderDTO getOnlineOrder(Long id, Long shopId, Long userId) {
-        OnlineOrder onlineOrder = repository.findById(id)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
+        OnlineOrder onlineOrder = repository.findById(id).orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
         if(onlineOrder.getSynStatus()!=null &&  onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
         List<CustomerDTO> customerDTOS = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
         if(customerDTOS.isEmpty()) {
-            CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder);
+            CustomerOnlRequest cusRequest = new CustomerOnlRequest();
+            cusRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
+            cusRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
+            cusRequest.setMobiPhone(onlineOrder.getCustomerPhone());
+            cusRequest.setDob(onlineOrder.getCustomerDOB());
+            cusRequest.setAddress(onlineOrder.getCustomerAddress());
+            cusRequest.setStatus(1);
+
             try{
-                CustomerDTO customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
+                CustomerDTO customerDTO = customerClient.createForFeignV1(cusRequest, shopId).getData();
                 customerDTOS.add(customerDTO);
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
@@ -115,27 +123,29 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
+        if(orderDetails.isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
 
         Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
         if (warehouseTypeId == null)
             throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
-        List<OrderProductOnlineDTO> products = new ArrayList<>();
-        Long customerType = null;
-        //TH 1 khách hàng thì load giá SP luôn
-        if(customerDTOS.size() == 1) {
-            CustomerDTO customer = customerDTOS.get(0);
-            customerType = customer.getCustomerTypeId();
-        }else{
+        List<OrderProductOnlineDTO> orderLines = new ArrayList<>();
+        Long customerType = customerDTOS.get(0).getCustomerTypeId();
+        List<Product> products = productRepo.findByProductCodes(orderDetails.stream().map(item -> item.getSku()).distinct().
+                filter(Objects::nonNull).collect(Collectors.toList()));
+        List<Long> productIds = products.stream().map(item -> item.getId()).collect(Collectors.toList());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(productIds, customerType, DateUtils.convertToDate(LocalDateTime.now()));
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, productIds);
 
-        }
         for (OnlineOrderDetail detail: orderDetails) {
-            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, onlineOrderDTO, customerType, shopId, warehouseTypeId);
-            products.add(productOrder);
+            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, products, prices, stockTotals);
+            orderLines.add(productOrder);
+            onlineOrderDTO.addQuantity(productOrder.getQuantity());
+            onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());
         }
 
-        onlineOrderDTO.setProducts(products);
+        onlineOrderDTO.setProducts(orderLines);
         onlineOrderDTO.setCustomers(customerDTOS);
 
         //Set order type
@@ -149,11 +159,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     public String checkOnlineNumber(String code) {
         ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
         LocalDateTime date = LocalDateTime.now();
-//        LocalDateTime daysAgo = date.minusDays(Integer.valueOf(apParam.getValue()));
-//        List<OnlineOrder> onlineOrders = repository.findAll(Specification.where(OnlineOrderSpecification.equalOrderNumber(code))
-//                .and(OnlineOrderSpecification.hasFromDateToDate(daysAgo, date)));
         LocalDateTime daysAgo = null;
-        if(apParam!=null && apParam.getValue() !=null) {
+        if(apParam!=null && apParam.getStatus() == 1 && apParam.getValue() !=null) {
             daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
         }
         List<SaleOrder> saleOrders = saleOrderRepository.checkOnlineNumber(code, daysAgo);
@@ -177,26 +184,46 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 Header header = data.getHeader();
                 List<Line> lines = data.getLstLine();
 
-                //check order number
-                OnlineOrder check = repository.findByOrderNumber(header.getOrderNumber());
-                if(check != null) {
-                    message = ResponseMessage.ONLINE_NUMBER_IS_EXISTS.statusCodeValue();
-                    continue;
-                }
-
                 //online order
-                OnlineOrder onlineOrder = new OnlineOrder();
                 ShopDTO shopDTO = shopClient.getByShopCode(header.getStoreID()).getData();
                 if(shopDTO == null) {
                     message = ResponseMessage.SHOP_NOT_FOUND.statusCodeValue();
                     continue;
                 }
 
+                //check order number
+                OnlineOrder onlineOrder = repository.findByOrderNumber(header.getOrderNumber());
+                if(onlineOrder != null && onlineOrder.getSynStatus() != 0) continue;
+                if(onlineOrder != null && onlineOrder.getSynStatus() == 0) {
+                    onlineOrderDetailRepo.deleteByOnlineOrderId(onlineOrder.getId());
+                    repository.delete(onlineOrder);
+                }
+
+                //check product
+                List<String> productCodes = new ArrayList<>();
+                for(Line line: lines) {
+                    if (!productCodes.contains(line.getSku())) {
+                        productCodes.add(line.getSku());
+                    }
+                }
+                List<Product> products = productRepo.findByProductCodes(productCodes);
+                if (products.size() != lines.size()) continue;
+
+                String orderNumber = header.getOrderNumber();
+                if(orderNumber!=null && orderNumber.startsWith("#")) orderNumber = orderNumber.substring(1);
+
                 String adrress = header.getCustomerAddress();
                 if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
-                repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
-                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
+
+                if (header.getCustomerBirthday()!=null) {
+                    repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
+                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                            header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
+                }else {
+                    repository.schedulerInsertNoDOB(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
+                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                            header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
+                }
 
                 OnlineOrder onlineOrderDB = repository.findFirstByOrderByIdDesc();
 
@@ -303,6 +330,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     entry.getValue().close();
                 }catch (Exception ex) {
+                    ex.printStackTrace();
+                    System.out.println(ex);
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }
@@ -317,6 +346,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     entry.getValue().close();
                 }catch (Exception ex) {
+                    System.out.println(ex);
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }
@@ -361,7 +391,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
     }
 
-
     private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
         String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
@@ -375,57 +404,37 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return new ConnectFTP(server, portStr, userName, password);
     }
 
-
-    private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefaultV1().getData();
-
-        CustomerRequest customerRequest = new CustomerRequest();
-        customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
-        customerRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
-        customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
-        customerRequest.setDob(onlineOrder.getCustomerDOB());
-        customerRequest.setCustomerTypeId(customerTypeDTO.getId());
-        customerRequest.setStatus(1);
-        this.setArea(onlineOrder.getCustomerAddress(), customerRequest);
-        return customerRequest;
-    }
-
-    private void setArea(String address, CustomerRequest customerRequest ) {
-        String[] words = address.split(",");
-        int index = words.length -1;
-        String provinceName = words[index--].trim();
-        String districtName = words[index--].trim();
-        String precinctName = words[index--].trim();
-        String street = words[index].trim();
-
-        AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
-        customerRequest.setAreaId(areaDTO.getId());
-        customerRequest.setStreet(street);
-    }
-
-    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, OnlineOrderDTO onlineOrderDTO, Long customerTypeId, Long shopId, Long warehouseTypeId) {
-        Product product = productRepo.getProductByProductCodeAndStatus(detail.getSku(), 1)
-                .orElseThrow(() -> new ValidateException(ResponseMessage.PRODUCT_NOT_EXISTS, detail.getSku()));
+    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, List<Product> products, List<Price> prices, List<StockTotal> stockTotals) {
+        Product product = null;
+        for(Product p : products){
+            if(p.getProductCode().equalsIgnoreCase(detail.getSku())){
+                product = p; break;
+            }
+        }
+        if(product == null) throw new ValidateException(ResponseMessage.PRODUCT_NOT_EXISTS, detail.getSku());
 
         double price = 0;
-        if(customerTypeId != null) {
-            List<Price> productPrices = productPriceRepo.findProductPriceWithType(Arrays.asList(product.getId()), customerTypeId, LocalDateTime.now());
-            if(productPrices == null || productPrices.isEmpty()) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
-            price = productPrices.get(0).getPrice();
+        for(Price p : prices){
+            if(p.getProductId().equals(product.getId())){
+                price = p.getPrice(); break;
+            }
         }
+        if(price < 1) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED, detail.getSku());
 
-        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, Arrays.asList(product.getId()));
-        if(stockTotals == null || stockTotals.isEmpty()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_NOT_FOUND);
+        StockTotal stockTotal = null;
+        for(StockTotal p : stockTotals){
+            if(p.getProductId().equals(product.getId())){
+                stockTotal = p; break;
+            }
+        }
+        if(stockTotal == null) throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, detail.getSku());
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
         productOrder.setProductId(product.getId());
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(price);
-        productOrder.setStockTotal(stockTotals.get(0).getQuantity());
-
-        onlineOrderDTO.addQuantity(productOrder.getQuantity());
-        onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());
+        productOrder.setStockTotal(stockTotal.getQuantity());
 
         return productOrder;
     }

@@ -1,6 +1,5 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,14 +14,11 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.utils.JMSType;
-import vn.viettel.core.util.StreamUtils;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.excel.HDDTExcel;
 import vn.viettel.sale.excel.HVKHExcel;
@@ -38,7 +34,6 @@ import vn.viettel.sale.specification.RedInvoiceSpecification;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -251,6 +246,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                         check = true;
                     } else {
                         throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
+                    }
+                    if (redInvoiceNewDataDTO.getProductDataDTOS().get(j).getPriceNotVat() == null) {
+                        StringBuilder mess = new StringBuilder();
+                        Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(j).getProductId();
+                        Product product = productRepository.getById(id);
+                        mess.append(product.getProductCode() + "-" + product.getProductName() + " chưa có giá");
+                        throw new ValidateException(ResponseMessage.PRODUCT_RED_INVOCIE_PRICE, mess.toString());
                     }
                 }
             }
@@ -570,15 +572,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
     
-	private void sendSynRequest(List<Long> lstIds) {
-		try {
-			if(!lstIds.isEmpty()) {
-				jmsSender.sendMessage(JMSType.sale_order, lstIds);
-			}
-		} catch (Exception ex) {
-			LogFile.logToFile("vn.viettel.sale.service.impl.RedInvoiceServiceImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
-		}
-	}
+//	private void sendSynRequest(List<Long> lstIds) {
+//		try {
+//			if(!lstIds.isEmpty()) {
+//				jmsSender.sendMessage(JMSType.sale_order, lstIds);
+//			}
+//		} catch (Exception ex) {
+//			LogFile.logToFile("vn.viettel.sale.service.impl.RedInvoiceServiceImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+//		}
+//	}
 
     private static final String[] tensNames = {
             "",

@@ -26,4 +26,9 @@ public interface CustomerTypeRepository extends BaseRepository<CustomerType> {
 
     @Query(value = "SELECT ct FROM CustomerType ct WHERE ct.status = 1 AND ct.id IN (:customerTypeIds)")
     List<CustomerType> findByIds(List<Long> customerTypeIds);
+
+    @Query(value = "SELECT DISTINCT ct FROM CustomerType ct " +
+            " WHERE  ct.wareHouseTypeId =:warehouseId AND ct.status = 1 " +
+            " ORDER BY ct.id ")
+    List<CustomerType> getByWarehouse(Long warehouseId);
 }

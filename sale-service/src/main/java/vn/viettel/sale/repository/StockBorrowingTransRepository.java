@@ -15,9 +15,14 @@ import java.util.Optional;
 
 public interface StockBorrowingTransRepository extends BaseRepository<StockBorrowingTrans>, JpaSpecificationExecutor<StockBorrowingTrans> {
 
-    @Query(value = "SELECT p FROM StockBorrowingTrans p WHERE p.createdAt>= :startDate And p.type =:type " +
-            " AND p.id = (SELECT MAX (po.id) FROM StockBorrowingTrans po WHERE po.createdAt >= :startDate And po.type =:type ) " +
-            " ORDER BY p.id desc, p.createdAt desc ")
-    List<StockBorrowingTrans> getLastBorrowTrans(Integer type, LocalDateTime startDate);
+    @Query(value = "SELECT p FROM StockBorrowingTrans p " +
+            " WHERE p.createdAt>= :startDate And p.type =:type AND p.transCode like :startWith% " +
+            " ORDER BY p.transCode desc ")
+    Page<StockBorrowingTrans> getLastTransCode(Integer type, String startWith, LocalDateTime startDate, Pageable pageable);
+
+    @Query(value = "SELECT p FROM StockBorrowingTrans p " +
+            " WHERE p.createdAt>= :startDate And p.type =:type AND p.redInvoiceNo like :startWith% " +
+            " ORDER BY p.redInvoiceNo desc ")
+    Page<StockBorrowingTrans> getLastRedInvoiceNo(Integer type, String startWith, LocalDateTime startDate, Pageable pageable);
 
 }

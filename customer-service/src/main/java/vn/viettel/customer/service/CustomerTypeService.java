@@ -6,8 +6,8 @@ import vn.viettel.core.service.BaseService;
 import java.util.List;
 
 public interface CustomerTypeService extends BaseService {
-    List<CustomerTypeDTO> getAll();
-    List<CustomerTypeDTO> getAllToCustomer();
+    List<CustomerTypeDTO> getAll(Boolean isCreate);
+    /*List<CustomerTypeDTO> getAllToCustomer();*/
 
     /*
     Lấy danh sách loại khách hàng theo ds id
@@ -27,4 +27,6 @@ public interface CustomerTypeService extends BaseService {
     CustomerTypeDTO getCustomerTypeDefaut();
 
     CustomerTypeDTO getCusTypeByCustomerId(long customerId);
+
+    List<CustomerTypeDTO> findByWarehouse(Long warehouseId);
 }

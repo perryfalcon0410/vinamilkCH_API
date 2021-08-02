@@ -3,21 +3,14 @@ package vn.viettel.sale.repository;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.core.repository.BaseRepository;
-import vn.viettel.sale.service.dto.ProductDetailDTO;
 import vn.viettel.sale.service.dto.RedInvoiceDataDTO;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetail> {
 
     @Query(value = "SELECT sd FROM SaleOrderDetail sd WHERE ( :isFreeItem IS NULL OR sd.isFreeItem = :isFreeItem ) AND sd.saleOrderId = :saleOrderId")
     List<SaleOrderDetail> findSaleOrderDetail(Long saleOrderId, Boolean isFreeItem);
-
-    @Query(value = "SELECT sd FROM SaleOrderDetail sd WHERE ( :isFreeItem IS NULL OR sd.isFreeItem = :isFreeItem )" +
-            " AND sd.saleOrderId = :saleOrderId" +
-            " AND sd.productId NOT IN (:rejected) ")
-    List<SaleOrderDetail> detailNotHaveRejected(Long saleOrderId, Boolean isFreeItem, List<Long> rejected);
 
     /*
     lấy thông tin ProductDetailDTO

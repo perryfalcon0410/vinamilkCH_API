@@ -5,17 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
-import vn.viettel.sale.messaging.TotalRedInvoice;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpecificationExecutor<SaleOrder> {
 
@@ -28,18 +24,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 2")
     SaleOrder getOrderReturnByNumber(String ON);
 
-    @Query(value = "SELECT COUNT(id)" +
-            " FROM SaleOrder" +
-            " WHERE orderDate >= :startDate" +
-            " AND orderDate <= :endDate" +
-            " AND shopId = :shopId")
-    Integer countSaleOrder(LocalDateTime startDate, LocalDateTime endDate, Long shopId);
-
-    @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId " +
-            " And s.createdAt>= :startDate " +
-            " AND s.id = (SELECT MAX (so.id) FROM SaleOrder so WHERE so.shopId =:shopId And so.createdAt >= :startDate  ) " +
-            " ORDER BY s.id desc, s.createdAt desc ")
-    List<SaleOrder> getLastSaleOrderNumber(Long shopId, LocalDateTime startDate);
+    @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId And s.createdAt>= :startDate" +
+            " AND s.orderNumber like :startWith% " +
+            " ORDER BY s.orderNumber desc ")
+    Page<SaleOrder> getLastSaleOrderNumber(Long shopId, String startWith, LocalDateTime startDate, Pageable pageable);
 
     @Query(value = "SELECT customerId FROM SaleOrder WHERE coalesce(:orderNumbers, null) is null or orderNumber in (:orderNumbers) ")
     List<Long> getCustomerCode(List<String> orderNumbers);
@@ -51,9 +39,6 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
 
     @Query(value = "SELECT so FROM SaleOrder so WHERE so.customerId = :customerId ORDER BY so.orderDate DESC ")
     List<SaleOrder> getLastSaleOrderByCustomerId(Long customerId);
-
-//    @Query(value = "SELECT COUNT(ID) FROM SALE_ORDERS WHERE TO_CHAR(ORDER_DATE,'DD') = TO_CHAR(SYSDATE,'DD')  ", nativeQuery = true)
-//    int countIdFromSaleOrder();
 
     @Query(value = "SELECT SUM(total) FROM SaleOrder WHERE customerId =:customerId AND orderDate BETWEEN :fromDate AND :toDate ")
     Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);

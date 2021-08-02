@@ -10,16 +10,16 @@ import java.util.Optional;
 
 public interface AreaRepository extends BaseRepository<Area> {
 
-    @Query(value = "SELECT * FROM AREAS WHERE TYPE = 2",nativeQuery = true)
+    @Query(value = "SELECT a FROM Area a WHERE a.type = 2")
     List<Area> getAllDistrict();
 
-    @Query(value = "SELECT * FROM AREAS " +
-            "WHERE PROVINCE_NAME =:provinceName AND DISTRICT_NAME =:districtName " +
-            "AND PRECINCT_NAME =:precinctName AND TYPE = 3 AND STATUS = 1",nativeQuery = true)
+    @Query(value = "SELECT a FROM Area a " +
+            "WHERE a.precinctName =:provinceName AND a.districtName =:districtName " +
+            "AND a.precinctName =:precinctName AND a.type = 3 AND a.status = 1")
     Optional<Area> getArea(String provinceName, String districtName, String precinctName );
 
-    @Query(value = "SELECT id FROM AREAS " +
-            "WHERE AREA_CODE =:areaCode AND STATUS = 1",nativeQuery = true)
+    @Query(value = "SELECT a.id FROM Area a " +
+            " WHERE a.areaCode =:areaCode AND a.status = 1 ")
     Long getAreaIdByAreaCode(String areaCode);
 
     @Query("SELECT  NEW vn.viettel.core.dto.common.AreaDTO(a.id,a.areaCode,a.areaName,a.parentAreaId,a.province,a.provinceName," +

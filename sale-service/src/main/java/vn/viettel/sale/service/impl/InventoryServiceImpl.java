@@ -10,6 +10,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
+import vn.viettel.sale.util.CreateCodeUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -105,12 +107,13 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         if (searchKeywords != null) searchKeywords = searchKeywords.trim().toUpperCase();
         List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords);
         if (countingDetails == null || countingDetails.isEmpty()) return new ArrayList<>();
-        Long customerTypeId = null;
-        /*CustomerTypeDTO customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        if(customerType != null) customerTypeId = customerType.getId();*/
 
-        List<Price> prices = priceRepository.findProductPriceWithType1(countingDetails.stream().map(item -> item.getProductId())
-                .collect(Collectors.toList()), wareHouseTypeId, LocalDateTime.now());
+        List<Long> customerTypeIds = Arrays.asList(-1L);
+        List<CustomerTypeDTO> customerTypes = customerTypeClient.getCusTypeByWarehouse(wareHouseTypeId);
+        if(!customerTypes.isEmpty()) customerTypeIds = customerTypes.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+
+        List<Price> prices = priceRepository.findProductPriceWithTypes(countingDetails.stream().map(item -> item.getProductId())
+                .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()));
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -312,8 +315,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     public Long createStockCounting(List<StockCountingDetailDTO> stockCountingDetails, Long userId, Long shopId, Long wareHouseTypeId, Boolean override) {
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId,shopId);
-        Long countId = repository.countId(shopId);
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId,shopId,
+                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         StockCounting stockCounting = new StockCounting();
 
         if (countingNumberInDay.size() > 0) {
@@ -325,7 +328,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             }
         }
 
-        stockCounting.setStockCountingCode(createStockCountingCode(countId));
+        stockCounting.setStockCountingCode(createStockCountingCode(shopId));
         stockCounting.setCountingDate(LocalDateTime.now());
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseTypeId);
@@ -349,7 +352,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Override
     public Boolean checkInventoryInDay(Long wareHouseTypeId, Long shopId) {
-        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId, shopId);
+        List<StockCounting> countingNumberInDay = repository.findByWareHouseTypeId(wareHouseTypeId, shopId,
+                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         if (countingNumberInDay.size() > 0)
             return false;
         return true;
@@ -374,10 +378,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return null;
     }
 
-    public String createStockCountingCode(Long countingInDay) {
+    public String createStockCountingCode(Long shopId) {
         LocalDate myLocal = LocalDate.now();
         StringBuilder code = new StringBuilder("KK");
-        String codeNum = "00000";
         code.append(myLocal.get(IsoFields.QUARTER_OF_YEAR));
         code.append(".");
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
@@ -385,12 +388,17 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         String strDate = formatter.format(date);
         code.append(strDate);
         code.append(".");
-        code.append("0000");
-        //code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
-        if (countingInDay == 0)
-            code.append(1);
-        else
-            code.append(countingInDay+1);
+        Pageable pageable = PageRequest.of(0,2);
+        Page<StockCounting> lst = repository.getLastStockCounting(shopId,
+                DateUtils.convertFromDate(LocalDateTime.now()), pageable);
+        int STT = 0;
+        if(!lst.getContent().isEmpty()) {
+            String str = lst.getContent().get(0).getStockCountingCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
+
+        code.append(CreateCodeUtils.formatReceINumber(STT));
 
         return code.toString();
     }

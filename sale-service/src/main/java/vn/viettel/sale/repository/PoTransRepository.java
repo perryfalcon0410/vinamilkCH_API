@@ -18,17 +18,10 @@ import java.util.List;
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
 
-    @Query(value = "SELECT p FROM PoTrans p WHERE p.createdAt>= :startDate And p.type =:type " +
-            " AND p.id = (SELECT MAX (po.id) FROM PoTrans po WHERE po.createdAt >= :startDate And po.type =:type ) " +
-            " ORDER BY p.id desc, p.createdAt desc ")
-    List<PoTrans> getLastPoTrans(Integer type, LocalDateTime startDate);
-
-//    @Query(value = "SELECT COUNT(pt.id) FROM PoTrans pt WHERE pt.type = 1 and pt.transDate >= :date")
-//    Integer countImport(LocalDateTime date);
-//
-//    @Query(value = "SELECT COUNT(pt.id) FROM PoTrans pt WHERE pt.type = 2 and pt.transDate >= :date ")
-//    int countExport(LocalDateTime date);
-
+   @Query(value = "SELECT p FROM PoTrans p " +
+           " WHERE p.createdAt>= :startDate And p.type =:type AND p.transCode like :startWith% " +
+           " ORDER BY p.transCode desc ")
+   Page<PoTrans> getLastTransCode(Integer type, String startWith, LocalDateTime startDate, Pageable pageable);
 
     @Query(value = "SELECT pt.redInvoiceNo FROM PoTrans pt WHERE pt.type = 1 AND pt.status =1 ")
     List<String> getRedInvoiceNo();

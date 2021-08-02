@@ -105,7 +105,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         LocalDateTime date = LocalDateTime.now();
         List<Long> productIds = request.getLstExchangeDetail().stream().map(
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
-        List<Price> prices = priceRepository.findProductPriceWithType(productIds, cusType.getId(), date);
+        List<Price> prices = priceRepository.findProductPriceWithType(productIds, cusType.getId(), DateUtils.convertToDate(date));
 
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, cusType.getWareHouseTypeId(), productIds);
         validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, null);
@@ -238,7 +238,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             List<Long> productIds = request.getLstExchangeDetail().stream().map(
                     item -> item.getProductId()).distinct().collect(Collectors.toList());
             CustomerTypeDTO customerDTO = getCustomerType(shopId,request.getCustomerId());
-            List<Price> prices = priceRepository.findProductPriceWithType(productIds, customerDTO.getId(), date);
+            List<Price> prices = priceRepository.findProductPriceWithType(productIds, customerDTO.getId(), DateUtils.convertToDate(date));
 
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchange.getWareHouseTypeId(), productIds);
             List<ExchangeTransDetail> dbExchangeTransDetails = transDetailRepository.findByTransId(exchangeTranId);

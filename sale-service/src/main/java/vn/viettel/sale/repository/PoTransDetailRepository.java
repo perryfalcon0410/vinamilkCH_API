@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.PoTransDetail;
 import vn.viettel.core.repository.BaseRepository;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface PoTransDetailRepository extends BaseRepository<PoTransDetail> {

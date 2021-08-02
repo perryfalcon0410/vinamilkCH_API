@@ -169,7 +169,10 @@ public class CustomerExcelExporter {
             ExcelPoiUtils.createCell(row, columnCount++, customer.getLastName() + " " + customer.getFirstName(), style);
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getBarCode()), style);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            String dob = formatter.format(customer.getDob());
+            String dob="";
+            if(customer.getDob()!=null){
+                dob = formatter.format(customer.getDob());
+            }
             ExcelPoiUtils.createCell(row, columnCount++, dob, style);
 
             if (customer.getGenderId() == null) {

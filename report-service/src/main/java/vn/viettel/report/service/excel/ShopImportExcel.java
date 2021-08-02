@@ -127,7 +127,7 @@ import java.util.*;
             if(col > lastCol) lastCol = col;
         }
 
-        Row rowTotalFooter = sheet.createRow(row);
+        Row rowTotalFooter = sheet.createRow(row+1);
         ExcelPoiUtils.createCell(rowTotalFooter, 0, null, format);
         ExcelPoiUtils.createCell(rowTotalFooter, 1, null, format);
         ExcelPoiUtils.createCell(rowTotalFooter, 2, null, format);

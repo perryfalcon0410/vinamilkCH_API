@@ -76,10 +76,10 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     }
 
     public ApParamDTO getByCode(String code) {
-        Optional<ApParam> apParam = repository.findByCode(code);
-        if (!apParam.isPresent())
+        List<ApParam> apParam = repository.findByCode(code);
+        if (apParam.isEmpty())
             throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
-        return modelMapper.map(apParam.get(), ApParamDTO.class);
+        return modelMapper.map(apParam.get(0), ApParamDTO.class);
     }
 
     @Override

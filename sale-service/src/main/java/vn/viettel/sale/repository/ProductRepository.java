@@ -11,30 +11,20 @@ import vn.viettel.sale.service.dto.FreeProductDTO;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.ProductDetailDTO;
 
-import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends BaseRepository<Product>, JpaSpecificationExecutor<Product> {
-    Product findByProductCode(String productCode);
 
     @Query("SELECT p from Product p where p.productCode In (:productCodes) And p.status = 1")
     List<Product> findByProductCodes(List<String> productCodes);
-
-    Optional<Product> getProductByProductCodeAndStatus(String productCode, Integer status);
 
     /*
     lấy thông tin sản phẩm có stutus hoạt động
      */
     List<Product> findAllByStatus(Integer i);
-    /*
-    lấy id sản phẩm có stutus hoạt động
-     */
-    @Query("SELECT p.productCode from Product p where p.status = 1 ")
-    List<String> findIdByStatus(Integer i);
     /*
     lấy thông tin sản phẩm và tồn kho
      */

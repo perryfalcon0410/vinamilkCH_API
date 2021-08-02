@@ -5,9 +5,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.core.repository.BaseRepository;
-import vn.viettel.sale.entities.SaleOrder;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,5 +34,17 @@ public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaS
         Float totalLineValue, String discountCode, Float discountValue, String customerName, String customerPhone, String cusAddress,
                                     String shippingAddress, LocalDateTime customerDOB, String orderStatus, Integer vnmSynStatus, String note, LocalDateTime createdAt);
 
+
+    @Modifying
+    @Query(value = "Insert into ONLINE_ORDER (SHOP_ID, SYN_STATUS, SOURCE_NAME, ORDER_ID, ORDER_NUMBER, TOTAL_LINE_VALUE " +
+            ", DISCOUNT_CODE, DISCOUNT_VALUE, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_ADDRESS, SHIPPING_ADDRESS, ORDER_STATUS, VNM_SYN_STATUS, NOTE, CREATED_AT) " +
+            "VALUES (:shopId, :sysStatus, :soureName, :orderId, :orderNumber, :totalLineValue, :discountCode, TO_NUMBER(:discountValue)" +
+            ", :customerName, :customerPhone, :cusAddress, :shippingAddress, :orderStatus, :vnmSynStatus, :note, :createdAt)", nativeQuery = true)
+    int schedulerInsertNoDOB( Long shopId, Integer sysStatus, String soureName, Long orderId, String orderNumber,
+                         Float totalLineValue, String discountCode, Float discountValue, String customerName, String customerPhone, String cusAddress,
+                         String shippingAddress, String orderStatus, Integer vnmSynStatus, String note, LocalDateTime createdAt);
+
+
     OnlineOrder findFirstByOrderByIdDesc();
+
 }

@@ -5,6 +5,7 @@ import org.apache.regexp.RE;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1242,13 +1243,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     private String createPoTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        List<PoTrans> pos = repository.getLastPoTrans( 1, LocalDateTime.now().with(firstDayOfYear()));
-        int STT = 1;
-        if(!pos.isEmpty()) {
-            String str = pos.get(0).getTransCode();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
-        }
 
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("IMPP.");
@@ -1256,19 +1250,20 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
+        Page<PoTrans> pos = repository.getLastTransCode(1, reciCode.toString(),
+                LocalDateTime.now().with(firstDayOfYear()), PageRequest.of(0,1));
+        int STT = 0;
+        if(!pos.getContent().isEmpty()) {
+            String str = pos.getContent().get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
         reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
     private String createBorrowingTransCode(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        List<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastBorrowTrans(1, LocalDateTime.now().with(firstDayOfYear()));
-        int STT = 1;
-        if(!borrTrans.isEmpty()) {
-            String str = borrTrans.get(0).getTransCode();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
-        }
 
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDCB.");
@@ -1276,6 +1271,14 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
+        Page<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastTransCode(1,
+                reciCode.toString(), LocalDateTime.now().with(firstDayOfYear()), PageRequest.of(0,1));
+        int STT = 0;
+        if(!borrTrans.getContent().isEmpty()) {
+            String str = borrTrans.getContent().get(0).getTransCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
         reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }
@@ -1283,20 +1286,21 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     private String createInternalCodeAdjust(Long idShop) {
         DateFormat df = new SimpleDateFormat("yy"); // Just the year, with 2 digits
         String yy = df.format(Calendar.getInstance().getTime());
-        List<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastAdjustTrans(1, LocalDateTime.now().with(firstDayOfYear()));
-        int STT = 1;
-        if(!stockAdjustmentTrans.isEmpty()) {
-            String str = stockAdjustmentTrans.get(0).getInternalNumber();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
-        }
-
         StringBuilder reciCode = new StringBuilder();
         reciCode.append("EDCT.");
         reciCode.append(shopClient.getByIdV1(idShop).getData().getShopCode());
         reciCode.append(".");
         reciCode.append(yy);
         reciCode.append(".");
+        Pageable pageable = PageRequest.of(0,2);
+        Page<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastInternalCode(1,
+                reciCode.toString(), LocalDateTime.now().with(firstDayOfYear()), pageable);
+        int STT = 0;
+        if(!stockAdjustmentTrans.getContent().isEmpty()) {
+            String str = stockAdjustmentTrans.getContent().get(0).getInternalNumber();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
         reciCode.append(CreateCodeUtils.formatReceINumber(STT));
         return reciCode.toString();
     }

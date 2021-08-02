@@ -16,6 +16,7 @@ import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,22 +43,38 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
     @Override
     public Boolean isEditableOnlineOrder(Long shopId) {
-        ShopParam shopParam = shopParamRepo.isEditable(shopId);
-        if(shopParam == null)
-            return false;
+        String type = "SALEMT_ONLINE_ORDER";
+        String code = "VES_EDITING";
+        List<Shop> shops = getParentShop(shopId);
+        ShopParam param = shopParamRepo.getShopParam(type, code, shopId).orElse(null);
+        if(param == null){
+            for (Shop shop : shops){
+                param = shopParamRepo.getShopParam(type, code, shop.getId()).orElse(null);
+                if(param != null) break;
+            }
+        }
+        if(param == null) return false;
         return true;
     }
 
     @Override
     public Boolean isManuallyCreatableOnlineOrder(Long shopId) {
-        ShopParam shopParam = shopParamRepo.isManuallyCreatable(shopId);
-        if(shopParam == null)
-            return false;
+        String type = "SALEMT_ONLINE_ORDER";
+        String code = "MANUAL_ORDER";
+        List<Shop> shops = getParentShop(shopId);
+        ShopParam param = shopParamRepo.getShopParam(type, code, shopId).orElse(null);
+        if(param == null){
+            for (Shop shop : shops){
+                param = shopParamRepo.getShopParam(type, code, shop.getId()).orElse(null);
+                if(param != null) break;
+            }
+        }
+        if(param == null) return false;
         return true;
     }
 
     /*
-    Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó
+    Nếu cửa hàng không khai báo thì lấy cấu hình theo cấp cha của cửa hàng đó, shop cha và con ko có thì ko dc phép trả hàng
     Nếu kết quả
     --+ VALUE = -1 ; Không được trả hàng
     --+ VALUE = 0 : Chỉ được trả hàng cho ngày hiện tại
@@ -66,12 +83,40 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
      */
     @Override
     public String dayReturn(Long shopId) {
-        Shop shop = repository.findByIdAndStatus(shopId, 1).orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_NOT_FOUND));
-        ShopParam param = shopParamRepo.dayReturn(shopId);
-        if((param == null) && shop.getParentShopId()!=null) param = shopParamRepo.dayReturn(shop.getParentShopId());
-        if(param != null && param.getName()!=null) return param.getName();
-        if(param != null && param.getName()==null) return "0";
-        return null;
+        String type = "SALEMT_TH";
+        String code = "NTKH";
+        List<Shop> shops = getParentShop(shopId);
+        ShopParam param = shopParamRepo.dayReturn(shopId, type, code);
+        if(param == null){
+            for (Shop shop : shops){
+                param = shopParamRepo.dayReturn(shop.getId(), type, code);
+                if(param != null) break;
+            }
+        }
+
+        if(param == null || param.getName() == null || param.getName().isEmpty()) return "-1";
+
+        return param.getName();
+    }
+
+    private List<Shop> getParentShop(Long shopId){
+        List<Shop> lstResults = new ArrayList<>();
+        if(shopId != null){
+            Shop shop = repository.getById(shopId);
+            if(shop != null && shop.getStatus() == 1) {
+//                lstResults.add(shop);
+                shopId = shop.getParentShopId();
+                for (int i = 0;;i++){
+                    if(shopId == null) break;
+                    Shop shop1 = repository.getById(shopId);
+                    if(shop1 == null || shop1.getStatus() != 1) break;
+                    lstResults.add(shop1);
+                    shopId = shop1.getParentShopId();
+                }
+            }
+        }
+
+        return lstResults;
     }
 
     @Override
@@ -95,19 +140,38 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
     @Override
     public String getImportSaleReturn(Long shopId) {
-        String shopParam = shopParamRepo.getImportSaleReturn(shopId);
-        if(shopParam == null) shopParam="1";
-        return shopParam;
+        String type = "SALEMT_LIMIT_DAY_RETURN";
+        String code = "IMPORT_TRANS_RETURN";
+        List<Shop> shops = getParentShop(shopId);
+        ShopParam param = shopParamRepo.dayReturn(shopId, type, code);
+        if(param == null){
+            for (Shop shop : shops){
+                param = shopParamRepo.dayReturn(shop.getId(), type, code);
+                if(param != null) break;
+            }
+        }
+
+        if(param == null || param.getName() == null || param.getName().isEmpty()) return "1";
+
+        return param.getName();
     }
 
     @Override
     public Long getLevelUpdateCustomer(Long shopId) {
-        String level = repository.getLevelUpdateCustomer(shopId);
-        Long result = 0L;
-        if(!level.isEmpty()){
-            result = Long.parseLong(level);
+        String type = "SALEMT_EDIT_CUSTOMER";
+        String code = "OTHER_STORE";
+        List<Shop> shops = getParentShop(shopId);
+        ShopParam param = shopParamRepo.dayReturn(shopId, type, code);
+        if(param == null){
+            for (Shop shop : shops){
+                param = shopParamRepo.dayReturn(shop.getId(), type, code);
+                if(param != null) break;
+            }
         }
-        return result;
+
+        if(param == null || param.getName() == null || param.getName().isEmpty()) return 0L;
+
+        return Long.parseLong(param.getName());
     }
 
     @Override

@@ -4,11 +4,8 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.*;
-import vn.viettel.core.enums.PromotionCustObjectType;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
@@ -18,10 +15,7 @@ import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.feign.CustomerClient;
 import vn.viettel.promotion.service.feign.ShopClient;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 

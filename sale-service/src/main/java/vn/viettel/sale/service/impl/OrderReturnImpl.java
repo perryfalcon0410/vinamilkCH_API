@@ -187,7 +187,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (orderReturn.getReasonId() != null) {
             apParamDTO = apparamClient.getApParamByCodeV1(orderReturn.getReasonId()).getData();
         }
-        infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
+        if(apParamDTO != null)
+            infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
         infosReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
         infosReturnDetailDTO.setReturnDate(orderReturn.getOrderDate()); //order return
         infosReturnDetailDTO.setReturnNumber(orderReturn.getOrderNumber());
@@ -215,28 +216,29 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
+            double discount = 0;
             if (productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null) {
-                productReturnDTO.setDiscount(0D);
+                discount = 0;
             } else if (productReturn.getAutoPromotion() == null || productReturn.getZmPromotion() == null) {
                 if (productReturn.getAutoPromotion() == null)
-                    productReturnDTO.setDiscount(productReturn.getZmPromotion());
+                    discount = productReturn.getZmPromotion();
                 if (productReturn.getZmPromotion() == null)
-                    productReturnDTO.setDiscount(productReturn.getAutoPromotion());
+                    discount = productReturn.getAutoPromotion();
             } else {
-                double discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
-                productReturnDTO.setDiscount(discount);
+                discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
             }
+            if(discount < 0) discount = discount * -1;
+            productReturnDTO.setDiscount(discount);
+
             if (productReturn.getQuantity() < 0) {
                 productReturnDTO.setTotalPrice(productReturn.getAmount() * -1);
                 productReturnDTO.setQuantity(productReturn.getQuantity() * -1);
-                productReturnDTO.setPricePerUnit(roundValue(productReturn.getPrice()));
-                productReturnDTO.setPaymentReturn(roundValue(productReturnDTO.getTotalPrice() - productReturnDTO.getDiscount()));
             } else {
                 productReturnDTO.setTotalPrice(productReturn.getAmount());
                 productReturnDTO.setQuantity(productReturn.getQuantity());
-                productReturnDTO.setPricePerUnit(productReturn.getPrice());
-                productReturnDTO.setPaymentReturn(roundValue(productReturnDTO.getTotalPrice() - productReturnDTO.getDiscount()));
             }
+            productReturnDTO.setPricePerUnit(productReturn.getPrice());
+            productReturnDTO.setPaymentReturn(roundValue(productReturnDTO.getTotalPrice() - productReturnDTO.getDiscount()));
             productReturnDTOList.add(productReturnDTO);
             totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + productReturnDTO.getQuantity());
             totalResponse.setTotalAmount(roundValue(totalResponse.getTotalAmount() + productReturnDTO.getTotalPrice()));
@@ -315,6 +317,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         newOrderReturn.setOriginOrderNumber(saleOrder.getOrderNumber());//Lưu mã của đơn gốc
         newOrderReturn.setReasonId(request.getReasonId());
         newOrderReturn.setReasonDesc(request.getReasonDescription());
+
+        if(saleOrder.getOnlineNumber()!= null) {
+            newOrderReturn.setOnlineNumber(saleOrder.getOnlineNumber() + "_TH");
+            saleOrder.setOnlineNumber(saleOrder.getOnlineNumber() + "_TH");
+        }
 
         if (saleOrder.getAmount() != null) newOrderReturn.setAmount(saleOrder.getAmount() * -1);
         if (saleOrder.getTotalPromotion() != null) newOrderReturn.setTotalPromotion(saleOrder.getTotalPromotion() * -1);
@@ -482,7 +489,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String stringDayReturn = shopClient.dayReturn(shopId).getData();
         if (stringDayReturn == null || stringDayReturn.isEmpty() || stringDayReturn.equals("-1"))
             throw new ValidateException(ResponseMessage.SHOP_DOES_HAVE_DAY_RETURN);
-        int dayReturn = Integer.parseInt(stringDayReturn);
+        int dayReturn = Integer.parseInt(stringDayReturn.trim());
         LocalDateTime newFromDate = DateUtils.convertFromDate(LocalDateTime.now().minusDays(dayReturn));
         LocalDateTime fromDate = DateUtils.convertFromDate(filter.getFromDate());
         LocalDateTime toDate = DateUtils.convertToDate(filter.getToDate());

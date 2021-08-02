@@ -127,6 +127,7 @@ public class ProductController extends BaseController {
                                                          @PathVariable Long customerTypeId,
                                                          @ApiParam("Danh sách sản phẩm cần đổi lại giá")
                                                          @RequestBody List<OrderProductRequest> products) {
+        if(products.isEmpty()) throw new ValidateException(ResponseMessage.PRODUCT_ORDER_NOT_EMPTY);
         OrderProductsDTO response = productService.changeCustomerType(customerTypeId, this.getShopId(), products);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PRODUCTS_PRICE_SUCCESS);
         return new Response<OrderProductsDTO>().withData(response);

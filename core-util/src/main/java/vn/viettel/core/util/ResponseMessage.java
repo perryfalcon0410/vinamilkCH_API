@@ -110,7 +110,7 @@ public enum ResponseMessage {
     TYPE_NOT_BE_NULL(6171, "TYPE_NOT_BE_NULL"),
     SALE_ORDER_TYPE_NOT_BE_NULL(6172, "SALE_ORDER_TYPE_NOT_BE_NULL"),
     REQUEST_BODY_NOT_BE_NULL(6173, "Yêu cầu truyền vào không được rỗng"),
-    NO_PRICE_APPLIED(6174, "Không tìm thấy giá được áp dụng cho sản phẩm"),
+    NO_PRICE_APPLIED(6174, "Không tìm thấy giá được áp dụng cho sản phẩm %s"),
     SHOP_IS_NOT_ACTIVE(6175, "Nhân viên thuộc cửa hàng đang tạm ngưng hoạt động. Vui lòng liên hệ quản trị hệ thống để biết thêm thông tin"),
     NEW_PASSWORD_MUST_BE_NOT_NULL(6176, "Vui lòng nhập mật khẩu mới"),
     CONFIRM_PASSWORD_MUST_BE_NOT_NULL(6176, "Vui lòng nhập mật khẩu xác nhận"),
@@ -309,7 +309,7 @@ public enum ResponseMessage {
     RECEIPT_HAS_BEEN_EXPORTED(9079, "Đơn đã được xuất"),
     RECEIPT_HAS_BEEN_IMPORTED(9080, "Đơn đã được nhập"),
     RECEIPT_HAS_BEEN_DELETED(9081, "Đơn đã được xóa"),
-    STOCK_TOTALS_LESS_THAN(9082, "Sản phẩm quy đổi hiện không còn đủ tồn kho, số lượng còn lại: %s"),
+    STOCK_TOTALS_SUB_COMBO_LESS_THAN(9082, "Sản phẩm quy đổi hiện không còn đủ tồn kho: %s"),
     RED_INVOICE_COMPANYNAME_MAX_LENGTH_STRING(9083, "Tên công ty vượt quá số ký tự quy định."),
     RED_INVOICE_TAXCODE_MAX_LENGTH_STRING(9084, "Mã số thuế vượt quá số ký tự quy định."),
     RED_INVOICE_ADDRESS_MAX_LENGTH_STRING(9085, "Tên công ty vượt quá số ký tự quy định."),
@@ -320,6 +320,10 @@ public enum ResponseMessage {
     INVENTORY_OVER_DATE(9090, "Hết hạn kiểm kê."),
     WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(9091, "Loại kho không được để trống"),
     RECEIPT_IMPORT_HAS_BEEN_RETURNED(9092, "Phiếu nhập đã được trả"),
+    PRODUCT_RED_INVOCIE_PRICE(9092, "Sản phẩm %s"),
+    STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho: %s"),
+    STOCK_TOTALS_NOT_FOUND_MESSAGE(9094, "không có thông tin tồn kho"),
+    PRODUCT_ORDER_NOT_EMPTY(9095, "Danh sách sản phẩm mua không được rỗng"),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999

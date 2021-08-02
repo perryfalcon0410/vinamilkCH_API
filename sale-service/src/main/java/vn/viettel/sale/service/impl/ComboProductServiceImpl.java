@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.ComboProduct;
 import vn.viettel.sale.entities.ComboProductDetail;
@@ -49,12 +50,9 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
         List<ComboProduct> comboProducts = repository.findAll(
             Specification.where(ComboProductSpecification.hasKeyWord(keyWord)).and(ComboProductSpecification.hasStatus(status)));
         Long customerTypeId = null;
-//        CustomerDTO customerDTO = customerClient.getCusDefault(shopId);
-//        if(customerDTO != null) customerTypeId = customerDTO.getCustomerTypeId();
-
         List<Long> lstProductIds = comboProducts.stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
         if(lstProductIds.isEmpty()) return dtos;
-        List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, LocalDateTime.now());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
 
         for (ComboProduct combo: comboProducts) {
             for (Price price : prices) {
@@ -77,14 +75,13 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
             .orElseThrow(() -> new ValidateException(ResponseMessage.COMBO_PRODUCT_NOT_EXISTS));
         //Lấy giá theo Kh type = -1,  ASC lấy giá đầu tiền
         Long customerTypeId = null;
-
-        List<Price> prices1 = productPriceRepo.findProductPriceWithType(Arrays.asList(comboProduct.getRefProductId()), customerTypeId, LocalDateTime.now());
+        List<Price> prices1 = productPriceRepo.findProductPriceWithType(Arrays.asList(comboProduct.getRefProductId()), customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
         ComboProductDTO dto = this.convertToComboProductDTO(comboProduct, prices1);
         List<ComboProductDetail> details = comboProductDetailRepo.findByComboProductIdAndStatus(comboProductId, 1);
         if(details != null){
             List<Long> lstProductIds = details.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             List<Product> products = productRepo.getProducts(lstProductIds, 1);
-            List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, LocalDateTime.now());
+            List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
             List<ComboProductDetailDTO> detailDTOS = details.stream().map( detail -> {
                 ComboProductDetailDTO detailDTO = this.convertToComboProductDetailDTO(detail, products, prices);
                 detailDTO.setComboProductCode(dto.getProductCode());

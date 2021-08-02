@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -17,6 +18,7 @@ import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.service.CustomerTypeService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,13 +34,14 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(value = { V1 + root})
-    public Response<List<CustomerTypeDTO>> getAll(HttpServletRequest httpRequest) {
-        List<CustomerTypeDTO> customerTypeDTOS = customerTypeService.getAll();
+    public Response<List<CustomerTypeDTO>> getAll(HttpServletRequest httpRequest,
+                                                  @RequestParam(value = "isCreate",defaultValue = "false") Boolean isCreate) {
+        List<CustomerTypeDTO> customerTypeDTOS = customerTypeService.getAll(isCreate);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
         return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
     }
 
-    @ApiOperation(value = "Danh sách nhóm khách hàng sử dụng trong khách hàng")
+    /*@ApiOperation(value = "Danh sách nhóm khách hàng sử dụng trong khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -49,7 +52,7 @@ public class CustomerTypeController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
         return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
     }
-
+*/
     @ApiOperation(value = "Tìm kiếm Customer type của khách hàng mặc định bằng shopId")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
@@ -106,5 +109,19 @@ public class CustomerTypeController extends BaseController {
         if(customerTypes == null || customerTypes.isEmpty()) return null;
 
         return customerTypes.get(0);
+    }
+
+    @ApiOperation(value = "Tìm kiếm Customer type theo kho")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/getbywarehouse"})
+    public List<CustomerTypeDTO> getCusTypeByWarehouse( @RequestParam Long warehouseId) {
+        if(warehouseId == null) return new ArrayList<>();
+        List<CustomerTypeDTO> customerTypes = customerTypeService.findByWarehouse(warehouseId);
+        if(customerTypes == null || customerTypes.isEmpty()) return new ArrayList<>();
+
+        return customerTypes;
     }
 }

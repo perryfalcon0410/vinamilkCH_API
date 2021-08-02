@@ -11,6 +11,7 @@ import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerTypeService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,15 +19,23 @@ import java.util.stream.Collectors;
 public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, CustomerTypeRepository> implements CustomerTypeService {
 
     @Override
-    public List<CustomerTypeDTO> getAll() {
+    public List<CustomerTypeDTO> getAll(Boolean isCreate) {
         List<CustomerType> customerTypes = repository.findAll();
-        return customerTypes.stream()
-                .filter(customerType -> customerType.getStatus() == 1)
-                .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
-                .collect(Collectors.toList());
+        if(isCreate){
+            return customerTypes.stream()
+                    .filter(customerType -> customerType.getStatus() == 1 && customerType.getPosModifyCustomer() == 1)
+                    .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
+                    .collect(Collectors.toList());
+        }else {
+            return customerTypes.stream()
+                    .filter(customerType -> customerType.getStatus() == 1)
+                    .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
+                    .collect(Collectors.toList());
+        }
+
     }
 
-    @Override
+    /*@Override
     public List<CustomerTypeDTO> getAllToCustomer() {
         List<CustomerType> customerTypes = repository.findAll();
         return customerTypes.stream()
@@ -39,7 +48,7 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
                 .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
                 .collect(Collectors.toList());
     }
-
+*/
     @Override
     public List<CustomerTypeDTO> findByIds(List<Long> customerTypeIds) {
         List<CustomerType> findByIds = repository.findByIds(customerTypeIds);
@@ -77,4 +86,10 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
         return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
     }
 
+    @Override
+    public List<CustomerTypeDTO> findByWarehouse(Long warehouseId) {
+        List<CustomerType> customerTypes = repository.getByWarehouse(warehouseId);
+        if(customerTypes == null || customerTypes.isEmpty()) return new ArrayList<>();
+        return customerTypes.stream().map(item -> modelMapper.map(item, CustomerTypeDTO.class)).collect(Collectors.toList());
+    }
 }
