@@ -11,11 +11,16 @@ import java.util.Optional;
 public interface ApParamRepository extends BaseRepository<ApParam> {
 
     List<ApParam> findByTypeAndStatus(String type, Integer status);
+
     ApParam getApParamByIdAndType(Long id, String type);
+
     List<ApParam> getApParamByType( String type);
+
     List<ApParam> getApParamByTypeAndStatus( String type,Integer status);
-    @Query(value = "SELECT a FROM ApParam a WHERE a.apParamCode = :CODE AND a.status = 1")
-    Optional<ApParam> findByCode(String CODE);
+
+    @Query(value = "SELECT a FROM ApParam a WHERE a.apParamCode = :CODE ORDER BY a.status desc ")
+    List<ApParam> findByCode(String CODE);
+
     @Query(value = "Select a FROM ApParam a Where a.type = 'SALEMT_PROMOTION_OBJECT' and a.status = 1 " )
     List<ApParam> getSalesChannel();
 

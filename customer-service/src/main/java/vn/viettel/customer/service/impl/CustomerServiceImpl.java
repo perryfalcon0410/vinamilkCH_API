@@ -178,7 +178,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //check age
         int age = AgeCalculator.calculateAge(request.getDob().toLocalDate(), LocalDate.now());
-        String ageApparam = apParamClient.getApParamByCodeV1("MIN_AGE").getData().getApParamName();
+        ApParamDTO ap = apParamClient.getApParamByCodeV1("MIN_AGE").getData();
+        String ageApparam = "0";
+        if(ap != null && ap.getStatus() == 1) ageApparam = ap.getApParamName();
         if(age < Integer.parseInt(ageApparam)){
             throw new ValidateException(ResponseMessage.CUSTOMER_AGE_NOT_BE_YOUNGER, ageApparam);
         }
@@ -382,7 +384,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         //check age
         int age = AgeCalculator.calculateAge(request.getDob().toLocalDate(), LocalDate.now());
-        String ageApparam = apParamClient.getApParamByCodeV1("MIN_AGE").getData().getApParamName();
+        ApParamDTO ap = apParamClient.getApParamByCodeV1("MIN_AGE").getData();
+        String ageApparam = "0";
+        if(ap != null && ap.getStatus() == 1) ageApparam = ap.getApParamName();
         if(age < Integer.parseInt(ageApparam)){
             throw new ValidateException(ResponseMessage.CUSTOMER_AGE_NOT_BE_YOUNGER, ageApparam);
         }
