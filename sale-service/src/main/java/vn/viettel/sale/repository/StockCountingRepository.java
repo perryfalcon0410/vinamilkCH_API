@@ -16,7 +16,6 @@ public interface StockCountingRepository extends BaseRepository<StockCounting>, 
 
     @Query(value = "SELECT s FROM StockCounting s WHERE s.shopId =:shopId " +
             " And s.createdAt>= :startDate " +
-            " AND s.id = (SELECT MAX (so.id) FROM StockCounting so WHERE so.shopId =:shopId And so.createdAt >= :startDate  ) " +
-            " ORDER BY s.id desc, s.createdAt desc ")
+            " ORDER BY s.stockCountingCode desc ")
     List<StockCounting> getLastStockCounting(Long shopId, LocalDateTime startDate);
 }
