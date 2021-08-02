@@ -13,7 +13,7 @@ public class SchedulerManager{
 	@Autowired
 	OnlineOrderService onlineOrderService;
 
-	@Scheduled(cron = "* */1 * * * *")
+	@Scheduled(cron = "* */10 * * * *")
 	@SchedulerLock(name = "getOnlineOrder")
 	public void getOnlineOrder() throws InterruptedException {
 		onlineOrderService.getOnlineOrderSchedule();
