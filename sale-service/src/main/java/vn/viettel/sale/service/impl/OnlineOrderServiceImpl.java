@@ -209,15 +209,18 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 List<Product> products = productRepo.findByProductCodes(productCodes);
                 if (products.size() != lines.size()) continue;
 
+                String orderNumber = header.getOrderNumber();
+                if(orderNumber!=null && orderNumber.startsWith("#")) orderNumber = orderNumber.substring(1);
+
                 String adrress = header.getCustomerAddress();
                 if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
 
                 if (header.getCustomerBirthday()!=null) {
-                    repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                    repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
                             header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
                             header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
                 }else {
-                    repository.schedulerInsertNoDOB(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                    repository.schedulerInsertNoDOB(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
                             header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
                             header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
                 }
