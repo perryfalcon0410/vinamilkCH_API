@@ -323,6 +323,7 @@ public enum ResponseMessage {
     PRODUCT_RED_INVOCIE_PRICE(9092, "Sản phẩm %s"),
     STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho: %s"),
     STOCK_TOTALS_NOT_FOUND_MESSAGE(9094, "không có thông tin tồn kho"),
+    PRODUCT_ORDER_NOT_EMPTY(9095, "Danh sách sản phẩm mua không được rỗng"),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
