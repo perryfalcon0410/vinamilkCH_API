@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.ComboProduct;
+import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.service.dto.ComboProductDetailDTO;
 
 import java.util.List;
@@ -17,5 +18,8 @@ public interface ComboProductRepository extends BaseRepository<ComboProduct>, Jp
             "   JOIN Product pDtl ON pDtl.id = cbDtl.productId AND cbDtl.status = 1" +
             "   WHERE p.id IN :productIds AND p.status = 1  AND p.isCombo = true ")
     List<ComboProductDetailDTO> findComboProduct(List<Long> productIds);
+
+    @Query("SELECT p FROM ComboProduct p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
+    List<ComboProduct> findComboProducts(List<Long> productIds, Integer status);
 }
 

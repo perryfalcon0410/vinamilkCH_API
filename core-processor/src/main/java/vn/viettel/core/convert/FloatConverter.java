@@ -10,7 +10,7 @@ public class FloatConverter extends AbstractSingleValueConverter {
 
     @Override
     public Object fromString(String dtz) {
-        if(dtz.length() == 0)
+        if(dtz == null ||  dtz.length() == 0)
             return null;
         else
             return Float.parseFloat(dtz);
