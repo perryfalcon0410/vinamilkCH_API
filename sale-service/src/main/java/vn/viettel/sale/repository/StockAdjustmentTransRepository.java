@@ -12,8 +12,7 @@ import java.util.List;
 public interface StockAdjustmentTransRepository extends BaseRepository<StockAdjustmentTrans>, JpaSpecificationExecutor<StockAdjustmentTrans> {
 
     @Query(value = "SELECT p FROM StockAdjustmentTrans p WHERE p.createdAt>= :startDate And p.type =:type " +
-            " AND p.id = (SELECT MAX (po.id) FROM StockAdjustmentTrans po WHERE po.createdAt >= :startDate And po.type =:type ) " +
-            " ORDER BY p.id desc, p.createdAt desc ")
+            " ORDER BY p.transCode desc ")
     List<StockAdjustmentTrans> getLastAdjustTrans(Integer type, LocalDateTime startDate);
 
 
