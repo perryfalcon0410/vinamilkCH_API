@@ -321,7 +321,7 @@ public enum ResponseMessage {
     WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(9091, "Loại kho không được để trống"),
     RECEIPT_IMPORT_HAS_BEEN_RETURNED(9092, "Phiếu nhập đã được trả"),
     STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho, số lượng còn lại: %s"),
-
+    PRODUCT_(9092, "Sản phẩm "),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

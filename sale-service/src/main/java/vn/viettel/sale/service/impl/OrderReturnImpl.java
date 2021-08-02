@@ -281,6 +281,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         newOrderReturn.setReasonId(request.getReasonId());
         newOrderReturn.setReasonDesc(request.getReasonDescription());
 
+        if(saleOrder.getOnlineNumber()!= null) {
+            newOrderReturn.setOnlineNumber(saleOrder.getOnlineNumber() + "_TH");
+            saleOrder.setOnlineNumber(saleOrder.getOnlineNumber() + "_TH");
+        }
+
         if (saleOrder.getAmount() != null) newOrderReturn.setAmount(saleOrder.getAmount() * -1);
         if (saleOrder.getTotalPromotion() != null) newOrderReturn.setTotalPromotion(saleOrder.getTotalPromotion() * -1);
         if (saleOrder.getTotal() != null) newOrderReturn.setTotal(saleOrder.getTotal() * -1);
