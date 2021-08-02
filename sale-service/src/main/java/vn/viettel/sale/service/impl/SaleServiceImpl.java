@@ -3,6 +3,8 @@ package vn.viettel.sale.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
@@ -871,19 +873,20 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         LocalDateTime now = DateUtils.convertDateToLocalDateTime(new Date());
         int day = now.getDayOfMonth();
         int month = now.getMonthValue();
+
+        String  year = Integer.toString(now.getYear()).substring(2);
+        String code = "SAL." +  shop.getShopCode() + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1);
         LocalDateTime start =  DateUtils.convertFromDate(now);
-        List<SaleOrder> saleOrders = repository.getLastSaleOrderNumber(shop.getId(), start);
+        Page<SaleOrder> saleOrders = repository.getLastSaleOrderNumber(shop.getId(), code, start, PageRequest.of(0,1));
 
         int STT = 1;
-        if(!saleOrders.isEmpty()) {
-            String str = saleOrders.get(0).getOrderNumber();
+        if(!saleOrders.getContent().isEmpty()) {
+            String str = saleOrders.getContent().get(0).getOrderNumber();
             String numberString = str.substring(str.length() - 5);
             STT = Integer.valueOf(numberString) + 1;
         }
 
-        String  year = Integer.toString(now.getYear()).substring(2);
-
-        return  "SAL." +  shop.getShopCode() + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1) + Integer.toString(STT + 100000).substring(1);
+        return  code + Integer.toString(STT + 100000).substring(1);
     }
 
     /*

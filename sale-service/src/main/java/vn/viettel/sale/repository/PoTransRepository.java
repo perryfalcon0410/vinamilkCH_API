@@ -18,9 +18,10 @@ import java.util.List;
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
 
-   @Query(value = "SELECT p FROM PoTrans p WHERE p.createdAt>= :startDate And p.type =:type " +
+   @Query(value = "SELECT p FROM PoTrans p " +
+           " WHERE p.createdAt>= :startDate And p.type =:type AND p.transCode like :startWith% " +
            " ORDER BY p.transCode desc ")
-   List<PoTrans> getLastPoTrans(Integer type, LocalDateTime startDate);
+   Page<PoTrans> getLastTransCode(Integer type, String startWith, LocalDateTime startDate, Pageable pageable);
 
     @Query(value = "SELECT pt.redInvoiceNo FROM PoTrans pt WHERE pt.type = 1 AND pt.status =1 ")
     List<String> getRedInvoiceNo();
