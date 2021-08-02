@@ -459,7 +459,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         return formDTOS;
     }
 
-
     public List<DataPermissionDTO> getDataPermission(Long roleId) {
         List<DataPermissionDTO> result = new ArrayList<>();
         List<Long> permissionIds = permissionRepository.findByRoleId(roleId);
@@ -472,10 +471,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             result.add(dataPermissionDTO);
         }
         return result;
-    }
-
-    public boolean checkPermissionContain(List<PermissionDTO> list, Form form) {
-        return list.stream().anyMatch(perm -> perm.getFormCode().equalsIgnoreCase(form.getFormCode()));
     }
 
     public String getShopArea(Long areaId) {

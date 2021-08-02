@@ -309,7 +309,7 @@ public enum ResponseMessage {
     RECEIPT_HAS_BEEN_EXPORTED(9079, "Đơn đã được xuất"),
     RECEIPT_HAS_BEEN_IMPORTED(9080, "Đơn đã được nhập"),
     RECEIPT_HAS_BEEN_DELETED(9081, "Đơn đã được xóa"),
-    STOCK_TOTALS_SUB_COMBO_LESS_THAN(9082, "Sản phẩm quy đổi hiện không còn đủ tồn kho, số lượng còn lại: %s"),
+    STOCK_TOTALS_SUB_COMBO_LESS_THAN(9082, "Sản phẩm quy đổi hiện không còn đủ tồn kho: %s"),
     RED_INVOICE_COMPANYNAME_MAX_LENGTH_STRING(9083, "Tên công ty vượt quá số ký tự quy định."),
     RED_INVOICE_TAXCODE_MAX_LENGTH_STRING(9084, "Mã số thuế vượt quá số ký tự quy định."),
     RED_INVOICE_ADDRESS_MAX_LENGTH_STRING(9085, "Tên công ty vượt quá số ký tự quy định."),
@@ -322,6 +322,9 @@ public enum ResponseMessage {
     RECEIPT_IMPORT_HAS_BEEN_RETURNED(9092, "Phiếu nhập đã được trả"),
     STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho, số lượng còn lại: %s"),
     PRODUCT_(9092, "Sản phẩm "),
+    STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho: %s"),
+    STOCK_TOTALS_NOT_FOUND_MESSAGE(9094, "không có thông tin tồn kho"),
+
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
