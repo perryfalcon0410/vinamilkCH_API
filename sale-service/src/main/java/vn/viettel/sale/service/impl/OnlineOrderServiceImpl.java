@@ -160,7 +160,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
         LocalDateTime date = LocalDateTime.now();
         LocalDateTime daysAgo = null;
-        if(apParam!=null && apParam.getValue() !=null) {
+        if(apParam!=null && apParam.getStatus() == 1 && apParam.getValue() !=null) {
             daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
         }
         List<SaleOrder> saleOrders = saleOrderRepository.checkOnlineNumber(code, daysAgo);

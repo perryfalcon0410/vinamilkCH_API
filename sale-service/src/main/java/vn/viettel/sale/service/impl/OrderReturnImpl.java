@@ -151,7 +151,8 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (orderReturn.getReasonId() != null) {
             apParamDTO = apparamClient.getApParamByCodeV1(orderReturn.getReasonId()).getData();
         }
-        infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
+        if(apParamDTO != null)
+            infosReturnDetailDTO.setReason(apParamDTO.getApParamName());
         infosReturnDetailDTO.setReasonDesc(orderReturn.getReasonDesc());
         infosReturnDetailDTO.setReturnDate(orderReturn.getOrderDate()); //order return
         infosReturnDetailDTO.setReturnNumber(orderReturn.getOrderNumber());

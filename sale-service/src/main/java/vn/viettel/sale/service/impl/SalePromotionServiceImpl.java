@@ -345,7 +345,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
                 LimitDto value = getPromotionLimit(salePromotion, shopId);
                 salePromotion.setNumberLimited(value.getLimited());
-                salePromotion.setIsUse(value.isUsed());
+                salePromotion.setIsUse(false);
                 salePromotion.setIsEditable(true);
 
             }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent

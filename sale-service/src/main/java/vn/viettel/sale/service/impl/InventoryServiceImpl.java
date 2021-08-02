@@ -327,7 +327,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         }
 
         List<StockCounting> lst = repository.getLastStockCounting(shopId, DateUtils.convertFromDate(LocalDateTime.now()));
-        int STT = 1;
+        int STT = 0;
         if(!lst.isEmpty()) {
             String str = lst.get(0).getStockCountingCode();
             String numberString = str.substring(str.length() - 5);
