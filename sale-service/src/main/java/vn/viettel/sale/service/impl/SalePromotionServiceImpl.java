@@ -308,10 +308,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         boolean isInclusiveTax = isInclusiveTax(program.getDiscountPriceType());
 
         //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM/còn ko có SP thì hiểu là không quy định SP mua
+        List<Long> lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
         if(details.isEmpty()){
             flag = true;
         }else {
-            List<Long> lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
             for (PromotionSaleProductDTO productPromotion : details) {
                 if (productPromotion.getProductId() == null ||
                         (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
@@ -347,6 +347,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion.setNumberLimited(value.getLimited());
                 salePromotion.setIsUse(value.isUsed());
                 salePromotion.setIsEditable(true);
+
             }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent
                 List<PromotionProgramDiscountDTO> programDiscount = promotionClient.findPromotionDiscountByPromotion(program.getId()).getData();
                 if (programDiscount == null || programDiscount.isEmpty())
@@ -359,6 +360,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             if (salePromotion != null) {
+                salePromotion.setLstProductHasPromtion(lstProductIds);
                 salePromotion.setPromotionType(1);
                 salePromotion.setProgramType(program.getType());
                 salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
@@ -659,6 +661,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         pp, isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                 discountDTO.setDiscountInfo(saveInfo);
             }
+            salePromotion.setLstProductHasPromtion(new ArrayList<>(lstProductHasPromotion.keySet()));
             salePromotion.setPromotionType(0);
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
@@ -971,6 +974,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountSaleInTax = 0;
         List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
         List<FreeProductDTO> lstProductPromotion = new ArrayList<>();
+        List<Long> lstProductHasPromotion = new ArrayList<>();
 
         // get level number: mua 1 sản phẩm -> ctkm chỉ được chứa 1 sản phẩm mua
         for (Map.Entry<Long, HashMap<Integer, List<PromotionProgramDetailDTO>>> entry : mapOrderNumber.entrySet()){
@@ -1018,6 +1022,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             if (!lstLv.isEmpty()) {
+                lstProductHasPromotion.add(entry.getKey());
                 Map<Integer, Integer> sortedLstLv = new TreeMap<>(lstLv);
                 List<Integer> levels = new ArrayList<>(sortedLstLv.keySet());
                 levels.sort(Comparator.nullsFirst(Comparator.naturalOrder()));
@@ -1112,10 +1117,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 discountDTO.setDiscountInfo(saveInfo);
             }
             salePromotion.setAmount(discountDTO);
+            salePromotion.setLstProductHasPromtion(lstProductHasPromotion);
 
             return salePromotion;
         }else if (!lstProductPromotion.isEmpty()){
-            return initSalePromotion(lstProductPromotion, new ArrayList<>(mapOrderNumber.keySet()));
+            return initSalePromotion(lstProductPromotion, lstProductHasPromotion);
         }
 
         return null;
@@ -1411,7 +1417,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 discountDTO.setMaxAmount(discountDTO.getAmount());
                 discountDTO.setDiscountInfo(saveInfo);
             }
-
+            salePromotion.setLstProductHasPromtion(new ArrayList<>(mapOrderNumber.keySet()));
             return salePromotion;
         }
         else if ("zv15".equalsIgnoreCase(type) //Mua theo Bộ sản phẩm (nghĩa là phải mua đầy đủ sản phẩm, bắt buộc) - với số lượng xác định, thì sẽ được tặng 1 hoặc nhóm sản phẩm nào đó với số lượng xác định
@@ -1434,6 +1440,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalDisQty += item.getQuantity();
         }
         salePromotion.setTotalQty(totalDisQty);
+        salePromotion.setLstProductHasPromtion(lstProductIds);
         return salePromotion;
     }
 
@@ -1610,6 +1617,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                     discountDTO.setDiscountInfo(saveInfo);
                 }
+                salePromotion.setLstProductHasPromtion(new ArrayList<>(mapOrderNumber.keySet()));
                 return salePromotion;
             }
         }
@@ -1664,6 +1672,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setAmount(discountDTO);
+                salePromotion.setLstProductHasPromtion(new ArrayList<>(mapOrderNumber.keySet()));
                 return salePromotion;
             }
         }
@@ -1863,7 +1872,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             amtInTax, amtExTax);
                     discountDTO.setDiscountInfo(saveInfo);
                 }
-
+                salePromotion.setLstProductHasPromtion(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 return salePromotion;
             }
         }
@@ -1914,6 +1923,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setAmount(discountDTO);
+                salePromotion.setLstProductHasPromtion(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 return salePromotion;
             }
         }

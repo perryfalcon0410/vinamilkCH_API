@@ -67,6 +67,9 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Tiền tích lũy cho zv23")
     private Double zv23Amount;
 
+    @ApiModelProperty(notes = "Danh sách sản phẩm được khuyến mãi")
+    List<Long> lstProductHasPromtion;
+
     public Double getTotalAmtInTax() {
         if(totalAmtInTax == null) totalAmtInTax = 0.0;
         return (double)Math.round(totalAmtInTax);
