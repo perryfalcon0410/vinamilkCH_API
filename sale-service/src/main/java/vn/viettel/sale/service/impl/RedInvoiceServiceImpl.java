@@ -248,7 +248,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                         Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(j).getProductId();
                         Product product = productRepository.getById(id);
                         mess.append(product.getProductCode() + "-" + product.getProductName() + " chưa có giá");
-                        throw new ValidateException(ResponseMessage.PRODUCT_,mess.toString());
+                        throw new ValidateException(ResponseMessage.PRODUCT_RED_INVOCIE_PRICE, mess.toString());
                     }
                 }
             }
