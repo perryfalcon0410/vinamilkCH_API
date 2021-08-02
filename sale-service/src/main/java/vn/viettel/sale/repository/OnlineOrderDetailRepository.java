@@ -19,4 +19,10 @@ public interface OnlineOrderDetailRepository extends BaseRepository<OnlineOrderD
             " TO_NUMBER(:lineValue), :character1Name, TO_NUMBER(:character1Value), :character2Name, TO_NUMBER(:character2Value), :character3Name, TO_NUMBER(:character3Value), :promotionName , :createdAt)", nativeQuery = true)
     int schedulerInsert(Long shopId, Long onlineOrderId, String sku,  String productName, Integer quantity, Float originalPrice, Float retailsPrice,
                 Float lineValue, String character1Name, String character1Value, String character2Name, String character2Value, String character3Name, String character3Value, String promotionName, LocalDateTime createdAt);
+
+
+    @Modifying
+    @Query("Delete from OnlineOrderDetail p where p.onlineOrderId=:id")
+    void deleteByOnlineOrderId(Long id);
+
 }

@@ -176,26 +176,43 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 Header header = data.getHeader();
                 List<Line> lines = data.getLstLine();
 
-                //check order number
-                OnlineOrder check = repository.findByOrderNumber(header.getOrderNumber());
-                if(check != null) {
-                    message = ResponseMessage.ONLINE_NUMBER_IS_EXISTS.statusCodeValue();
-                    continue;
-                }
-
                 //online order
-                OnlineOrder onlineOrder = new OnlineOrder();
                 ShopDTO shopDTO = shopClient.getByShopCode(header.getStoreID()).getData();
                 if(shopDTO == null) {
                     message = ResponseMessage.SHOP_NOT_FOUND.statusCodeValue();
                     continue;
                 }
 
+                //check order number
+                OnlineOrder onlineOrder = repository.findByOrderNumber(header.getOrderNumber());
+                if(onlineOrder != null && onlineOrder.getSynStatus() != 0) continue;
+                if(onlineOrder != null && onlineOrder.getSynStatus() == 0) {
+                    onlineOrderDetailRepo.deleteByOnlineOrderId(onlineOrder.getId());
+                    repository.delete(onlineOrder);
+                }
+
+                //check product
+                List<String> productCodes = new ArrayList<>();
+                for(Line line: lines) {
+                    if (!productCodes.contains(line.getSku())) {
+                        productCodes.add(line.getSku());
+                    }
+                }
+                List<Product> products = productRepo.findByProductCodes(productCodes);
+                if (products.size() != lines.size()) continue;
+
                 String adrress = header.getCustomerAddress();
                 if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
-                repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
-                      header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-                      header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
+
+                if (header.getCustomerBirthday()!=null) {
+                    repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                            header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
+                }else {
+                    repository.schedulerInsertNoDOB(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                            header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
+                }
 
                 OnlineOrder onlineOrderDB = repository.findFirstByOrderByIdDesc();
 
@@ -302,6 +319,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     entry.getValue().close();
                 }catch (Exception ex) {
+                    ex.printStackTrace();
+                    System.out.println(ex);
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }
@@ -316,6 +335,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     entry.getValue().close();
                 }catch (Exception ex) {
+                    System.out.println(ex);
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }

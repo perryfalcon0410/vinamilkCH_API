@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.convert.DTZConverter;
+import vn.viettel.core.convert.FloatConverter;
 
 import java.time.LocalDateTime;
 
@@ -30,6 +31,7 @@ public class Header {
     @XStreamAlias("DiscountCode")
     private String discountCode;
     @XStreamAlias("DiscountValue")
+    @XStreamConverter(FloatConverter.class)
     private Float discountValue;
     @XStreamAlias("CustomerName")
     private String customerName;
@@ -83,6 +85,8 @@ public class Header {
     private String shippingFee;
     @XStreamAlias("CarrierName")
     private String carrierName;
+    @XStreamAlias("ShippingCode")
+    private String shippingCode;
     @XStreamAlias("ShippingMethod")
     private String shippingMethod;
     @XStreamAlias("TotalOrderValue")
@@ -105,6 +109,5 @@ public class Header {
     private String orderType;
     @XStreamAlias("PosOrderNumber")
     private String posOrderNumber;
-
 
 }

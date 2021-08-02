@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
@@ -124,10 +125,13 @@ public class ComboProductTransServiceImpl
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, request.getWarehouseTypeId(), lstProductIds);
         List<StockTotal> newStockTotal = new ArrayList<>();
 
+        //Đối với xuất combo sp combo ko có tồn kho thì show thông báo các sp ko đủ tồn kho
         // Đối với nhập chuyển đổi type =1  các sp con ko đủ số xuất: Hiển thị mã SP - tên SP-số lượng tồn .Nếu có >= 2 Sp không đủ tồn kho thì hiển thị tất cả
-        StringBuilder messageErorr = new StringBuilder();
+        Map<Long, StockTotal> comboErrors = new HashMap<>();
+        Map<Long, StockTotal> subComboErorrs = new HashMap<>();
 
-        combos.forEach(combo -> {
+
+        for (ComboProductTranDetailRequest combo: combos ) {
             StockTotal stockTotal1 = getStockTotal(stockTotals, combo.getRefProductId());
 
             if (request.getTransType().equals(1)) {
@@ -143,10 +147,9 @@ public class ComboProductTransServiceImpl
                     lstSaveStockTotal.put(stockTotal1.getId(), value);
                 }
             } else {
-                if (stockTotal1 == null || stockTotal1.getQuantity() < combo.getQuantity()) {
-                    ComboProduct comboProduct = comboProductRepo.getById(combo.getComboProductId());
-                    throw new ValidateException(ResponseMessage.STOCK_TOTAL_LESS_THAN,
-                            comboProduct.getProductCode() + " - " + comboProduct.getProductName(), stockTotal1.getQuantity().toString());
+                if (stockTotal1 == null || stockTotal1.getQuantity() < combo.getQuantity()   ) {
+                    if(!comboErrors.containsKey(combo.getComboProductId())) comboErrors.put(combo.getComboProductId(), stockTotal1);
+                    continue;
                 }
                 int value = (-1) * combo.getQuantity();
                 if (lstSaveStockTotal.containsKey(stockTotal1.getId())) {
@@ -168,7 +171,6 @@ public class ComboProductTransServiceImpl
             cbDetail.setIsCombo(1);
             cbDetail.setAmount(combo.getPrice()*combo.getQuantity());
             comboProducts.add(cbDetail);
-
 
             List<ComboProductDetail> details = comboProductDetails.stream().filter(f -> f.getComboProductId().equals(combo.getComboProductId())).collect(Collectors.toList());
             details.forEach(comboProductDetail -> {
@@ -192,8 +194,7 @@ public class ComboProductTransServiceImpl
                         lstSaveStockTotal.put(stockTotal.getId(), value);
                     }else stockTotalService.showMessage(comboProductDetail.getProductId(), true);
                     if(quatity < combo.getQuantity()*comboProductDetail.getFactor()) {
-                        Product product = productRepo.findById(comboProductDetail.getProductId()).get();
-                        messageErorr.append(product.getProductCode() + " - " + product.getProductName() + " - " + stockTotal.getQuantity().toString() +", ");
+                        if(!subComboErorrs.containsKey(comboProductDetail.getProductId())) subComboErorrs.put(comboProductDetail.getProductId(), stockTotal);
                     }
                 }else{
                     quatity = combo.getQuantity() * comboProductDetail.getFactor();
@@ -225,9 +226,34 @@ public class ComboProductTransServiceImpl
                 detail.setAmount(detail.getPrice()*detail.getQuantity());
                 comboProducts.add(detail);
             });
-        });
 
-        if(!messageErorr.toString().isEmpty()) throw new ValidateException(ResponseMessage.STOCK_TOTALS_LESS_THAN, messageErorr.toString());
+        };
+
+        if(!comboErrors.isEmpty()) {
+            StringBuilder messages = new StringBuilder();
+            List<ComboProduct> comboProductsDbs = comboProductRepo.findComboProducts(new ArrayList<>(comboErrors.keySet()), 1);
+            for(ComboProduct combo: comboProductsDbs) {
+                StockTotal stockTotal = comboErrors.get(combo.getId());
+                Integer qty = 0;
+                if(stockTotal!=null && stockTotal.getQuantity()!=null) qty = stockTotal.getQuantity();
+                if(!messages.toString().isEmpty()) messages.append(", ");
+                messages.append(combo.getProductCode() + " - " + combo.getProductName() + " - " + qty.toString());
+            }
+            throw new ValidateException(ResponseMessage.STOCK_TOTALS_COMBO_LESS_THAN, messages.toString());
+        }
+
+        if(!subComboErorrs.isEmpty()) {
+            StringBuilder messages = new StringBuilder();
+            List<Product> products = productRepo.getProducts(new ArrayList<>(subComboErorrs.keySet()), 1);
+            for(Product product: products) {
+                StockTotal stockTotal = subComboErorrs.get(product.getId());
+                Integer qty = 0;
+                if(stockTotal!=null && stockTotal.getQuantity()!=null) qty = stockTotal.getQuantity();
+                if(!messages.toString().isEmpty()) messages.append(", ");
+                messages.append(product.getProductCode() + " - " + product.getProductName() + " - " + qty.toString());
+            }
+            throw new ValidateException(ResponseMessage.STOCK_TOTALS_SUB_COMBO_LESS_THAN, messages.toString());
+        }
 
         try {
             repository.save(comboProductTran);

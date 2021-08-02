@@ -18,9 +18,6 @@ public interface PoDetailRepository extends BaseRepository<PoDetail>, JpaSpecifi
     @Query(value = "SELECT pd FROM PoDetail pd WHERE (pd.price = 0 or pd.price = NULL) AND pd.poId =:id ")
     List<PoDetail> getPoDetailByPoIdAndPriceIsLessThan(Long id);
 
-//    long deleteByPoId(Long id);
-
-
     @Modifying
     @Query("delete from PoDetail p where p.poId=:poId")
     void deleteByPoId(Long poId);
