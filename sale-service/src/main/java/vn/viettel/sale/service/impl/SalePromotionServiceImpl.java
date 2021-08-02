@@ -388,19 +388,24 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
         SalePromotionDTO salePromotion = null;
         PromotionProgramDTO program = discountDTO.getProgram();
-        if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) { // KM tiền luôn sau thuế
+        if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) {
             SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-            Double amount = discountDTO.getDiscountAmount();
             salePromotion = new SalePromotionDTO();
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
+            Double amount = discountDTO.getDiscountAmount();
             if(inputAmount != null && inputAmount > 0){
                 amount = inputAmount;
             }
-            spDto.setAmount(amount);
             double percent = calPercent(totalAmountInTax, amount);
             salePromotion.setTotalAmtInTax(amount);
             salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
+            if(!isInclusiveTax){
+                percent = calPercent(totalAmountExtax, amount);
+                salePromotion.setTotalAmtInTax(amount * (( 100 + percent ) / 100));
+                salePromotion.setTotalAmtExTax(amount);
+            }
+            spDto.setAmount(salePromotion.getTotalAmtInTax());
             if(!isInclusiveTax && forDiscountCode == false){
                 spDto.setAmount(salePromotion.getTotalAmtExTax());
             }

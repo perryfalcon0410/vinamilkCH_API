@@ -12,11 +12,6 @@ public interface SaleOrderDetailRepository extends BaseRepository<SaleOrderDetai
     @Query(value = "SELECT sd FROM SaleOrderDetail sd WHERE ( :isFreeItem IS NULL OR sd.isFreeItem = :isFreeItem ) AND sd.saleOrderId = :saleOrderId")
     List<SaleOrderDetail> findSaleOrderDetail(Long saleOrderId, Boolean isFreeItem);
 
-    @Query(value = "SELECT sd FROM SaleOrderDetail sd WHERE ( :isFreeItem IS NULL OR sd.isFreeItem = :isFreeItem )" +
-            " AND sd.saleOrderId = :saleOrderId" +
-            " AND sd.productId NOT IN (:rejected) ")
-    List<SaleOrderDetail> detailNotHaveRejected(Long saleOrderId, Boolean isFreeItem, List<Long> rejected);
-
     /*
     lấy thông tin ProductDetailDTO
      */
