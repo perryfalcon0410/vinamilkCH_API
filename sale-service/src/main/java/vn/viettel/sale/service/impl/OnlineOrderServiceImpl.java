@@ -307,7 +307,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     public void getOnlineOrderSchedule() {
         List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
         String readPath = "/home/ftpimt/pos/neworder", backupPath = "/home/ftpimt/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
-                , destinationMessage = "/home/ftpimt/pos/ordermessage", failName = "VES_ORDERMESSAGE_";
+                , destinationMessage = "/home/ftpimt/pos/ordermessage", failName = "VES_ORDERMESSAGE_", shopCodes = "";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
                 if(app.getApParamCode() == null || "FTP_ORDER".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();
@@ -318,11 +318,21 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     destinationMessage = app.getValue().trim();
                 if (app.getApParamCode() == null || "FTP_FILE_FAIL".equalsIgnoreCase(app.getApParamCode().trim()))
                     failName = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_ORDER_SHOP".equalsIgnoreCase(app.getApParamCode().trim())) shopCodes = app.getValue().trim();
             }
         }
         ConnectFTP connectFTP = connectFTP(apParamDTOList);
         //read new order
-        HashMap<String, InputStream> newOrders = connectFTP.getFiles(readPath, newOrder, null);
+        HashMap<String, InputStream> newOrders = new HashMap<>();
+        if(shopCodes == null || shopCodes.isEmpty())
+            newOrders = connectFTP.getFiles(readPath, newOrder, null);
+        else{
+            String[] arrShops = shopCodes.split(";");
+            for(String shopCode : arrShops){
+                newOrders.putAll(connectFTP.getFiles(readPath, newOrder, shopCode));
+            }
+        }
+
         if(newOrders != null){
             for (Map.Entry<String, InputStream> entry : newOrders.entrySet()){
                 try {
@@ -338,7 +348,15 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
 
         //read cancel order
-        HashMap<String, InputStream> cancelOrders = connectFTP.getFiles(readPath, cancelOrder, null);
+        HashMap<String, InputStream> cancelOrders = new HashMap<>();
+        if(shopCodes == null || shopCodes.isEmpty())
+            cancelOrders = connectFTP.getFiles(readPath, cancelOrder, null);
+        else{
+            String[] arrShops = shopCodes.split(";");
+            for(String shopCode : arrShops){
+                cancelOrders.putAll(connectFTP.getFiles(readPath, cancelOrder, shopCode));
+            }
+        }
         if(cancelOrders != null){
             for (Map.Entry<String, InputStream> entry : cancelOrders.entrySet()){
                 try {
