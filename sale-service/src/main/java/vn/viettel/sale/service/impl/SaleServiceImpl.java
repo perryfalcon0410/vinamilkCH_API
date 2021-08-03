@@ -693,20 +693,26 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             double remain = saleOrder.getAmount() - amountDisTotal;
             // trừ tiền tích lũy
             if(saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
-                saleOrder.setMemberCardAmount(remain);
+                if(remain >= 0 && remain <= saleOrder.getMemberCardAmount()) saleOrder.setMemberCardAmount(remain);
+                else if(remain < 0) saleOrder.setMemberCardAmount(0.0);
             }
             if (saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0 && remain < 0) {
                 if(saleOrder.getDiscountCodeAmount() >= -remain ) {
-                    saleOrder.setDiscountCodeAmount(-remain);
+                    saleOrder.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() + remain);
                     remain = 0;
                 }
                 else {
-                    remain = saleOrder.getDiscountCodeAmount() + remain;
+                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getDiscountCodeAmount());
                     saleOrder.setDiscountCodeAmount(0D);
                 }
             }
             if (saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher() > 0 && remain < 0) {
-                saleOrder.setTotalVoucher(remain);
+                if(saleOrder.getTotalVoucher() >= -remain ) {
+                    saleOrder.setTotalVoucher(saleOrder.getTotalVoucher() + remain);
+                }
+                else {
+                    saleOrder.setDiscountCodeAmount(0D);
+                }
             }
         }
 
