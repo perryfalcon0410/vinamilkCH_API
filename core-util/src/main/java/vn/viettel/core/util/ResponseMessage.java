@@ -322,8 +322,6 @@ public enum ResponseMessage {
     RECEIPT_IMPORT_HAS_BEEN_RETURNED(9092, "Phiếu nhập đã được trả"),
     STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho, số lượng còn lại: %s"),
     PRODUCT_(9092, "Sản phẩm %s"),
-    PRODUCT_RED_INVOCIE_PRICE(9092, "Sản phẩm %s"),
-    STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho: %s"),
     STOCK_TOTALS_NOT_FOUND_MESSAGE(9094, "không có thông tin tồn kho"),
     PRODUCT_ORDER_NOT_EMPTY(9095, "Danh sách sản phẩm mua không được rỗng"),
 
