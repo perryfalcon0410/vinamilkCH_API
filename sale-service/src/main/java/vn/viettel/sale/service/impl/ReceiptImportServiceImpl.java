@@ -391,10 +391,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Double totalPrice = 0D;
         List<StockBorrowingDetail> borrowingDetails = stockBorrowingDetailRepository.findByBorrowingId(id);
         List<StockBorrowingDetailDTO> rs = new ArrayList<>();
-        List<Product> products = productRepository.getProducts(borrowingDetails.stream().map(item -> item.getProductId()).distinct()
-                .collect(Collectors.toList()), null);
-        List<StockBorrowing> stockBorrowings = stockBorrowingRepository.findAllById(borrowingDetails.stream().map(item -> item.getBorrowingId()).distinct()
-                .collect(Collectors.toList()));
+        List<Product> products = new ArrayList<>();
+        List<StockBorrowing> stockBorrowings = new ArrayList<>();
+        if(!borrowingDetails.isEmpty()) {
+           products = productRepository.getProducts(borrowingDetails.stream().map(item -> item.getProductId()).distinct()
+                    .collect(Collectors.toList()), null);
+           stockBorrowings = stockBorrowingRepository.findAllById(borrowingDetails.stream().map(item -> item.getBorrowingId()).distinct()
+                    .collect(Collectors.toList()));
+        }
+
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         for (StockBorrowingDetail sbd : borrowingDetails) {

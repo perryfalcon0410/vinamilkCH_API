@@ -108,6 +108,21 @@ public final class CustomerSpecification {
         };
     }
 
+    public static Specification<Customer> haskeySearchForSale(String searchKeywords) {
+        return (root, query, criteriaBuilder) -> {
+            if (searchKeywords == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return  criteriaBuilder.or(
+                    criteriaBuilder.like(root.get(Customer_.nameText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
+                    criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
+                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords),
+                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords),
+                    criteriaBuilder.like(root.get(Customer_.addressText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%")
+            );
+        };
+    }
+
     public static Specification<Customer> hasFullNameOrCode(String searchKeywords) {
         return (root, query, criteriaBuilder) -> {
             if (searchKeywords == null) {

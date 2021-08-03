@@ -37,6 +37,10 @@ public class CustomerDTO extends BaseDTO {
 
     @ApiModelProperty(notes = "Id giới tính")
     private Integer genderId;
+
+    @ApiModelProperty(notes = "Tên giới tính")
+    private String genderName;
+
     @ApiModelProperty(notes = "Mã vạch")
     private String barCode;
     @ApiModelProperty(notes = "Ngày sinh")

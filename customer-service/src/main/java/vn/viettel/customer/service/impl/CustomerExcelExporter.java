@@ -217,7 +217,9 @@ public class CustomerExcelExporter {
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getMemberCardName()), style);
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getApParamName()), style);
             DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            String createdAt = formatter1.format(customer.getCreatedAt());
+            String createdAt = null;
+            if(customer.getCreatedAt()!=null) createdAt = formatter1.format(customer.getCreatedAt());
+
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(createdAt), style);
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getNoted()), style);
         }
