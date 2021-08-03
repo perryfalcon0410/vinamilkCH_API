@@ -194,9 +194,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 saleOrderDetail.setAmount(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity());
                 saleOrderDetail.setTotal(saleOrderDetail.getAmount());
 
-                if(!productNotAccumulated.contains(item.getProductId()))
-                    customerPurchase += saleOrderDetail.getAmount();
-
                 // printTemp
                 if(printTemp) {
                     saleOrderDetail.setProductCode(item.getProductCode());
@@ -234,7 +231,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if (orderVoucher.getId() != null)
                     voucher = promotionClient.getVouchersV1(orderVoucher.getId()).getData();
 
-                if (voucher == null || (voucher != null && (voucher.getIsUsed() || voucher.getPrice().compareTo(orderVoucher.getPrice()) != 0 )))
+                if (voucher == null || (voucher != null && voucher.getIsUsed() != null  && ( voucher.getIsUsed() || voucher.getPrice().compareTo(orderVoucher.getPrice()) != 0 )))
                     throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
                 if (voucher.getPrice() != null) voucherAmount += voucher.getPrice();
@@ -297,7 +294,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         List<Price> productPrices1 = priceRepository.findProductPriceWithType(productIds, customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
 
                         for(SaleOrderDetail buyP : saleOrderDetails) {
-                            if (inputPro.getLstProductHasPromtion() != null && inputPro.getLstProductHasPromtion().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
+                            if (dbPro.getLstProductHasPromtion() != null && dbPro.getLstProductHasPromtion().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
                                 if (buyP.getPromotionCode() == null) {
                                     buyP.setPromotionType(dbPro.getProgramType());
                                     buyP.setPromotionCode(dbPro.getPromotionProgramCode());
@@ -397,6 +394,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(saleOrderDetails.isEmpty())
             throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
 
+        for(SaleOrderDetail buyP : saleOrderDetails) {
+            if (!buyP.getIsFreeItem()) {
+                if (!productNotAccumulated.contains(buyP.getProductId()))
+                    customerPurchase += buyP.getTotal();
+            }
+        }
+
         SaleOrder saleOrder = createSaleOrder(request, userId, shop, customer, customerType, promotion, promotionInVat, promotionExVat,
                 voucherAmount, autoPromtion, autoPromotionExVat, autoPromotionInVat, zmPromotion, zmPromotionInVat, zmPromotionExVat, customerPurchase, isReturn );
 
@@ -492,8 +496,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             if(group.equalsIgnoreCase(product.getGroupOneFreeItem())) {
                                 cnt += 1;
                                 totalQty += product.getQuantity();
-                                allStockQty += product.getStockQuantity() - mapProductWithQty.get(product.getProductId());
-                                if(product.getQuantityMax() > (product.getStockQuantity() - mapProductWithQty.get(product.getProductId())) ){
+                                int qtyOd = mapProductWithQty.get(product.getProductId())!=null?mapProductWithQty.get(product.getProductId()):0;
+                                allStockQty += product.getStockQuantity() - qtyOd;
+                                if(product.getQuantityMax() > (product.getStockQuantity() - qtyOd)){
                                     count += 1;
                                 }
                             }
@@ -687,20 +692,26 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             double remain = saleOrder.getAmount() - amountDisTotal;
             // trừ tiền tích lũy
             if(saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
-                saleOrder.setMemberCardAmount(remain);
+                if(remain >= 0 && remain <= saleOrder.getMemberCardAmount()) saleOrder.setMemberCardAmount(remain);
+                else if(remain < 0) saleOrder.setMemberCardAmount(0.0);
             }
             if (saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0 && remain < 0) {
                 if(saleOrder.getDiscountCodeAmount() >= -remain ) {
-                    saleOrder.setDiscountCodeAmount(-remain);
+                    saleOrder.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() + remain);
                     remain = 0;
                 }
                 else {
-                    remain = saleOrder.getDiscountCodeAmount() + remain;
+                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getDiscountCodeAmount());
                     saleOrder.setDiscountCodeAmount(0D);
                 }
             }
             if (saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher() > 0 && remain < 0) {
-                saleOrder.setTotalVoucher(remain);
+                if(saleOrder.getTotalVoucher() >= -remain ) {
+                    saleOrder.setTotalVoucher(saleOrder.getTotalVoucher() + remain);
+                }
+                else {
+                    saleOrder.setDiscountCodeAmount(0D);
+                }
             }
         }
 

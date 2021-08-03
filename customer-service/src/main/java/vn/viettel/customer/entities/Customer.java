@@ -67,6 +67,8 @@ public class Customer extends BaseEntity {
     private String street;
     @Column(name = "ADDRESS")
     private String address;
+    @Column(name = "ADDRESS_TEXT")
+    private String addressText;
     @Column(name = "WORKING_OFFICE")
     private String workingOffice;
     @Column(name = "OFFICE_ADDRESS")

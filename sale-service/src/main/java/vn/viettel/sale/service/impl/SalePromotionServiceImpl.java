@@ -399,11 +399,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if(inputAmount != null && inputAmount > 0){
                 amount = inputAmount;
             }
-            double percent = calPercent(totalAmountInTax, amount);
+            double percent = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
             salePromotion.setTotalAmtInTax(amount);
             salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
             if(!isInclusiveTax){
-                percent = calPercent(totalAmountExtax, amount);
                 salePromotion.setTotalAmtInTax(amount * (( 100 + percent ) / 100));
                 salePromotion.setTotalAmtExTax(amount);
             }
@@ -486,15 +485,19 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if(inputAmount != null && inputAmount > 0){
                 amount = inputAmount;
             }
-            spDto.setAmount(amount);
-            double percent = calPercent(totalAmountInTax, amount);
+            double percent = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
             salePromotion.setTotalAmtInTax(amount);
             salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
-            salePromotion.setIsEditable(true);
-            spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
+            if(!isInclusiveTax){
+                salePromotion.setTotalAmtInTax(amount * (( 100 + percent ) / 100));
+                salePromotion.setTotalAmtExTax(amount);
+            }
+            spDto.setAmount(salePromotion.getTotalAmtInTax());
             if(!isInclusiveTax){
                 spDto.setAmount(salePromotion.getTotalAmtExTax());
             }
+            salePromotion.setIsEditable(true);
+            spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
 
             if(forSaving) {
                 spDto.setPercentage(percent);

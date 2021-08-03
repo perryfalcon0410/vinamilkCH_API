@@ -226,6 +226,8 @@ public final class ExcelPoiUtils {
         styleHeader11.setFont(bold_9);
         styleHeader11.setAlignment(HorizontalAlignment.RIGHT);
         styleHeader11.setVerticalAlignment(VerticalAlignment.CENTER);
+        DataFormat dataFormat11 = wb.createDataFormat();
+        styleHeader11.setDataFormat(dataFormat11.getFormat("#,###"));
         setBorderForCell(styleHeader11,BorderStyle.THIN, poiBlackNew);
         styles.put(BOLD_9, styleHeader11);
         /**border_right*/
