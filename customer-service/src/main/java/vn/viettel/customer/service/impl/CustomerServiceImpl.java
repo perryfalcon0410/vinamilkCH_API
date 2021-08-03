@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.AreaDetailDTO;
+import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.*;
 import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.Response;
@@ -131,15 +132,34 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         {
             memberCustomer = memBerCustomerRepos.getMemberCustomers(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
         }
-        List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
-        return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
+        List<MemberCustomer> memberCustomers = memberCustomer;
+        List<CategoryDataDTO> genders =  categoryDataClient.getGendersV1().getData();
+       return customers.map(item -> {
+           CustomerDTO dto = modelMapper.map(item, CustomerDTO.class);
+
+            for (MemberCustomer member : memberCustomers) {
+                if (member.getCustomerId().equals(item.getId())) {
+                    dto.setAmountCumulated(member.getScoreCumulated());
+                    break;
+                }
+            }
+
+           for (CategoryDataDTO gender : genders) {
+               if (gender.getId().equals(item.getGenderId())) {
+                   dto.setGenderName(gender.getCategoryName());
+                   break;
+               }
+           }
+
+           return  dto;
+       });
+
     }
     @Override
     public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCodeOrPhone(searchKeywords.replaceAll("^\\s+", "")))
-                        .and(CustomerSpecification.hasStatus(1L)),pageable);
+                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1L)),pageable);
         List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(customers.getContent().size() != 0)
@@ -280,6 +300,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             address += areaDTO.getProvinceName();
 
             customer.setAddress(address);
+            customer.setAddressText(VNCharacterUtils.removeAccent(address.toUpperCase()));
             customer.setAreaId(areaId);
         }
     }
@@ -471,7 +492,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
                         .and(CustomerSpecification.hasAreaId(precincts))
                         .and(CustomerSpecification.hasPhoneToCustomer(filter.getPhone()))
-                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))),
+                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))
+                ),
+
                 Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
         if(!customers.isEmpty()){
@@ -587,6 +610,5 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
     }
-
 
 }
