@@ -335,9 +335,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 //                productReturn.setPrice(saleOrderDetail.getPrice() * -1);
                 productReturn.setAmount(saleOrderDetail.getAmount() * -1);
                 productReturn.setTotal(saleOrderDetail.getTotal() * -1);
-
-                if (saleOrderDetail.getPriceNotVat() != null)
-                    productReturn.setPriceNotVat(saleOrderDetail.getPriceNotVat() * -1);
                 if (saleOrderDetail.getAutoPromotionNotVat() != null)
                     productReturn.setAutoPromotionNotVat(saleOrderDetail.getAutoPromotionNotVat() * -1);
                 if (saleOrderDetail.getAutoPromotionVat() != null)
