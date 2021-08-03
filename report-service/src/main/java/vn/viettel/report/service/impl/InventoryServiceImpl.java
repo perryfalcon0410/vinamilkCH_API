@@ -9,12 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.Constants;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
-import vn.viettel.report.service.dto.ImportExportInventoryDTO;
-import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
-import vn.viettel.report.service.dto.PrintInventoryCatDTO;
-import vn.viettel.report.service.dto.PrintInventoryDTO;
+import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.ImportExportInventoryExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -24,6 +22,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,7 +71,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public PrintInventoryDTO getDataPrint(InventoryImportExportFilter filter) {
+    public PrintInventoryDTO getDataPrint(InventoryImportExportFilter filter) throws ParseException {
 
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         PrintInventoryDTO printInventoryDTO = new PrintInventoryDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
@@ -115,6 +115,10 @@ public class InventoryServiceImpl implements InventoryService {
             cat.setProducts(entry.getValue());
             cats.add(cat);
         }
+
+        //sort vietnames
+        RuleBasedCollator ru = new RuleBasedCollator(Constants.rules);
+        Collections.sort(cats, (PrintInventoryCatDTO t1, PrintInventoryCatDTO t2)->ru.compare(t1.getCatName(), t2.getCatName()));
 
         printInventoryDTO.setCats(cats);
         return printInventoryDTO;

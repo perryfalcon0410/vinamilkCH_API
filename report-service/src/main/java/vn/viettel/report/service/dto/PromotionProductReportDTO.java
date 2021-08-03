@@ -12,6 +12,7 @@ import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -36,17 +37,12 @@ public class PromotionProductReportDTO {
     private ShopDTO shop;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm theo ngành hàng")
-    Set<PromotionProductCatDTO> productCats;
+    List<PromotionProductCatDTO> productCats;
 
     public PromotionProductReportDTO (LocalDateTime fromDate, LocalDateTime toDate, ShopDTO shop) {
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.shop = shop;
-    }
-
-    public void addProductCat(PromotionProductCatDTO productCat) {
-        if(productCats == null) productCats = new HashSet<>();
-        this.productCats.add(productCat);
     }
 
 }

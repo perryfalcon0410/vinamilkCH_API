@@ -10,6 +10,7 @@ import vn.viettel.report.service.dto.PromotionProductTotalDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 
 public interface PromotionProductService {
     /*
@@ -20,7 +21,7 @@ public interface PromotionProductService {
     /*
      * Dữ liệu in báo cáo hàng khuyến mãi
      */
-    PromotionProductReportDTO getDataPrint(PromotionProductFilter filter);
+    PromotionProductReportDTO getDataPrint(PromotionProductFilter filter) throws ParseException;
 
     /*
      * Danh sách báo cáo hàng khuyến mãi

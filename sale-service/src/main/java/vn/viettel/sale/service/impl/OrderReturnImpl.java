@@ -217,16 +217,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
             double discount = 0;
-            if (productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null) {
-                discount = 0;
-            } else if (productReturn.getAutoPromotion() == null || productReturn.getZmPromotion() == null) {
-                if (productReturn.getAutoPromotion() == null)
-                    discount = productReturn.getZmPromotion();
-                if (productReturn.getZmPromotion() == null)
-                    discount = productReturn.getAutoPromotion();
-            } else {
-                discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
-            }
+            if (productReturn.getAutoPromotion() != null) discount = productReturn.getAutoPromotion();
+            if (productReturn.getZmPromotion() != null) discount += productReturn.getZmPromotion();
+
             if(discount < 0) discount = discount * -1;
             productReturnDTO.setDiscount(discount);
 
