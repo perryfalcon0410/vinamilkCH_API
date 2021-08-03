@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -96,7 +97,7 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "fromDate") Date fromDate,
                                         @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
-                                        @RequestParam(value = "productCodes", required = false) String productCodes) {
+                                        @RequestParam(value = "productCodes", required = false) String productCodes) throws ParseException {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
         PromotionProductReportDTO response = promotionProductService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS);

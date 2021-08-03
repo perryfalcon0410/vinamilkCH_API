@@ -10,6 +10,7 @@ import vn.viettel.report.service.dto.PrintInventoryDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 
 public interface InventoryService {
     /*
@@ -26,5 +27,5 @@ public interface InventoryService {
     /*
      * Dữ liệu in báo cáo xuất nhập tồn
      */
-    PrintInventoryDTO getDataPrint(InventoryImportExportFilter filter);
+    PrintInventoryDTO getDataPrint(InventoryImportExportFilter filter) throws ParseException;
 }

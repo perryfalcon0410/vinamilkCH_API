@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -99,7 +100,7 @@ public class InventoryController extends BaseController {
                                                     @RequestParam(value = "toDate") Date toDate,
                                                     @RequestParam Long warehouseTypeId,
                                                     @ApiParam("Tìm theo danh sách mã sản phẩm")
-                                                    @RequestParam(value = "productCodes", required = false) String productCodes) {
+                                                    @RequestParam(value = "productCodes", required = false) String productCodes) throws ParseException {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), warehouseTypeId, productCodes);
         PrintInventoryDTO response = inventoryService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_INVENTORY_SUCCESS);

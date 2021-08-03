@@ -414,8 +414,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
             if(forSaving) {
                 spDto.setPercentage(percent);
+                double percentTx = calPercent(totalAmountInTax, amount);
                 spDto.setMaxAmount(amount);
-                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percent,
+                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentTx,
                         isInclusiveTax, salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                 spDto.setDiscountInfo(saveInfo);
             }
@@ -501,7 +502,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
             if(forSaving) {
                 spDto.setPercentage(percent);
-                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percent,
+                double percentTx = calPercent(totalAmountInTax, amount);
+                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentTx,
                         isInclusiveTax, salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                 spDto.setDiscountInfo(saveInfo);
             }
