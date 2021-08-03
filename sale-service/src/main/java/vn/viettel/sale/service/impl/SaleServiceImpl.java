@@ -195,9 +195,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 saleOrderDetail.setAmount(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity());
                 saleOrderDetail.setTotal(saleOrderDetail.getAmount());
 
-                if(!productNotAccumulated.contains(item.getProductId()))
-                    customerPurchase += saleOrderDetail.getAmount();
-
                 // printTemp
                 if(printTemp) {
                     saleOrderDetail.setProductCode(item.getProductCode());
@@ -397,6 +394,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(saleOrderDetails.isEmpty())
             throw new ValidateException(ResponseMessage.PLEASE_IMPORT_PRODUCTS);
+
+        for(SaleOrderDetail buyP : saleOrderDetails) {
+            if (!buyP.getIsFreeItem()) {
+                if (!productNotAccumulated.contains(buyP.getProductId()))
+                    customerPurchase += buyP.getTotal();
+            }
+        }
 
         SaleOrder saleOrder = createSaleOrder(request, userId, shop, customer, customerType, promotion, promotionInVat, promotionExVat,
                 voucherAmount, autoPromtion, autoPromotionExVat, autoPromotionInVat, zmPromotion, zmPromotionInVat, zmPromotionExVat, customerPurchase, isReturn );
