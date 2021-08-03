@@ -295,7 +295,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         List<Price> productPrices1 = priceRepository.findProductPriceWithType(productIds, customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
 
                         for(SaleOrderDetail buyP : saleOrderDetails) {
-                            if (inputPro.getLstProductHasPromtion() != null && inputPro.getLstProductHasPromtion().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
+                            if (dbPro.getLstProductHasPromtion() != null && dbPro.getLstProductHasPromtion().contains(buyP.getProductId()) && !buyP.getIsFreeItem()) {
                                 if (buyP.getPromotionCode() == null) {
                                     buyP.setPromotionType(dbPro.getProgramType());
                                     buyP.setPromotionCode(dbPro.getPromotionProgramCode());
@@ -497,8 +497,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             if(group.equalsIgnoreCase(product.getGroupOneFreeItem())) {
                                 cnt += 1;
                                 totalQty += product.getQuantity();
-                                allStockQty += product.getStockQuantity() - mapProductWithQty.get(product.getProductId());
-                                if(product.getQuantityMax() > (product.getStockQuantity() - mapProductWithQty.get(product.getProductId())) ){
+                                int qtyOd = mapProductWithQty.get(product.getProductId())!=null?mapProductWithQty.get(product.getProductId()):0;
+                                allStockQty += product.getStockQuantity() - qtyOd;
+                                if(product.getQuantityMax() > (product.getStockQuantity() - qtyOd)){
                                     count += 1;
                                 }
                             }
