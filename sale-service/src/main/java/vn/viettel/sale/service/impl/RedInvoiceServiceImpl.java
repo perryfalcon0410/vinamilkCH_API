@@ -237,18 +237,18 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         boolean check = false;
         if (redInvoiceNewDataDTO.getProductDataDTOS().size() > 1) {
             for (int i = 0; i < redInvoiceNewDataDTO.getProductDataDTOS().size(); i++) {
+                if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getPriceNotVat() == null) {
+                    StringBuilder mess = new StringBuilder();
+                    Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(i).getProductId();
+                    Product product = productRepository.getById(id);
+                    mess.append(product.getProductCode() + "-" + product.getProductName() + " chưa có giá");
+                    throw new ValidateException(ResponseMessage.PRODUCT_,mess.toString());
+                }
                 for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
                     if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat().equals(redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat())) {
                         check = true;
                     } else {
                         throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
-                    }
-                    if (redInvoiceNewDataDTO.getProductDataDTOS().get(j).getPriceNotVat() == null) {
-                        StringBuilder mess = new StringBuilder();
-                        Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(j).getProductId();
-                        Product product = productRepository.getById(id);
-                        mess.append(product.getProductCode() + "-" + product.getProductName() + " chưa có giá");
-                        throw new ValidateException(ResponseMessage.PRODUCT_RED_INVOCIE_PRICE, mess.toString());
                     }
                 }
             }
