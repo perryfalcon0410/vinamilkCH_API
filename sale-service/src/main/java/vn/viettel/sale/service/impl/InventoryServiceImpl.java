@@ -10,6 +10,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
+import vn.viettel.sale.util.CreateCodeUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -326,15 +328,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             }
         }
 
-        List<StockCounting> lst = repository.getLastStockCounting(shopId, DateUtils.convertFromDate(LocalDateTime.now()));
-        int STT = 1;
-        if(!lst.isEmpty()) {
-            String str = lst.get(0).getStockCountingCode();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString);
-        }
-
-        stockCounting.setStockCountingCode(createStockCountingCode(STT));
+        stockCounting.setStockCountingCode(createStockCountingCode(shopId));
         stockCounting.setCountingDate(LocalDateTime.now());
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseTypeId);
@@ -384,7 +378,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return null;
     }
 
-    public String createStockCountingCode(int countingInDay) {
+    public String createStockCountingCode(Long shopId) {
         LocalDate myLocal = LocalDate.now();
         StringBuilder code = new StringBuilder("KK");
         code.append(myLocal.get(IsoFields.QUARTER_OF_YEAR));
@@ -394,12 +388,17 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         String strDate = formatter.format(date);
         code.append(strDate);
         code.append(".");
-        code.append("0000");
-        //code.append(codeNum.substring(String.valueOf(countingInDay.size()).length()));
-        if (countingInDay == 0)
-            code.append(1);
-        else
-            code.append(countingInDay+1);
+        Pageable pageable = PageRequest.of(0,2);
+        Page<StockCounting> lst = repository.getLastStockCounting(shopId,
+                DateUtils.convertFromDate(LocalDateTime.now()), pageable);
+        int STT = 0;
+        if(!lst.getContent().isEmpty()) {
+            String str = lst.getContent().get(0).getStockCountingCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString);
+        }
+
+        code.append(CreateCodeUtils.formatReceINumber(STT));
 
         return code.toString();
     }

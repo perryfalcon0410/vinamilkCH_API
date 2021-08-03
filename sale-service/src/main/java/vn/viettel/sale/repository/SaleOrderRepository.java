@@ -24,11 +24,10 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 2")
     SaleOrder getOrderReturnByNumber(String ON);
 
-    @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId " +
-            " And s.createdAt>= :startDate " +
-            " AND s.id = (SELECT MAX (so.id) FROM SaleOrder so WHERE so.shopId =:shopId And so.createdAt >= :startDate  ) " +
-            " ORDER BY s.id desc, s.createdAt desc ")
-    List<SaleOrder> getLastSaleOrderNumber(Long shopId, LocalDateTime startDate);
+    @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId And s.createdAt>= :startDate" +
+            " AND s.orderNumber like :startWith% " +
+            " ORDER BY s.orderNumber desc ")
+    Page<SaleOrder> getLastSaleOrderNumber(Long shopId, String startWith, LocalDateTime startDate, Pageable pageable);
 
     @Query(value = "SELECT customerId FROM SaleOrder WHERE coalesce(:orderNumbers, null) is null or orderNumber in (:orderNumbers) ")
     List<Long> getCustomerCode(List<String> orderNumbers);

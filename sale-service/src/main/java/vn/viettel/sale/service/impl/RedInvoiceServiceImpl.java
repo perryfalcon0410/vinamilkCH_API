@@ -250,6 +250,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     } else {
                         throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
                     }
+                    if (redInvoiceNewDataDTO.getProductDataDTOS().get(j).getPriceNotVat() == null) {
+                        StringBuilder mess = new StringBuilder();
+                        Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(j).getProductId();
+                        Product product = productRepository.getById(id);
+                        mess.append(product.getProductCode() + "-" + product.getProductName() + " chưa có giá");
+                        throw new ValidateException(ResponseMessage.PRODUCT_,mess.toString());
+                    }
                 }
             }
         } else {

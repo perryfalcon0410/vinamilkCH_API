@@ -4,10 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
-import vn.viettel.core.messaging.CustomerRequest;
-import vn.viettel.core.messaging.MemberCustomerRequest;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.core.messaging.RptCusMemAmountRequest;
+import vn.viettel.core.messaging.*;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import vn.viettel.core.security.anotation.RoleFeign;
 
@@ -34,7 +31,7 @@ public interface CustomerClient {
     Response<List<CustomerDTO>> getCustomerByMobiPhoneV1(@PathVariable String phone);
 
     @PostMapping("/api/v1/customers/feign")
-    Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerRequest request, @RequestParam Long userId, @RequestParam Long shopId);
+    Response<CustomerDTO> createForFeignV1(@Valid @RequestBody CustomerOnlRequest request, @RequestParam Long shopId);
 
     @GetMapping("/api/v1/customers/feign-default/{id}")
     CustomerDTO getCusDefault(@PathVariable Long id);

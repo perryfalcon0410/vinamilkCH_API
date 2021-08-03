@@ -233,10 +233,13 @@ public class ComboProductTransServiceImpl
             StringBuilder messages = new StringBuilder();
             List<ComboProduct> comboProductsDbs = comboProductRepo.findComboProducts(new ArrayList<>(comboErrors.keySet()), 1);
             for(ComboProduct combo: comboProductsDbs) {
-                StockTotal stockTotal = comboErrors.get(combo.getId());
-                Integer qty = 0;
-                if(stockTotal!=null && stockTotal.getQuantity()!=null) qty = stockTotal.getQuantity();
+                StockTotal stockTotal = comboErrors.get(combo.getId());;
                 if(!messages.toString().isEmpty()) messages.append(", ");
+                if(stockTotal == null) {
+                    messages.append(combo.getProductCode() + " - " + combo.getProductName() + " " + ResponseMessage.STOCK_TOTALS_NOT_FOUND_MESSAGE.statusCodeValue());
+                    continue;
+                }
+                Integer qty = stockTotal.getQuantity()!=null?stockTotal.getQuantity():0;
                 messages.append(combo.getProductCode() + " - " + combo.getProductName() + " - " + qty.toString());
             }
             throw new ValidateException(ResponseMessage.STOCK_TOTALS_COMBO_LESS_THAN, messages.toString());
@@ -247,9 +250,12 @@ public class ComboProductTransServiceImpl
             List<Product> products = productRepo.getProducts(new ArrayList<>(subComboErorrs.keySet()), 1);
             for(Product product: products) {
                 StockTotal stockTotal = subComboErorrs.get(product.getId());
-                Integer qty = 0;
-                if(stockTotal!=null && stockTotal.getQuantity()!=null) qty = stockTotal.getQuantity();
                 if(!messages.toString().isEmpty()) messages.append(", ");
+                if(stockTotal == null) {
+                    messages.append(product.getProductCode() + " - " + product.getProductName() + " " + ResponseMessage.STOCK_TOTALS_NOT_FOUND_MESSAGE.statusCodeValue());
+                    continue;
+                }
+                Integer qty = stockTotal.getQuantity()!=null?stockTotal.getQuantity():0;
                 messages.append(product.getProductCode() + " - " + product.getProductName() + " - " + qty.toString());
             }
             throw new ValidateException(ResponseMessage.STOCK_TOTALS_SUB_COMBO_LESS_THAN, messages.toString());

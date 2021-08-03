@@ -43,17 +43,33 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
     @Override
     public Boolean isEditableOnlineOrder(Long shopId) {
-        ShopParam shopParam = shopParamRepo.isEditable(shopId);
-        if(shopParam == null)
-            return false;
+        String type = "SALEMT_ONLINE_ORDER";
+        String code = "VES_EDITING";
+        List<Shop> shops = getParentShop(shopId);
+        ShopParam param = shopParamRepo.getShopParam(type, code, shopId).orElse(null);
+        if(param == null){
+            for (Shop shop : shops){
+                param = shopParamRepo.getShopParam(type, code, shop.getId()).orElse(null);
+                if(param != null) break;
+            }
+        }
+        if(param == null) return false;
         return true;
     }
 
     @Override
     public Boolean isManuallyCreatableOnlineOrder(Long shopId) {
-        ShopParam shopParam = shopParamRepo.isManuallyCreatable(shopId);
-        if(shopParam == null)
-            return false;
+        String type = "SALEMT_ONLINE_ORDER";
+        String code = "MANUAL_ORDER";
+        List<Shop> shops = getParentShop(shopId);
+        ShopParam param = shopParamRepo.getShopParam(type, code, shopId).orElse(null);
+        if(param == null){
+            for (Shop shop : shops){
+                param = shopParamRepo.getShopParam(type, code, shop.getId()).orElse(null);
+                if(param != null) break;
+            }
+        }
+        if(param == null) return false;
         return true;
     }
 

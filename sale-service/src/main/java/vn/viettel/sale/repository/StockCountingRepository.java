@@ -1,5 +1,7 @@
 package vn.viettel.sale.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.StockCounting;
@@ -16,7 +18,6 @@ public interface StockCountingRepository extends BaseRepository<StockCounting>, 
 
     @Query(value = "SELECT s FROM StockCounting s WHERE s.shopId =:shopId " +
             " And s.createdAt>= :startDate " +
-            " AND s.id = (SELECT MAX (so.id) FROM StockCounting so WHERE so.shopId =:shopId And so.createdAt >= :startDate  ) " +
-            " ORDER BY s.id desc, s.createdAt desc ")
-    List<StockCounting> getLastStockCounting(Long shopId, LocalDateTime startDate);
+            " ORDER BY s.stockCountingCode desc ")
+    Page<StockCounting> getLastStockCounting(Long shopId, LocalDateTime startDate, Pageable pageable);
 }

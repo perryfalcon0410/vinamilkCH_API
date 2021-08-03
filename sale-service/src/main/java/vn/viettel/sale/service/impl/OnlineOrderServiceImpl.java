@@ -19,6 +19,7 @@ import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
@@ -105,9 +106,16 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<CustomerDTO> customerDTOS = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
 
         if(customerDTOS.isEmpty()) {
-            CustomerRequest customerRequest = this.createCustomerRequest(onlineOrder);
+            CustomerOnlRequest cusRequest = new CustomerOnlRequest();
+            cusRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
+            cusRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
+            cusRequest.setMobiPhone(onlineOrder.getCustomerPhone());
+            cusRequest.setDob(onlineOrder.getCustomerDOB());
+            cusRequest.setAddress(onlineOrder.getCustomerAddress());
+            cusRequest.setStatus(1);
+
             try{
-                CustomerDTO customerDTO = customerClient.createForFeignV1(customerRequest, userId,  shopId).getData();
+                CustomerDTO customerDTO = customerClient.createForFeignV1(cusRequest, shopId).getData();
                 customerDTOS.add(customerDTO);
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
@@ -152,7 +160,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
         LocalDateTime date = LocalDateTime.now();
         LocalDateTime daysAgo = null;
-        if(apParam!=null && apParam.getValue() !=null) {
+        if(apParam!=null && apParam.getStatus() == 1 && apParam.getValue() !=null) {
             daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
         }
         List<SaleOrder> saleOrders = saleOrderRepository.checkOnlineNumber(code, daysAgo);
@@ -201,15 +209,18 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 List<Product> products = productRepo.findByProductCodes(productCodes);
                 if (products.size() != lines.size()) continue;
 
+                String orderNumber = header.getOrderNumber();
+                if(orderNumber!=null && orderNumber.startsWith("#")) orderNumber = orderNumber.substring(1);
+
                 String adrress = header.getCustomerAddress();
                 if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
 
                 if (header.getCustomerBirthday()!=null) {
-                    repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                    repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
                             header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
                             header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
                 }else {
-                    repository.schedulerInsertNoDOB(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), header.getOrderNumber(),
+                    repository.schedulerInsertNoDOB(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
                             header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
                             header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now());
                 }
@@ -391,33 +402,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }
         }
         return new ConnectFTP(server, portStr, userName, password);
-    }
-
-    private CustomerRequest createCustomerRequest(OnlineOrder onlineOrder) {
-        CustomerTypeDTO customerTypeDTO = customerTypeClient.getCustomerTypeDefaultV1().getData();
-
-        CustomerRequest customerRequest = new CustomerRequest();
-        customerRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
-        customerRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
-        customerRequest.setMobiPhone(onlineOrder.getCustomerPhone());
-        customerRequest.setDob(onlineOrder.getCustomerDOB());
-        customerRequest.setCustomerTypeId(customerTypeDTO.getId());
-        customerRequest.setStatus(1);
-        this.setArea(onlineOrder.getCustomerAddress(), customerRequest);
-        return customerRequest;
-    }
-
-    private void setArea(String address, CustomerRequest customerRequest ) {
-        String[] words = address.split(",");
-        int index = words.length -1;
-        String provinceName = words[index--].trim();
-        String districtName = words[index--].trim();
-        String precinctName = words[index--].trim();
-        String street = words[index].trim();
-
-        AreaDTO areaDTO = areaClient.getAreaV1(provinceName, districtName, precinctName).getData();
-        customerRequest.setAreaId(areaDTO.getId());
-        customerRequest.setStreet(street);
     }
 
     private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, List<Product> products, List<Price> prices, List<StockTotal> stockTotals) {
