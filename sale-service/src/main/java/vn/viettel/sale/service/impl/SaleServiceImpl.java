@@ -232,7 +232,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if (orderVoucher.getId() != null)
                     voucher = promotionClient.getVouchersV1(orderVoucher.getId()).getData();
 
-                if (voucher == null || (voucher != null && (voucher.getIsUsed() || voucher.getPrice().compareTo(orderVoucher.getPrice()) != 0 )))
+                if (voucher == null || (voucher != null && voucher.getIsUsed() != null  && ( voucher.getIsUsed() || voucher.getPrice().compareTo(orderVoucher.getPrice()) != 0 )))
                     throw new ValidateException(ResponseMessage.VOUCHER_DOES_NOT_EXISTS);
 
                 if (voucher.getPrice() != null) voucherAmount += voucher.getPrice();

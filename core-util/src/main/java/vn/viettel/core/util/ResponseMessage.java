@@ -321,7 +321,7 @@ public enum ResponseMessage {
     WAREHOUSE_TYPE_ID_MUST_NOT_BE_NUll(9091, "Loại kho không được để trống"),
     RECEIPT_IMPORT_HAS_BEEN_RETURNED(9092, "Phiếu nhập đã được trả"),
     STOCK_TOTALS_COMBO_LESS_THAN(9093, "Sản phẩm combo hiện không đủ tồn kho, số lượng còn lại: %s"),
-    PRODUCT_(9092, "Sản phẩm %s"),
+    PRODUCT_PRICE_RED_INVOICE_NOT_FOUND(9092, "Sản phẩm %s chưa có giá"),
     STOCK_TOTALS_NOT_FOUND_MESSAGE(9094, "không có thông tin tồn kho"),
     PRODUCT_ORDER_NOT_EMPTY(9095, "Danh sách sản phẩm mua không được rỗng"),
 

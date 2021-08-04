@@ -8,14 +8,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
-import vn.viettel.report.service.dto.PromotionProductCatDTO;
-import vn.viettel.report.service.dto.PromotionProductDTO;
-import vn.viettel.report.service.dto.PromotionProductReportDTO;
-import vn.viettel.report.service.dto.PromotionProductTotalDTO;
+import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.PromotionProductExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -26,6 +24,8 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.*;
@@ -100,7 +100,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
 
 
     @Override
-    public PromotionProductReportDTO getDataPrint(PromotionProductFilter filter) {
+    public PromotionProductReportDTO getDataPrint(PromotionProductFilter filter) throws ParseException {
         List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(DateUtils.convertToDate(filter.getFromDate()), DateUtils.convertToDate(filter.getToDate()), shopDTO);
@@ -110,6 +110,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
             reportDTO.setTotalQuantity(reportTotal.getQuantity());
             this.removeDataList(promotions);
             Set<String> productCats =  promotions.stream().map(PromotionProductDTO::getProductCatName).collect(Collectors.toSet());
+            List<PromotionProductCatDTO> cats = new ArrayList<>();
             for (String catName: productCats) {
                 PromotionProductCatDTO productCatDTO = new PromotionProductCatDTO(catName);
                 for(PromotionProductDTO product: promotions) {
@@ -118,8 +119,12 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                         productCatDTO.addTotalQuantity(product.getQuantity());
                     }
                 }
-                reportDTO.addProductCat(productCatDTO);
+                cats.add(productCatDTO);
             }
+            //sort vietnames
+            RuleBasedCollator ru = new RuleBasedCollator(Constants.rules);
+            Collections.sort(cats, (PromotionProductCatDTO t1, PromotionProductCatDTO t2)->ru.compare(t1.getProductCatName(), t2.getProductCatName()));
+            reportDTO.setProductCats(cats);
         }
 
         return reportDTO;

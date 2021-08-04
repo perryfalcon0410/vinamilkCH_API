@@ -181,16 +181,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
             productReturnDTO.setPricePerUnit(productReturn.getPrice());
             double discount = 0;
-            if (productReturn.getAutoPromotion() == null && productReturn.getZmPromotion() == null) {
-                discount = 0;
-            } else if (productReturn.getAutoPromotion() == null || productReturn.getZmPromotion() == null) {
-                if (productReturn.getAutoPromotion() == null)
-                    discount = productReturn.getZmPromotion();
-                if (productReturn.getZmPromotion() == null)
-                    discount = productReturn.getAutoPromotion();
-            } else {
-                discount = productReturn.getAutoPromotion() + productReturn.getZmPromotion();
-            }
+            if (productReturn.getAutoPromotionVat() != null) discount = productReturn.getAutoPromotionVat();
+            if (productReturn.getZmPromotionVat() != null) discount += productReturn.getZmPromotionVat();
+
             if(discount < 0) discount = discount * -1;
             productReturnDTO.setDiscount(discount);
 
@@ -238,7 +231,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 } else {
                     promotionReturnDTO.setQuantity(promotionReturn.getQuantity());
                 }
-                promotionReturnDTO.setPricePerUnit(0D);
+                promotionReturnDTO.setPricePerUnit(promotionReturn.getPrice());
                 promotionReturnDTO.setPaymentReturn(0D);
                 promotionReturnsDTOList.add(promotionReturnDTO);
                 totalResponse.setTotalQuantity(totalResponse.getTotalQuantity() + promotionReturnDTO.getQuantity());
@@ -332,9 +325,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 productReturn.setOrderDate(returnDate);
 
                 productReturn.setQuantity(saleOrderDetail.getQuantity() * -1);
-//                productReturn.setPrice(saleOrderDetail.getPrice() * -1);
+                productReturn.setPrice(saleOrderDetail.getPrice());
+                productReturn.setPriceNotVat(saleOrderDetail.getPriceNotVat());
                 productReturn.setAmount(saleOrderDetail.getAmount() * -1);
                 productReturn.setTotal(saleOrderDetail.getTotal() * -1);
+
                 if (saleOrderDetail.getAutoPromotionNotVat() != null)
                     productReturn.setAutoPromotionNotVat(saleOrderDetail.getAutoPromotionNotVat() * -1);
                 if (saleOrderDetail.getAutoPromotionVat() != null)
@@ -355,7 +350,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
             SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
             promotionReturn.setSaleOrderId(orderReturn.getId());
-            promotionReturn.setPrice(0D);
+            promotionReturn.setPrice(promotionDetail.getPrice());
             promotionReturn.setAmount(0D);
             promotionReturn.setTotal(0D);
             promotionReturn.setQuantity(promotionDetail.getQuantity() * (-1));
