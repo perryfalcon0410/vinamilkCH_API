@@ -137,32 +137,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<ProductOrderRequest> lstProductOrder = new ArrayList<>(mapProductOrder.values());
         request.setProducts(lstProductOrder);
 
-        //1. check existing promotion code - mã giảm giá
-        if (StringUtils.stringNotNullOrEmpty(request.getDiscountCode())){
-            OrderPromotionRequest orderRequest = new OrderPromotionRequest();
-            orderRequest.setCustomerId(request.getCustomerId());
-            orderRequest.setOrderType(request.getOrderType());
-            orderRequest.setProducts(lstProductOrder);
-
-            SalePromotionDTO salePromotion = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest );
-            if (salePromotion == null) throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, request.getDiscountCode());
-
-            Double discountValue = salePromotion.getAmount().getAmount();
-            if (!request.getDiscountAmount().equals(discountValue)) throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
-
-            discountNeedSave = promotionClient.getPromotionDiscount(request.getDiscountCode(), shopId).getData();
-            discountNeedSave.setIsUsed(1);
-            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
-            discountNeedSave.setActualDiscountAmount(discountValue);
-            discountNeedSave.setOrderShopCode(shop.getShopCode());
-
-            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
-            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-            promotionShopMap.setQuantityReceived(received + discountValue);
-            promotionShopMaps.add(promotionShopMap);
-
-        }
-
         //danh sách id sản phẩm theo số lượng mua và km
         HashMap<Long, Integer> mapProductWithQty = new HashMap<>();
         boolean isReturn = true;
@@ -387,6 +361,35 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
             }
         }
+
+        //4. check existing promotion code - mã giảm giá
+        if (StringUtils.stringNotNullOrEmpty(request.getDiscountCode())){
+            OrderPromotionRequest orderRequest = new OrderPromotionRequest();
+            orderRequest.setCustomerId(request.getCustomerId());
+            orderRequest.setOrderType(request.getOrderType());
+            orderRequest.setProducts(lstProductOrder);
+            orderRequest.setPromotionAmount(promotionInVat);
+            orderRequest.setPromotionAmountExTax(promotionExVat);
+
+            SalePromotionDTO salePromotion = salePromotionService.getDiscountCode(request.getDiscountCode(), shopId, orderRequest );
+            if (salePromotion == null) throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, request.getDiscountCode());
+
+            Double discountValue = salePromotion.getAmount().getAmount();
+            if (roundValue(request.getDiscountAmount())!=(roundValue(discountValue))) throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
+
+            discountNeedSave = promotionClient.getPromotionDiscount(request.getDiscountCode(), shopId).getData();
+            discountNeedSave.setIsUsed(1);
+            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
+            discountNeedSave.setActualDiscountAmount(discountValue);
+            discountNeedSave.setOrderShopCode(shop.getShopCode());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
+            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+            promotionShopMap.setQuantityReceived(received + discountValue);
+            promotionShopMaps.add(promotionShopMap);
+
+        }
+
         // 5. kiểm tra tiền tích lũy
         if ((customer.getAmountCumulated()!=null &&  request.getAccumulatedAmount()!=null && customer.getAmountCumulated() < request.getAccumulatedAmount()))
             throw new ValidateException(ResponseMessage.ACCUMULATED_AMOUNT_OVER);
@@ -527,8 +530,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             }else {
                                 if (dbPro.getEditable() == null || dbPro.getEditable() == 0) { // không được sửa tổng số lượng tặng < số lượng cơ cấu
                                     for (FreeProductDTO product : inputPro.getProducts()) {
-                                        if (product.getQuantity() != null && product.getQuantity() > 0 && group.equalsIgnoreCase(product.getGroupOneFreeItem())) {
-                                            if (totalQty < 1 || totalQty != product.getQuantityMax())
+                                        if ( group.equalsIgnoreCase(product.getGroupOneFreeItem())) {
+                                            if (totalQty < 1 || (product.getQuantity() != null && product.getQuantity() > 0 && totalQty != product.getQuantityMax()))
                                                 throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                                         }
                                     }
@@ -680,7 +683,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             double amountDisTotal = 0;
             // trừ tiền giảm giá
             if (saleOrder.getTotalPromotion() != null) {
-                amountDisTotal += saleOrder.getTotalPromotion();
+                amountDisTotal += saleOrder.getTotalPromotionVat();
             }
             if (saleOrder.getTotalVoucher() != null) {
                 amountDisTotal += saleOrder.getTotalVoucher();

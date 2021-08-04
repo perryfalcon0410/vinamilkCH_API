@@ -146,7 +146,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 poConfirm.setId(id);
                 poConfirm.setTotalAmount(totalAm);
                 poConfirm.setTotalQuantity(totalQuan);
-                String poCode = poHeader.getDistCode()+"_"+id;
+                String poCode = poHeader.getDistCode()+"_"+id+"_POS";
                 poConfirm.setPoCode(poCode);
                 repository.save(poConfirm);
             }
