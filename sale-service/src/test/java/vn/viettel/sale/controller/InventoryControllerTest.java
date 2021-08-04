@@ -163,15 +163,14 @@ public class InventoryControllerTest extends BaseTest {
 
     @Test
     public void testGetInventoryNumberInDay() throws Exception {
-        String uri = V1 + root + "/inventory/numInDay";
+        String uri = V1 + root + "/inventory/numInDay/{wareHouseTypeId}";
         given(inventoryService.checkInventoryInDay(any(), any())).willReturn(true);
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
         String responseData = resultActions.andReturn().getResponse().getContentAsString();
-
         assertThat(responseData, containsString("\"data\":true"));
     }
 }
