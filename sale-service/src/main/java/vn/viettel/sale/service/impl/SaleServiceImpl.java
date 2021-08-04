@@ -904,6 +904,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return  code + Integer.toString(STT + 100000).substring(1);
     }
 
+    @Override
+    public OnlineOrderValidDTO getValidOnlineOrder(Long shopId) {
+        Boolean isEditable = shopClient.isEditableOnlineOrderV1(shopId).getData();
+        Boolean isManuallyCreatable = shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData();
+        OnlineOrderValidDTO valid = new OnlineOrderValidDTO(isEditable, isManuallyCreatable);
+        return valid;
+    }
+
     /*
     kiểm tra sản phẩm có được km
      */
