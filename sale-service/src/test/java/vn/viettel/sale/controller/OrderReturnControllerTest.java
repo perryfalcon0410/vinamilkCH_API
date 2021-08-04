@@ -92,7 +92,7 @@ public class OrderReturnControllerTest extends BaseTest {
     public void orderSelected() throws Exception {
         String uri = V1 + root + "/chosen/{id}";
         OrderReturnDetailDTO data = new OrderReturnDetailDTO();
-        given(orderReturnService.getSaleOrderChosen(anyLong(), anyLong())).willReturn(data);
+        given(orderReturnService.getSaleOrderChosen(any(), any())).willReturn(data);
         ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -101,7 +101,7 @@ public class OrderReturnControllerTest extends BaseTest {
         assertThat(responseData, containsString("\"data\":{"));
     }
 
-//    @Test
+    @Test
     public void createOrderReturn() throws Exception {
         String uri = V1 + root;
         OrderReturnRequest requestObj = new OrderReturnRequest();
