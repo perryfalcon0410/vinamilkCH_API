@@ -718,11 +718,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             }
             poRecord.setNumSku(countNumSKU.size());
             poRecord.setNote(request.getNote());
+            repository.save(poRecord);
+
             poConfirm.setStatus(1);
-            poRecord = repository.save(poRecord);
-            poConfirm = poConfirmRepository.save(poConfirm);
-            syncIds.add(poRecord.getId());
-            syncIds.add(poConfirm.getId());
+            poConfirm.setImportDate(poRecord.getTransDate());
+            poConfirm.setImportCode(poRecord.getTransCode());
+            poConfirm.setImportUser(poRecord.getCreatedBy());
+            poConfirm.setUpdatedAt(poRecord.getUpdatedAt());
+            poConfirm.setUpdatedBy(poRecord.getUpdatedBy());
+            poConfirmRepository.save(poConfirm);
         }
         return syncIds;
     }

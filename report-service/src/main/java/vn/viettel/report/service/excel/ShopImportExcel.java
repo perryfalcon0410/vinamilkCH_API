@@ -48,7 +48,7 @@ import java.util.*;
         //header right
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,(shop_.getShopName()==null?"":shop_.getShopName()),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,(shop_.getAddress()==null?"":shop_.getAddress()),style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shop_.getPhone()+"  "+"Fax:"+" "+(shop_.getFax()==null?"":shop_.getFax()),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shop_.getPhone()!=null?shop_.getPhone():"" + " Fax:"+" "+(shop_.getFax()==null?"":shop_.getFax()),style.get(ExcelPoiUtils.HEADER_LEFT));
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO NHẬP HÀNG CHI TIẾT",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(filter.getFromDate())+"  ĐẾN NGÀY: "+DateUtils.formatDate2StringDate(filter.getToDate()),style.get(ExcelPoiUtils.ITALIC_12));

@@ -273,6 +273,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         customer.setDob(request.getDob());
         customer.setCustomerTypeId(customerType.getId());
         customer.setAddress(request.getAddress());
+        if(request.getAddress()!=null) customer.setAddressText(VNCharacterUtils.removeAccent(request.getAddress()).toUpperCase(Locale.ROOT));
         customer.setStatus(request.getStatus());
         repository.save(customer);
 
