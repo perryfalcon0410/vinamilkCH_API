@@ -1,0 +1,24 @@
+version: '3'
+services:
+  salemt-haproxy:
+    image: salemt/haproxy:1.0
+    container_name: salemt-haproxy
+#    restart: always
+    networks:
+      - haproxy
+    ports:
+      - "80:8100"                         # frontend
+      - "8086:8086"                       # backend
+      - "9999:9999"                       # haproxy
+    volumes:
+      - "haproxy_conf:/usr/local/etc/haproxy"
+networks:
+  haproxy:
+    driver: bridge
+volumes:
+  haproxy_conf:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: D:/docker/setup/haproxy_conf

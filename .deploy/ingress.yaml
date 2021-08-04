@@ -1,0 +1,16 @@
+ingress:
+  hosts:
+    - host: rancher.imt-soft.com
+      paths:
+        - path: /api/
+          backend:
+            serviceName: api-gateway
+            servicePort: 80
+        - path: /ui/
+          backend:
+            serviceName: kch-web
+            servicePort: 80
+        - path: /discovery/
+          backend:
+            serviceName: discovery-server
+            servicePort: 80

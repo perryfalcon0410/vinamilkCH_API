@@ -1,0 +1,36 @@
+# Default values for oracle.
+replicaCount: 1
+oracle:
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+  name: "oracle"
+  namespace: vinamilk
+  group: "database"
+  image:
+    tag: 12.2.0.1
+    repository: store/oracle/database-enterprise
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 1521
+  volume:
+    name: oracle-storage
+    kind: PersistentVolumeClaim
+    mountPath: /var/lib/oracleql/data
+    pvc:
+      name: oracle-persistent-volume-claim
+      accessMode: ReadWriteOnce
+      storage: 2Gi
+  container:
+    port: 1521
+  config:
+    name: oracle-config
+    data:
+      - key: DB_SID
+        value: ORCL
+      - key: DB_PDB
+        value: ORCLPDB1
+      - key: DB_PASSWD
+        value: admin123
+      - key: DB_DOMAIN
+        value: localdomain

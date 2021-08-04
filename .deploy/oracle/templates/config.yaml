@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.oracle.config.name }}
+  labels:
+    group: {{ .Values.oracle.group }}
+data:
+  {{- range .Values.oracle.config.data }}
+  {{ .key }}: {{ .value }}
+  {{- end}}

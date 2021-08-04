@@ -1,0 +1,16 @@
+server:
+  name: "discovery-server"
+  group: "server"
+  image:
+    tag: latest
+    repository: "vinamilk/discovery-server"
+  container:
+    port: 8761
+    config: []
+    env:
+      - key: SERVICE_PORT
+        value: "\"8761\""
+      - key: SPRING_PROFILES_ACTIVE
+        value: ci
+      - key: eureka.instance.hostname
+        value: "api-gateway"

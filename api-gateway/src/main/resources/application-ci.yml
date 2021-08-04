@@ -1,0 +1,63 @@
+server:
+  port: 2407
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+    preferIpAddress: true
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URL}
+
+zuul:
+  host:
+    connect-timeout-millis: 20000
+    socket-timeout-millis: 20000
+  sensitiveHeaders: Cookie,Set-Cookie
+  routes:
+    user-service:
+      serviceId: authorization-service
+      path: /api/v1/users/**
+      strip-prefix: false
+      url: http://authorization-service
+    common-service:
+      serviceId: common-service
+      path: /api/v1/commons/**
+      strip-prefix: false
+      url: http://common-service
+    customer-service:
+      serviceId: customer-service
+      path: /api/v1/customers/**
+      strip-prefix: false
+      url: http://customer-service
+    promotion-service:
+      serviceId: promotion-service
+      path: /api/v1/promotions/**
+      strip-prefix: false
+      url: http://promotion-service
+    report-service:
+      serviceId: report-service
+      path: /api/v1/reports/**
+      strip-prefix: false
+      url: http://report-service
+    sale-service:
+      serviceId: sale-service
+      path: /api/v1/sales/**
+      strip-prefix: false
+      url: http://sale-service
+    setting-service:
+      serviceId: setting-service
+      path: /api/v1/settings/**
+      strip-prefix: false
+      url: http://setting-service
+
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: false
+            
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000

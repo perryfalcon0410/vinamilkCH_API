@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.oracle.name }}
+  labels:
+    app: {{ .Values.oracle.name }}
+    group: {{ .Values.oracle.group }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.oracle.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.oracle.name }}
+        group: {{ .Values.oracle.group }}
+    spec:
+      volumes:
+        - name: {{ .Values.oracle.volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.oracle.volume.pvc.name }}
+      containers:
+        - name: {{ .Values.oracle.name }}
+          image: "{{ .Values.oracle.image.repository }}:{{ .Values.oracle.image.tag }}"
+          imagePullPolicy: {{ .Values.oracle.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.oracle.config.name }}
+          ports:
+            - containerPort: {{ .Values.oracle.container.port }}
+          volumeMounts:
+            - name: {{ .Values.oracle.volume.name }}
+              mountPath: {{ .Values.oracle.volume.mountPath }}

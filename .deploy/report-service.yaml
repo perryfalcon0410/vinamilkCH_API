@@ -1,0 +1,24 @@
+server:
+  name: "report-service"
+  group: "server"
+  image:
+    tag: latest
+    repository: "vinamilk/report-service"
+  container:
+    port: 9005
+    config: []
+    env:
+      - key: SERVICE_PORT
+        value: "\"9005\""
+      - key: DB_USERNAME
+        value: "VINAMILKCH_REPORT"
+      - key: DB_PASSWORD
+        value: "VINAMILKCH_REPORT#123"
+      - key: SPRING_PROFILES_ACTIVE
+        value: ci
+      - key: EUREKA_URL
+        value: 'http://eureka-0.eureka:8761/eureka,http://eureka-1.eureka:8761/eureka,http://eureka-2.eureka:8761/eureka'
+      - key: DB_URL
+        value: 'jdbc:oracle:thin:@vnmch-db-01:1521/db12c'
+      - key: HOST_NAME
+        value: "report-service"

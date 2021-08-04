@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: {{ .Values.oracle.volume.kind }}
+metadata:
+  name: {{ .Values.oracle.volume.pvc.name }}
+spec:
+  accessModes:
+    - {{ .Values.oracle.volume.pvc.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.oracle.volume.pvc.storage }}

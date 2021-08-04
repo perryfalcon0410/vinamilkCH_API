@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.ingress.clusterissuer.name }}
+spec:
+  acme:
+    # Email address used for ACME registration
+    email: {{ .Values.ingress.clusterissuer.email }}
+    server: {{ .Values.ingress.clusterissuer.server }}
+    privateKeySecretRef:
+      name: {{ .Values.ingress.clusterissuer.name }}
+    solvers:
+      - http01:
+          ingress:
+            class: {{ .Values.ingress.clusterissuer.ingressClass }}

@@ -1,0 +1,9 @@
+server:
+  name: "configuration-server"
+  group: "server"
+  image:
+    tag: latest
+    repository: "vinamilk/configuration-server"
+  container:
+    port: 8888
+    config: []

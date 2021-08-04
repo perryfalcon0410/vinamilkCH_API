@@ -1,0 +1,16 @@
+server:
+  port: ${SERVICE_PORT}
+eureka:
+  client:
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URL}
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+    hostname: ${HOST_NAME}
+    preferIpAddress: true
+
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000

@@ -3,9 +3,9 @@ server:
 spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@192.168.100.112:1521/ORCLPDB1.localdomain
-    username: auth
-    password: Auth_123
+    url: jdbc:oracle:thin:@vnmch-db-01:1521/db12c
+    username: VINAMILKCH_AUTH
+    password: VINAMILKCH_AUTH#123
   jpa:
     show-sql: true
     hibernate:

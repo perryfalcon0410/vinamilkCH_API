@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eureka-cm
+data:
+  # if you want to deploy n instances of eureka cluster,
+  # you should set eureka_service_address: http://eureka-0.eureka:8761/eureka,...,http://eureka-(n-1).eureka:8761/eureka
+  eureka_service_address: http://eureka-0.eureka:8761/eureka,http://eureka-1.eureka:8761/eureka,http://eureka-2.eureka:8761/eureka
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka
+  labels:
+    app: eureka
+spec:
+  clusterIP: None
+  ports:
+    - port: 8761
+      name: eureka
+  selector:
+    app: eureka
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eureka
+spec:
+  serviceName: 'eureka'
+  # n instances
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eureka
+  template:
+    metadata:
+      labels:
+        app: eureka
+    spec:
+      containers:
+        - name: eureka
+          image: "192.168.100.118:10001/vinamilk/discovery-server:latest"
+          ports:
+            - containerPort: 8761
+          env:
+            - name: EUREKA_SERVER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: eureka-cm
+                  key: eureka_service_address
+            - name: SPRING_PROFILES_ACTIVE
+              value: "ci"
+            - name: SERVICE_PORT
+              value: "8761"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8761
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8761
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5

@@ -1,0 +1,11 @@
+config:
+  name: oracle-config
+  data:
+    - key: DB_SID
+      value: ORCL
+    - key: DB_PDB
+      value: ORCLPDB1
+    - key: DB_PASSWD
+      value: admin123
+    - key: DB_DOMAIN
+      value: localdomain

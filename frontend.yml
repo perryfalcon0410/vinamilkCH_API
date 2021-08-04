@@ -1,0 +1,24 @@
+version: '3'
+services:
+  salemt-frontend:
+    image: salemt/frontend:1.0
+    container_name: salemt-frontend
+#    restart: always
+    networks:
+      - frontend
+    environment:
+      SALEMT_APP_BACKEND_URL: http://127.0.0.1:2407/api/v1
+    ports:
+      - "8100:80"
+    volumes:
+      - "frontend_conf:/etc/nginx/conf"
+networks:
+  frontend:
+    driver: bridge
+volumes:
+  frontend_conf:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: D:/docker/setup/frontend/conf

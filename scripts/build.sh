@@ -6,6 +6,7 @@ mvn install -Dmaven.test.skip=true
 cd ..
 
 cd core-processor
+mvn clean
 mvn install -Dmaven.test.skip=true
 cd ..
 

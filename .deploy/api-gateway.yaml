@@ -1,0 +1,16 @@
+server:
+  name: "api-gateway"
+  group: "server"
+  image:
+    tag: latest
+    repository: "vinamilk/api-gateway"
+  container:
+    port: 2407
+    config: []
+    env:
+      - key: SPRING_PROFILES_ACTIVE
+        value: ci
+      - key: EUREKA_URL
+        value: 'http://eureka-0.eureka:8761/eureka,http://eureka-1.eureka:8761/eureka,http://eureka-2.eureka:8761/eureka'
+      - key: SERVICE_PORT
+        value: "\"2407\""

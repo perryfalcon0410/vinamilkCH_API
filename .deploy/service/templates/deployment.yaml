@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.server.name }}
+  labels:
+    app: {{ .Values.server.name }}
+    group: {{ .Values.server.group }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.server.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.server.name }}
+        group: {{ .Values.server.group }}
+    spec:
+      containers:
+        - name: {{ .Values.server.name }}
+          image: "{{ .Values.server.image.package_location }}/{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.server.container.port }}
+          env:
+            {{- range .Values.server.container.env}}
+            - name: {{ .key}}
+              value: {{ .value}}
+            {{- end}}
