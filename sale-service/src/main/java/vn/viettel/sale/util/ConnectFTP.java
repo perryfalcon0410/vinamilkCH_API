@@ -76,10 +76,10 @@ public class ConnectFTP {
 
             if(ftpClient != null && ftpClient.isConnected() ){
 
-//                boolean status = ftpClient.changeWorkingDirectory(locationPath);
-//                ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
-             //   if(status){
-                    FTPFile[] ftpFiles = ftpClient.listFiles(locationPath);
+                boolean status = ftpClient.changeWorkingDirectory(locationPath);
+                ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+                if(status){
+                    FTPFile[] ftpFiles = ftpClient.listFiles();
                     if (ftpFiles != null && ftpFiles.length > 0) {
                         for (FTPFile file : ftpFiles) {
                             if (file.isFile() && file.getName().endsWith(readFile) &&
@@ -93,7 +93,7 @@ public class ConnectFTP {
                             }
                         }
                     }
-              //  }
+                }
             }
         }catch (Exception ex) {
            ex.printStackTrace();
