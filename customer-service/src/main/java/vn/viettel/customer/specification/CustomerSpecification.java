@@ -15,7 +15,7 @@ import java.util.Locale;
 
 public final class CustomerSpecification {
 
-    public static Specification<Customer> hasStatus(Long status) {
+    public static Specification<Customer> hasStatus(Integer status) {
 
         return (root, query, criteriaBuilder) -> {
             if (status == null) {
