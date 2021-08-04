@@ -202,15 +202,15 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     repository.delete(onlineOrder);
                 }
 
-                //check product
-                List<String> productCodes = new ArrayList<>();
+                //check product - có thể trùng sp
+                Set<String> productCodes = new HashSet<>();
                 for(Line line: lines) {
                     if (!productCodes.contains(line.getSku())) {
                         productCodes.add(line.getSku());
                     }
                 }
-                List<Product> products = productRepo.findByProductCodes(productCodes);
-                if (products.size() != lines.size()) continue;
+                List<Product> products = productRepo.findByProductCodes(new ArrayList<>(productCodes));
+                if (products.size() < productCodes.size()) continue;
 
                 String adrress = header.getCustomerAddress();
                 if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
