@@ -53,6 +53,13 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     @Override
     public List<ApParamDTO> getByType(String type) {
         List<ApParam> apParams = repository.findByTypeAndStatus(type, 1);
+        Collections.sort(apParams, new Comparator<ApParam>() {
+            @Override
+            public int compare(ApParam o1, ApParam o2) {
+                return new Integer(Integer.parseInt(o1.getValue())).compareTo(Integer.parseInt(o2.getValue()));
+            }
+        });
+
         return apParams.stream().map(
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList());
     }
