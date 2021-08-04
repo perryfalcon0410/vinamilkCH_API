@@ -2115,7 +2115,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(discountDTO.getCustomerCode()!=null && !discountDTO.getCustomerCode().equals(customer.getCustomerCode()))
             throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
 
-        double totalAmountInTax = orderData.getTotalPrice() - request.getPromotionAmount();
+        double totalAmountInTax = orderData.getTotalPrice();
         if(request.getPromotionAmount() != null) totalAmountInTax -= request.getPromotionAmount();
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         if(request.getPromotionAmountExTax() != null) totalAmountExtax -= request.getPromotionAmountExTax();
