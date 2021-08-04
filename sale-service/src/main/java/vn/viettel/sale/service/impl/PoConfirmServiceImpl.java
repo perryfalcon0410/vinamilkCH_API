@@ -90,7 +90,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 if(poDetail == null || poDetail.getLstLine().isEmpty()) continue;
 
                 List<Line> lines = poDetail.getLstLine();
-                List<String> productCodes = new ArrayList<>();
+                Set<String> productCodes = new HashSet<>();
 
                 for(Line line: lines) {
                     if (poHeader.getPoNumber().equals(line.getPONumber()) && poHeader.getPoCoNumber().equals(line.getPoCoNumber()) && !productCodes.contains(line.getItemCode())) {
@@ -98,8 +98,8 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                     }
                 }
 
-                List<Product> products = productRepository.findByProductCodes(productCodes);
-                if (products.size() != lines.size()) continue;
+                List<Product> products = productRepository.findByProductCodes(new ArrayList<>(productCodes));
+                if (products.size() < productCodes.size()) continue;
 
                 Map<String, Long> mapProduct = new HashMap<>();
                 for(Product product: products) {

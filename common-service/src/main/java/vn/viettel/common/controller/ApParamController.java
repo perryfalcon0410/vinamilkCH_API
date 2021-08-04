@@ -89,8 +89,7 @@ public class ApParamController extends BaseController {
     )
 
     @GetMapping(value = {V1 + root + "/type/{type}"})
-    Response<List<ApParamDTO>> getByType(HttpServletRequest httpRequest,
-                                         @PathVariable String type) {
+    Response<List<ApParamDTO>> getByType(HttpServletRequest httpRequest, @PathVariable String type) {
         List<ApParamDTO> apParamDTOS = apParamService.getByType(type);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
         return new Response<List<ApParamDTO>>().withData(apParamDTOS);
