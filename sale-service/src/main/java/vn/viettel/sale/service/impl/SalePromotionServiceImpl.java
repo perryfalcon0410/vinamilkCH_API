@@ -401,7 +401,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
             double percent = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
             salePromotion.setTotalAmtInTax(amount);
-            salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
+            salePromotion.setTotalAmtExTax(amount / (( 100 + percent ) / 100));
             if(!isInclusiveTax){
                 salePromotion.setTotalAmtInTax(amount * (( 100 + percent ) / 100));
                 salePromotion.setTotalAmtExTax(amount);
@@ -634,19 +634,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //	Số tiền có thể hưởng CTKM ZV23 = [giá trị mua hàng của đơn]
         //-	Nếu [số tiền còn lại có thể hưởng CTKM ZV23] < [giá trị mua hàng của đơn] (lưu ý cách tính giá chiết khấu, xem mục 6):
         //	Số tiền có thể hưởng CTKM ZV23 = [số tiền còn lại có thể hưởng CTKM ZV23]
+        //Đối với CTKM ZV23 thì sale_amt khi khai báo thì luôn mặc định được hiểu là số tiền sau thuế
+
         Double saveAmount = amountInTax;
         double p = (amountInTax-amountExTax)/amountExTax*100;
-        if (isInclusiveTax(program.getDiscountPriceType())){ // exclusive vat
-            if(amountRemain < amountInTax) {
-                amountInTax = amountRemain;
-                amountExTax = amountInTax / (( 100 + p ) / 100);
-            }
-        }else { // inclusive vat
-            if(amountRemain < amountExTax) {
-                amountExTax = amountRemain;
-                amountInTax = amountExTax * ((100 + p) / 100);
-            }
+        if(amountRemain < amountInTax) {
+            amountInTax = amountRemain;
+            amountExTax = amountInTax / (( 100 + p ) / 100);
         }
+
         //trừ đi km chiết khấu zv01 - zv18 và zm
         amountInTax = amountInTax - totalBeforeZV23InTax;
         amountExTax = amountExTax - totalBeforeZV23ExTax;

@@ -145,8 +145,8 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
         printDTO.setShopName(shopDTO.getShopName());
         printDTO.setShopAddress(shopDTO.getAddress());
         printDTO.setShopTel(shopDTO.getMobiPhone());
-        printDTO.setFromDate(filter.getFromDate());
-        printDTO.setToDate(filter.getToDate());
+        printDTO.setFromDate(DateUtils.convertToDate(filter.getFromDate()));
+        printDTO.setToDate(DateUtils.convertToDate(filter.getToDate()));
         printDTO.setPrintDate(DateUtils.formatDate2StringDateTime(DateUtils.convertDateToLocalDateTime(new Date())));
         printDTO.setCategory(procedure.getCategory());
         printDTO.setTotal(procedure.getTotals());
