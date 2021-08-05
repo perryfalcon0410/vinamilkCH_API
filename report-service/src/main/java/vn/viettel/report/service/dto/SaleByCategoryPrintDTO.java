@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -18,8 +19,8 @@ public class SaleByCategoryPrintDTO {
     private String shopName;
     private String shopAddress;
     private String shopTel;
-    private LocalDate fromDate;
-    private LocalDate toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
     private String printDate;
     private Object[] total;
     private List<String> category;
