@@ -553,7 +553,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // danh sách sản phẩm loại trừ theo id ctkm
         List<Long> promotionIds = new ArrayList<>();
         promotionIds.add(program.getId());
-        List<PromotionProgramProductDTO> programProduct = promotionClient.findByPromotionIdsV1(promotionIds).getData();
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
         if(details == null || details.isEmpty()) return null;
 
@@ -573,8 +572,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //	Nếu RPT_ZV23.TOTAL_AMOUNT <= PROMOTION_PROGRAM_DETAIL.SALE_AMT thì đạt CTKM ZV23
         if(totalCusAmount > amountZV23) return null;
         // lấy tổng tiền theo những sản phẩm quy định
-        if (programProduct != null && !programProduct.isEmpty()){
-            for (PromotionProgramProductDTO exItem : programProduct){
+        List<PromotionProgramProductDTO> programProduct = promotionClient.findByPromotionIdsV1(promotionIds).getData();
+        List<PromotionProgramProductDTO> programProduct1 = new ArrayList<>();
+
+        for (PromotionProgramProductDTO pProduct : programProduct) {
+            if(pProduct.getType() != null && pProduct.getType() == 1) programProduct1.add(pProduct);
+        }
+
+        if (programProduct1 != null && !programProduct1.isEmpty()){
+            for (PromotionProgramProductDTO exItem : programProduct1){
                 if(exItem.getType() != null && exItem.getType() == 1) {
                     for (ProductOrderDetailDataDTO oItem : orderData.getProducts()) {
                         if (oItem.getProductId().equals(exItem.getProductId())) {

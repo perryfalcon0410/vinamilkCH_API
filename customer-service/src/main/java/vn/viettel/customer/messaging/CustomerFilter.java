@@ -21,7 +21,7 @@ public class CustomerFilter extends BaseRequest {
     @ApiModelProperty(value = "Id loại khách hàng")
     private Long customerTypeId;
     @ApiModelProperty(value = "Trạng thái, 1-Hoạt động, 0-Ngưng hoạt động")
-    private Long status;
+    private Integer status;
     @ApiModelProperty(value = "Id giới tính")
     private Long genderId;
     @ApiModelProperty(value = "Id khu vực")

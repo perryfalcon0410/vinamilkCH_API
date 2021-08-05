@@ -143,4 +143,13 @@ public class SaleController extends BaseController {
         SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
         return new Response<SalePromotionDTO>().withData(discount);
     }
+
+    @ApiOperation(value = "Api dùng để lấy quyền chỉnh sửa đơn online")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/valid/online-order"})
+    public Response<OnlineOrderValidDTO> getDiscountCode() {
+        OnlineOrderValidDTO response = service.getValidOnlineOrder(this.getShopId());
+        return new Response<OnlineOrderValidDTO>().withData(response);
+    }
+
 }

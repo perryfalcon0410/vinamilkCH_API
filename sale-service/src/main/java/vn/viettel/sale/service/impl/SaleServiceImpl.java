@@ -103,8 +103,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //check warehouse
         CustomerTypeDTO customerType = null;
-        if(request.getCustomerId() == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
-        else customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
+
+        if(request.getCustomerId() != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
+        if(customerType == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
         if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         // information need to be save
@@ -901,6 +902,14 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         return  code + Integer.toString(STT + 100000).substring(1);
+    }
+
+    @Override
+    public OnlineOrderValidDTO getValidOnlineOrder(Long shopId) {
+        Boolean isEditable = shopClient.isEditableOnlineOrderV1(shopId).getData();
+        Boolean isManuallyCreatable = shopClient.isManuallyCreatableOnlineOrderV1(shopId).getData();
+        OnlineOrderValidDTO valid = new OnlineOrderValidDTO(isEditable, isManuallyCreatable);
+        return valid;
     }
 
     /*
