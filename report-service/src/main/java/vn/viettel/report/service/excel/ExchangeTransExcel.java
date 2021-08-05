@@ -53,9 +53,9 @@ public class ExchangeTransExcel {
             shopFax = shopDTO.getFax();
         }
         //header left
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shopName,style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm, shopAddress,style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+shopPhone+"  "+"Fax:"+" "+ shopFax,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,row,6,rowm,shopName,style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,6,++rowm, shopAddress,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,6,++rowm,"Tel:"+" "+shopPhone+"  "+"Fax:"+" "+ shopFax,style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
         if(parentShop != null){
             shopName = parentShop.getShopName();
@@ -63,9 +63,9 @@ public class ExchangeTransExcel {
             shopPhone = parentShop.getPhone();
             shopFax = parentShop.getFax();
         }
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+7,rowm-2,shopName,style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+7,rowm-1,shopAddress,style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel:"+" "+shopPhone+"  "+"Fax:"+" "+shopFax,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,7,row-2,12,rowm-2,shopName,style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+        ExcelPoiUtils.addCellsAndMerged(sheet,7,row-1,12,rowm-1,shopAddress,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,7,row,12,rowm,"Tel:"+" "+shopPhone+"  "+"Fax:"+" "+shopFax,style.get(ExcelPoiUtils.HEADER_LEFT));
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+12,rowm+3,"BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
 

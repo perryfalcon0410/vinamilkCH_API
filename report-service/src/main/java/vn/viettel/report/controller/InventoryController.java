@@ -63,7 +63,7 @@ public class InventoryController extends BaseController {
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);
         response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_xuat_nhap_ton_" + StringUtils.createExcelFileName());
+        response.addHeader("Content-Disposition", "attachment; filename=Xuất_nhập_tồn_Filled_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         response.getOutputStream().flush();
 
