@@ -78,8 +78,8 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public MemberCardDTO getByCustomerId(Long customerId) {
-        MemberCard memberCard = repository.getByCustomerId(customerId)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST));
+        MemberCard memberCard = repository.getByCustomerId(customerId).orElse(null);
+        if (memberCard == null) return null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCardDTO dto = modelMapper.map(memberCard, MemberCardDTO.class);
         return dto;

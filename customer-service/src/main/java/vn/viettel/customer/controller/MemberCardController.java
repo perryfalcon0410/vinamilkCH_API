@@ -80,7 +80,6 @@ public class MemberCardController extends BaseController {
         return new Response<List<MemberCardDTO>>().withData(memberCardDTOS);
     }
 
-    @RoleFeign
     @ApiOperation(value = "Tìm kiếm thẻ thành viên theo id khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
