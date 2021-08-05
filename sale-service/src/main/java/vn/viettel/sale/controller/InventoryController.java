@@ -86,9 +86,9 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 1007, message = "Không tìm thấy thông tin sản phẩm")
     })
     @GetMapping(value = { V1 + root + "/inventory/{id}"})
-    public Response<CoverResponse<List<StockCountingExcel>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id) {
-        CoverResponse<List<StockCountingExcel>, TotalStockCounting> response = inventoryService.getByStockCountingId(id);
-        return new Response<CoverResponse<List<StockCountingExcel>, TotalStockCounting>>().withData(response);
+    public Response<CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id) {
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = inventoryService.getByStockCountingId(id);
+        return new Response<CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để import excel phiếu kiểm kê")
@@ -125,7 +125,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
-        List<StockCountingExcel> export = inventoryService.getByStockCountingId(id).getResponse();
+        List<StockCountingExcelDTO> export = inventoryService.getByStockCountingId(id).getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         LocalDateTime countingDate = inventoryService.getStockCountingById(id).getCountingDate();
         StockCountingFilledExcel stockCountingFilledExcel =

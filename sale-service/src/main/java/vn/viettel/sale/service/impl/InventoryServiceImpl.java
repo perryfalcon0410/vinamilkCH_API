@@ -155,7 +155,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public CoverResponse<List<StockCountingExcel>, TotalStockCounting> getByStockCountingId(Long id) {
+    public CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> getByStockCountingId(Long id) {
         StockCounting stockCounting = repository.findById(id).get();
         if (stockCounting == null) throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
         List<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id);
@@ -170,27 +170,30 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setCountingCode(stockCounting.getStockCountingCode());
         totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
         totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
+        List<StockCountingExcelDTO> dtos = new ArrayList<>();
         for (StockTotal st : listSt) {
             for (StockCountingExcel countingExcel : result) {
                 if (st.getProductId().equals(countingExcel.getProductId())) {
-                    countingExcel.setStockQuantity(st.getQuantity());
-                    if (countingExcel.getInventoryQuantity() == null) countingExcel.setInventoryQuantity(0);
-                    if (countingExcel.getStockQuantity() == null) countingExcel.setStockQuantity(0);
-                    countingExcel.setTotalAmount(countingExcel.getPrice() == null ? 0D : countingExcel.getPrice() * countingExcel.getStockQuantity());
-                    countingExcel.setPacketQuantity(String.valueOf(countingExcel.getInventoryQuantity() / countingExcel.getConvfact()));
-                    countingExcel.setUnitQuantity(String.valueOf (countingExcel.getInventoryQuantity() % countingExcel.getConvfact()));
-                    countingExcel.setChangeQuantity(countingExcel.getStockQuantity() - countingExcel.getInventoryQuantity());
-                    totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + countingExcel.getStockQuantity());
-                    totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + countingExcel.getInventoryQuantity());
+                    StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
+
+                    dto.setStockQuantity(st.getQuantity());
+                    if (dto.getInventoryQuantity() == null) dto.setInventoryQuantity(0);
+                    if (dto.getStockQuantity() == null) dto.setStockQuantity(0);
+                    dto.setTotalAmount(dto.getPrice() == null ? 0D : dto.getPrice() * dto.getStockQuantity());
+                    dto.setPacketQuantity(dto.getInventoryQuantity() / dto.getConvfact());
+                    dto.setUnitQuantity(dto.getInventoryQuantity() % dto.getConvfact());
+                    dto.setChangeQuantity(dto.getInventoryQuantity() - dto.getStockQuantity());
+                    totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + dto.getStockQuantity());
+                    totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + dto.getInventoryQuantity());
                     totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
-                    totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (countingExcel.getStockQuantity() * (countingExcel.getPrice() == null ? 0D : countingExcel.getPrice())));
-                    totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + Integer.valueOf(countingExcel.getPacketQuantity())));
-                    totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +Integer.valueOf( countingExcel.getUnitQuantity())));
+                    totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (dto.getStockQuantity() * (dto.getPrice() == null ? 0D : dto.getPrice())));
+                    totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + dto.getPacketQuantity()));
+                    totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
+                    dtos.add(dto);
                 }
             }
-
         }
-        CoverResponse<List<StockCountingExcel>, TotalStockCounting> response = new CoverResponse(result, totalStockCounting);
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = new CoverResponse(dtos, totalStockCounting);
         return response;
     }
 

@@ -9,6 +9,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.StockCountingExcel;
+import vn.viettel.sale.service.dto.StockCountingExcelDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,12 +22,12 @@ import java.util.List;
 public class StockCountingFilledExcel {
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
-    private List<StockCountingExcel> stockCountingExcels;
+    private List<StockCountingExcelDTO> stockCountingExcels;
     private CellStyle headerStyle;
     private ShopDTO shop;
     private LocalDateTime date;
 
-    public StockCountingFilledExcel(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, LocalDateTime date) {
+    public StockCountingFilledExcel(List<StockCountingExcelDTO> exchangeTransExcelList, ShopDTO shop, LocalDateTime date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new SXSSFWorkbook();
         this.shop = shop;
@@ -94,11 +95,11 @@ public class StockCountingFilledExcel {
         double totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
         double totalAmount = 0;
         double totalChange = 0;
-        for (StockCountingExcel exchange : stockCountingExcels){
+        for (StockCountingExcelDTO exchange : stockCountingExcels){
             totalQuantityStock = totalQuantityStock + exchange.getStockQuantity();
             totalAmount = totalAmount + exchange.getTotalAmount();
             totalChange = totalChange + exchange.getChangeQuantity();
-            totalUnitQuantity = totalUnitQuantity + Integer.valueOf(exchange.getUnitQuantity());
+            totalUnitQuantity = totalUnitQuantity + exchange.getUnitQuantity();
             totalInventoryQuantity = totalInventoryQuantity + exchange.getInventoryQuantity();
         }
         int size = stockCountingExcels.size();
@@ -202,7 +203,7 @@ public class StockCountingFilledExcel {
         DataFormat dataFormat = workbook.createDataFormat();
         dataStyle2.setDataFormat(dataFormat.getFormat("#,###"));
 
-        for (StockCountingExcel exchange : stockCountingExcels) {
+        for (StockCountingExcelDTO exchange : stockCountingExcels) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
