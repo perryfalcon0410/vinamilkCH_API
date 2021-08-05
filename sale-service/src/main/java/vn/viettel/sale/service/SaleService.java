@@ -4,6 +4,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.SaleOrderRequest;
+import vn.viettel.sale.service.dto.OnlineOrderValidDTO;
 
 public interface SaleService {
     /*
@@ -26,4 +27,6 @@ public interface SaleService {
     Tạo mã đơn
     */
     String createOrderNumber(ShopDTO shopDTO);
+
+    OnlineOrderValidDTO getValidOnlineOrder(Long shopId);
 }

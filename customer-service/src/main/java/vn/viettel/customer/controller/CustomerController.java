@@ -60,7 +60,7 @@ public class CustomerController extends BaseController {
                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                       @ApiParam(value = "Tìm trạng thái liệt kê các trạng thái, ")
-                                                      @RequestParam(value = "status", required = false) Long status,
+                                                      @RequestParam(value = "status", required = false) Integer status,
                                                       @ApiParam(value = "Khách hàng của cửa hàng")
                                                       @RequestParam(value = "isShop", required = false) Boolean isShop,
                                                       @RequestParam(value = "genderId", required = false) Long genderId,
@@ -167,7 +167,7 @@ public class CustomerController extends BaseController {
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
                                                @ApiParam(value = "Tìm trạng thái liệt kê các trạng thái, ")
-                                               @RequestParam(value = "status", required = false) Long status,
+                                               @RequestParam(value = "status", required = false) Integer status,
                                                @RequestParam(value = "isShop", required = false) Boolean isShop,
                                                @RequestParam(value = "genderId", required = false) Long genderId,
                                                @RequestParam(value = "areaId", required = false) Long areaId,

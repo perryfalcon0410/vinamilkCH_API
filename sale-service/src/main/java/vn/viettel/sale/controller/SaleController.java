@@ -165,4 +165,13 @@ public class SaleController extends BaseController {
 			LogFile.logToFile("vn.viettel.sale.service.impl.SaleServiceImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
 		}
 	}
+
+    @ApiOperation(value = "Api dùng để lấy quyền chỉnh sửa đơn online")
+    @ApiResponse(code = 200, message = "Success")
+    @PostMapping(value = { V1 + root + "/valid/online-order"})
+    public Response<OnlineOrderValidDTO> getDiscountCode() {
+        OnlineOrderValidDTO response = service.getValidOnlineOrder(this.getShopId());
+        return new Response<OnlineOrderValidDTO>().withData(response);
+    }
+
 }

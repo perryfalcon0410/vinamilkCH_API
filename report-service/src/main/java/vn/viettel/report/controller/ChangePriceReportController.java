@@ -81,12 +81,12 @@ public class ChangePriceReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
-    public void exportToExcel( @RequestParam(required = false) String code, @RequestParam Date fromTransDate, @RequestParam Date toTransDate,
+    public void exportToExcel( @RequestParam(required = false) String licenseNumber, @RequestParam Date fromTransDate, @RequestParam Date toTransDate,
                                @RequestParam(required = false) Date fromOrderDate, @RequestParam(required = false) Date toOrderDate, @RequestParam(required = false) String ids,
                                         HttpServletResponse response,Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(
-                code, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate), DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable, false);
+                licenseNumber, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate), DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable, false);
         ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getData().getInfo(), listData.getData().getResponse());
         ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate));
         ByteArrayInputStream in = exportExcel.export();

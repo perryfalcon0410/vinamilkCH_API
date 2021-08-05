@@ -1119,8 +1119,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if (poTrans.getPoId() != null) {
                 PoConfirm poConfirm = poConfirmRepository.findById(poTrans.getPoId()).get();
                 poConfirm.setStatus(0);
-                poConfirm = poConfirmRepository.save(poConfirm);
-                poConfirmTemp = poConfirm.getId().toString();
+                poConfirm.setImportDate(null);
+                poConfirm.setImportCode(null);
+                poConfirm.setImportUser(null);
+                poConfirmRepository.save(poConfirm);
             }
             poTrans.setStatus(-1);
             poTrans = repository.save(poTrans);

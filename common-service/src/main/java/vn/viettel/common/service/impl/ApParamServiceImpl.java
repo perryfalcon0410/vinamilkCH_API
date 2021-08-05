@@ -61,7 +61,7 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
                 }
             });
         }catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return apParams.stream().map(
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList());

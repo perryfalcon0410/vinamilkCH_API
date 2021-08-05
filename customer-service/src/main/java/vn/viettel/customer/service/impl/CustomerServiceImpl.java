@@ -163,7 +163,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1L)),pageable);
+                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
         List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(customers.getContent().size() != 0)
