@@ -537,7 +537,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         if (poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())) {
                             if(request.getListProductRemain().get(j).getQuantity() == null)
                                 request.getListProductRemain().get(j).setQuantity(0);
-                            int slTra = (request.getListProductRemain().get(j).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
+                            int slTra = (request.getListProductRemain().get(j).getQuantity()-(poTransDetails.get(i).getQuantity() - poTransDetailImport.get(i).getReturnAmount()));
                             int slConLai = (poTransDetailImport.get(i).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
                             if (slTra>slConLai)
                                 throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
