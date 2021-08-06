@@ -35,15 +35,25 @@ public interface PermissionRepository extends BaseRepository<Permission> {
     List<Shop> findShops(Long roleId);
 
     //Lấy các permistion của shop - role theo type
-    @Query("Select distinct p from Permission p " +
+/*    @Query("Select distinct p from Permission p " +
             "join RolePermission rp on p.id = rp.permissionId " +
             "join Role r on r.id = rp.roleId " +
             "join OrgAccess org on p.id = org.permissionId " +
             "join Shop s on s.id = org.shopId " +
             "where r.id =:roleId and org.shopId =:shopId  and p.permissionType =:type " +
             "and r.status =1 and org.status =1 and s.status = 1 and p.status = 1 and rp.status = 1")
-    List<Permission> findPermissionType(Long roleId, Long shopId, Integer type);
+    List<Permission> findPermissionType(Long roleId, Long shopId, Integer type);*/
 
+
+    //Lấy các permistion của shop - role theo type
+    @Query("Select distinct p from Permission p " +
+            "join RolePermission rp on p.id = rp.permissionId " +
+            "join Role r on r.id = rp.roleId " +
+            "join OrgAccess org on p.id = org.permissionId " +
+            "join Shop s on s.id = org.shopId " +
+            "where r.id =:roleId and org.shopId In (:shopIds) and p.permissionType =:type " +
+            "and r.status =1 and org.status =1 and s.status = 1 and p.status = 1 and rp.status = 1")
+    List<Permission> findPermissionType(Long roleId, List<Long> shopIds, Integer type);
 
     //Lấy các permistion của shop - role type(1,3)
     @Query("Select distinct p from Permission p " +
