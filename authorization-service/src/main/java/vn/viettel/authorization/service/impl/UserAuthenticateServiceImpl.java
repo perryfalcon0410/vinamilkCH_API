@@ -130,7 +130,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 // Các step trước đã lọc shop ko tồn tại
                 Shop shop = shopRepository.findById(shopDTO.getId()).get();
                 List<FormDTO> froms = this.getForms(usedRole.getId());
-                shopDTO.setAddress(shop.getAddress() + ", " + getShopArea(shop.getAreaId()));
+                shopDTO.setAddress(shop.getAddress());
                 setOnlineOrderPermission(shopDTO, shop);
 
                 resData.setUsedShop(shopDTO);
@@ -181,9 +181,13 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 Shop shop = shopRepository.findById(usedShop.getId()).get();
                 if(shop.getShopType() == null || !shop.getShopType().equals("4")) {
                     // 1 shop duy nhất có loại != 4 lấy shop con có loại = 4 status =1
-                    List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
-                    subShops.add(shop);
-                    List<ShopDTO> shopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+//                    List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
+//                    subShops.add(shop);
+//                    List<ShopDTO> shopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+//                    roleDTOS.get(0).setShops(shopDTOs);
+                    List<Shop> shops = getChildrenShop(shop.getId());
+                    shops.add(shop);
+                    List<ShopDTO> shopDTOs = shops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
                     roleDTOS.get(0).setShops(shopDTOs);
                 }
 
@@ -192,13 +196,14 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         }
 
         //Có nhiều role nếu có shop nào là cha thì lấy thêm đơn vị có shop_type = 4
+
         for (RoleDTO roleDTO : roleDTOS) {
             List<ShopDTO> shopDTOS = new ArrayList<>();
-            shopDTOS.addAll(roleDTO.getShops());
+            shopDTOS.addAll(roleDTO.getShops());// add shop cha trước
             for(ShopDTO shop: roleDTO.getShops()) {
-                List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
-                List<ShopDTO> subShopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
-                shopDTOS.addAll(subShopDTOs);
+                List<Shop> childrenShops = this.getChildrenShop(shop.getId());
+                List<ShopDTO> childrenShopDTOS = childrenShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+                shopDTOS.addAll(childrenShopDTOS);
             }
             roleDTO.setShops(shopDTOS);
         }
@@ -222,18 +227,28 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if(!roleIds.contains(loginInfo.getRoleId()))
             throw new ValidateException(ResponseMessage.USER_ROLE_NOT_MATCH);
 
-        //Kiểm tra role shop có quyền dữ liệu
-        if(!this.checkPermissionType2(loginInfo.getRoleId(), shop))
+
+        // check shop
+        List<Long> shopIds = new ArrayList<>();
+        for(RoleDTO role:  roleDTOS) {
+            if(role.getId().equals(loginInfo.getRoleId())) {
+                shopIds = role.getShops().stream().map(ShopDTO::getId).collect(Collectors.toList());
+                break;
+            }
+        }
+        if(!shopIds.contains(loginInfo.getShopId()))
             throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
+
+//        //Kiểm tra role shop có quyền dữ liệu
+//        if(!this.checkPermissionType2(loginInfo.getRoleId(), shop))
+//            throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
 
         Role role = roleRepository.findById(loginInfo.getRoleId()).get();
 
         List<FormDTO> froms = this.getForms(loginInfo.getRoleId());
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(),
-                shop.getAddress() + ", " + getShopArea(shop.getAreaId()),
-                shop.getMobiPhone(), shop.getEmail());
+        ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(), shop.getAddress(), shop.getMobiPhone(), shop.getEmail());
         setOnlineOrderPermission(usedShop, shop);
 
         resData.setUsedShop(usedShop);
@@ -301,15 +316,10 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
      * Kiểm tra role và shop/shopcon có quyền dữ liệu nào ko khi đăng nhập
      */
     public Boolean checkPermissionType2(Long roleId, Shop shop) {
-        List<Permission> permissionsType2 = permissionRepository.findPermissionType(roleId, shop.getId(), 2);
-        if(permissionsType2.isEmpty()) {
-            List<Permission> permissionsType2Parent = new ArrayList<>();
-            if(shop.getParentShopId()!=null) {
-                permissionsType2Parent = permissionRepository.findPermissionType(roleId, shop.getParentShopId(), 2);
-            }
-            if(permissionsType2Parent.isEmpty()) return false;
-        }
-
+        List<Long> shopIds = this.getParentIds(shop);
+        shopIds.add(shop.getId());
+        List<Permission> permissionsType2 = permissionRepository.findPermissionType(roleId, shopIds, 2);
+        if(permissionsType2.isEmpty()) return false;
         return true;
     }
 
@@ -321,13 +331,26 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
 
-    public List<RoleDTO> getUserRoles(Long userId) {
-        List<RoleDTO> roleDTOs = new ArrayList<>();
-        List<RoleUser> userRoles = userRoleRepository.findByUserIdAndStatus(userId, 1);
-        List<Role> roles = roleRepository.findByIdInAndStatus(userRoles.stream().map(RoleUser::getRoleId).collect(Collectors.toList()), 1);
-        for (Role role: roles) roleDTOs.add(modelMapper.map(role, RoleDTO.class));
+    private List<Shop> getChildrenShop(Long parentId) {
+        List<Shop> lstResults = new ArrayList<>();
+        List<Shop> shops1 = shopRepository.findByParentShopIdAndShopTypeAndStatus(parentId, "4", 1);
+        if (shops1.isEmpty()) return lstResults;
+        lstResults.addAll(shops1);
 
-        return roleDTOs;
+        for (Shop shop : shops1) {
+            lstResults.addAll(getChildrenShop(shop.getId()));
+        }
+        return lstResults;
+    }
+
+    private List<Long> getParentIds(Shop shop) {
+        List<Long> lstResults = new ArrayList<>();
+        if(shop == null ||  shop.getParentShopId() == null) return lstResults;
+        Shop parent = shopRepository.findByIdAndStatus(shop.getParentShopId(), 1).orElse(null);
+        if (parent == null) return lstResults;
+        lstResults.add(parent.getId());
+        lstResults.addAll(getParentIds(parent));
+        return lstResults;
     }
 
     public List<ShopDTO> getUserManageShops(Long roleId) {
@@ -475,12 +498,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             result.add(dataPermissionDTO);
         }
         return result;
-    }
-
-    public String getShopArea(Long areaId) {
-        AreaDTO ward = areaClient.getByIdV1(areaId).getData();
-        AreaDTO district = areaClient.getByIdV1(ward.getParentAreaId()).getData();
-        return ward.getAreaName() + ", " + district.getAreaName();
     }
 
     @Override
