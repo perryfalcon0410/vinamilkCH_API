@@ -537,10 +537,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                         if (poTransDetail.getId().equals(request.getListProductRemain().get(j).getId())) {
                             if(request.getListProductRemain().get(j).getQuantity() == null)
                                 request.getListProductRemain().get(j).setQuantity(0);
-                            int slTra = (request.getListProductRemain().get(j).getQuantity()-(poTransDetails.get(i).getQuantity() - poTransDetailImport.get(i).getReturnAmount()));
-                            int slConLai = (poTransDetailImport.get(i).getQuantity()-poTransDetailImport.get(i).getReturnAmount());
-                            if (slTra>slConLai)
-                                throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
+                            int availableQty = poTransDetailImport.get(i).getQuantity() - (poTransDetailImport.get(i).getReturnAmount()!=null?poTransDetailImport.get(i).getReturnAmount():0);
+                            int returnQty = request.getListProductRemain().get(j).getQuantity() - poTransDetails.get(i).getQuantity();
+                            if(availableQty < returnQty) throw new ValidateException(ResponseMessage.RETURN_AMOUNT_MUST_BE_LESS_THAN_OR_EQUAL_TO_THE_QUANTITY_ENTERED);
                             poTransDetailImport.get(i).setReturnAmount(poTransDetailImport.get(i).getReturnAmount() + (request.getListProductRemain().get(j).getQuantity() - poTransDetail.getQuantity()));
                             StockTotal st = null;
                             if (stockTotals != null) {
