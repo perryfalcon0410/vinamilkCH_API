@@ -319,16 +319,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 .withUserId(user.getId()).withUserName(user.getUserAccount()).withShopId(shopId).withRoleId(roleId)
                 .withPermission(getDataPermission(roleId)).get());
     }
-
-
-    public List<RoleDTO> getUserRoles(Long userId) {
-        List<RoleDTO> roleDTOs = new ArrayList<>();
-        List<RoleUser> userRoles = userRoleRepository.findByUserIdAndStatus(userId, 1);
-        List<Role> roles = roleRepository.findByIdInAndStatus(userRoles.stream().map(RoleUser::getRoleId).collect(Collectors.toList()), 1);
-        for (Role role: roles) roleDTOs.add(modelMapper.map(role, RoleDTO.class));
-
-        return roleDTOs;
-    }
+    
 
     public List<ShopDTO> getUserManageShops(Long roleId) {
         List<ShopDTO> result = new ArrayList<>();
