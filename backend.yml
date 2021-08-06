@@ -5,37 +5,39 @@ services:
     build: ./discovery-server
     networks:
       - backend
+    environment:
+      - "JAVA_OPTS=-Xms16m -Xmx128m -Xmn64m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "8761:8761"
     volumes:
       - "logs:/opt/app/logs"
-#      - "/etc/localtime:/etc/localtime:ro"
   api-gateway:
     container_name: api-gateway
     build: ./api-gateway
     networks:
       - backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      - "SPRING_PROFILES_ACTIVE= local"
+      - "JAVA_OPTS=-Xms16m -Xmx128m -Xmn64m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "2407:2407"
     volumes:
-      - "logs:/opt/app/logs"
-#      - "/etc/localtime:/etc/localtime:ro"
+      - "logs:/opt/app/api-gateway/logs"
   authorization-service:
     container_name: authorization-service
     build: ./authorization-service
     networks:
       - backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      - "SPRING_PROFILES_ACTIVE= local"
+      - "JAVA_OPTS=-Xms16m -Xmx128m -Xmn64m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "9001:9001"
-    depends_on:
-      - active-mq
     volumes:
       - "logs:/opt/app/logs"
-#      - "/etc/localtime:/etc/localtime:ro"
     extra_hosts:
       - "vnmch-db-01:10.60.157.12"
   common-service:
@@ -44,11 +46,13 @@ services:
     networks:
       - backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      - "SPRING_PROFILES_ACTIVE= local"
+      - "JAVA_OPTS=-Xms16m -Xmx128m -Xmn64m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "9002:9002"
-#    volumes:
-#      - "/etc/localtime:/etc/localtime:ro"
+    volumes:
+      - "logs:/opt/app/common-service/logs"
     extra_hosts:
       - "vnmch-db-01:10.60.157.12"
   customer-service:
@@ -57,14 +61,13 @@ services:
     networks:
       - backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      - "SPRING_PROFILES_ACTIVE= local"
+      - "JAVA_OPTS=-Xms32m -Xmx256m -Xmn128m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "9003:9003"
-    depends_on:
-      - active-mq
     volumes:
-      - "logs:/opt/app/logs"
-#      - "/etc/localtime:/etc/localtime:ro"
+      - "logs:/opt/app/customer-service/logs"
     extra_hosts:
       - "vnmch-db-01:10.60.157.12"
   promotion-service:
@@ -73,12 +76,13 @@ services:
     networks:
       - backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      - "SPRING_PROFILES_ACTIVE= local"
+      - "JAVA_OPTS=-Xms32m -Xmx256m -Xmn128m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "9004:9004"
     volumes:
-      - "logs:/opt/app/logs"
-#      - "/etc/localtime:/etc/localtime:ro"
+      - "logs:/opt/app/promotion-service/logs"
     extra_hosts:
       - "vnmch-db-01:10.60.157.12"
   report-service:
@@ -87,12 +91,13 @@ services:
     networks:
       - backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      - "SPRING_PROFILES_ACTIVE= local"
+      - "JAVA_OPTS=-Xms32m -Xmx256m -Xmn128m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "9005:9005"
     volumes:
-      - "logs:/opt/app/logs"
-#      - "/etc/localtime:/etc/localtime:ro"
+      - "logs:/opt/app/report-service/logs"
     extra_hosts:
       - "vnmch-db-01:10.60.157.12"
   sale-service:
@@ -101,57 +106,18 @@ services:
     networks:
       - backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      - "SPRING_PROFILES_ACTIVE= local"
+      - "JAVA_OPTS=-Xms32m -Xmx256m -Xmn128m"
+      - "TZ=Asia/Ho_Chi_Minh"
     ports:
       - "9006:9006"
-    depends_on:
-      - active-mq
     volumes:
-      - "logs:/opt/app/logs"
-#      - "/etc/localtime:/etc/localtime:ro"
+      - "logs:/opt/app/sale-service/logs"
     extra_hosts:
       - "vnmch-db-01:10.60.157.12"
-  active-mq:
-    image: webcenter/activemq:5.14.3
-    container_name: active-mq
-    networks:
-      - backend
-    ports:
-      # mqtt
-      - "1883:1883"
-      # amqp
-      - "5672:5672"
-      # ui
-      - "8161:8161"
-      # stomp
-      - "61613:61613"
-      # ws
-      - "61614:61614"
-      # jms
-      - "61616:61616"
-    volumes:
-      - "activemq-conf:/opt/activemq/conf"
-      - "activemq-data:/data/activemq"
-      - "activemq-log:/var/log/activemq"
-#      - "/etc/localtime:/etc/localtime:ro"
-    environment:
-      ACTIVEMQ_REMOVE_DEFAULT_ACCOUNT: "true"
-      ACTIVEMQ_ADMIN_LOGIN: admin
-      ACTIVEMQ_ADMIN_PASSWORD: admin
-      ACTIVEMQ_WRITE_LOGIN: write
-      ACTIVEMQ_WRITE_PASSWORD: write
-      ACTIVEMQ_READ_LOGIN: read
-      ACTIVEMQ_READ_PASSWORD: read
-      ACTIVEMQ_JMX_LOGIN: jmx
-      ACTIVEMQ_JMX_PASSWORD: password
-      ACTIVEMQ_STATIC_TOPICS: static-topic-1;static-topic-2
-      ACTIVEMQ_STATIC_QUEUES: static-queue-1;static-queue-2
-      ACTIVEMQ_ENABLED_SCHEDULER: "true"
-      ACTIVEMQ_MIN_MEMORY: 256
-      ACTIVEMQ_MAX_MEMORY: 512
 networks:
   backend:
-      driver: bridge
+    driver: bridge
 volumes:
   logs:
     driver: local
@@ -159,21 +125,3 @@ volumes:
       type: none
       o: bind
       device: D:/docker/setup/api/logs
-  activemq-conf:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: D:/docker/setup/activemq/conf
-  activemq-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: D:/docker/setup/activemq/data
-  activemq-log:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: D:/docker/setup/activemq/log

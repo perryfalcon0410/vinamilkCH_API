@@ -12,5 +12,4 @@ COPY ./target/customer-service-0.0.1-SNAPSHOT.jar $PROJECT_HOME/customer-service
 COPY ./target/classes/machikatsu.pub $PROJECT_HOME/customer-service/machikatsu.pub
 
 WORKDIR $PROJECT_HOME
-
-CMD ["java","-Xmx128m","-Xms16m","-Xmn64m","-jar","./customer-service/customer-service-0.0.1-SNAPSHOT.jar"]
+CMD java $JAVA_OPTS -jar ./customer-service/customer-service-0.0.1-SNAPSHOT.jar

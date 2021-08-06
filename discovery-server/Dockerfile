@@ -7,5 +7,4 @@ COPY ./target/discovery-server-0.0.1-SNAPSHOT.jar $PROJECT_HOME/discovery-server
 COPY ./target/classes/machikatsu.pub $PROJECT_HOME/discovery-server/machikatsu.pub
 
 WORKDIR $PROJECT_HOME
-
-CMD ["java","-Xmx128m","-Xms16m","-Xmn64m","-jar","./discovery-server/discovery-server-0.0.1-SNAPSHOT.jar"]
+CMD java $JAVA_OPTS -jar ./discovery-server/discovery-server-0.0.1-SNAPSHOT.jar

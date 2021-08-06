@@ -1,0 +1,21 @@
+version: '3'
+services:
+  salemt-ws:
+    image: salemt-ws:1.0
+    container_name: salemt-ws
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+    volumes:
+      - "salemt-log:/opt/app/salemt-ws/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+networks:
+  backend:
+      driver: bridge
+volumes:
+  salemt-log:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: D:/docker/setup/salemtws/logs
