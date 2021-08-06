@@ -20,8 +20,8 @@ public class DateUtils {
     private final static int HOUR_DEFAULT = 0;
     private final static int MINUTE_DEFAULT = 0;
     private final static int SECOND_DEFAULT = 0;
-
-    /*public static Date parseToDate(Date toDate) {
+/*
+    public static Date parseToDate(Date toDate) {
         Calendar c = Calendar.getInstance();
         if (toDate == null) {
             return null;
@@ -33,7 +33,7 @@ public class DateUtils {
         c.set(Calendar.MILLISECOND, 999);
         return c.getTime();
     }
-
+*/
     public static Date parseFromDate(Date fromDate) {
         Calendar c = Calendar.getInstance();
         if (fromDate == null) {
@@ -45,7 +45,7 @@ public class DateUtils {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
         return c.getTime();
-    }*/
+    }
 
     public static String formatToSlashDMY(LocalDateTime dateFormat){
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
