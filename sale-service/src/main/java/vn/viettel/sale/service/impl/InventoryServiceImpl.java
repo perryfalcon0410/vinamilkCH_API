@@ -171,8 +171,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
         totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
         List<StockCountingExcelDTO> dtos = new ArrayList<>();
-        for (StockTotal st : listSt) {
             for (StockCountingExcel countingExcel : result) {
+                for (StockTotal st : listSt) {
                 if (st.getProductId().equals(countingExcel.getProductId())) {
                     StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
 
