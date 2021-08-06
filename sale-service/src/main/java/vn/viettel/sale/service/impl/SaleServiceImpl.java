@@ -379,15 +379,17 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (roundValue(request.getDiscountAmount())!=(roundValue(discountValue))) throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
 
             discountNeedSave = promotionClient.getPromotionDiscount(request.getDiscountCode(), shopId).getData();
-            discountNeedSave.setIsUsed(1);
-            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
-            discountNeedSave.setActualDiscountAmount(discountValue);
-            discountNeedSave.setOrderShopCode(shop.getShopCode());
+            if(discountNeedSave != null) {
+                discountNeedSave.setIsUsed(1);
+                discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
+                discountNeedSave.setActualDiscountAmount(discountValue);
+                discountNeedSave.setOrderShopCode(shop.getShopCode());
 
-            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
-            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-            promotionShopMap.setQuantityReceived(received + discountValue);
-            promotionShopMaps.add(promotionShopMap);
+                PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
+                Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+                promotionShopMap.setQuantityReceived(received + discountValue);
+                promotionShopMaps.add(promotionShopMap);
+            }
 
         }
 

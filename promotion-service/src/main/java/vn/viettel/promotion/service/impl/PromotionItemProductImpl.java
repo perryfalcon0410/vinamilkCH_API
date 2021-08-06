@@ -16,7 +16,6 @@ public class PromotionItemProductImpl implements PromotionItemProductService {
 
     public List<Long> listProductsNotAccumulated(List<Long> productIds) {
         List<Long> ProductsNotAccumulated = itemProductService.productsNotAccumulated(productIds);
-//        if(ProductsNotAccumulated.size() == 0) throw new ValidateException(ResponseMessage.PRODUCT_NOT_ACCUMULATED_NOT_EXISTS);
         return ProductsNotAccumulated;
     }
 }

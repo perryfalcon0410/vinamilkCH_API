@@ -84,8 +84,8 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     @Override
     public List<ApParamDTO> getReasonNotImport() {
         List<ApParam> reasons = repository.getApParamByTypeAndStatus("SALEMT_PO_DENY",1);
-        if (reasons == null) {
-            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        if (reasons == null) { new ArrayList<>();
+//            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         }
         return reasons.stream().map(
                 item -> modelMapper.map(item, ApParamDTO.class)).collect(Collectors.toList());
@@ -101,22 +101,23 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     public ApParamDTO getByCode(String code) {
         List<ApParam> apParam = repository.findByCode(code);
-        if (apParam.isEmpty())
-            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        if (apParam.isEmpty()) return null;
+//            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         return modelMapper.map(apParam.get(0), ApParamDTO.class);
     }
 
     @Override
     public List<ApParamDTO> getSalesChannel() {
         List<ApParam> apParam = repository.getSalesChannel();
-        if (apParam.size() == 0)
-            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
+        if (apParam.size() == 0) return new ArrayList<>();
+//            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         return apParam.stream().map(apParam1 -> modelMapper.map(apParam1 , ApParamDTO.class)).collect(Collectors.toList());
     }
 
     @Override
     public ApParamDTO getApParamByTypeAndvalue(String type, String value) {
-        ApParam apParam = repository.findByTypeAndValueAndStatus(type, value, 1).orElseThrow(() -> new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS));
+        ApParam apParam = repository.findByTypeAndValueAndStatus(type, value, 1).get();
+        if (apParam == null) return null;
         return modelMapper.map(apParam , ApParamDTO.class);
     }
 

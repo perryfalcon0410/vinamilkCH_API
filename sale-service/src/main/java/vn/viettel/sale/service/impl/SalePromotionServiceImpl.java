@@ -2155,22 +2155,22 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // Kiểm tra loại đơn hàng tham gia
         if(program.getObjectType() != null && program.getObjectType() != 0) {
             Set<Long> orderTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.ORDER_TYPE.getValue()).getData();
-            if(!orderTypes.contains(Long.valueOf(request.getOrderType()))) return false;
+            if(orderTypes == null || orderTypes.isEmpty() || !orderTypes.contains(Long.valueOf(request.getOrderType()))) return false;
         }
 
         // Kiểm tra thuộc tính khách hàng tham gia
         Set<Long> customerTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_TYPE.getValue()).getData();
-        if(!customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
+        if(customerTypes != null || !customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
 
         Set<Long> memberCards = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.MEMBER_CARD.getValue()).getData();
         MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
-        if(!memberCards.isEmpty() && !memberCards.contains(memberCard!=null?memberCard.getId():null)) return false;
+        if(memberCards != null || !memberCards.isEmpty() && !memberCards.contains(memberCard!=null?memberCard.getId():null)) return false;
 
         Set<Long> loyalCustomers = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.LOYAL_CUSTOMER.getValue()).getData();
-        if(!loyalCustomers.isEmpty() && !loyalCustomers.contains(customer.getCloselyTypeId())) return false;
+        if(loyalCustomers != null && !loyalCustomers.isEmpty() && !loyalCustomers.contains(customer.getCloselyTypeId())) return false;
 
         Set<Long> customerCardTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_CARD_TYPE.getValue()).getData();
-        if(!customerCardTypes.isEmpty() && !customerCardTypes.contains(customer.getCardTypeId())) return false;
+        if(customerCardTypes != null && !customerCardTypes.isEmpty() && !customerCardTypes.contains(customer.getCardTypeId())) return false;
 
         return true;
     }
