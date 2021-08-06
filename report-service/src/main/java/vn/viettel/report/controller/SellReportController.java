@@ -64,7 +64,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Double fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Double toInvoiceSales,
             Pageable pageable) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         CoverResponse<Page<SellDTO>, SellTotalDTO> response = sellsReportService.getSellReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<Page<SellDTO>, SellTotalDTO>>().withData(response);
@@ -90,7 +90,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Double fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Double toInvoiceSales, HttpServletResponse response) throws IOException, InterruptedException {
 
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         ByteArrayInputStream in = sellsReportService.exportExcel(filter);
 
         response.setContentType("application/octet-stream");
@@ -117,7 +117,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
             @RequestParam(value = "fromInvoiceSales", required = false) Double fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Double toInvoiceSales) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         CoverResponse<List<SellDTO>, ReportDateDTO> response = sellsReportService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<List<SellDTO>, ReportDateDTO>>().withData(response);

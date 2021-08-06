@@ -19,9 +19,9 @@ public class SellsReportsRequest {
     private Long shopId;
     private String orderNumber;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toDate;
+    private LocalDateTime toDate;
     private String productKW;
     private Integer collecter;
     private Integer salesChannel;
