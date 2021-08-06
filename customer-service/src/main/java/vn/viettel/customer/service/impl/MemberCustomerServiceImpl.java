@@ -56,8 +56,8 @@ public class MemberCustomerServiceImpl extends BaseServiceImpl<MemberCustomer, M
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateMemberCustomer(Long customerId, MemberCustomerRequest request) {
-        MemberCustomer memberCustomer = repository.getMemberCustomer(customerId)
-            .orElseThrow(() ->  new ValidateException(ResponseMessage.MEMBER_CUSTOMER_NOT_EXIT));
+        MemberCustomer memberCustomer = repository.getMemberCustomer(customerId).get();
+        if(memberCustomer == null) return false;
         Double amout = memberCustomer.getScoreCumulated()!=null?memberCustomer.getScoreCumulated():0.0;
         if(amout < request.getScoreCumulated())
             throw new ValidateException(ResponseMessage.MEMBER_CARD_SCORE_CUMULATED_INVALID);

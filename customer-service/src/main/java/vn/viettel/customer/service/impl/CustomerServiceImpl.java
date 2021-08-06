@@ -309,8 +309,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerById(Long id,Long shopId) {
-        Customer customer = repository.findById(id).
-                orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        Customer customer = repository.getById(id);
+        if(customer == null)
+                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 

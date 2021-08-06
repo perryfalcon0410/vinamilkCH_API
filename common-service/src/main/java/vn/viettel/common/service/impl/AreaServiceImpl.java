@@ -68,8 +68,9 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
 
     @Override
     public AreaDTO getArea(String provinceName, String districtName, String precinctName) {
-        Area area = repository.getArea(provinceName, districtName, precinctName)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.AREA_NOT_EXISTS));
+        Area area = repository.getArea(provinceName, districtName, precinctName).get();
+        if(area == null) return null;
+//            .orElseThrow(() -> new ValidateException(ResponseMessage.AREA_NOT_EXISTS));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         AreaDTO areaDTO = modelMapper.map(area, AreaDTO.class);
         return areaDTO;

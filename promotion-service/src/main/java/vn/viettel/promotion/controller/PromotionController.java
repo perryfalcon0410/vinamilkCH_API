@@ -197,19 +197,6 @@ public class PromotionController extends BaseController {
         return new Response<RPT_ZV23DTO>().withData(dto);
     }
 
-    @GetMapping(value = { V1 + root + "/RPT-ZV23/totalVATorNotZV23"})
-    @ApiOperation(value = "tính doanh số theo thuế hoặc không")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    public Response<TotalPriceZV23DTO> totalVATorNotZV23(
-            @RequestParam Long promotionId,
-            @RequestParam Integer quantity ) {
-        TotalPriceZV23DTO totalPriceZV23DTO = rpt_zv23Service.VATorNotZV23(promotionId, quantity);
-        return new Response<TotalPriceZV23DTO>().withData(totalPriceZV23DTO);
-    }
-
     @GetMapping(value = { V1 + root + "/RPT-ZV23"})
     @ApiOperation(value = "Lấy Danh sách  rpt zv23")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

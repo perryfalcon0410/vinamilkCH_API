@@ -80,8 +80,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     @Override
     public PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId) {
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        LocalDateTime firstDay = DateUtils.convertFromDate(LocalDateTime.now());
-        LocalDateTime lastDay = DateUtils.convertToDate(LocalDateTime.now());
 
         PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
         if(promotionShopMap == null && shopDTO.getParentShopId()!=null)
@@ -124,7 +122,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         if(discount == null && shopDTO.getParentShopId()!=null)
             discount = promotionDiscountRepository.getPromotionProgramDiscount(discountCode, shopDTO.getParentShopId(), firstDay, lastDay).orElse(null);
 
-        if(discount == null) throw new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST);
+        if(discount == null) throw null;//new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PromotionProgramDiscountDTO discountDTO = modelMapper.map(discount, PromotionProgramDiscountDTO.class);
@@ -147,20 +145,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             if(dto.getIsReturn() != 1) return true;
             else return false;
         }
-    }
-
-    private List<PromotionProgramDTO> findPromotionPrograms(Long shopId) {
-        if (shopId == null) return null;
-        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        List<Long> lstShopId = new ArrayList<>();
-        lstShopId.add(shopId);
-        if(shopDTO.getParentShopId() != null) lstShopId.add(shopDTO.getParentShopId());
-
-        List<PromotionProgram> programs = promotionProgramRepository.findAvailableProgram(lstShopId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        List<PromotionProgramDTO> dtos  = programs.stream().map(program ->modelMapper.map(program, PromotionProgramDTO.class)).collect(Collectors.toList());
-        
-        return dtos;
     }
 
     @Override
