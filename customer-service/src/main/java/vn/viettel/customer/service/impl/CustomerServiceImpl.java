@@ -343,8 +343,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }else customerDTO.setIsEdit(3L);
         //edit customer type
         CustomerType cusType = customerTypeRepository.getById(customer.getCustomerTypeId());
-        if(cusType.getPosModifyCustomer()==1)
-            customerDTO.setIsEditCusType(1L);
+        if(cusType != null) {
+            if(cusType.getPosModifyCustomer()==1) customerDTO.setIsEditCusType(1L);
+            CustomerTypeDTO customerType =  modelMapper.map(cusType, CustomerTypeDTO.class);
+            customerDTO.setCustomerType(customerType);
+        }
+
         //list top five product
         List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
         customerDTO.setLstProduct(lstProduct);

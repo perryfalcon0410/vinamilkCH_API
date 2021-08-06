@@ -110,6 +110,9 @@ public class CustomerDTO extends BaseDTO {
     @ApiModelProperty(notes = "Danh sách top 5 sản phẩm yêu thích trong vòng 6 tháng")
     private List<String> lstProduct;
 
+    @ApiModelProperty(notes = "Loại khách hàng")
+    private CustomerTypeDTO customerType;
+
     public String getFullName(){
         fullName = "";
         if(firstName != null) fullName = lastName;
