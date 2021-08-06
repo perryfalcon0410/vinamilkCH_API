@@ -15,12 +15,6 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "sale-service")
 public interface SaleOrderClient {
-    @GetMapping("api/v1/sales/sale-orders/last-sale-order/{id}")
-    Response<SaleOrderDTO> GetLastSaleOrderByCustomerIdV1(@PathVariable("id") Long id);
-
-    @GetMapping("api/v1/sales/sale-orders/total-bill-for-month")
-    Response<Double> getTotalBillForTheMonthByCustomerIdV1(@RequestParam Long customerId,
-                                                         @RequestParam(value = "lastOrderDate", required = false) LocalDate lastOrderDate);
 
     @GetMapping(value = { "api/v1/sales/sale-orders/top-five-products"})
     Response<List<String>> getTopFiveFavoriteProductsV1(@RequestParam Long customerId);

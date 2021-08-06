@@ -488,7 +488,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
             double percent = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
             salePromotion.setTotalAmtInTax(amount);
-            salePromotion.setTotalAmtExTax(totalAmountExtax * percent / 100);
+            salePromotion.setTotalAmtExTax(amount / (( 100 + percent ) / 100));
             if(!isInclusiveTax){
                 salePromotion.setTotalAmtInTax(amount * (( 100 + percent ) / 100));
                 salePromotion.setTotalAmtExTax(amount);
@@ -627,6 +627,13 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
             }
         }
+      /*  l.x. huong
+        Chỗ này c Linh có trừ đó
+        Mà do đang km trên phần tiền còn lại,
+        Tiền đơn hàng là 7tr,  tiền đã tích luỹ là 70k,  tiền km 19 là 700k , lấy 7tr- 70k - 700k thì lớn hơn 3tr quy địh
+        Nên số tiền đc hưởng, là chit còn đc hưởng 3tr - số tiền kh đã tích luỹ
+        Tí c Linh c ấy noted chi tiết hơn
+        */
 
         //-	Số tiền còn lại có thể hưởng CTKM ZV23 = [số tiền quy định của ZV23] – [doanh số tính tới thời điểm mua]
         double amountRemain = amountZV23 - totalCusAmount;
@@ -638,14 +645,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         Double saveAmount = amountInTax;
         double p = (amountInTax-amountExTax)/amountExTax*100;
-        if(amountRemain < amountInTax) {
+        if(amountRemain < amountInTax - totalBeforeZV23InTax) {
             amountInTax = amountRemain;
             amountExTax = amountInTax / (( 100 + p ) / 100);
+        }else {
+            //trừ đi km chiết khấu zv01 - zv18 và zm
+            amountInTax = amountInTax - totalBeforeZV23InTax;
+            amountExTax = amountExTax - totalBeforeZV23ExTax;
         }
-
-        //trừ đi km chiết khấu zv01 - zv18 và zm
-        amountInTax = amountInTax - totalBeforeZV23InTax;
-        amountExTax = amountExTax - totalBeforeZV23ExTax;
 
         if (percent > 0 && amountInTax > 0){
             SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
@@ -2148,22 +2155,22 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // Kiểm tra loại đơn hàng tham gia
         if(program.getObjectType() != null && program.getObjectType() != 0) {
             Set<Long> orderTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.ORDER_TYPE.getValue()).getData();
-            if(!orderTypes.contains(Long.valueOf(request.getOrderType()))) return false;
+            if(orderTypes == null || orderTypes.isEmpty() || !orderTypes.contains(Long.valueOf(request.getOrderType()))) return false;
         }
 
         // Kiểm tra thuộc tính khách hàng tham gia
         Set<Long> customerTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_TYPE.getValue()).getData();
-        if(!customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
+        if(customerTypes != null || !customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
 
         Set<Long> memberCards = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.MEMBER_CARD.getValue()).getData();
         MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
-        if(!memberCards.isEmpty() && !memberCards.contains(memberCard!=null?memberCard.getId():null)) return false;
+        if(memberCards != null || !memberCards.isEmpty() && !memberCards.contains(memberCard!=null?memberCard.getId():null)) return false;
 
         Set<Long> loyalCustomers = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.LOYAL_CUSTOMER.getValue()).getData();
-        if(!loyalCustomers.isEmpty() && !loyalCustomers.contains(customer.getCloselyTypeId())) return false;
+        if(loyalCustomers != null && !loyalCustomers.isEmpty() && !loyalCustomers.contains(customer.getCloselyTypeId())) return false;
 
         Set<Long> customerCardTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_CARD_TYPE.getValue()).getData();
-        if(!customerCardTypes.isEmpty() && !customerCardTypes.contains(customer.getCardTypeId())) return false;
+        if(customerCardTypes != null && !customerCardTypes.isEmpty() && !customerCardTypes.contains(customer.getCardTypeId())) return false;
 
         return true;
     }

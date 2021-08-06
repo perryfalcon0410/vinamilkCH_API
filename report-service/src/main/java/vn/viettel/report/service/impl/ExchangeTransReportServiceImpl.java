@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
@@ -24,6 +25,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +68,11 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                     }else cs.setNull(3, Types.INTEGER);
 
                     if (filter.getFromDate() != null)
-                        cs.setDate(4, java.sql.Date.valueOf(filter.getFromDate()));
+                        cs.setDate(4, new Date(filter.getFromDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
                     else cs.setNull(4, Types.DATE);
 
                     if (filter.getToDate() != null)
-                        cs.setDate(5, java.sql.Date.valueOf(filter.getToDate()));
+                        cs.setDate(5, new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
                     else cs.setNull(5, Types.DATE);
 
                     if(filter.getReason() != null) {
@@ -96,9 +99,9 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                         rowData.add(rowDatas);
                     }
                     if(!rowData.isEmpty()) {
-                        tableDynamicDTO.setTotals(rowData.get(1));
-                        rowData.remove(0);
-                        rowData.remove(0);
+                        tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
+                        rowData.remove(rowData.size() - 1);
+                        rowData.remove(rowData.size() - 1);
                         tableDynamicDTO.setResponse(rowData);
                     }
                     List<Object[]> rowData1 = new ArrayList<>();
@@ -136,7 +139,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     }
 
     private void validMonth(ExchangeTransFilter filter){
-        LocalDate fromDate = filter.getFromDate().plusDays(1);
+        LocalDateTime fromDate = filter.getFromDate().plusDays(1);
         long monthsBetween = ChronoUnit.MONTHS.between(fromDate, filter.getToDate());
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }

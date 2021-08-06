@@ -14,6 +14,7 @@ import vn.viettel.customer.service.MemberCardService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,7 +44,6 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCard memberCardRecord = modelMapper.map(memberCardDTO, MemberCard.class);
 
-
         repository.save(memberCardRecord);
         return memberCardRecord;
     }
@@ -67,7 +67,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
         Optional<List<MemberCard>> memberCards = repository.getAllByCustomerTypeId(id);
         if(!memberCards.isPresent())
         {
-            throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
+            return new ArrayList<>();
         }
         List<MemberCardDTO> memberCardDTOS = memberCards.get().stream()
                 .map(memberCard -> modelMapper.map(memberCard, MemberCardDTO.class))
@@ -78,8 +78,8 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public MemberCardDTO getByCustomerId(Long customerId) {
-        MemberCard memberCard = repository.getByCustomerId(customerId)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST));
+        MemberCard memberCard = repository.getByCustomerId(customerId).orElse(null);
+        if (memberCard == null) return null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         MemberCardDTO dto = modelMapper.map(memberCard, MemberCardDTO.class);
         return dto;

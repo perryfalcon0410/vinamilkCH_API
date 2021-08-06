@@ -65,9 +65,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     CustomerTypeClient customerTypeClient;
 
     @Autowired
-    MemberCustomerClient memberCustomerClient;
-
-    @Autowired
     ProductRepository productRepo;
 
     @Autowired

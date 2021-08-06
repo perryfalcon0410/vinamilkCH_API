@@ -6,6 +6,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -281,15 +282,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     public String createCustomerCode(Long shopId, String shopCode) {
-        int customerNumber = 0;
-        List<Customer> customers = repository.getCustomerNumber(shopId);
-        if(customers != null && !customers.isEmpty()) {
-            int i = customers.get(0).getCustomerCode().lastIndexOf('.');
-            String numberString = customers.get(0).getCustomerCode().substring(i+1).trim();
-            customerNumber = Integer.valueOf(numberString);
+        Page<Customer> customers = repository.getLastCustomerNumber(shopId, PageRequest.of(0,1));
+        int STT = 1;
+        if(!customers.getContent().isEmpty()) {
+            String str = customers.getContent().get(0).getCustomerCode();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
         }
 
-        return "CUS." + shopCode + "." + Integer.toString(customerNumber + 1 + 100000).substring(1);
+        return "CUS." + shopCode + "." + Integer.toString(STT + 100000).substring(1);
     }
 
     public void setAddressAndAreaId(String street, Long areaId, Customer customer){
@@ -312,8 +313,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerById(Long id,Long shopId) {
-        Customer customer = repository.findById(id).
-                orElseThrow(() -> new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST));
+        Customer customer = repository.getById(id);
+        if(customer == null)
+                throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customer, null);
 
@@ -346,8 +348,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }else customerDTO.setIsEdit(3L);
         //edit customer type
         CustomerType cusType = customerTypeRepository.getById(customer.getCustomerTypeId());
-        if(cusType.getPosModifyCustomer()==1)
-            customerDTO.setIsEditCusType(1L);
+        if(cusType != null) {
+            if(cusType.getPosModifyCustomer()==1) customerDTO.setIsEditCusType(1L);
+            CustomerTypeDTO customerType =  modelMapper.map(cusType, CustomerTypeDTO.class);
+            customerDTO.setCustomerType(customerType);
+        }
+
         //list top five product
         List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
         customerDTO.setLstProduct(lstProduct);

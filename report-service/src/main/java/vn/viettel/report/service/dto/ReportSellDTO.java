@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,9 +16,9 @@ import java.time.LocalDate;
 public class ReportSellDTO {
 
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private LocalDate toDate;
+    private LocalDateTime toDate;
     private String dateOfPrinting;
     private String shopName;
     private String address;

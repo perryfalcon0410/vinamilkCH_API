@@ -7,7 +7,6 @@ import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Service

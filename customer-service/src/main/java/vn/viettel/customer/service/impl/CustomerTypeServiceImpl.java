@@ -1,13 +1,11 @@
 package vn.viettel.customer.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
-import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.service.CustomerTypeService;
 
@@ -35,20 +33,6 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
 
     }
 
-    /*@Override
-    public List<CustomerTypeDTO> getAllToCustomer() {
-        List<CustomerType> customerTypes = repository.findAll();
-        return customerTypes.stream()
-                .filter(customerType -> {
-                    if(customerType.getStatus() == 1 && customerType.getPosModifyCustomer() == 1)
-                        return true;
-                    else
-                        return false;
-                })
-                .map(customerType -> modelMapper.map(customerType, CustomerTypeDTO.class))
-                .collect(Collectors.toList());
-    }
-*/
     @Override
     public List<CustomerTypeDTO> findByIds(List<Long> customerTypeIds) {
         List<CustomerType> findByIds = repository.findByIds(customerTypeIds);

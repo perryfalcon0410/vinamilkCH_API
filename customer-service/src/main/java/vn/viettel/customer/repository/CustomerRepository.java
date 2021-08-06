@@ -1,5 +1,7 @@
 package vn.viettel.customer.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,6 +10,7 @@ import vn.viettel.customer.entities.Customer;
 import vn.viettel.core.repository.BaseRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,11 +26,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
     List<Customer> getCustomerInfo(Integer status, List<Long> customerIds);
 
-    @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId " +
-            " AND c.customerCode NOT LIKE '%.KA___' " +
-            " AND c.id = (SELECT MAX (cus.id) FROM Customer cus WHERE cus.shopId =:shopId AND cus.customerCode NOT LIKE '%.KA___' ) " +
-            " ORDER BY c.id desc , c.createdAt desc ")
-    List<Customer> getCustomerNumber(@Param("shopId") Long shopId);
+    @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.customerCode NOT LIKE '%.KA___' ORDER BY c.customerCode desc ")
+    Page<Customer> getLastCustomerNumber(@Param("shopId") Long shopId,  Pageable pageable);
 
     @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = true "
             + " AND c.status = 1 ORDER BY c.updatedAt DESC")
