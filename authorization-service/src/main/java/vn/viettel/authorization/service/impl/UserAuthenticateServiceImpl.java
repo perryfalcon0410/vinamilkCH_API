@@ -196,16 +196,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         }
 
         //Có nhiều role nếu có shop nào là cha thì lấy thêm đơn vị có shop_type = 4
-     /*   for (RoleDTO roleDTO : roleDTOS) {
-            List<ShopDTO> shopDTOS = new ArrayList<>();
-            shopDTOS.addAll(roleDTO.getShops());
-            for(ShopDTO shop: roleDTO.getShops()) {
-                List<Shop> subShops = shopRepository.findByParentShopIdAndShopTypeAndStatus(shop.getId(), "4", 1);
-                List<ShopDTO> subShopDTOs = subShops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
-                shopDTOS.addAll(subShopDTOs);
-            }
-            roleDTO.setShops(shopDTOS);
-        }*/
 
         for (RoleDTO roleDTO : roleDTOS) {
             List<ShopDTO> shopDTOS = new ArrayList<>();
@@ -232,15 +222,26 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         List<RoleDTO> roleDTOS = this.getAllRoles(user);
         List<Long> roleIds = roleDTOS.stream().map(RoleDTO::getId).collect(Collectors.toList());
-        Map<Long, List<Long>> roleShops = new HashMap<>();
 
         //step getAllRoles đã check role tồn tại
         if(!roleIds.contains(loginInfo.getRoleId()))
             throw new ValidateException(ResponseMessage.USER_ROLE_NOT_MATCH);
 
-        //Kiểm tra role shop có quyền dữ liệu
-        if(!this.checkPermissionType2(loginInfo.getRoleId(), shop))
+
+        // check shop
+        List<Long> shopIds = new ArrayList<>();
+        for(RoleDTO role:  roleDTOS) {
+            if(role.getId().equals(loginInfo.getRoleId())) {
+                shopIds = role.getShops().stream().map(ShopDTO::getId).collect(Collectors.toList());
+                break;
+            }
+        }
+        if(!shopIds.contains(loginInfo.getShopId()))
             throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
+
+//        //Kiểm tra role shop có quyền dữ liệu
+//        if(!this.checkPermissionType2(loginInfo.getRoleId(), shop))
+//            throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
 
         Role role = roleRepository.findById(loginInfo.getRoleId()).get();
 
@@ -319,15 +320,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         shopIds.add(shop.getId());
         List<Permission> permissionsType2 = permissionRepository.findPermissionType(roleId, shopIds, 2);
         if(permissionsType2.isEmpty()) return false;
-//        List<Permission> permissionsType2 = permissionRepository.findPermissionType(roleId, shop.getId(), 2);
-//        if(permissionsType2.isEmpty()) {
-//            List<Permission> permissionsType2Parent = new ArrayList<>();
-//            if(shop.getParentShopId()!=null) {
-//                permissionsType2Parent = permissionRepository.findPermissionType(roleId, shop.getParentShopId(), 2);
-//            }
-//            if(permissionsType2Parent.isEmpty()) return false;
-//        }
-
         return true;
     }
 
@@ -507,12 +499,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         }
         return result;
     }
-
- /*   public String getShopArea(Long areaId) {
-        AreaDTO ward = areaClient.getByIdV1(areaId).getData();
-        AreaDTO district = areaClient.getByIdV1(ward.getParentAreaId()).getData();
-        return ward.getAreaName() + ", " + district.getAreaName();
-    }*/
 
     @Override
     public UserDTO getUserById(long id) {
