@@ -46,14 +46,14 @@ public class SellsReportServiceImpl implements SellsReportService {
     @PersistenceContext
     EntityManager entityManager;
 
-    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDate fromDate, LocalDate toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Double fromInvoiceSales, Double toInvoiceSales) {
+    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDateTime fromDate, LocalDateTime toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Double fromInvoiceSales, Double toInvoiceSales) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SELL", SellDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(4, LocalDateTime.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(5, LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(7, Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(8, Integer.class, ParameterMode.IN);
@@ -98,7 +98,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         List<SellDTO> dtoList = new ArrayList<>();
 
         if (!reportDTOS.isEmpty()) {
-            SellDTO dto = reportDTOS.get(0);
+            SellDTO dto = reportDTOS.get(reportDTOS.size() - 1);
             totalDTO.setSomeBills(dto.getSomeBills());
             totalDTO.setTotalQuantity(dto.getTotalQuantity());
             totalDTO.setTotalTotal(dto.getTotalTotal());
@@ -133,7 +133,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         SellDTO sellDTO = new SellDTO();
         if (!reportDTOS.isEmpty()) {
-            sellDTO = reportDTOS.get(0);
+            sellDTO = reportDTOS.get(reportDTOS.size() - 1);
             this.removeDataList(reportDTOS);
         }
         SellExcel excel = new SellExcel(shopDTO, reportDTOS, sellDTO, filter);
@@ -154,7 +154,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         ReportSellDTO dto = new ReportSellDTO();
 
         if (!reportDTOS.isEmpty()) {
-            SellDTO sellDTO = reportDTOS.get(0);
+            SellDTO sellDTO = reportDTOS.get(reportDTOS.size() - 1);
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
             dto.setFromDate(filter.getFromDate());
             dto.setToDate(filter.getToDate());
@@ -192,7 +192,7 @@ public class SellsReportServiceImpl implements SellsReportService {
     }
 
     private void removeDataList(List<SellDTO> reportDTOS) {
-        reportDTOS.remove(0);
-        reportDTOS.remove(0);
+        reportDTOS.remove(reportDTOS.size() - 1);
+        reportDTOS.remove(reportDTOS.size() - 1);
     }
 }
