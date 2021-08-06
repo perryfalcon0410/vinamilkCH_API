@@ -324,6 +324,7 @@ public enum ResponseMessage {
     PRODUCT_PRICE_RED_INVOICE_NOT_FOUND(9092, "Sản phẩm %s chưa có giá"),
     STOCK_TOTALS_NOT_FOUND_MESSAGE(9094, "không có thông tin tồn kho"),
     PRODUCT_ORDER_NOT_EMPTY(9095, "Danh sách sản phẩm mua không được rỗng"),
+    PRODUCT_VAT_RED_INVOICE_NOT_FOUND(9096, "Sản phẩm %s chưa có thông tin VAT"),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999

@@ -426,7 +426,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 for (Map.Entry<String, PrintProductSaleOrderDTO> group : details.entrySet()) {
                     if (group.getKey() != null && group.getKey().contains(item.getPromotionCode())) {
                         for (PrintOrderItemDTO i : group.getValue().getListOrderItems()){
-                            if(item.getProductId() == i.getProductId()){
+                            if(item.getProductId().equals(i.getProductId())){
                                 double amount = 0;
                                 if(i.getTotalDiscountPrice() != null) amount = i.getTotalDiscountPrice();
                                 if (item.getDiscountAmountVat() != null) amount += -item.getDiscountAmountVat();

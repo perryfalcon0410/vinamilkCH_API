@@ -239,8 +239,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getPriceNotVat() == null) {
                 Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(i).getProductId();
                 Product product = productRepository.getById(id);
-                throw new ValidateException(ResponseMessage.PRODUCT_PRICE_RED_INVOICE_NOT_FOUND, product.getProductCode() + "-" + product.getProductName());
+                throw new ValidateException(ResponseMessage.PRODUCT_PRICE_RED_INVOICE_NOT_FOUND, product.getProductCode() + " - " + product.getProductName());
             }
+
+            if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getVat() == null) {
+                Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(i).getProductId();
+                Product product = productRepository.getById(id);
+                throw new ValidateException(ResponseMessage.PRODUCT_VAT_RED_INVOICE_NOT_FOUND, product.getProductCode() + " - " + product.getProductName());
+            }
+
             for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
                 if (!redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat().equals(redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat()))
                     throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
