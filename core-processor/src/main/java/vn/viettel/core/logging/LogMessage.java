@@ -138,4 +138,7 @@ public class LogMessage {
     public final static String GET_DATA_PRECINCT_SUCCESS = "Get data precinct successfully";
     public final static String GET_DATA_AREA_SUCCESS = "Get data area successfully";
     public final static String GET_DATA_CATEGORY_SUCCESS = "Get data category successfully";
+    public final static String CREATE_PRINTER_CONFIG_SUCCESS = "Create printer config successfully";
+    public final static String UPDATE_PRINTER_CONFIG_SUCCESS = "Update printer config successfully";
+    public final static String GET_PRINTER_CONFIG_SUCCESS = "Get printer config successfully";
 }

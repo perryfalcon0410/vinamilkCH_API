@@ -6,4 +6,5 @@
     <include file="src/main/resources/database/changelog/changelog-002.xml"/>
     <include file="src/main/resources/database/changelog/changelog-24-05-2021-nghianh1.xml"/>
     <include file="src/main/resources/database/changelog/changelog-08-06-21-nghianh1.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-07-08-2021-thaitt.xml"/>
 </databaseChangeLog>
