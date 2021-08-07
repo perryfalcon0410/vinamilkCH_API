@@ -169,12 +169,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 saleOrderDetail.setShopId(shopId);
                 saleOrderDetail.setAmount(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity());
                 saleOrderDetail.setTotal(saleOrderDetail.getAmount());
-
-                // printTemp
-                if(printTemp) {
-                    saleOrderDetail.setProductCode(item.getProductCode());
-                    saleOrderDetail.setProductName(item.getProductName());
-                }
+                saleOrderDetail.setProductCode(item.getProductCode());
+                saleOrderDetail.setProductName(item.getProductName());
 
                 saleOrderDetails.add(saleOrderDetail);
             }
@@ -379,18 +375,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (roundValue(request.getDiscountAmount())!=(roundValue(discountValue))) throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
 
             discountNeedSave = promotionClient.getPromotionDiscount(request.getDiscountCode(), shopId).getData();
-            if(discountNeedSave != null) {
-                discountNeedSave.setIsUsed(1);
-                discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
-                discountNeedSave.setActualDiscountAmount(discountValue);
-                discountNeedSave.setOrderShopCode(shop.getShopCode());
-
-                PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
-                Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
-                promotionShopMap.setQuantityReceived(received + discountValue);
-                promotionShopMaps.add(promotionShopMap);
-            }
-
         }
 
         // 5. kiểm tra tiền tích lũy
@@ -431,7 +415,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateVoucher(saleOrder, lstVoucherNeedSave);
 
         //update discount
-        updatePromotionProgramDiscount(saleOrder, discountNeedSave);
+        if(discountNeedSave != null && saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
+            discountNeedSave.setIsUsed(1);
+            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
+            discountNeedSave.setActualDiscountAmount(saleOrder.getDiscountCodeAmount());
+            discountNeedSave.setOrderShopCode(shop.getShopCode());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
+            Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+            promotionShopMap.setQuantityReceived(received + saleOrder.getDiscountCodeAmount());
+            promotionShopMaps.add(promotionShopMap);
+            updatePromotionProgramDiscount(saleOrder, discountNeedSave);
+        }
 
         //update combo
         updateComboDetail(saleOrder, listOrderComboDetails);

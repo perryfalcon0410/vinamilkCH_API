@@ -2164,7 +2164,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         Set<Long> memberCards = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.MEMBER_CARD.getValue()).getData();
         MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
-        if(memberCards != null || !memberCards.isEmpty() && !memberCards.contains(memberCard!=null?memberCard.getId():null)) return false;
+        if(memberCards != null && !memberCards.isEmpty() && !memberCards.contains(memberCard!=null?memberCard.getId():null)) return false;
 
         Set<Long> loyalCustomers = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.LOYAL_CUSTOMER.getValue()).getData();
         if(loyalCustomers != null && !loyalCustomers.isEmpty() && !loyalCustomers.contains(customer.getCloselyTypeId())) return false;

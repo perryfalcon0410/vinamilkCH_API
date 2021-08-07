@@ -122,7 +122,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         if(discount == null && shopDTO.getParentShopId()!=null)
             discount = promotionDiscountRepository.getPromotionProgramDiscount(discountCode, shopDTO.getParentShopId(), firstDay, lastDay).orElse(null);
 
-        if(discount == null) throw null;//new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST);
+        if(discount == null) return null;//new ValidateException(ResponseMessage.PROMOTION_PROGRAM_DISCOUNT_NOT_EXIST);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PromotionProgramDiscountDTO discountDTO = modelMapper.map(discount, PromotionProgramDiscountDTO.class);
