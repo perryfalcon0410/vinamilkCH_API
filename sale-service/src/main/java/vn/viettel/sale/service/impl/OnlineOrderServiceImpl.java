@@ -220,7 +220,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 Long onlineId = 1L;
                 if(onlineOrderDB != null){
                     entityManager.refresh(onlineOrderDB);
-                    onlineId = onlineOrderDB.getId();
+                    onlineId = onlineOrderDB.getId() + 1;
                 }
 
                 if (header.getCustomerBirthday()!=null) {
@@ -238,7 +238,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     Long detailId = 1L;
                     if(lastDetail != null){
                         entityManager.refresh(lastDetail);
-                        detailId = lastDetail.getId();
+                        detailId = lastDetail.getId() + 1;
                     }
                     onlineOrderDetailRepo.schedulerInsert(detailId, shopDTO.getId(), onlineId, line.getSku(), line.getProductName(), line.getQuantity(), line.getOriginalPrice(),
                             line.getRetailsPrice(), line.getLineValue(), line.getCharacter1Name(), line.getCharacter1Value(), line.getCharacter2Name(), line.getCharacter2Value(),
