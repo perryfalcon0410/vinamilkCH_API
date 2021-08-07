@@ -104,7 +104,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         CustomerTypeDTO customerType = null;
 
         if(request.getCustomerId() != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
-        if(customerType == null) customerType = customerTypeClient.getCusTypeIdByShopIdV1(shopId);
+        if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
         if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         // information need to be save

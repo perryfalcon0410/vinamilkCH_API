@@ -49,12 +49,12 @@ public class OnlineOrderSpecification {
             if (tsFromDate == null && tsToDate == null) return criteriaBuilder.conjunction();
 
             if(tsFromDate == null && tsToDate != null)
-                return criteriaBuilder.lessThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsToDate);
+                return criteriaBuilder.lessThanOrEqualTo(root.get(OnlineOrder_.createDate), tsToDate);
 
             if(tsFromDate != null && tsToDate == null)
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(OnlineOrder_.createdAt), tsFromDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(OnlineOrder_.createDate), tsFromDate);
 
-            return criteriaBuilder.between(root.get(OnlineOrder_.createdAt), tsFromDate, tsToDate);
+            return criteriaBuilder.between(root.get(OnlineOrder_.createDate), tsFromDate, tsToDate);
         };
     }
 

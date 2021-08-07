@@ -9,7 +9,6 @@ import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.service.dto.*;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 

@@ -1,5 +1,7 @@
 package vn.viettel.sale.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,25 +28,26 @@ public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaS
     int schedulerCancel(Integer synStatus, String orderNumber, Long id);
 
     @Modifying
-    @Query(value = "Insert into ONLINE_ORDER (SHOP_ID, SYN_STATUS, SOURCE_NAME, ORDER_ID, ORDER_NUMBER, TOTAL_LINE_VALUE " +
-            ", DISCOUNT_CODE, DISCOUNT_VALUE, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_ADDRESS, SHIPPING_ADDRESS, CUSTOMER_BIRTHDAY, ORDER_STATUS, VNM_SYN_STATUS, NOTE, CREATE_DATE, CREATED_AT) " +
-            "VALUES (:shopId, :sysStatus, :soureName, :orderId, :orderNumber, :totalLineValue, :discountCode, TO_NUMBER(:discountValue)" +
-            ", :customerName, :customerPhone, :cusAddress, :shippingAddress, :customerDOB, :orderStatus, :vnmSynStatus, :note, :createdDate, :createdAt )", nativeQuery = true)
-    int schedulerInsert( Long shopId, Integer sysStatus, String soureName, Long orderId, String orderNumber,
+    @Query(value = "Insert into ONLINE_ORDER (ID, SHOP_ID, SYN_STATUS, SOURCE_NAME, ORDER_ID, ORDER_NUMBER, TOTAL_LINE_VALUE " +
+            ", DISCOUNT_CODE, DISCOUNT_VALUE, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_ADDRESS, SHIPPING_ADDRESS, CUSTOMER_BIRTHDAY, ORDER_STATUS, VNM_SYN_STATUS" +
+            ", NOTE, CREATE_DATE, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY) " +
+            "VALUES (:id, :shopId, :sysStatus, :sourceName, :orderId, :orderNumber, :totalLineValue, :discountCode, TO_NUMBER(:discountValue)" +
+            ", :customerName, :customerPhone, :cusAddress, :shippingAddress, :customerDOB, :orderStatus, :vnmSynStatus, :note, :createdDate" +
+            ", :createdAt, :createdAt, 'scheduler', 'scheduler' )", nativeQuery = true)
+    int schedulerInsert(Long id, Long shopId, Integer sysStatus, String sourceName, Long orderId, String orderNumber,
         Float totalLineValue, String discountCode, Float discountValue, String customerName, String customerPhone, String cusAddress,
                                     String shippingAddress, LocalDateTime customerDOB, String orderStatus, Integer vnmSynStatus, String note, LocalDateTime createdDate, LocalDateTime createdAt);
 
-
     @Modifying
-    @Query(value = "Insert into ONLINE_ORDER (SHOP_ID, SYN_STATUS, SOURCE_NAME, ORDER_ID, ORDER_NUMBER, TOTAL_LINE_VALUE " +
-            ", DISCOUNT_CODE, DISCOUNT_VALUE, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_ADDRESS, SHIPPING_ADDRESS, ORDER_STATUS, VNM_SYN_STATUS, NOTE, CREATE_DATE, CREATED_AT) " +
-            "VALUES (:shopId, :sysStatus, :soureName, :orderId, :orderNumber, :totalLineValue, :discountCode, TO_NUMBER(:discountValue)" +
-            ", :customerName, :customerPhone, :cusAddress, :shippingAddress, :orderStatus, :vnmSynStatus, :note, :createdDate, :createdAt)", nativeQuery = true)
-    int schedulerInsertNoDOB( Long shopId, Integer sysStatus, String soureName, Long orderId, String orderNumber,
+    @Query(value = "Insert into ONLINE_ORDER (ID, SHOP_ID, SYN_STATUS, SOURCE_NAME, ORDER_ID, ORDER_NUMBER, TOTAL_LINE_VALUE " +
+            ", DISCOUNT_CODE, DISCOUNT_VALUE, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_ADDRESS, SHIPPING_ADDRESS, ORDER_STATUS, VNM_SYN_STATUS, NOTE" +
+            ", CREATE_DATE, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY ) " +
+            "VALUES (:id, :shopId, :sysStatus, :sourceName, :orderId, :orderNumber, :totalLineValue, :discountCode, TO_NUMBER(:discountValue)" +
+            ", :customerName, :customerPhone, :cusAddress, :shippingAddress, :orderStatus, :vnmSynStatus, :note, :createdDate" +
+            ", :createdAt, :createdAt, 'scheduler', 'scheduler')", nativeQuery = true)
+    int schedulerInsertNoDOB(Long id, Long shopId, Integer sysStatus, String sourceName, Long orderId, String orderNumber,
                          Float totalLineValue, String discountCode, Float discountValue, String customerName, String customerPhone, String cusAddress,
                          String shippingAddress, String orderStatus, Integer vnmSynStatus, String note, LocalDateTime createdDate, LocalDateTime createdAt);
 
-
     OnlineOrder findFirstByOrderByIdDesc();
-
 }

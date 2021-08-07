@@ -13,8 +13,9 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "customer-service")
 public interface CustomerTypeClient {
+
     @GetMapping("/api/v1/customers/customer-types/shop-id/{shopId}")
-    CustomerTypeDTO getCusTypeIdByShopIdV1(@PathVariable("shopId") Long shopId);
+    CustomerTypeDTO getCusTypeByShopIdV1(@PathVariable("shopId") Long shopId);
 
     @GetMapping("/api/v1/customers/customer-types/default")
     Response<CustomerTypeDTO> getCustomerTypeDefaultV1();

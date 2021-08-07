@@ -43,6 +43,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
     public void updateWithLock(Long stockTotalId, Integer value){
         if(stockTotalId == null || value == null) return;
         StockTotal newEntity = repository.findById(stockTotalId).get();
+        entityManager.refresh(newEntity);
         if (newEntity == null) return;
         updateEntity(newEntity, value);
     }
@@ -54,7 +55,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         StockTotal entity = repository.findByProductIdAndWareHouseTypeIdAndShopId(productId, wareHouseId,shopId);
         if (entity == null && value > 0) return createStockTotal(shopId, wareHouseId, productId, value, true);
         if(entity == null && value < 0) showMessage(productId, true);
-
+        entityManager.refresh(entity);
         return updateEntity(entity, value);
     }
 
@@ -70,6 +71,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
                 if(entity == null && value < 0) showMessage(productId, true);
             }
         }
+        entityManager.refresh(entity);
         return updateEntity(entity, value);
     }
 
@@ -95,6 +97,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         entity.setQuantity(entity.getQuantity() + value);
         if(entity.getQuantity() < 0) showMessage(entity.getProductId(), false);
         repository.save(entity);
+        repository.flush();
         entityManager.lock(entity, LockModeType.NONE);
         return entity;
     }
@@ -104,6 +107,7 @@ public class StockTotalServiceImpl extends BaseServiceImpl<StockTotal, StockTota
         boolean flag = false;
         for (StockTotal stockTotal : stockTotals){
             if(stockTotal.getProductId().equals(productId)){
+                entityManager.refresh(stockTotal);
                 if(stockTotal.getQuantity() == null) stockTotal.setQuantity(0);
                 flag = true;
                 if(value != null && value < 0 && stockTotal.getQuantity() + value < 0) {
