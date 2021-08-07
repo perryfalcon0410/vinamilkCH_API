@@ -2160,7 +2160,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         // Kiểm tra thuộc tính khách hàng tham gia
         Set<Long> customerTypes = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.CUSTOMER_TYPE.getValue()).getData();
-        if(customerTypes != null || !customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
+        if(customerTypes != null && !customerTypes.isEmpty() && !customerTypes.contains(customer.getCustomerTypeId())) return false;
 
         Set<Long> memberCards = promotionClient.findCusCardPromotion(program.getId(), PromotionCustObjectType.MEMBER_CARD.getValue()).getData();
         MemberCardDTO memberCard = memberCardClient.getByCustomerId(customer.getId()).getData();
