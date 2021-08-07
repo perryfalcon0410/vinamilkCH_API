@@ -5,14 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ApplicationException;
@@ -20,7 +21,6 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.CustomerOnlRequest;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
@@ -82,13 +82,21 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public Page<OnlineOrderDTO> getOnlineOrders(OnlineOrderFilter filter, Pageable pageable) {
+        Sort newSort = Sort.by("createDate").descending();
+        if(pageable.getSort() != null) {
+            for (Sort.Order order : pageable.getSort()) {
+                if(!order.getProperty().equals("createdAt"))
+                    newSort.and(Sort.by(order.getDirection(), order.getProperty()));
+            }
+        }
+        Pageable newPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);
         Page<OnlineOrder> onlineOrders = repository.findAll(
                 Specification.where(
                         OnlineOrderSpecification.hasOrderNumber(filter.getOrderNumber()))
                         .and(OnlineOrderSpecification.hasShopId(filter.getShopId()))
                         .and(OnlineOrderSpecification.hasSynStatus(filter.getSynStatus()))
                         .and(OnlineOrderSpecification.hasFromDateToDate(filter.getFromDate(), filter.getToDate())
-                        ), pageable);
+                        ), newPage);
         Page<OnlineOrderDTO> onlineOrderDTOS = onlineOrders.map(this::mapOnlineOrderToOnlineOrderDTO);
 
         return onlineOrderDTOS;
@@ -101,7 +109,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
         List<CustomerDTO> customerDTOS = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
-
         if(customerDTOS.isEmpty()) {
             CustomerOnlRequest cusRequest = new CustomerOnlRequest();
             cusRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
@@ -118,22 +125,19 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 throw new ValidateException(ResponseMessage.CUSTOMER_CREATE_FAILED);
             }
         }
+        if(customerDTOS.get(0).getCustomerTypeId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
+        CustomerTypeDTO customerType = customerTypeClient.getCusTypeById(customerDTOS.get(0).getCustomerTypeId());
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
         if(orderDetails.isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
 
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (warehouseTypeId == null)
-            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
-
         List<OrderProductOnlineDTO> orderLines = new ArrayList<>();
-        Long customerType = customerDTOS.get(0).getCustomerTypeId();
         List<Product> products = productRepo.findByProductCodes(orderDetails.stream().map(item -> item.getSku()).distinct().
                 filter(Objects::nonNull).collect(Collectors.toList()));
         List<Long> productIds = products.stream().map(item -> item.getId()).collect(Collectors.toList());
-        List<Price> prices = productPriceRepo.findProductPriceWithType(productIds, customerType, DateUtils.convertToDate(LocalDateTime.now()));
-        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, warehouseTypeId, productIds);
+        List<Price> prices = productPriceRepo.findProductPriceWithType(productIds, customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));
+        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), productIds);
 
         for (OnlineOrderDetail detail: orderDetails) {
             OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, products, prices, stockTotals);
@@ -211,23 +215,34 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
                 String adrress = header.getCustomerAddress();
                 if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
-
-                if (header.getCustomerBirthday()!=null) {
-                    repository.schedulerInsert(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
-                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-                            header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now(), header.getCreatedAt());
-                }else {
-                    repository.schedulerInsertNoDOB(shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
-                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-                            header.getOrderStatus(), 0 , header.getNote(), LocalDateTime.now(), header.getCreatedAt());
+                OnlineOrder onlineOrderDB = repository.findFirstByOrderByIdDesc();
+                LocalDateTime now = LocalDateTime.now();
+                Long onlineId = 1L;
+                if(onlineOrderDB != null){
+                    entityManager.refresh(onlineOrderDB);
+                    onlineId = onlineOrderDB.getId();
                 }
 
-                OnlineOrder onlineOrderDB = repository.findFirstByOrderByIdDesc();
+                if (header.getCustomerBirthday()!=null) {
+                    repository.schedulerInsert(onlineId, shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
+                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                            header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), header.getCreatedAt(), now);
+                }else {
+                    repository.schedulerInsertNoDOB(onlineId, shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
+                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
+                            header.getOrderStatus(), 0 , header.getNote(), header.getCreatedAt(), now);
+                }
 
                 for(Line line : lines){
-                    onlineOrderDetailRepo.schedulerInsert(shopDTO.getId(), onlineOrderDB.getId(), line.getSku(), line.getProductName(), line.getQuantity(), line.getOriginalPrice(),
+                    OnlineOrderDetail lastDetail = onlineOrderDetailRepo.findFirstByOrderByIdDesc();
+                    Long detailId = 1L;
+                    if(lastDetail != null){
+                        entityManager.refresh(lastDetail);
+                        detailId = lastDetail.getId();
+                    }
+                    onlineOrderDetailRepo.schedulerInsert(detailId, shopDTO.getId(), onlineId, line.getSku(), line.getProductName(), line.getQuantity(), line.getOriginalPrice(),
                             line.getRetailsPrice(), line.getLineValue(), line.getCharacter1Name(), line.getCharacter1Value(), line.getCharacter2Name(), line.getCharacter2Value(),
-                            line.getCharacter3Name(), line.getCharacter3Value(), line.getPromotionName(),  LocalDateTime.now());
+                            line.getCharacter3Name(), line.getCharacter3Value(), line.getPromotionName(), header.getCreatedAt(), LocalDateTime.now());
                 }
 
             }catch (Exception e) {
@@ -458,6 +473,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OnlineOrderDTO dto = modelMapper.map(order, OnlineOrderDTO.class);
         dto.setOrderInfo(order.getCustomerName() + " - " + order.getCustomerPhone());
+        dto.setCreatedAt(order.getCreateDate()); //vì cần tìm theo ngày tạo trên ftp
         return dto;
     }
 

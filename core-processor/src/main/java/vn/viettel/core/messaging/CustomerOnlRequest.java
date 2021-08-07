@@ -33,5 +33,4 @@ public class CustomerOnlRequest {
 
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
     private Integer status;
-
 }
