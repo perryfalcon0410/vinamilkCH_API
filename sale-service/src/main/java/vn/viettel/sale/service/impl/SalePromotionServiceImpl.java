@@ -394,6 +394,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             if (salePromotion != null) {
+                salePromotion.setReCalculated(true);
                 salePromotion.setProgramId(program.getId());
                 if(program.getGivenType() != null && program.getGivenType() == 3) salePromotion.setAffected(true);
                 salePromotion.setLstProductHasPromtion(lstProductIds);
@@ -715,6 +716,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
             salePromotion.setLstProductHasPromtion(new ArrayList<>(lstProductHasPromotion.keySet()));
             salePromotion.setAffected(true);
+            salePromotion.setReCalculated(true);
             salePromotion.setPromotionType(0);
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
@@ -1190,6 +1192,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
             salePromotion.setAmount(discountDTO);
             salePromotion.setLstProductHasPromtion(lstProductHasPromotion);
+            salePromotion.setReCalculated(true);
 
             return salePromotion;
         }else if (!lstProductPromotion.isEmpty()){
@@ -1490,6 +1493,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 discountDTO.setDiscountInfo(saveInfo);
             }
             salePromotion.setLstProductHasPromtion(new ArrayList<>(mapOrderNumber.keySet()));
+            salePromotion.setReCalculated(true);
             return salePromotion;
         }
         else if ("zv15".equalsIgnoreCase(type) //Mua theo Bộ sản phẩm (nghĩa là phải mua đầy đủ sản phẩm, bắt buộc) - với số lượng xác định, thì sẽ được tặng 1 hoặc nhóm sản phẩm nào đó với số lượng xác định
@@ -1690,6 +1694,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     discountDTO.setDiscountInfo(saveInfo);
                 }
                 salePromotion.setLstProductHasPromtion(new ArrayList<>(mapOrderNumber.keySet()));
+                salePromotion.setReCalculated(true);
                 return salePromotion;
             }
         }
@@ -1745,6 +1750,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                 salePromotion.setAmount(discountDTO);
                 salePromotion.setLstProductHasPromtion(new ArrayList<>(mapOrderNumber.keySet()));
+                salePromotion.setReCalculated(true);
                 return salePromotion;
             }
         }
@@ -1946,6 +1952,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
                 salePromotion.setLstProductHasPromtion(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 salePromotion.setAffected(true);
+                salePromotion.setReCalculated(true);
                 return salePromotion;
             }
         }
@@ -1998,6 +2005,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion.setAmount(discountDTO);
                 salePromotion.setAffected(true);
                 salePromotion.setLstProductHasPromtion(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
+                salePromotion.setReCalculated(true);
                 return salePromotion;
             }
         }
@@ -2023,6 +2031,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if (!lstProductPromotion.isEmpty()){
                 SalePromotionDTO salePromotion = initSalePromotion(lstProductPromotion, orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 salePromotion.setAffected(true);
+                salePromotion.setReCalculated(true);
                 return salePromotion;
             }
         }

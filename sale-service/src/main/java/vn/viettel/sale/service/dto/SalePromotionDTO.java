@@ -77,6 +77,9 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Khuyến mãi bị ảnh hưởng bới sự thay đổi tiền của khuyến mãi tay nhập tiền")
     private boolean affected = false;
 
+    @ApiModelProperty(notes = "Khuyến mãi cần gửi xuống khi gọi api tính toán")
+    private boolean reCalculated = false;
+
     public Double getTotalAmtInTax() {
         if(totalAmtInTax == null) totalAmtInTax = 0.0;
         return (double)Math.round(totalAmtInTax);
