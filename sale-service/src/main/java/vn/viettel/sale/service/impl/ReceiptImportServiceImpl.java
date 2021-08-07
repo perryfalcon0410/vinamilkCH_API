@@ -705,6 +705,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if(pod.getPrice()==null) pod.setPrice(0D);
                 countNumSKU.add(pod.getProductId());
                 PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
+                poTransDetail.setId(null);
                 poTransDetail.setTransId(poRecord.getId());
                 poTransDetail.setAmount(pod.getQuantity() * pod.getPrice());
                 poTransDetail.setReturnAmount(0);
@@ -792,6 +793,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 if(sad.getQuantity()==null) sad.setQuantity(0);
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockAdjustmentTransDetail stockAdjustmentTransDetail = modelMapper.map(sad, StockAdjustmentTransDetail.class);
+                stockAdjustmentTransDetail.setId(null);
                 stockAdjustmentTransDetail.setTransId(stockAdjustmentRecord.getId());
                 stockAdjustmentTransDetail.setTransDate(transDate);
                 totalQuantity += sad.getQuantity();
@@ -866,6 +868,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             for (StockBorrowingDetail sbd : stockBorrowingDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 StockBorrowingTransDetail stockBorrowingTransDetail = modelMapper.map(sbd, StockBorrowingTransDetail.class);
+                stockBorrowingTransDetail.setId(null);
                 stockBorrowingTransDetail.setTransId(stockBorrowingTrans.getId());
                 stockBorrowingTransDetail.setTransDate(transDate);
                 stockBorrowingTransDetail.setShopId(stockBorrowing.getToShopId());
