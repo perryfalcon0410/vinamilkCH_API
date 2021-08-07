@@ -322,11 +322,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             }
                         }
 
-                        if(inputPro.getTotalAmtInTax() != null){
+                        if(dbPro.getTotalAmtInTax() != null){
 //                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
 //                            promotionShopMaps.add(promotionShopMap);
                             Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-                            promotionShopMap.setQuantityReceived(received + inputPro.getTotalAmtInTax());
+                            promotionShopMap.setQuantityReceived(received + dbPro.getTotalAmtInTax());
                             promotionShopMaps.add(promotionShopMap);
                         }
                     }
@@ -690,13 +690,25 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (saleOrder.getDiscountCodeAmount() != null) {
                 amountDisTotal += saleOrder.getDiscountCodeAmount();
             }
+            // trừ tiền tích lũy
+            if (saleOrder.getMemberCardAmount() != null) {
+                amountDisTotal += saleOrder.getMemberCardAmount();
+            }
+
 
             double remain = saleOrder.getAmount() - amountDisTotal;
             // trừ tiền tích lũy
             if(saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
-                if(remain >= 0 && remain <= saleOrder.getMemberCardAmount()) saleOrder.setMemberCardAmount(remain);
-                else if(remain < 0) saleOrder.setMemberCardAmount(0.0);
+                if(saleOrder.getMemberCardAmount() >= -remain ) {
+                    saleOrder.setMemberCardAmount(saleOrder.getMemberCardAmount() + remain);
+                    remain = 0;
+                }
+                else {
+                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getMemberCardAmount());
+                    saleOrder.setMemberCardAmount(0D);
+                }
             }
+
             if (saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0 && remain < 0) {
                 if(saleOrder.getDiscountCodeAmount() >= -remain ) {
                     saleOrder.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() + remain);

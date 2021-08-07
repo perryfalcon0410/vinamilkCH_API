@@ -359,7 +359,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 trong bảng promotion_discount thì mới đc hưởng ctkm tay này
                  */
                 if(program.getGivenType() != null && program.getGivenType() == 3){
-                    if(customerCode == null || discountDTO.getCustomerCode() == null || discountDTO.getCustomerCode().isEmpty() &&
+                    if(customerCode == null || discountDTO.getCustomerCode() == null || discountDTO.getCustomerCode().isEmpty() ||
                         !discountDTO.getCustomerCode().trim().equalsIgnoreCase(customerCode.trim())){
                         return null;
                     }
