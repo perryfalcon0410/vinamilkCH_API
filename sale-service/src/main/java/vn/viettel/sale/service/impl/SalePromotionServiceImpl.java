@@ -127,7 +127,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     lstZV23.add(program);
                     break;
                 case ZM:
-                    this.addItemPromotion(results, this.getItemPromotionZM(program, orderData, shopId, warehouseTypeId, amount, forSaving));
+                    this.addItemPromotion(results, this.getItemPromotionZM(program, orderData, shopId, warehouseTypeId, amount, customer.getCustomerCode(), forSaving));
                     break;
                 default:
                     // Todo
@@ -295,7 +295,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     Lấy danh sách khuyến mãi tay ZM
      */
     private SalePromotionDTO getItemPromotionZM(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId,
-                                                Long warehouseId, Double inputAmount, boolean forSaving){
+                                                Long warehouseId, Double inputAmount, String customerCode, boolean forSaving){
 
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
@@ -354,6 +354,16 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     return null;
 
                 PromotionProgramDiscountDTO discountDTO = programDiscount.get(0);
+                /*
+                Nếu given_type = 3 thì: bắt buộc KH mua hàng đơn hàng phải có mã customer_code giống với customer_code
+                trong bảng promotion_discount thì mới đc hưởng ctkm tay này
+                 */
+                if(program.getGivenType() != null && program.getGivenType() == 3){
+                    if(customerCode == null || discountDTO.getCustomerCode() == null || discountDTO.getCustomerCode().isEmpty() &&
+                        !discountDTO.getCustomerCode().trim().equalsIgnoreCase(customerCode.trim())){
+                        return null;
+                    }
+                }
                 discountDTO.setProgram(program);
                 salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax, totalAmountExtax, isInclusiveTax,
                         inputAmount, forSaving, false);
@@ -388,8 +398,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if ( discountDTO.getMinSaleAmount() == null || discountDTO.getMinSaleAmount() >= compareAmt){
             return null;
         }
-        SalePromotionDTO salePromotion = null;
         PromotionProgramDTO program = discountDTO.getProgram();
+
+        SalePromotionDTO salePromotion = null;
+
         if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) {
             SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
             salePromotion = new SalePromotionDTO();
@@ -755,7 +767,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             }else if(item.getAmount() != null && item.getAmount().getAmount() != null){
                                 SalePromotionDTO salePromotionDTO = null;
                                 if("ZM".equalsIgnoreCase(programDTO.getType().trim())){
-                                     salePromotionDTO = this.getItemPromotionZM(programDTO, orderData, shopId, wareHouseTypeId, item.getAmount().getAmount(), true);
+                                     salePromotionDTO = this.getItemPromotionZM(programDTO, orderData, shopId, wareHouseTypeId, item.getAmount().getAmount(), customer.getCustomerCode(), true);
                                 }else{
                                      salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programDTO, orderData, shopId, wareHouseTypeId,
                                             totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, true);
@@ -2040,7 +2052,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if(!item.getType().equalsIgnoreCase("ZM") && item.getPromotionDateTime() != null && (
                     (numberOfZVUsedInDay.containsKey(item.getId()) && item.getPromotionDateTime() != null && item.getPromotionDateTime() <= numberOfZVUsedInDay.get(item.getId()))
                             ||
-                            (numberOfZVFreeItemUsedInDay.containsKey(item.getPromotionProgramCode()) && item.getPromotionDateTime() != null && item.getPromotionDateTime() <= numberOfZVFreeItemUsedInDay.get(item.getPromotionProgramCode()))
+                    (numberOfZVFreeItemUsedInDay.containsKey(item.getPromotionProgramCode()) && item.getPromotionDateTime() != null && item.getPromotionDateTime() <= numberOfZVFreeItemUsedInDay.get(item.getPromotionProgramCode()))
             )
             )
                 return null;
