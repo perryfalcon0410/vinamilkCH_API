@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 
 import java.util.List;
 
@@ -68,7 +69,13 @@ public class SalePromotionDTO {
     private Double zv23Amount;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm được khuyến mãi")
-    List<Long> lstProductHasPromtion;
+    private List<Long> lstProductHasPromtion;
+
+    @ApiModelProperty(notes = "khuyến mãi tay cần update với given type = 3")
+    private PromotionProgramDiscountDTO discountDTO;
+
+    @ApiModelProperty(notes = "Khuyến mãi bị ảnh hưởng bới sự thay đổi tiền của khuyến mãi tay nhập tiền")
+    private boolean affected = false;
 
     public Double getTotalAmtInTax() {
         if(totalAmtInTax == null) totalAmtInTax = 0.0;

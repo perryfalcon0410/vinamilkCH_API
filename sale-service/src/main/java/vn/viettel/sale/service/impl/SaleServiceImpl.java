@@ -145,6 +145,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
         List<Price> productPrices = priceRepository.findProductPriceWithType(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
                 customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+        List<PromotionProgramDiscountDTO> discountDTOs = new ArrayList<>();
 
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){
@@ -330,6 +331,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             promotionShopMaps.add(promotionShopMap);
                         }
                     }
+                    if(dbPro.getDiscountDTO() != null) discountDTOs.add(dbPro.getDiscountDTO());
                 }
                 else{
                     throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, inputPro.getPromotionProgramName());
@@ -437,6 +439,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update số suât
         for(PromotionShopMapDTO item : promotionShopMaps){
             promotionClient.updatePromotionShopMapV1(item);
+        }
+
+        //update zm with given type = 3
+        for(PromotionProgramDiscountDTO item : discountDTOs){
+            item.setIsUsed(1);
+            promotionClient.updatePromotionProgramDiscountV1(item);
         }
 
         this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );

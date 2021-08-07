@@ -88,6 +88,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //key PromotionProgramDTO, value tính trước zv23 = true, sau zv23 = false
         HashMap<PromotionProgramDTO,Boolean> mapZV192021 = new HashMap<>();
         List<PromotionProgramDTO> lstZV23 = new ArrayList<>();
+        HashMap<PromotionProgramDTO,Double> lstZmType3 = new HashMap<>();
         //sort to get zv19, zv20, zv21
         programs.sort(Comparator.comparing(PromotionProgramDTO::getType));
 
@@ -127,7 +128,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     lstZV23.add(program);
                     break;
                 case ZM:
-                    this.addItemPromotion(results, this.getItemPromotionZM(program, orderData, shopId, warehouseTypeId, amount, customer.getCustomerCode(), forSaving));
+                    if (program.getGivenType() != null && program.getGivenType() == 3) lstZmType3.put(program,amount);
+                    else this.addItemPromotion(results, this.getItemPromotionZM(program, orderData, shopId, warehouseTypeId, amount,
+                            customer.getCustomerCode(), 0, 0, forSaving));
                     break;
                 default:
                     // Todo
@@ -189,12 +192,29 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
                         totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, forSaving);
                 if(item != null && item.getIsUse()) {
+                    if(item.getIsUse()) {
+                        promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                        promotionAmountExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                    }
+                    this.addItemPromotion(results, item);
+                }
+            }
+        }
+        /*
+        zm give type 3 thì nó lại ở sau cùng, sau các tự động zv, sau cả zm type 0
+         */
+        for (Map.Entry<PromotionProgramDTO, Double> entry : lstZmType3.entrySet()){
+            SalePromotionDTO item = this.getItemPromotionZM(entry.getKey(), orderData, shopId, warehouseTypeId, entry.getValue(),
+                    customer.getCustomerCode(), promotionAmount, promotionAmountExTax, forSaving);
+            if( item != null){
+                if(item.getIsUse()) {
                     promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
                     promotionAmountExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
                 }
                 this.addItemPromotion(results, item);
             }
         }
+
         promotionAmount = (double) Math.round(promotionAmount);
         paymentAmount = orderData.getTotalPrice() - promotionAmount;
 
@@ -294,8 +314,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     /*
     Lấy danh sách khuyến mãi tay ZM
      */
-    private SalePromotionDTO getItemPromotionZM(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId,
-                                                Long warehouseId, Double inputAmount, String customerCode, boolean forSaving){
+    private SalePromotionDTO getItemPromotionZM(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId,  Long warehouseId,
+                                                Double inputAmount, String customerCode, double amountProInTax, double amountProExTax, boolean forSaving){
 
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
@@ -354,22 +374,28 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     return null;
 
                 PromotionProgramDiscountDTO discountDTO = programDiscount.get(0);
+                discountDTO.setProgram(program);
                 /*
                 Nếu given_type = 3 thì: bắt buộc KH mua hàng đơn hàng phải có mã customer_code giống với customer_code
                 trong bảng promotion_discount thì mới đc hưởng ctkm tay này
                  */
                 if(program.getGivenType() != null && program.getGivenType() == 3){
-                    if(customerCode == null || discountDTO.getCustomerCode() == null || discountDTO.getCustomerCode().isEmpty() ||
+                    if(discountDTO.getIsUsed() == 1 || customerCode == null || discountDTO.getCustomerCode() == null || discountDTO.getCustomerCode().isEmpty() ||
                         !discountDTO.getCustomerCode().trim().equalsIgnoreCase(customerCode.trim())){
                         return null;
                     }
+                    salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax - amountProInTax, totalAmountExtax - amountProExTax, isInclusiveTax,
+                            inputAmount, forSaving, false);
+                    if (salePromotion != null && forSaving) salePromotion.setDiscountDTO(discountDTO);
+                }else {
+                    salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax, totalAmountExtax, isInclusiveTax,
+                            inputAmount, forSaving, false);
                 }
-                discountDTO.setProgram(program);
-                salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax, totalAmountExtax, isInclusiveTax,
-                        inputAmount, forSaving, false);
             }
 
             if (salePromotion != null) {
+                salePromotion.setProgramId(program.getId());
+                if(program.getGivenType() != null && program.getGivenType() == 3) salePromotion.setAffected(true);
                 salePromotion.setLstProductHasPromtion(lstProductIds);
                 salePromotion.setPromotionType(1);
                 salePromotion.setProgramType(program.getType());
@@ -688,6 +714,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 discountDTO.setDiscountInfo(saveInfo);
             }
             salePromotion.setLstProductHasPromtion(new ArrayList<>(lstProductHasPromotion.keySet()));
+            salePromotion.setAffected(true);
             salePromotion.setPromotionType(0);
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
@@ -735,6 +762,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 double totalZV23ExTax = 0;
                 // value tính km trước zv23 = true, sau = false
                 HashMap<PromotionProgramDTO,Boolean> lstZV1921 = new HashMap<>();
+                HashMap<PromotionProgramDTO,Double> lstZmType3 = new HashMap<>();
                 List<PromotionProgramDTO> lstZV23 = new ArrayList<>();
                 List<PromotionProgramDTO> programDTOS = promotionClient.getByIdsV1(calculationRequest.getPromotionInfo().stream().map(item ->
                         item.getProgramId()).distinct().filter(Objects::nonNull).collect(Collectors.toList())).getData();
@@ -767,7 +795,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             }else if(item.getAmount() != null && item.getAmount().getAmount() != null){
                                 SalePromotionDTO salePromotionDTO = null;
                                 if("ZM".equalsIgnoreCase(programDTO.getType().trim())){
-                                     salePromotionDTO = this.getItemPromotionZM(programDTO, orderData, shopId, wareHouseTypeId, item.getAmount().getAmount(), customer.getCustomerCode(), true);
+                                    if(programDTO.getGivenType() != null && programDTO.getGivenType() == 3)
+                                        lstZmType3.put(programDTO, item.getAmount().getAmount());
+                                    else
+                                        salePromotionDTO = this.getItemPromotionZM(programDTO, orderData, shopId, wareHouseTypeId,
+                                                item.getAmount().getAmount(), customer.getCustomerCode(), 0, 0, true);
                                 }else{
                                      salePromotionDTO = this.getAutoItemPromotionZV01ToZV21(programDTO, orderData, shopId, wareHouseTypeId,
                                             totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, true);
@@ -842,6 +874,20 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                 }
                                 resultZV1921.add(salePromotionDTO);
                             }
+                        }
+                    }
+
+                    // tính zm give type 3 thì nó lại ở sau cùng, sau các tự động zv, sau cả zm type 0
+                    for (Map.Entry<PromotionProgramDTO, Double> entry : lstZmType3.entrySet()){
+                        PromotionProgramDTO programItem = entry.getKey();
+                        SalePromotionDTO salePromotionDTO = this.getItemPromotionZM(programItem, orderData, shopId, wareHouseTypeId,
+                                entry.getValue(), customer.getCustomerCode(), promotionAmount, promotionAmountExTax, true);
+                        if (salePromotionDTO != null) {
+                            if (salePromotionDTO.getIsUse()) {
+                                promotionAmount += salePromotionDTO.getTotalAmtInTax() == null ? 0 : salePromotionDTO.getTotalAmtInTax();
+                                promotionAmountExTax += salePromotionDTO.getTotalAmtExTax() == null ? 0 : salePromotionDTO.getTotalAmtExTax();
+                            }
+                            resultZV1921.add(salePromotionDTO);
                         }
                     }
 
@@ -1899,6 +1945,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     discountDTO.setDiscountInfo(saveInfo);
                 }
                 salePromotion.setLstProductHasPromtion(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
+                salePromotion.setAffected(true);
                 return salePromotion;
             }
         }
@@ -1949,6 +1996,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
 
                 salePromotion.setAmount(discountDTO);
+                salePromotion.setAffected(true);
                 salePromotion.setLstProductHasPromtion(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 return salePromotion;
             }
@@ -1973,7 +2021,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             if (!lstProductPromotion.isEmpty()){
-                return initSalePromotion(lstProductPromotion, orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
+                SalePromotionDTO salePromotion = initSalePromotion(lstProductPromotion, orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
+                salePromotion.setAffected(true);
+                return salePromotion;
             }
         }
 
