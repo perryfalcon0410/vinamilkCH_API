@@ -14,7 +14,6 @@ public class CustomerPromotionServiceImpl extends BaseServiceImpl<PromotionCustA
     @Override
     public Set<Long> getListCusCard(Long programId, Integer objectType) {
         Set<Long> cusCards = repository.getPromotionCustATTRDetail(programId, objectType);
-//        if(cusCards == null) throw new ValidateException(ResponseMessage.NO_CUS_CARD_IS_APPLIED_PROMOTION);
         return cusCards;
     }
 }

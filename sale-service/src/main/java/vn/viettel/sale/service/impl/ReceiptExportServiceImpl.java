@@ -415,6 +415,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if (sad.getPrice() == null) sad.setPrice(0D);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTransDetail satd = modelMapper.map(sad, StockAdjustmentTransDetail.class);
+            satd.setId(null);
             satd.setTransId(poAdjustTrans.getId());
             satd.setShopId(shopId);
             satd.setTransDate(ldt);
@@ -424,6 +425,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentTransDetailRepository.save(satd);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             SaleOrderDetail saleOrderDetail = modelMapper.map(sad, SaleOrderDetail.class);
+            saleOrderDetail.setId(null);
             saleOrderDetail.setSaleOrderId(order.getId());
             saleOrderDetail.setAmount(sad.getPrice() * sad.getQuantity());
             saleOrderDetail.setTotal(sad.getPrice() * sad.getQuantity());
@@ -496,6 +498,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         for (StockBorrowingDetail sbd : sbds) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTransDetail sbtd = modelMapper.map(sbd, StockBorrowingTransDetail.class);
+            sbtd.setId(null);
             sbtd.setTransId(poBorrowTransRecord.getId());
             sbtd.setTransDate(transDate);
             totalAmount += sbd.getPrice() * sbd.getQuantity();

@@ -372,7 +372,11 @@ public enum ResponseMessage {
     SELL_REPORT_NOT_FOUND(13502,"Báo cáo bán hàng không được tìm thấy"),
     SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO(13503,"Doanh số đến không hợp lệ"),
 
-
+    /**
+     * COMMON 14000-14999
+     */
+    CLIENT_IP_IS_EXITS(14000,"Client_Ip đã tồn tại"),
+    PRINTER_CONFIG_NOT_FOUND(14000,"Cấu hình máy in không tồn tại"),
     ;
 
     private final int statusCode;

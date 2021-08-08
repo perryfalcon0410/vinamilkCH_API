@@ -144,6 +144,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
         List<Price> productPrices = priceRepository.findProductPriceWithType(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
                 customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+        List<PromotionProgramDiscountDTO> discountDTOs = new ArrayList<>();
 
         // gán sản phẩm mua vào trước
         for (ProductOrderRequest item : lstProductOrder){
@@ -168,12 +169,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 saleOrderDetail.setShopId(shopId);
                 saleOrderDetail.setAmount(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity());
                 saleOrderDetail.setTotal(saleOrderDetail.getAmount());
-
-                // printTemp
-                if(printTemp) {
-                    saleOrderDetail.setProductCode(item.getProductCode());
-                    saleOrderDetail.setProductName(item.getProductName());
-                }
+                saleOrderDetail.setProductCode(item.getProductCode());
+                saleOrderDetail.setProductName(item.getProductName());
 
                 saleOrderDetails.add(saleOrderDetail);
             }
@@ -325,14 +322,15 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             }
                         }
 
-                        if(inputPro.getTotalAmtInTax() != null){
+                        if(dbPro.getTotalAmtInTax() != null){
 //                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
 //                            promotionShopMaps.add(promotionShopMap);
                             Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-                            promotionShopMap.setQuantityReceived(received + inputPro.getTotalAmtInTax());
+                            promotionShopMap.setQuantityReceived(received + dbPro.getTotalAmtInTax());
                             promotionShopMaps.add(promotionShopMap);
                         }
                     }
+                    if(dbPro.getDiscountDTO() != null) discountDTOs.add(dbPro.getDiscountDTO());
                 }
                 else{
                     throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, inputPro.getPromotionProgramName());
@@ -378,18 +376,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (roundValue(request.getDiscountAmount())!=(roundValue(discountValue))) throw new ValidateException(ResponseMessage.PROMOTION_AMOUNT_NOTEQUALS);
 
             discountNeedSave = promotionClient.getPromotionDiscount(request.getDiscountCode(), shopId).getData();
-            if(discountNeedSave != null) {
-                discountNeedSave.setIsUsed(1);
-                discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
-                discountNeedSave.setActualDiscountAmount(discountValue);
-                discountNeedSave.setOrderShopCode(shop.getShopCode());
-
-                PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
-                Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
-                promotionShopMap.setQuantityReceived(received + discountValue);
-                promotionShopMaps.add(promotionShopMap);
-            }
-
         }
 
         // 5. kiểm tra tiền tích lũy
@@ -430,7 +416,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateVoucher(saleOrder, lstVoucherNeedSave);
 
         //update discount
-        updatePromotionProgramDiscount(saleOrder, discountNeedSave);
+        if(discountNeedSave != null && saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
+            discountNeedSave.setIsUsed(1);
+            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
+            discountNeedSave.setActualDiscountAmount(saleOrder.getDiscountCodeAmount());
+            discountNeedSave.setOrderShopCode(shop.getShopCode());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
+            Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+            promotionShopMap.setQuantityReceived(received + saleOrder.getDiscountCodeAmount());
+            promotionShopMaps.add(promotionShopMap);
+            updatePromotionProgramDiscount(saleOrder, discountNeedSave);
+        }
 
         //update combo
         updateComboDetail(saleOrder, listOrderComboDetails);
@@ -441,6 +438,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update số suât
         for(PromotionShopMapDTO item : promotionShopMaps){
             promotionClient.updatePromotionShopMapV1(item);
+        }
+
+        //update zm with given type = 3
+        for(PromotionProgramDiscountDTO item : discountDTOs){
+            item.setIsUsed(1);
+            promotionClient.updatePromotionProgramDiscountV1(item);
         }
 
         this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );
@@ -694,13 +697,25 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if (saleOrder.getDiscountCodeAmount() != null) {
                 amountDisTotal += saleOrder.getDiscountCodeAmount();
             }
+            // trừ tiền tích lũy
+            if (saleOrder.getMemberCardAmount() != null) {
+                amountDisTotal += saleOrder.getMemberCardAmount();
+            }
+
 
             double remain = saleOrder.getAmount() - amountDisTotal;
             // trừ tiền tích lũy
             if(saleOrder.getMemberCardAmount() != null && saleOrder.getMemberCardAmount() > 0) {
-                if(remain >= 0 && remain <= saleOrder.getMemberCardAmount()) saleOrder.setMemberCardAmount(remain);
-                else if(remain < 0) saleOrder.setMemberCardAmount(0.0);
+                if(saleOrder.getMemberCardAmount() >= -remain ) {
+                    saleOrder.setMemberCardAmount(saleOrder.getMemberCardAmount() + remain);
+                    remain = 0;
+                }
+                else {
+                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getMemberCardAmount());
+                    saleOrder.setMemberCardAmount(0D);
+                }
             }
+
             if (saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0 && remain < 0) {
                 if(saleOrder.getDiscountCodeAmount() >= -remain ) {
                     saleOrder.setDiscountCodeAmount(saleOrder.getDiscountCodeAmount() + remain);
