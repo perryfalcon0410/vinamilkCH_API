@@ -298,7 +298,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 }
                             }
                         }
-                    }else if (inputPro.getAmount() != null && dbPro.getAmount() != null){
+                    }else if (inputPro.getAmount() != null && dbPro.getAmount() != null && inputPro.getAmount().getAmount() > 0){
                         promotion += dbPro.getAmount().getAmount() == null ? 0 : dbPro.getAmount().getAmount();
                         promotionExVat += dbPro.getTotalAmtExTax() == null ? 0 : dbPro.getTotalAmtExTax();
                         promotionInVat += dbPro.getTotalAmtInTax() == null ? 0 : dbPro.getTotalAmtInTax();
