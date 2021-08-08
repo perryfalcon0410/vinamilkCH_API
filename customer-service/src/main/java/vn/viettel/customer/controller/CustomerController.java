@@ -101,7 +101,6 @@ public class CustomerController extends BaseController {
         return response.withData(customerDTO);
     }
 
-    @RoleFeign
     @PostMapping(value = { V1 + root + "/feign"})
     public Response<CustomerDTO> createForFeign(@Valid @RequestBody CustomerOnlRequest request, @RequestParam Long shopId) {
         return new Response<CustomerDTO>().withData(service.createForOnlOrder(request, shopId));
@@ -172,9 +171,8 @@ public class CustomerController extends BaseController {
     }
 
     /*
-        Cập nhật KH bên bán hàng-hóa đơn đỏ
+        Cập nhật KH bên bán hàng || hóa đơn đỏ
      */
-    @RoleFeign
     @PutMapping(value = { V1 + root + "/feign/update/{id}"})
     public Response<CustomerDTO> updateFeign(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
         CustomerDTO customerDTO = service.updateForSale(request, this.getShopId());
@@ -190,7 +188,6 @@ public class CustomerController extends BaseController {
         return new Response<List<Long>>().withData(service.getIdCustomerBySearchKeyWords(searchKeywords));
     }
 
-    @RoleFeign
     @ApiOperation(value = "Tìm kiếm danh sách ids khách hàng theo 2 input khác nhau(tên, mã khách hàng - số điện thoại Khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -212,7 +209,6 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/feign-default/{id}"})
     public CustomerDTO getCustomerDefault(@PathVariable Long id) {
         CustomerDTO customerDTO = service.getCustomerDefaultByShop(id);
@@ -220,7 +216,6 @@ public class CustomerController extends BaseController {
     }
 
     //Lấy danh sách customer theo danh sách id
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/feign-cusinfo"})
     public List<CustomerDTO> getCustomerInfo(@RequestParam(required = false) Integer status, @RequestParam(required = false) List<Long> customerIds) {
         return service.getCustomerInfo(status, customerIds);
