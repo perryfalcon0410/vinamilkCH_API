@@ -19,6 +19,7 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,10 +66,10 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_VOUCHER", ReportVoucherDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, LocalDate.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, LocalDate.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(4, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(5, LocalDateTime.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
