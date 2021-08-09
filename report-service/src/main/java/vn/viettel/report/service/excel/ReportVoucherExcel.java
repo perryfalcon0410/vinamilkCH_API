@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,9 @@ public class ReportVoucherExcel {
     private ShopDTO shopDTO;
     private List<ReportVoucherDTO> reportVoucherDTOS;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toDate;
+    private LocalDateTime toDate;
 
     private XSSFCellStyle styleTableHeader;
     private CellStyle styleTableValue;
@@ -232,11 +233,11 @@ public class ReportVoucherExcel {
         return styleValues;
     }
 
-    public void setFromDate(LocalDate fromDate) {
+    public void setFromDate(LocalDateTime fromDate) {
         this.fromDate = fromDate;
     }
 
-    public void setToDate(LocalDate toDate) {
+    public void setToDate(LocalDateTime toDate) {
         this.toDate = toDate;
     }
 

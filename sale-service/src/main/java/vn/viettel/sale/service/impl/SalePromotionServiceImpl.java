@@ -122,7 +122,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 case ZV21:
                     if (program.getAmountOrderType() != null && program.getAmountOrderType() == 2){//sau zv23
                         mapZV192021.put(program, false);
-                    }else mapZV192021.put(program, true);
+                    }else if (program.getAmountOrderType() != null && program.getAmountOrderType() == 1)//trước zv23
+                        mapZV192021.put(program, true);
+                    else mapZV192021.put(program, null);
                     break;
                 case ZV23:
                     lstZV23.add(program);
@@ -155,10 +157,16 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         promotionAmount = totalZV0118zmInTax;
         promotionAmountExTax = totalZV0118zmExTax;
 
-        // ví zv19 - 21 được tính với tổng tiền sau khi đã trừ hết các km khác nên phải kiểm tra riêng và sau tất cả các km
+        /*ví zv19 - 21 được tính với tổng tiền sau khi đã trừ hết các km khác nên phải kiểm tra riêng và sau tất cả các km
+        Nếu có ctkm 19, 20, 21, và có khai báo gía trị tính trước / sau km 23 thì
+        Tính KM   19 , 20, 21:
+        - Tổng tiền đơn hàng : giữ nguyên cách tính như hiện tại, tức tính tiền khuyến mãi đơn hàng dựa trên tổng tiền mua hàng của sản phẩm trong đơn hàng.
+        - Thành tiền trước ck zv23: tiền tính đạt khuyến mãi đơn hàng = tổng tiền mua đơn hàng - ( tiền khuyến mãi của các zv từ 1-> 18 + khuyến mãi tay) , sau đó mới tính tiếp tiền km của zv23
+        - Thành tiền sau ck zv23: tiền tính đạt khuyến mãi đơn hàng = tổng tiền mua đơn hàng - ( tiền khuyến mãi của các zv từ 1-> 18 + khuyến mãi tay) - tiền km của zv23
+         */
         //Tính zv19 - 21 trước zv23
         for(Map.Entry<PromotionProgramDTO, Boolean> entry: mapZV192021.entrySet()){
-            if(entry.getValue()){
+            if(entry.getValue() != null && entry.getValue()){
                 SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
                         totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, forSaving);
                 if(item != null && item.getIsUse()) {
@@ -188,13 +196,34 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         //Tính zv19 - 21 sau zv23
         for(Map.Entry<PromotionProgramDTO, Boolean> entry: mapZV192021.entrySet()){
-            if(!entry.getValue()){
+            if(entry.getValue() != null && !entry.getValue()){
                 SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
                         totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, forSaving);
                 if(item != null && item.getIsUse()) {
                     if(item.getIsUse()) {
                         promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
                         promotionAmountExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                        totalZV1921InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                        totalZV1921ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                    }
+                    this.addItemPromotion(results, item);
+                }
+            }
+        }
+
+        /*Tính zv19 - 21 tính trên tổng tiên đơn hàng
+        Còn nếu như   19, 20, 21 : vẫn là tính trên tổng tiền đơn hàng: thì cách tính như trước e nói, tính đạt trên tổng tiền  - km zv1->21 - km tay
+         */
+        for(Map.Entry<PromotionProgramDTO, Boolean> entry: mapZV192021.entrySet()){
+            if(entry.getValue() == null){
+                SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
+                        totalZV0118zmInTax + totalZV1921InTax, totalZV0118zmExTax + totalZV1921ExTax, 0, 0, forSaving);
+                if(item != null && item.getIsUse()) {
+                    if(item.getIsUse()) {
+                        promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                        promotionAmountExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                        totalZV1921InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                        totalZV1921ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
                     }
                     this.addItemPromotion(results, item);
                 }
@@ -669,7 +698,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
       /*  l.x. huong
         Chỗ này c Linh có trừ đó
         Mà do đang km trên phần tiền còn lại,
-        Tiền đơn hàng là 7tr,  tiền đã tích luỹ là 70k,  tiền km 19 là 700k , lấy 7tr- 70k - 700k thì lớn hơn 3tr quy địh
+        Tiền đơn hàng là 7tr,  tiền đã tích luỹ là 70k,  tiền km 19 là 700k , lấy 7tr - 700k thì lớn hơn 3tr quy địh -70k
         Nên số tiền đc hưởng, là chit còn đc hưởng 3tr - số tiền kh đã tích luỹ
         Tí c Linh c ấy noted chi tiết hơn
         */
@@ -1892,10 +1921,16 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountInTax = orderData.getTotalPrice();
         double totalAmountExTax = orderData.getTotalPriceNotVAT();
         if (program.getAmountOrderType() != null){
+            //tổng tiền đơn hàng - zv01To18 - zm (với given type = 0 hoặc 1)
             if(program.getAmountOrderType() == 1){ // trước zv23
                 totalAmountInTax = totalAmountInTax - totalBeforeZV23InTax;
                 totalAmountExTax = totalAmountExTax - totalBeforeZV23ExTax;
             }else if(program.getAmountOrderType() == 2){ //sau zv23
+                //tổng tiền đơn hàng - zv01To18 - zm (với given type = 0 hoặc 1) - zv23
+                totalAmountInTax = totalAmountInTax - totalBeforeZV23InTax - totalZV23InTax;
+                totalAmountExTax = totalAmountExTax - totalBeforeZV23ExTax - totalZV23ExTax;
+            }else{ //AmountOrderType = 0
+                //tổng tiền đơn hàng - zv01To21 - zm (với given type = 0 hoặc 1)
                 totalAmountInTax = totalAmountInTax - totalBeforeZV23InTax - totalZV23InTax;
                 totalAmountExTax = totalAmountExTax - totalBeforeZV23ExTax - totalZV23ExTax;
             }

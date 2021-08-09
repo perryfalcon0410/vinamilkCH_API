@@ -128,7 +128,7 @@ public class ExchangeTransExcel {
             for(int j = 0; j < datas.length; j ++) {
                 ExcelPoiUtils.addCell(sheet,3, dataset.size()+11+j,datas[j], format2);
                 BigDecimal temp = (BigDecimal) datas[1];
-                quota = temp.doubleValue();
+                quota = temp!=null?temp.doubleValue():0.0;
             }
         }
         if (quota<=totalAmount) {

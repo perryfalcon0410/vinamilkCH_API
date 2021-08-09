@@ -459,7 +459,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
-        this.updateZV23(customer, saleOrder, orderReturnDiscount);
+        this.updateZV23(customer, saleOrder, saleOrderDetails, orderReturnDiscount);
         if (saleOrder.getCustomerPurchase() != null)
             saleService.updateCustomer(newOrderReturn, customer, true);
         if (saleOrder.getMemberCardAmount() != null)
@@ -584,7 +584,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
     }
 
-    private void updateZV23(CustomerDTO customer, SaleOrder saleOrder, List<SaleOrderDiscount> discounts) {
+/*    private void updateZV23(CustomerDTO customer, SaleOrder saleOrder, List<SaleOrderDiscount> discounts) {
         Set<Long> zV23Ids = new HashSet<>();
         for (SaleOrderDiscount discount: discounts) {
             if (discount.getPromotionType().equalsIgnoreCase("ZV23")) zV23Ids.add(discount.getPromotionProgramId());
@@ -598,7 +598,61 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             zv23Request.setTotalAmount(amount - cusPurchase);
             promotionClient.updateRPTZV23V1(zv23.getId(), zv23Request);
         }
+    }*/
+
+    private void updateZV23(CustomerDTO customer, SaleOrder saleOrder, List<SaleOrderDetail> saleOrderDetails, List<SaleOrderDiscount> discounts) {
+        Set<Long> zV23Ids = new HashSet<>();
+        for (SaleOrderDiscount discount: discounts) {
+            if (discount.getPromotionType().equalsIgnoreCase("ZV23")) zV23Ids.add(discount.getPromotionProgramId());
+        }
+        if (zV23Ids.isEmpty()) return;
+        List<RPT_ZV23DTO> rpt_zv23DTOS = promotionClient.findByProgramIdsV1(zV23Ids, customer.getId()).getData();
+
+        List<SaleOrderDetail> details = saleOrderDetails.stream().filter(s -> s.getIsFreeItem() == null || !s.getIsFreeItem()).collect(Collectors.toList());
+
+        for(RPT_ZV23DTO zv23: rpt_zv23DTOS) {
+            // lấy tổng tiền theo những sản phẩm quy định
+            Double amountInTax = 0.0;
+            List<PromotionProgramProductDTO> programProduct = promotionClient.findByPromotionIdsV1(Arrays.asList(zv23.getPromotionProgramId())).getData();
+            List<PromotionProgramProductDTO> programProduct1 = new ArrayList<>();
+
+            for (PromotionProgramProductDTO pProduct : programProduct) {
+                if(pProduct.getType() != null && pProduct.getType() == 1) programProduct1.add(pProduct);
+            }
+
+            if (programProduct1 != null && !programProduct1.isEmpty()) {
+                for (PromotionProgramProductDTO exItem : programProduct1) {
+                    if (exItem.getType() != null && exItem.getType() == 1) {
+                        for (SaleOrderDetail detail : details) {
+                            if (detail.getProductId().equals(exItem.getProductId())) {
+                                if (detail.getAmount() == null) amountInTax += detail.getAmount();
+                            }
+                        }
+                    }
+                }
+            }else { //nếu không quy định sản phẩm
+                amountInTax = saleOrder.getAmount();
+                // loại trừ sản phẩm
+                if (programProduct != null && !programProduct.isEmpty()){
+                    for (PromotionProgramProductDTO exItem : programProduct){
+                        if(exItem.getType() != null && exItem.getType() == 2) {
+                            for (SaleOrderDetail oItem : details) {
+                                if (oItem.getProductId().equals(exItem.getProductId())) {
+                                    if (oItem.getAmount() != null)  amountInTax -= oItem.getAmount();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Double amount =  zv23.getTotalAmount()!=null?zv23.getTotalAmount():0;
+            RPT_ZV23Request zv23Request = new RPT_ZV23Request();
+            zv23Request.setTotalAmount(amount - amountInTax);
+            promotionClient.updateRPTZV23V1(zv23.getId(), zv23Request);
+        }
     }
+
 
     private double roundValue(Double value){
         if(value == null) return 0;

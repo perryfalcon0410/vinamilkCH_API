@@ -55,7 +55,7 @@ public class ReportVoucherController extends BaseController {
                                                              @RequestParam(value = "voucherKeywords", required = false) String voucherKeywords,
                                                              @RequestParam(value = "customerKeywords", required = false) String customerKeywords,
                                                              @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone, Pageable pageable) {
-        ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convert2Local(fromProgramDate), DateUtils.convert2Local(toProgramDate), DateUtils.convert2Local(fromUseDate), DateUtils.convert2Local(toUseDate), voucherProgramName,
+        ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convertFromDate(fromProgramDate), DateUtils.convertFromDate(toProgramDate), DateUtils.convertFromDate(fromUseDate), DateUtils.convertFromDate(toUseDate), voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
         Page<ReportVoucherDTO> reportVoucherDTOS = reportVoucherService.index(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_VOUCHER_SUCCESS);
@@ -79,7 +79,7 @@ public class ReportVoucherController extends BaseController {
                                         @RequestParam(value = "customerKeywords", required = false) String customerKeywords,
                                         @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone, HttpServletResponse response) throws IOException {
 
-        ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convert2Local(fromProgramDate), DateUtils.convert2Local(toProgramDate), DateUtils.convert2Local(fromUseDate), DateUtils.convert2Local(toUseDate), voucherProgramName,
+        ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convertFromDate(fromProgramDate), DateUtils.convertFromDate(toProgramDate), DateUtils.convertFromDate(fromUseDate), DateUtils.convertFromDate(toUseDate), voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
         ByteArrayInputStream in = reportVoucherService.exportExcel(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);

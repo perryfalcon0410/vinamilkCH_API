@@ -17,13 +17,13 @@ import java.util.Date;
 @NoArgsConstructor
 public class ReportVoucherFilter {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromProgramDate;
+    private LocalDateTime fromProgramDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toProgramDate;
+    private LocalDateTime toProgramDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate fromUseDate;
+    private LocalDateTime fromUseDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
-    private LocalDate toUseDate;
+    private LocalDateTime toUseDate;
     private String voucherProgramName;
     private String voucherKeywords;
     private String customerKeywords;
