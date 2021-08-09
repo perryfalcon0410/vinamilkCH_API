@@ -451,7 +451,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double compareAmt = totalAmountInTax;
         if(!isInclusiveTax) compareAmt = totalAmountExtax;
         //đạt số tiền tối thiểu đơn hàng cần đạt
-        if ( discountDTO.getMinSaleAmount() == null || discountDTO.getMinSaleAmount() >= compareAmt){
+        if ( discountDTO.getMinSaleAmount() == null || discountDTO.getMinSaleAmount() > compareAmt){
             return null;
         }
         PromotionProgramDTO program = discountDTO.getProgram();
@@ -545,7 +545,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             LimitDto value = getPromotionLimit(salePromotion, shopId);
             salePromotion.setNumberLimited(value.getLimited());
             salePromotion.setIsUse(value.isUsed());
-        }else if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getMaxDiscountAmount() > 0 && forDiscountCode == false){
+        }else if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getMaxDiscountAmount() > 0 && forDiscountCode == false && program.getGivenType() != 3){
             SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
             Double amount = 0D;
             salePromotion = new SalePromotionDTO();
@@ -846,7 +846,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     }
                 }
 
-                if((!lstZV1921.isEmpty() || !lstZV23.isEmpty()) && calculationRequest.getOrderRequest() != null){
+                if((!lstZV1921.isEmpty() || !lstZV23.isEmpty() || !lstZmType3.isEmpty()) && calculationRequest.getOrderRequest() != null){
                     List<SalePromotionDTO> resultZV1921 = new ArrayList<>();
 
                     // tính zv19 20 21 trước zv23
