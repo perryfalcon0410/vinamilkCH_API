@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.ReportVoucherService;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ReportVoucherServiceImpl implements ReportVoucherService {
@@ -63,6 +65,8 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
 
     public StoredProcedureQuery callReportVoucherDTO(ReportVoucherFilter filter)
     {
+        if(filter.getCustomerKeywords()!=null) filter.setCustomerKeywords(VNCharacterUtils.removeAccent(filter.getCustomerKeywords()).toUpperCase(Locale.ROOT));
+
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_VOUCHER", ReportVoucherDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

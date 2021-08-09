@@ -4,6 +4,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.authorization.entities.*;
 import vn.viettel.authorization.repository.*;
 import vn.viettel.authorization.security.ClaimsTokenBuilder;
@@ -26,6 +27,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -81,6 +83,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     ShopService shopService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Response<Object> preLogin(LoginRequest loginInfo) {
         User user = repository.findByUsername(loginInfo.getUsername())
             .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
@@ -212,6 +215,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Response<Object> getRoleShop(LoginRequest loginInfo) {
 
         User user = repository.findByUsername(loginInfo.getUsername())
@@ -545,9 +549,9 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     }
 
     public void saveLoginLog(Long shopId, String userAccount) {
-        UserLogOnTime userLogOnTime = new UserLogOnTime();
-        userLogOnTime.setShopId(shopId);
-        userLogOnTime.setAccount(userAccount);
+        UserLogOnTime log = new UserLogOnTime();
+        log.setShopId(shopId);
+        log.setAccount(userAccount);
         try {
             InetAddress inetAddress = InetAddress.getLocalHost();
             String hostName = inetAddress.getHostName(); //Get Host Name
@@ -564,11 +568,11 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
             Date date = new Date();
             Timestamp time = new Timestamp(date.getTime());
-            userLogOnTime.setLogCode(hostName + "_" + macAddress + "_" + time);
-            userLogOnTime.setComputerName(hostName);
-            userLogOnTime.setMacAddress(macAddress);
-
-            userLogRepository.save(userLogOnTime);
+            log.setLogCode(hostName + "_" + macAddress + "_" + time);
+            log.setComputerName(hostName);
+            log.setMacAddress(macAddress);
+            userLogRepository.createBeforToken(log.getLogCode(), log.getShopId(), log.getAccount(), log.getComputerName(), log.getMacAddress(), userAccount, LocalDateTime.now());
+           //userLogRepository.save(userLogOnTime);
         } catch (SocketException e) {
             System.out.println(e.getMessage());
         } catch (UnknownHostException e) {

@@ -698,7 +698,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
       /*  l.x. huong
         Chỗ này c Linh có trừ đó
         Mà do đang km trên phần tiền còn lại,
-        Tiền đơn hàng là 7tr,  tiền đã tích luỹ là 70k,  tiền km 19 là 700k , lấy 7tr- 70k - 700k thì lớn hơn 3tr quy địh
+        Tiền đơn hàng là 7tr,  tiền đã tích luỹ là 70k,  tiền km 19 là 700k , lấy 7tr - 700k thì lớn hơn 3tr quy địh -70k
         Nên số tiền đc hưởng, là chit còn đc hưởng 3tr - số tiền kh đã tích luỹ
         Tí c Linh c ấy noted chi tiết hơn
         */
