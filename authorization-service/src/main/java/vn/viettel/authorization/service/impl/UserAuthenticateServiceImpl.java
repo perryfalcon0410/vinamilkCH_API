@@ -17,6 +17,10 @@ import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.security.JwtTokenBody;
+import vn.viettel.core.security.JwtTokenValidate;
+import vn.viettel.core.security.context.SecurityContexHolder;
+import vn.viettel.core.security.context.UserContext;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
@@ -82,6 +86,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
     @Autowired
     ShopService shopService;
 
+    @Autowired
+    JwtTokenValidate jwtTokenValidate;
+
+    @Autowired
+    SecurityContexHolder contexHolder;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response<Object> preLogin(LoginRequest loginInfo) {
@@ -140,7 +150,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 resData.setUsedRole(usedRole);
                 resData.setForms(froms);
                 response.setToken(createToken(user, usedRole.getRoleName(), shopDTO.getId(), usedRole.getId()));
-
+                this.loginSuccess(user.getUserAccount(), shopDTO.getId(), user.getId());
                 saveLoginLog(shopDTO.getId(), user.getUserAccount());
             }
         }
@@ -243,10 +253,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         if(!shopIds.contains(loginInfo.getShopId()))
             throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
 
-//        //Kiểm tra role shop có quyền dữ liệu
-//        if(!this.checkPermissionType2(loginInfo.getRoleId(), shop))
-//            throw new ValidateException(ResponseMessage.NO_PERMISSION_TYPE_2);
-
         Role role = roleRepository.findById(loginInfo.getRoleId()).get();
 
         List<FormDTO> froms = this.getForms(loginInfo.getRoleId());
@@ -264,7 +270,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         Response<Object> response = new Response<>();
         response.setToken(createToken(user, role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
-
+        this.loginSuccess(user.getUserAccount(), shop.getId(), user.getId());
         saveLoginLog(shop.getId(), user.getUserAccount());
         return response;
     }
@@ -571,13 +577,21 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             log.setLogCode(hostName + "_" + macAddress + "_" + time);
             log.setComputerName(hostName);
             log.setMacAddress(macAddress);
-            userLogRepository.createBeforToken(log.getLogCode(), log.getShopId(), log.getAccount(), log.getComputerName(), log.getMacAddress(), userAccount, LocalDateTime.now());
-           //userLogRepository.save(userLogOnTime);
+
+            userLogRepository.save(log);
         } catch (SocketException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+    }
+
+    private void loginSuccess(String userName, Long shopId, Long userId) {
+        UserContext context = new UserContext();
+        context.setUserId(userId);
+        context.setUserName(userName);
+        context.setShopId(shopId);
+        contexHolder.setContext(context);
     }
 
     public String generateCaptchaString() {

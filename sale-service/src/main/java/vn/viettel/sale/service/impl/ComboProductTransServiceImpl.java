@@ -3,6 +3,7 @@ package vn.viettel.sale.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -409,8 +410,9 @@ public class ComboProductTransServiceImpl
         if(request.getTransType() == 2) {
             startWith = this.createComboProductTranCode(shopId, "ECB");
         }
-        List<String> codes = repository.getTransCodeTop1(shopId, startWith);
-        if(codes != null && !codes.isEmpty()) transCode = codes.get(0);
+
+        Page<ComboProductTrans> transDB = repository.getLastOrderNumber(shopId, startWith, PageRequest.of(0,1));
+        if(!transDB.getContent().isEmpty()) transCode = transDB.getContent().get(0).getTransCode();
 
         if(transCode!= null) {
             int i = transCode.lastIndexOf('.');

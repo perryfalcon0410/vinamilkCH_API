@@ -266,7 +266,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
         newOrderReturn = modelMapper.map(newOrderReturnDTO, SaleOrder.class);
 
-        newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop)); // important
         newOrderReturn.setType(2);
         newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase());
         newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase());
@@ -308,19 +307,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (saleOrder.getZmPromotionNotVat() != null)
             newOrderReturn.setZmPromotionNotVat(saleOrder.getZmPromotionNotVat() * -1);
         newOrderReturn.setOrderDate(returnDate);
+        newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop));
         repository.save(newOrderReturn); //save new orderReturn
         saleOrder.setIsReturn(false);
         repository.save(saleOrder);
 
         //new orderReturn detail
-        List<SaleOrderDetail> saleOrderDetails =
-                saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
-        SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
+        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
         if (saleOrderDetails != null) {
             for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
                 NewOrderReturnDetailDTO productReturnDTO = modelMapper.map(saleOrderDetail, NewOrderReturnDetailDTO.class);
                 SaleOrderDetail productReturn = modelMapper.map(productReturnDTO, SaleOrderDetail.class);
-                productReturn.setSaleOrderId(orderReturn.getId());
+                productReturn.setSaleOrderId(newOrderReturn.getId());
                 productReturn.setAutoPromotionVat(saleOrderDetail.getAutoPromotionVat());
                 productReturn.setOrderDate(returnDate);
 
@@ -349,7 +347,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for (SaleOrderDetail promotionDetail : saleOrderPromotions) {
             NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
             SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
-            promotionReturn.setSaleOrderId(orderReturn.getId());
+            promotionReturn.setSaleOrderId(newOrderReturn.getId());
             promotionReturn.setPrice(promotionDetail.getPrice());
             promotionReturn.setAmount(0D);
             promotionReturn.setTotal(0D);
