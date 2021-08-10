@@ -3,6 +3,7 @@ package vn.viettel.common.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.common.entities.PrinterConfig;
@@ -20,6 +21,8 @@ import vn.viettel.core.messaging.Response;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @RestController
 public class PrinterConfigController extends BaseController {
@@ -35,6 +38,7 @@ public class PrinterConfigController extends BaseController {
     )
     @PostMapping(value = { V1 + root})
     public Response<PrinterConfigDTO> create(HttpServletRequest httpRequest, @Valid @RequestBody PrinterConfigRequest request) {
+        if( request.getClientIp() == null || request.getClientIp().isEmpty()) request.setClientIp(this.getClientIp(httpRequest));
         PrinterConfigDTO config = service.create(request);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_PRINTER_CONFIG_SUCCESS);
         return new Response<PrinterConfigDTO>().withData(config);
@@ -56,12 +60,46 @@ public class PrinterConfigController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root + "/{clientId}"})
-    public Response<PrinterConfigDTO> update(HttpServletRequest httpRequest, @PathVariable String clientId ) {
+    public Response<PrinterConfigDTO> update(HttpServletRequest httpRequest, @PathVariable String clientId) {
         PrinterConfigDTO config = service.getPrinter(clientId);
+        if(config == null) config = service.getPrinter(this.getClientIp(httpRequest));
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_PRINTER_CONFIG_SUCCESS);
         return new Response<PrinterConfigDTO>().withData(config);
     }
 
+
+    private final String LOCALHOST_IPV4 = "127.0.0.1";
+    private final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
+    public String getClientIp(HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if(StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+
+        if(StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+
+        if(StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+            if(LOCALHOST_IPV4.equals(ipAddress) || LOCALHOST_IPV6.equals(ipAddress)) {
+                try {
+                    InetAddress inetAddress = InetAddress.getLocalHost();
+                    ipAddress = inetAddress.getHostAddress();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if(!StringUtils.isEmpty(ipAddress)
+                && ipAddress.length() > 15
+                && ipAddress.indexOf(",") > 0) {
+            ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
+        }
+
+        return ipAddress;
+    }
 
 
 }
