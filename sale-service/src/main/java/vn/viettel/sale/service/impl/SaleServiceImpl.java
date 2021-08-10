@@ -583,7 +583,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                 if(inputPro.getTotalQty() < 1 && allStockQty > 0)
-                    throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                    throw new ValidateException(ResponseMessage.TOTAL_FREE_PRODUCT_GREATER_THAN_ZERO, inputPro.getPromotionProgramName());
             }
             if(!msg.isEmpty()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS, msg);
         }

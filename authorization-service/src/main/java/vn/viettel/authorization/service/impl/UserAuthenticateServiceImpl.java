@@ -116,7 +116,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             }
         }
 
-        if (!passwordEncoder.matches(loginInfo.getPassword().toUpperCase(), user.getPassword())) {
+        if (!passwordEncoder.matches(loginInfo.getPassword(), user.getPassword())) {
             wrongTime += 1;
             if (wrongTime >= maxWrongTime) {
                 String captcha = generateCaptchaString();
@@ -292,7 +292,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         User user = repository.findByUsername(request.getUsername())
             .orElseThrow(() -> new ValidateException(ResponseMessage.USER_DOES_NOT_EXISTS));
 
-        if (!passwordEncoder.matches(request.getOldPassword().toUpperCase(), user.getPassword()))
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
             return response.withError(ResponseMessage.USER_OLD_PASSWORD_NOT_CORRECT);
 
         if (request.getNewPassword().length() < 8 || request.getNewPassword().length() > 20)
@@ -308,7 +308,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 checkPassword(request.getNewPassword()).getData() == null)
             return checkPassword(request.getNewPassword());
 
-        String securePassword = passwordEncoder.encode(request.getNewPassword().toUpperCase());
+        String securePassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(securePassword);
         try {
             repository.save(user);

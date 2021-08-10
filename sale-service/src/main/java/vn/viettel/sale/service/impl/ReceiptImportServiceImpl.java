@@ -928,7 +928,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetail(id);
                     List<Long> pIds = poTransDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
                     request.getLstUpdate().stream().map(e-> e.getProductId()).collect(Collectors.toList()).forEach(pIds::add);
-                    List<Product> products = productRepository.findAllById(pIds);
                     List<Long> listUpdate = request.getLstUpdate().stream().map(e-> e.getId()).collect(Collectors.toList());
                     stockTotals = stockTotalRepository.getStockTotal(shopId, poTrans.getWareHouseTypeId(), pIds);
 
