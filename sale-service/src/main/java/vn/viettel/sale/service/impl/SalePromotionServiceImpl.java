@@ -166,7 +166,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
          */
         //Tính zv19 - 21 trước zv23
         for(Map.Entry<PromotionProgramDTO, Boolean> entry: mapZV192021.entrySet()){
-            if(entry.getValue() != null && entry.getValue()){
+            if(entry.getValue() == null || entry.getValue()){
                 SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
                         totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, forSaving);
                 if(item != null && item.getIsUse()) {
@@ -211,24 +211,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-        /*Tính zv19 - 21 tính trên tổng tiên đơn hàng
-        Còn nếu như   19, 20, 21 : vẫn là tính trên tổng tiền đơn hàng: thì cách tính như trước e nói, tính đạt trên tổng tiền  - km zv1->21 - km tay
-         */
-        for(Map.Entry<PromotionProgramDTO, Boolean> entry: mapZV192021.entrySet()){
-            if(entry.getValue() == null){
-                SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
-                        totalZV0118zmInTax + totalZV1921InTax, totalZV0118zmExTax + totalZV1921ExTax, 0, 0, forSaving);
-                if(item != null && item.getIsUse()) {
-                    if(item.getIsUse()) {
-                        promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                        promotionAmountExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
-                        totalZV1921InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                        totalZV1921ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
-                    }
-                    this.addItemPromotion(results, item);
-                }
-            }
-        }
         /*
         zm give type 3 thì nó lại ở sau cùng, sau các tự động zv, sau cả zm type 0
          */
@@ -1931,10 +1913,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalAmountExTax = totalAmountExTax - totalBeforeZV23ExTax;
             }else if(program.getAmountOrderType() == 2){ //sau zv23
                 //tổng tiền đơn hàng - zv01To18 - zm (với given type = 0 hoặc 1) - zv23
-                totalAmountInTax = totalAmountInTax - totalBeforeZV23InTax - totalZV23InTax;
-                totalAmountExTax = totalAmountExTax - totalBeforeZV23ExTax - totalZV23ExTax;
-            }else{ //AmountOrderType = 0
-                //tổng tiền đơn hàng - zv01To21 - zm (với given type = 0 hoặc 1)
                 totalAmountInTax = totalAmountInTax - totalBeforeZV23InTax - totalZV23InTax;
                 totalAmountExTax = totalAmountExTax - totalBeforeZV23ExTax - totalZV23ExTax;
             }
