@@ -41,7 +41,7 @@ public class SaleController extends BaseController {
 
     private final String root = "/sales";
 
-    @RequestMapping(value = "/processing", method = RequestMethod.GET)
+    @RequestMapping(value = V1 + root + "/processing", method = RequestMethod.GET)
     public void processData(HttpServletRequest request) {
 
         System.out.println(request.getRemoteAddr());
