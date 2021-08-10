@@ -879,12 +879,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     for (PromotionProgramDTO programDTO : lstZV23){
                         SalePromotionDTO item = this.getItemPromotionZV23(programDTO, orderData, shopId, wareHouseTypeId, calculationRequest.getOrderRequest().getCustomerId(),
                                 totalZV0118zmInTax + totalZV1921InTax, totalZV0118zmExTax + totalZV1921ExTax, false);
-                        resultZV1921.add(item);
-                        if(item.getIsUse()) {
-                            totalZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                            totalZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
-                            promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
-                            promotionAmountExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                        if(item!=null) {
+                            resultZV1921.add(item);
+                            if(item.getIsUse()) {
+                                totalZV23InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                                totalZV23ExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                                promotionAmount += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
+                                promotionAmountExTax += item.getTotalAmtExTax() == null ? 0 : item.getTotalAmtExTax();
+                            }
                         }
                     }
 
