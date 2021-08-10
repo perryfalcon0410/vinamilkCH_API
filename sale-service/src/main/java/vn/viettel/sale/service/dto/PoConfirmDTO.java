@@ -15,6 +15,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class PoConfirmDTO extends BaseDTO {
+    private Long id;
     private String poCode;
     private Long shopId;
     private String poNumber;

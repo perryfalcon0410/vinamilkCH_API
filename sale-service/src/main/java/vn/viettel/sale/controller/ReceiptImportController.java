@@ -38,9 +38,13 @@ import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Api(tags = "API chức năng nhập hàng")
@@ -230,6 +234,11 @@ public class ReceiptImportController extends BaseController {
     public Response<List<PoConfirmDTO>> getListPoConfirm(HttpServletRequest request) {
         List<PoConfirmDTO> response = receiptService.getListPoConfirm(this.getShopId());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_PO_CONFIRM_SUCCESS);
+        List<Long> syncIds = new ArrayList<Long>();
+        if(!response.isEmpty()) {
+        	syncIds = response.stream().map(po -> po.getId()).collect(Collectors.toList());
+        }
+        sendSynRequest(JMSType.po_confirm, syncIds);
         return new Response<List<PoConfirmDTO>>().withData(response);
     }
 
