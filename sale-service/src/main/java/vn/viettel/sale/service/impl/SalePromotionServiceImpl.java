@@ -420,13 +420,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax, totalAmountExtax, isInclusiveTax,
                             inputAmount, forSaving, false);
                 }
+
+                if (salePromotion != null) salePromotion.setLstProductHasPromtion(lstProductIds);
             }
 
             if (salePromotion != null) {
                 salePromotion.setReCalculated(true);
                 salePromotion.setProgramId(program.getId());
                 if(program.getGivenType() != null && program.getGivenType() == 3) salePromotion.setAffected(true);
-                salePromotion.setLstProductHasPromtion(lstProductIds);
+
                 salePromotion.setPromotionType(1);
                 salePromotion.setProgramType(program.getType());
                 salePromotion.setPromotionProgramCode(program.getPromotionProgramCode());
