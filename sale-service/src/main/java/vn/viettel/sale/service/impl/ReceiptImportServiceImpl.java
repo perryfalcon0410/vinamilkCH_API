@@ -901,8 +901,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTrans poTrans = repository.findById(id).get();
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
         List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
-        List<String> lstPoNo = repository.getRedInvoiceNo();
-        List<String> lstInternalNumber = repository.getRedInvoiceNo();
+        List<String> lstPoNo = repository.getPoCoNumber();
+        List<String> lstInternalNumber = repository.getInternalNumber();
         lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
         lstPoNo.remove(poTrans.getPocoNumber());
         lstInternalNumber.remove(poTrans.getInternalNumber());
