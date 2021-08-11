@@ -363,9 +363,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
         LocalDateTime ldt = LocalDateTime.now();
         poAdjustTrans.setTransDate(ldt);
-        poAdjustTrans.setTransCode(stockAdjustment.getAdjustmentCode());
         poAdjustTrans.setShopId(shopId);
-        poAdjustTrans.setRedInvoiceNo(saleService.createOrderNumber(shop));
+        poAdjustTrans.setTransCode(stockAdjustment.getAdjustmentCode());
         poAdjustTrans.setAdjustmentDate(stockAdjustment.getAdjustmentDate());
         poAdjustTrans.setWareHouseTypeId(stockAdjustment.getWareHouseTypeId());
         poAdjustTrans.setOrderDate(stockAdjustment.getAdjustmentDate());
@@ -374,10 +373,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poAdjustTrans.setReasonId(stockAdjustment.getReasonId());
         poAdjustTrans.setType(2);
         poAdjustTrans.setStatus(1);
-        stockAdjustmentTransRepository.save(poAdjustTrans);
+
         SaleOrder order = new SaleOrder();
         order.setType(4);
-        order.setOrderNumber(poAdjustTrans.getRedInvoiceNo());
         order.setOrderDate(ldt);
         order.setShopId(shopId);
         order.setSalemanId(userId);
@@ -398,7 +396,12 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         order.setCustomerPurchase(0D);
         order.setDiscountCodeAmount(0D);
         order.setUsedRedInvoice(false);
+
+        order.setOrderNumber(saleService.createOrderNumber(shop));
         saleOrderRepository.save(order);
+        poAdjustTrans.setRedInvoiceNo(order.getOrderNumber());
+        stockAdjustmentTransRepository.save(poAdjustTrans);
+
         List<StockAdjustmentDetail> sads = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
         Integer totalQuantity = 0;
         Double totalAmount = 0D;

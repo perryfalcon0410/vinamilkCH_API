@@ -1,6 +1,8 @@
 package vn.viettel.core.util;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -425,6 +427,19 @@ public class DateUtils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
         return dateTime;
+    }
+
+    public static LocalDateTime forMatDateObject(Object date) {
+        try {
+            DateFormat formatter;
+            formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            java.util.Date newDate = formatter.parse(date.toString());
+            LocalDateTime localDateTime = DateUtils.convertDateToLocalDateTime(newDate);
+            return localDateTime;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public  static LocalDateTime min = DateUtils.convertStringToLocalDateTime("0001-01-01 00:00:00");

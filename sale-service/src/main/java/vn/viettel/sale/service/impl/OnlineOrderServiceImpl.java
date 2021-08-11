@@ -108,11 +108,13 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(onlineOrder.getSynStatus()!=null &&  onlineOrder.getSynStatus()==1)
             throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
 
+        List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
+        if(orderDetails.isEmpty()) throw new ValidateException(ResponseMessage.ONLINE_ORDER_PRODUCT_IS_EMPTY);
+
         List<CustomerDTO> customerDTOS = customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone()).getData();
         if(customerDTOS.isEmpty()) {
             CustomerOnlRequest cusRequest = new CustomerOnlRequest();
-            cusRequest.setFirstName(this.getFirstName(onlineOrder.getCustomerName()));
-            cusRequest.setLastName(this.getLastName(onlineOrder.getCustomerName()));
+            this.setCustomerName(cusRequest, onlineOrder);
             cusRequest.setMobiPhone(onlineOrder.getCustomerPhone());
             cusRequest.setDob(onlineOrder.getCustomerDOB());
             cusRequest.setAddress(onlineOrder.getCustomerAddress());
@@ -128,8 +130,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(customerDTOS.get(0).getCustomerTypeId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeById(customerDTOS.get(0).getCustomerTypeId());
 
-        List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
-        if(orderDetails.isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
         OnlineOrderDTO onlineOrderDTO = this.mapOnlineOrderToOnlineOrderDTO(onlineOrder);
 
         List<OrderProductOnlineDTO> orderLines = new ArrayList<>();
@@ -169,6 +169,21 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         if(!saleOrders.isEmpty())
             throw new ValidateException(ResponseMessage.ONLINE_NUMBER_IS_EXISTS);
         return code;
+    }
+
+
+    private void setCustomerName(CustomerOnlRequest request,  OnlineOrder onlineOrder) {
+        if(onlineOrder.getCustomerName()==null || onlineOrder.getCustomerName().isEmpty()) return;
+        String fullName = onlineOrder.getCustomerName().trim();
+        String[] words = fullName.split(" ");
+        if(words.length == 1) {
+            request.setLastName("KH");
+            request.setFirstName(fullName);
+        }else {
+            int i = fullName.lastIndexOf(' ');
+            request.setLastName(fullName.substring(0, i).trim());
+            request.setFirstName(fullName.substring(i+1).trim());
+        }
     }
 
     @Override
@@ -215,34 +230,47 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
                 String adrress = header.getCustomerAddress();
                 if(header.getCustomerAddress().isEmpty()) adrress = header.getShippingAddress();
-                OnlineOrder onlineOrderDB = repository.findFirstByOrderByIdDesc();
-                LocalDateTime now = LocalDateTime.now();
-                Long onlineId = 1L;
-                if(onlineOrderDB != null){
-                    entityManager.refresh(onlineOrderDB);
-                    onlineId = onlineOrderDB.getId() + 1;
-                }
 
-                if (header.getCustomerBirthday()!=null) {
-                    repository.schedulerInsert(onlineId, shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
-                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-                            header.getCustomerBirthday(), header.getOrderStatus(), 0 , header.getNote(), header.getCreatedAt(), now);
-                }else {
-                    repository.schedulerInsertNoDOB(onlineId, shopDTO.getId(), 0, header.getSourceName(), header.getOrderID(), orderNumber,
-                            header.getTotalLineValue(), header.getDiscountCode(), header.getDiscountValue(), header.getCustomerName(), header.getCustomerPhone(), adrress, header.getShippingAddress(),
-                            header.getOrderStatus(), 0 , header.getNote(), header.getCreatedAt(), now);
-                }
+                OnlineOrder newOnlOrder = new OnlineOrder();
+                newOnlOrder.setShopId(shopDTO.getId());
+                newOnlOrder.setSynStatus(0);
+                newOnlOrder.setSourceName(header.getSourceName());
+                newOnlOrder.setOrderId(header.getOrderID());
+                newOnlOrder.setOrderNumber(orderNumber);
+                newOnlOrder.setTotalLineValue(header.getTotalLineValue());
+                newOnlOrder.setDiscountCode(header.getDiscountCode());
+                newOnlOrder.setDiscountValue(header.getDiscountValue());
+                newOnlOrder.setCustomerName(header.getCustomerName());
+                newOnlOrder.setCustomerPhone(header.getCustomerPhone());
+                newOnlOrder.setCustomerAddress(adrress);
+                newOnlOrder.setOrderStatus(header.getShippingAddress());
+                newOnlOrder.setCustomerDOB(header.getCustomerBirthday());
+                newOnlOrder.setOrderStatus(header.getOrderStatus());
+                newOnlOrder.setVnmSynStatus(0);
+                newOnlOrder.setNote(header.getNote());
+                newOnlOrder.setCreateDate(header.getCreatedAt());
+                repository.save(newOnlOrder);
 
                 for(Line line : lines){
-                    OnlineOrderDetail lastDetail = onlineOrderDetailRepo.findFirstByOrderByIdDesc();
-                    Long detailId = 1L;
-                    if(lastDetail != null){
-                        entityManager.refresh(lastDetail);
-                        detailId = lastDetail.getId() + 1;
-                    }
-                    onlineOrderDetailRepo.schedulerInsert(detailId, shopDTO.getId(), onlineId, line.getSku(), line.getProductName(), line.getQuantity(), line.getOriginalPrice(),
-                            line.getRetailsPrice(), line.getLineValue(), line.getCharacter1Name(), line.getCharacter1Value(), line.getCharacter2Name(), line.getCharacter2Value(),
-                            line.getCharacter3Name(), line.getCharacter3Value(), line.getPromotionName(), header.getCreatedAt(), LocalDateTime.now());
+                    OnlineOrderDetail newDetail = new OnlineOrderDetail();
+                    newDetail.setShopId(shopDTO.getId());
+                    newDetail.setOnlineOrderId(newOnlOrder.getId());
+                    newDetail.setSku(line.getSku());
+                    newDetail.setProductName(line.getProductName());
+                    newDetail.setQuantity(line.getQuantity());
+                    newDetail.setOriginalPrice(line.getOriginalPrice());
+                    newDetail.setRetailsPrice(line.getRetailsPrice());
+                    newDetail.setLineValue(line.getLineValue());
+                    newDetail.setCharacter1Name(line.getCharacter1Name());
+                    newDetail.setCharacter1Value(line.getCharacter1Value());
+                    newDetail.setCharacter2Name(line.getCharacter2Name());
+                    newDetail.setCharacter2Value(line.getCharacter2Value());
+                    newDetail.setCharacter3Name(line.getCharacter3Name());
+                    newDetail.setCharacter3Value(line.getCharacter3Value());
+                    newDetail.setPromotionName(line.getPromotionName());
+                    newDetail.setCreateDate(header.getCreatedAt());
+
+                    onlineOrderDetailRepo.save(newDetail);
                 }
 
             }catch (Exception e) {
@@ -477,14 +505,5 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return dto;
     }
 
-    private String getLastName(String fullName) {
-        int i = fullName.lastIndexOf(' ');
-        return fullName.substring(0, i).trim();
-    }
-
-    private String getFirstName(String fullName) {
-        int i = fullName.lastIndexOf(' ');
-        return fullName.substring(i+1).trim();
-    }
 
 }

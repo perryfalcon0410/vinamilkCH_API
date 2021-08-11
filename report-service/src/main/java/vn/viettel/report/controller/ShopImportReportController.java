@@ -11,6 +11,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.service.dto.PrintShopImportDTO;
 import vn.viettel.report.service.excel.ShopImportExcel;
@@ -40,7 +41,7 @@ public class ShopImportReportController extends BaseController {
     public Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>> index(@RequestParam(value = "fromDate",required = false) Date fromDate, @RequestParam(value = "toDate",required = false) Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes,
                                                                                   @RequestParam(value = "importType",required = false) String importType, @RequestParam(value = "internalNumber",required = false)String internalNumber,
                                                                                   @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate, @RequestParam(value = "toOrderDate",required = false) Date toOrderDate, Pageable pageable) {
-        ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate,this.getShopId());
+        ShopImportFilter shopImportFilter = new ShopImportFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
         CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> response = shopImportReportService.find(shopImportFilter,pageable);
         return new Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>>().withData(response);
     }
@@ -54,7 +55,7 @@ public class ShopImportReportController extends BaseController {
                                         @RequestParam(value = "importType",required = false) String importType, @RequestParam(value = "internalNumber",required = false)String internalNumber,
                                         @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate, @RequestParam(value = "toOrderDate",required = false) Date toOrderDate
                                         ,HttpServletResponse response) throws IOException, ParseException {
-        ShopImportFilter shopImportFilter = new ShopImportFilter( fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate,this.getShopId());
+        ShopImportFilter shopImportFilter = new ShopImportFilter( DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         ShopDTO shop_ = shopClient.getShopByIdV1(shop.getParentShopId()).getData();
         CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(shopImportFilter).getData();
@@ -74,7 +75,7 @@ public class ShopImportReportController extends BaseController {
                                               @RequestParam(value = "internalNumber",required = false, defaultValue = "")String internalNumber,
                                               @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate,
                                               @RequestParam(value = "toOrderDate",required = false) Date toOrderDate) {
-        ShopImportFilter shopImportFilter = new ShopImportFilter(fromDate, toDate, productCodes, importType,internalNumber,fromOrderDate,toOrderDate,this.getShopId());
+        ShopImportFilter shopImportFilter = new ShopImportFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
         PrintShopImportDTO response = shopImportReportService.print(shopImportFilter, this.getShopId());
         return new Response<PrintShopImportDTO>().withData(response);
     }

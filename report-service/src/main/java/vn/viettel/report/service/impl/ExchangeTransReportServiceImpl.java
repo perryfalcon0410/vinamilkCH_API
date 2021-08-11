@@ -24,6 +24,9 @@ import javax.persistence.PersistenceContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -133,10 +136,20 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
         int start = (int)pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), allDatas.size());
-        Page<Object[]> page = new PageImpl<>( allDatas.subList(start, end), pageable, allDatas.size());
+
+        List<Object[]> returnLists = allDatas.subList(start, end);
+
+        // date not match when reponse
+        for(int i = 0; i < returnLists.size(); i++) {
+            LocalDateTime dateStri = DateUtils.forMatDateObject(returnLists.get(i)[0]);
+            returnLists.get(i)[0] = dateStri;
+        }
+
+        Page<Object[]> page = new PageImpl<>( returnLists, pageable, allDatas.size());
         reponse.setResponse(page);
         return reponse;
     }
+
 
     private void validMonth(ExchangeTransFilter filter){
         LocalDateTime fromDate = filter.getFromDate().plusDays(1);
