@@ -64,7 +64,7 @@ public class ChangePriceReportController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(V1 + root + "/pdf")
     public Response<ChangePricePrintDTO> getAll(HttpServletRequest request,
-                                                @RequestParam(required = false) String code,
+                                                @RequestParam(required = false) String licenseNumber,
                                                 @RequestParam Date fromTransDate,
                                                 @RequestParam Date toTransDate,
                                                 @RequestParam(required = false) Date fromOrderDate,
@@ -72,7 +72,7 @@ public class ChangePriceReportController extends BaseController {
                                                 @RequestParam(required = false) String ids,
                                                 Pageable pageable) throws ParseException {
         ChangePricePrintDTO result =
-                service.getAll(code, this.getShopId(), DateUtils.convert2Local(fromTransDate),
+                service.getAll(licenseNumber, this.getShopId(), DateUtils.convert2Local(fromTransDate),
                         DateUtils.convert2Local(toTransDate), DateUtils.convert2Local(fromOrderDate), DateUtils.convert2Local(toOrderDate), ids, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_LIST_PRICE_CHANGED_SUCCESS);
         return new Response<ChangePricePrintDTO>().withData(result);
