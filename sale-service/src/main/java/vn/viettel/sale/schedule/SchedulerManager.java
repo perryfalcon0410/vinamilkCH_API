@@ -5,6 +5,8 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import vn.viettel.sale.entities.OnlineOrder;
+import vn.viettel.sale.repository.OnlineOrderRepository;
 import vn.viettel.sale.service.OnlineOrderService;
 
 @Component

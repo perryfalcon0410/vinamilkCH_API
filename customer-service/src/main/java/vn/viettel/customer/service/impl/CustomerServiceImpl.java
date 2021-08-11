@@ -92,9 +92,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     CustomerTypeService customerTypeService;
 
     @Autowired
-    SaleOrderClient saleOrderClient;
-
-    @Autowired
     MemBerCustomerRepository memBerCustomerRepos;
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer, List<MemberCustomer> memberCustomers) {
@@ -223,8 +220,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
-        customerRecord.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
-
         //address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
 
@@ -251,6 +246,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(request.getIdNoIssuedDate()!=null) customerRecord.setIdNoIssuedDate(DateUtils.convertFromDate(request.getIdNoIssuedDate()));
 
         customerRecord.setShopId(shopId);
+        customerRecord.setCustomerCode(this.createCustomerCode(shopId, shop.getShopCode()));
         Customer customerResult = repository.save(customerRecord);
 
         CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customerResult, null);
@@ -355,8 +351,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         //list top five product
-        List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
-        customerDTO.setLstProduct(lstProduct);
+//        List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
+//        customerDTO.setLstProduct(lstProduct);
 
         return customerDTO;
     }

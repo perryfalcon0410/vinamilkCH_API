@@ -4,11 +4,15 @@ package vn.viettel.sale.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +28,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 2")
     SaleOrder getOrderReturnByNumber(String ON);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE )
+    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "1000")})
     @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId And s.createdAt>= :startDate" +
             " AND s.orderNumber like :startWith% " +
             " ORDER BY s.orderNumber desc ")

@@ -175,8 +175,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 for (StockTotal st : listSt) {
                 if (st.getProductId().equals(countingExcel.getProductId())) {
                     StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
-
-                    dto.setStockQuantity(st.getQuantity());
                     if (dto.getInventoryQuantity() == null) dto.setInventoryQuantity(0);
                     if (dto.getStockQuantity() == null) dto.setStockQuantity(0);
                     dto.setTotalAmount(dto.getPrice() == null ? 0D : dto.getPrice() * dto.getStockQuantity());

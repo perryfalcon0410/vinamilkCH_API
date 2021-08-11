@@ -23,6 +23,7 @@ public class PreFilter extends ZuulFilter {
 
     @Autowired
     JwtTokenValidate jwtTokenValidate;
+
     @Autowired
     AuthClient authClient;
 

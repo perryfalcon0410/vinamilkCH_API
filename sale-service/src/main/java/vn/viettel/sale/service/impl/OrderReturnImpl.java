@@ -302,7 +302,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         NewOrderReturnDTO newOrderReturnDTO = modelMapper.map(saleOrder, NewOrderReturnDTO.class);
         newOrderReturn = modelMapper.map(newOrderReturnDTO, SaleOrder.class);
 
-        newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop)); // important
         newOrderReturn.setType(2);
         newOrderReturn.setTotalCustomerPurchase(saleOrder.getTotalCustomerPurchase());
         newOrderReturn.setCustomerPurchase(saleOrder.getCustomerPurchase());
@@ -344,19 +343,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (saleOrder.getZmPromotionNotVat() != null)
             newOrderReturn.setZmPromotionNotVat(saleOrder.getZmPromotionNotVat() * -1);
         newOrderReturn.setOrderDate(returnDate);
+        newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop));
         repository.save(newOrderReturn); //save new orderReturn
         saleOrder.setIsReturn(false);
         repository.save(saleOrder);
 
         //new orderReturn detail
-        List<SaleOrderDetail> saleOrderDetails =
-                saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
-        SaleOrder orderReturn = repository.getOrderReturnByNumber(newOrderReturn.getOrderNumber());
+        List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
         if (saleOrderDetails != null) {
             for (SaleOrderDetail saleOrderDetail : saleOrderDetails) {
                 NewOrderReturnDetailDTO productReturnDTO = modelMapper.map(saleOrderDetail, NewOrderReturnDetailDTO.class);
                 SaleOrderDetail productReturn = modelMapper.map(productReturnDTO, SaleOrderDetail.class);
-                productReturn.setSaleOrderId(orderReturn.getId());
+                productReturn.setSaleOrderId(newOrderReturn.getId());
                 productReturn.setAutoPromotionVat(saleOrderDetail.getAutoPromotionVat());
                 productReturn.setOrderDate(returnDate);
 
@@ -385,7 +383,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for (SaleOrderDetail promotionDetail : saleOrderPromotions) {
             NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
             SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
-            promotionReturn.setSaleOrderId(orderReturn.getId());
+            promotionReturn.setSaleOrderId(newOrderReturn.getId());
             promotionReturn.setPrice(promotionDetail.getPrice());
             promotionReturn.setAmount(0D);
             promotionReturn.setTotal(0D);
@@ -584,73 +582,29 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
     }
 
-/*    private void updateZV23(CustomerDTO customer, SaleOrder saleOrder, List<SaleOrderDiscount> discounts) {
-        Set<Long> zV23Ids = new HashSet<>();
-        for (SaleOrderDiscount discount: discounts) {
-            if (discount.getPromotionType().equalsIgnoreCase("ZV23")) zV23Ids.add(discount.getPromotionProgramId());
-        }
-        if (zV23Ids.isEmpty()) return;
-        List<RPT_ZV23DTO> rpt_zv23DTOS = promotionClient.findByProgramIdsV1(zV23Ids, customer.getId()).getData();
-        for(RPT_ZV23DTO zv23: rpt_zv23DTOS) {
-            Double amount =  zv23.getTotalAmount()!=null?zv23.getTotalAmount():0;
-            Double cusPurchase = saleOrder.getCustomerPurchase()!=null?saleOrder.getCustomerPurchase():0;
-            RPT_ZV23Request zv23Request = new RPT_ZV23Request();
-            zv23Request.setTotalAmount(amount - cusPurchase);
-            promotionClient.updateRPTZV23V1(zv23.getId(), zv23Request);
-        }
-    }*/
-
     private void updateZV23(CustomerDTO customer, SaleOrder saleOrder, List<SaleOrderDetail> saleOrderDetails, List<SaleOrderDiscount> discounts) {
-        Set<Long> zV23Ids = new HashSet<>();
-        for (SaleOrderDiscount discount: discounts) {
-            if (discount.getPromotionType().equalsIgnoreCase("ZV23")) zV23Ids.add(discount.getPromotionProgramId());
-        }
-        if (zV23Ids.isEmpty()) return;
-        List<RPT_ZV23DTO> rpt_zv23DTOS = promotionClient.findByProgramIdsV1(zV23Ids, customer.getId()).getData();
+        List<SaleOrderDiscount> discountZV23S = discounts.stream().filter(d -> d.getPromotionType().equalsIgnoreCase("ZV23")).collect(Collectors.toList());
+        if(discountZV23S.isEmpty()) return ;
+
+        Map<Long, List<SaleOrderDiscount>> zv23MapProducts = discountZV23S.stream().collect(Collectors.groupingBy(SaleOrderDiscount::getPromotionProgramId, LinkedHashMap::new, Collectors.toList()));
+
+        List<RPT_ZV23DTO> rpt_zv23DTOS = promotionClient.findByProgramIdsV1(zv23MapProducts.keySet(), customer.getId()).getData();
 
         List<SaleOrderDetail> details = saleOrderDetails.stream().filter(s -> s.getIsFreeItem() == null || !s.getIsFreeItem()).collect(Collectors.toList());
 
         for(RPT_ZV23DTO zv23: rpt_zv23DTOS) {
             // lấy tổng tiền theo những sản phẩm quy định
             Double amountInTax = 0.0;
-            List<PromotionProgramProductDTO> programProduct = promotionClient.findByPromotionIdsV1(Arrays.asList(zv23.getPromotionProgramId())).getData();
-            List<PromotionProgramProductDTO> programProduct1 = new ArrayList<>();
-
-            for (PromotionProgramProductDTO pProduct : programProduct) {
-                if(pProduct.getType() != null && pProduct.getType() == 1) programProduct1.add(pProduct);
-            }
-
-            if (programProduct1 != null && !programProduct1.isEmpty()) {
-                for (PromotionProgramProductDTO exItem : programProduct1) {
-                    if (exItem.getType() != null && exItem.getType() == 1) {
-                        for (SaleOrderDetail detail : details) {
-                            if (detail.getProductId().equals(exItem.getProductId())) {
-                                if (detail.getAmount() == null) amountInTax += detail.getAmount();
-                            }
-                        }
-                    }
+            List<Long> productIds = zv23MapProducts.get(zv23.getPromotionProgramId()).stream().map(SaleOrderDiscount::getProductId).collect(Collectors.toList());
+                for(SaleOrderDetail detail: details) {
+                    if(productIds.contains(detail.getProductId())) amountInTax += detail.getAmount();
                 }
-            }else { //nếu không quy định sản phẩm
-                amountInTax = saleOrder.getAmount();
-                // loại trừ sản phẩm
-                if (programProduct != null && !programProduct.isEmpty()){
-                    for (PromotionProgramProductDTO exItem : programProduct){
-                        if(exItem.getType() != null && exItem.getType() == 2) {
-                            for (SaleOrderDetail oItem : details) {
-                                if (oItem.getProductId().equals(exItem.getProductId())) {
-                                    if (oItem.getAmount() != null)  amountInTax -= oItem.getAmount();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             Double amount =  zv23.getTotalAmount()!=null?zv23.getTotalAmount():0;
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
             zv23Request.setTotalAmount(amount - amountInTax);
             promotionClient.updateRPTZV23V1(zv23.getId(), zv23Request);
         }
+
     }
 
 

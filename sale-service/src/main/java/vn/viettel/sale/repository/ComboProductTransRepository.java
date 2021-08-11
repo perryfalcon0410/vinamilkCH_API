@@ -1,19 +1,27 @@
 package vn.viettel.sale.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.ComboProductTrans;
+import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.service.dto.TotalDTO;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ComboProductTransRepository extends BaseRepository<ComboProductTrans>, JpaSpecificationExecutor<ComboProductTrans> {
 
-    @Query(value = "SELECT ct.transCode FROM ComboProductTrans ct WHERE ct.transCode LIKE :startWith% AND ct.shopId =:shopId "
-            + " ORDER BY ct.transCode DESC ")
-    List<String> getTransCodeTop1(Long shopId, String startWith);
+    @Lock(LockModeType.PESSIMISTIC_WRITE )
+    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "500")})
+    @Query(value = "SELECT ct FROM ComboProductTrans ct WHERE ct.transCode LIKE :startWith% AND ct.shopId =:shopId ORDER BY ct.transCode DESC ")
+    Page<ComboProductTrans> getLastOrderNumber(Long shopId, String startWith, Pageable pageable);
 
     @Query(value = "SELECT new vn.viettel.sale.service.dto.TotalDTO( sum(ex.totalQuantity), sum (ex.totalAmount)) " +
             " FROM ComboProductTrans ex WHERE ( :transType is null or ex.transType = :transType ) " +

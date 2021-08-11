@@ -238,8 +238,10 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 total += promotionProgramDiscount.getDiscountAmount();
                 discountDTO.setPromotionType("Mã giảm giá");
                 PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionProgramDiscount.getId()).getData();
-                discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
-                discountDTO.setVoucherType(promotionProgram.getPromotionProgramCode());
+                if(promotionProgram!=null) {
+                    discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
+                    discountDTO.setVoucherType(promotionProgram.getPromotionProgramCode());
+                }
                 discountDTOList.add(discountDTO);
             }
         }

@@ -341,23 +341,24 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(request.getTotalOrderAmount() < promotionInVat)
                 throw new ValidateException(ResponseMessage.PROMOTION_OVER_BILL);
 
-            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
-            if(!combos.isEmpty()) {
-                List<Price> subProductPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
-                        customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
-                createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
-                createSaleOrderComboDiscount(saleOrderDiscounts, combos, subProductPrices).stream().forEachOrdered(listOrderComboDiscounts::add);
-            }
-
             //3. kiểm tra số tiền km có đúng
 //            checkPromotionValue(request, shopId, voucherAmount, orderRequest, promotionInfo )
-        }else{
-            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
-            if(!combos.isEmpty()) {
-                List<Price> subProductPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
-                        customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
-                createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
-            }
+        }
+//        else{
+//            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
+//            if(!combos.isEmpty()) {
+//                List<Price> subProductPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
+//                        customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+//                createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
+//            }
+//        }
+
+        List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(saleOrderDetails.stream().map(SaleOrderDetail::getProductId).collect(Collectors.toList()));
+        if(!combos.isEmpty()) {
+            List<Price> subProductPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
+                    customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+            createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
+            createSaleOrderComboDiscount(saleOrderDiscounts, combos, subProductPrices).stream().forEachOrdered(listOrderComboDiscounts::add);
         }
 
         //4. check existing promotion code - mã giảm giá
@@ -403,6 +404,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             return saleOrderService.createPrintSaleOrderDTO(shopId, customer, saleOrder, saleOrderDetails, saleOrderDiscounts);
         }
 
+        saleOrder.setOrderNumber(createOrderNumber(shop));
         repository.save(saleOrder);
 
         updateOnlineOrder(saleOrder, onlineOrder);
@@ -580,7 +582,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             if("zm".equalsIgnoreCase(dbPro.getProgramType())){
                 if(inputPro.getTotalQty() < 1 && allStockQty > 0)
-                    throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
+                    throw new ValidateException(ResponseMessage.TOTAL_FREE_PRODUCT_GREATER_THAN_ZERO, inputPro.getPromotionProgramName());
             }
             if(!msg.isEmpty()) throw new ValidateException(ResponseMessage.STOCK_TOTAL_CANNOT_BE_NEGATIVE_SSS, msg);
         }
@@ -652,7 +654,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                       double zmPromotionExVat, double customerPurchase, boolean isReturn ){
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
         saleOrder.setOnlineNumber(null);
-        saleOrder.setOrderNumber(createOrderNumber(shop));
         saleOrder.setOrderDate(LocalDateTime.now());
         saleOrder.setShopId(shop.getId());
         saleOrder.setSalemanId(userId);
@@ -909,7 +910,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String code = "SAL." +  shop.getShopCode() + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1);
         LocalDateTime start =  DateUtils.convertFromDate(now);
         Page<SaleOrder> saleOrders = repository.getLastSaleOrderNumber(shop.getId(), code, start, PageRequest.of(0,1));
-
         int STT = 1;
         if(!saleOrders.getContent().isEmpty()) {
             String str = saleOrders.getContent().get(0).getOrderNumber();
@@ -954,7 +954,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderComboDetail> listOrderComboDetail = new ArrayList<>();
         if (products == null || products.isEmpty() || combos == null || combos.isEmpty()) return  listOrderComboDetail;
 
+        List<Long> productComboIds = combos.stream().map(ComboProductDetailDTO::getRefProductId).distinct().collect(Collectors.toList());
         for (SaleOrderDetail item : products) {
+            if(!productComboIds.contains(item.getProductId())) continue;
             double amountInTax = 0;
             double amountExTax = 0;
             int totalComboDtl = 0;
@@ -1017,38 +1019,41 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         orderComboDetail.setPrice(price.getPrice());
                         orderComboDetail.setPriceNotVat(price.getPriceNotVat());
                     }
-                    double amount = roundValue(orderComboDetail.getPrice() * orderComboDetail.getQuantity());
-                    double zmAmt = roundValue(amount * percentZM / 100);
-                    double zmAmtVat = roundValue(amount * percentZMInTax / 100);
-                    double zmAmtNotVat = roundValue((orderComboDetail.getPriceNotVat() * orderComboDetail.getQuantity()) * percentZMExTax / 100);
-                    double proAmt = roundValue(amount * percentZV / 100);
-                    double proAmtVat = roundValue(amount * percentZVInTax / 100);
-                    double proAmtNotVat = roundValue((orderComboDetail.getPriceNotVat() * orderComboDetail.getQuantity()) * percentZVExTax / 100);
-                    if(cnt == totalComboDtl){
-                        amount = (item.getAmount() == null ? 0 : item.getAmount()) - amountTotal;
-                        zmAmt = (item.getZmPromotion() == null ? 0 : item.getZmPromotion()) - zmAmtTotal;
-                        zmAmtVat = (item.getZmPromotionVat() == null ? 0 : item.getZmPromotionVat()) - zmAmtVatTotal;
-                        zmAmtNotVat = (item.getZmPromotionNotVat() == null ? 0 : item.getZmPromotionNotVat()) - zmAmtNotVatTotal;
-                        proAmt = (item.getAutoPromotion() == null ? 0 : item.getAutoPromotion()) - proAmtTotal;
-                        proAmtVat = (item.getAutoPromotionVat() == null ? 0 : item.getAutoPromotionVat()) - proAmtVatTotal;
-                        proAmtNotVat = (item.getAutoPromotionNotVat() == null ? 0 : item.getAutoPromotionNotVat()) - proAmtNotVatTotal;
+                    orderComboDetail.setAmount(0.0);
+                    orderComboDetail.setTotal(roundValue(orderComboDetail.getAmount()));
+                    if(!item.getIsFreeItem()) {
+                        double amount = roundValue(orderComboDetail.getPrice() * orderComboDetail.getQuantity());
+                        double zmAmt = roundValue(amount * percentZM / 100);
+                        double zmAmtVat = roundValue(amount * percentZMInTax / 100);
+                        double zmAmtNotVat = roundValue((orderComboDetail.getPriceNotVat() * orderComboDetail.getQuantity()) * percentZMExTax / 100);
+                        double proAmt = roundValue(amount * percentZV / 100);
+                        double proAmtVat = roundValue(amount * percentZVInTax / 100);
+                        double proAmtNotVat = roundValue((orderComboDetail.getPriceNotVat() * orderComboDetail.getQuantity()) * percentZVExTax / 100);
+                        if(cnt == totalComboDtl){
+                            amount = (item.getAmount() == null ? 0 : item.getAmount()) - amountTotal;
+                            zmAmt = (item.getZmPromotion() == null ? 0 : item.getZmPromotion()) - zmAmtTotal;
+                            zmAmtVat = (item.getZmPromotionVat() == null ? 0 : item.getZmPromotionVat()) - zmAmtVatTotal;
+                            zmAmtNotVat = (item.getZmPromotionNotVat() == null ? 0 : item.getZmPromotionNotVat()) - zmAmtNotVatTotal;
+                            proAmt = (item.getAutoPromotion() == null ? 0 : item.getAutoPromotion()) - proAmtTotal;
+                            proAmtVat = (item.getAutoPromotionVat() == null ? 0 : item.getAutoPromotionVat()) - proAmtVatTotal;
+                            proAmtNotVat = (item.getAutoPromotionNotVat() == null ? 0 : item.getAutoPromotionNotVat()) - proAmtNotVatTotal;
+                        }
+                        amountTotal += amount;
+                        zmAmtTotal += zmAmt;
+                        zmAmtVatTotal += zmAmtVat;
+                        zmAmtNotVatTotal += zmAmtNotVat;
+                        proAmtTotal += proAmt;
+                        proAmtVatTotal += proAmtVat;
+                        proAmtNotVatTotal += proAmtNotVat;
+                        orderComboDetail.setAmount(amount);
+                        orderComboDetail.setZmPromotion(zmAmt);
+                        orderComboDetail.setZmPromotionVat(zmAmtVat);
+                        orderComboDetail.setZmPromotionNotVat(zmAmtNotVat);
+                        orderComboDetail.setAutoPromotion(proAmt);
+                        orderComboDetail.setAutoPromotionVat(proAmtVat);
+                        orderComboDetail.setAutoPromotionNotVat(proAmtNotVat);
+                        orderComboDetail.setTotal(roundValue(orderComboDetail.getAmount() - (orderComboDetail.getZmPromotionVat() + orderComboDetail.getAutoPromotionVat())));
                     }
-                    amountTotal += amount;
-                    zmAmtTotal += zmAmt;
-                    zmAmtVatTotal += zmAmtVat;
-                    zmAmtNotVatTotal += zmAmtNotVat;
-                    proAmtTotal += proAmt;
-                    proAmtVatTotal += proAmtVat;
-                    proAmtNotVatTotal += proAmtNotVat;
-                    orderComboDetail.setAmount(amount);
-                    orderComboDetail.setZmPromotion(zmAmt);
-                    orderComboDetail.setZmPromotionVat(zmAmtVat);
-                    orderComboDetail.setZmPromotionNotVat(zmAmtNotVat);
-                    orderComboDetail.setAutoPromotion(proAmt);
-                    orderComboDetail.setAutoPromotionVat(proAmtVat);
-                    orderComboDetail.setAutoPromotionNotVat(proAmtNotVat);
-                    orderComboDetail.setTotal(roundValue(orderComboDetail.getAmount() - (orderComboDetail.getZmPromotionVat() + orderComboDetail.getAutoPromotionVat())));
-
                     listOrderComboDetail.add(orderComboDetail);
                 }
             }
@@ -1062,7 +1067,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderComboDiscount> lstComboDiscount = new ArrayList<>();
         if (orderDiscounts == null) return  lstComboDiscount;
 
+        List<Long> productComboIds = combos.stream().map(ComboProductDetailDTO::getRefProductId).distinct().collect(Collectors.toList());
         for(SaleOrderDiscount orderDiscount : orderDiscounts){
+            if(!productComboIds.contains(orderDiscount.getProductId())) continue;
             double amountInTax = 0;
             double amountExTax = 0;
             int count = 0;

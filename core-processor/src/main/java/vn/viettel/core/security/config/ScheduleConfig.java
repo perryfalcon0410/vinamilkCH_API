@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -18,6 +16,8 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.Assert;
+import vn.viettel.core.security.context.SecurityContexHolder;
+import vn.viettel.core.security.context.UserContext;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -46,50 +46,18 @@ public class ScheduleConfig {
 		return new JpaTransactionManager(entityManagerFactory);
 	}
 
-//	@Bean
-//    public RequestInterceptor requestInterceptor() {
-//        return (RequestTemplate requestTemplate) -> {
-//            String token = AuthorizationType.FEIGN_AUTH + " " + secretKey;
-//            requestTemplate.header(HttpHeaders.AUTHORIZATION, token);
-//        };
-//
-//    }
+	@Bean
+	public SecurityContexHolder securityContexHolder() {
+		UserContext context = new UserContext();
+		context.setUserName("schedule");
+		SecurityContexHolder holder = new SecurityContexHolder();
+		holder.setContext(context);
+		return holder;
+	}
 
 	@Bean
 	public LockProvider lockProvider(DataSource dataSource) {
 		return new JdbcTemplateLockProvider(dataSource);
 	}
 
-//	public class AutowireCapableBeanJobFactory extends SpringBeanJobFactory {
-//
-//		private final AutowireCapableBeanFactory beanFactory;
-//
-//		@Autowired
-//		public AutowireCapableBeanJobFactory(AutowireCapableBeanFactory beanFactory) {
-//			Assert.notNull(beanFactory, "Bean factory must not be null");
-//			this.beanFactory = beanFactory;
-//		}
-//
-//		@Override
-//		protected Object createJobInstance(TriggerFiredBundle bundle) throws Exception {
-//			Object jobInstance = super.createJobInstance(bundle);
-//			this.beanFactory.autowireBean(jobInstance);
-//			this.beanFactory.initializeBean(jobInstance, null);
-//			return jobInstance;
-//		}
-//	}
-//
-//	@Bean
-//	public SchedulerFactoryBean schedulerFactory(ApplicationContext applicationContext) {
-//		SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
-//		schedulerFactoryBean.setJobFactory(new AutowireCapableBeanJobFactory(applicationContext.getAutowireCapableBeanFactory()));
-//		return schedulerFactoryBean;
-//	}
-//
-//	@Bean
-//	public Scheduler scheduler(ApplicationContext applicationContext) throws SchedulerException {
-//		Scheduler scheduler = schedulerFactory(applicationContext).getScheduler();
-//		scheduler.start();
-//		return scheduler;
-//	}
 }
