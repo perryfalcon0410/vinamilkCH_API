@@ -1471,12 +1471,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             amountOrderExTax = productOrder.getTotalPriceNotVAT() * percentExTax/100;
                             if(cnt == mapOrderNumber.size()){
                                 amountOrderInTax = amountDiscountInTax - allOrderInTax;
-                                amountOrderExTax = allOrderExTax - amountDiscountExTax;
+                                amountOrderExTax = amountDiscountExTax - allOrderExTax;
                             }
                             allOrderInTax += amountOrderInTax;
                             allOrderExTax += amountOrderExTax;
-                            saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), amountDiscountInTax,
-                                    amountDiscountExTax, isInclusiveTax));
+                            saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), amountOrderInTax,
+                                    amountOrderExTax, isInclusiveTax));
                         }
                     }
                 }
