@@ -26,9 +26,9 @@ import vn.viettel.sale.service.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class SaleController extends BaseController {
 
     @Autowired
     SalePromotionService salePromotionService;
-
+    
     @Autowired
     JMSSender jmsSender;
 
@@ -160,7 +160,7 @@ public class SaleController extends BaseController {
         SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
         return new Response<SalePromotionDTO>().withData(discount);
     }
-
+    
     private void sendSynRequest(List<Long> lstIds) {
 		try {
 			if(!lstIds.isEmpty()) {

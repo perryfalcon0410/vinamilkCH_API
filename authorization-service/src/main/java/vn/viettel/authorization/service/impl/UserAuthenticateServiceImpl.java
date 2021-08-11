@@ -86,7 +86,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
     @Autowired
     UserRepository userRepository;
-
+    
     @Autowired
     JMSSender jmsSender;
 
@@ -584,10 +584,12 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             log.setLogCode(hostName + "_" + macAddress + "_" + time);
             log.setComputerName(hostName);
             log.setMacAddress(macAddress);
+
             log = userLogRepository.save(log);
             if(log.getId() != null) {
-                sendSynRequest(Arrays.asList(log.getId()));
+            	sendSynRequest(Arrays.asList(log.getId()));
             }
+            
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (UnknownHostException e) {
@@ -648,7 +650,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         }
         return dtoList;
     }
-
+    
 	private void sendSynRequest(List<Long> lstIds) {
 		try {
 			if(!lstIds.isEmpty()) {
