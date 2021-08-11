@@ -74,7 +74,7 @@ public class StockCountingFailExcel {
         fontHeader.setBold(true);
         titleStyle.setFont(fontHeader);
         titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        double totalQuantityStock = 0, totalUnitQuantity = 0, totalInventoryQuantity = 0;
+        double totalQuantityStock = 0;
         double totalAmount = 0;
         double totalChange = 0;
         for (int i = 0; i<stockCountingExcels.size(); i++){
@@ -83,8 +83,6 @@ public class StockCountingFailExcel {
             totalQuantityStock = totalQuantityStock + (exchange.getStockQuantity()==null?0:exchange.getStockQuantity());
             totalAmount = totalAmount + (exchange.getTotalAmount()==null?0:exchange.getTotalAmount());
             totalChange = totalChange + (exchange.getChangeQuantity()==null?0:exchange.getChangeQuantity());
-            totalUnitQuantity = totalUnitQuantity + (Double.valueOf(exchange.getUnitQuantity())==null ? 0 : Double.valueOf(exchange.getUnitQuantity()));
-            totalInventoryQuantity = totalInventoryQuantity + (exchange.getInventoryQuantity()==null ? 0 : exchange.getInventoryQuantity());
         }
         int size = stockCountingExcels.size();
         Row totalRowDown = sheet.createRow(10 + size);
@@ -129,6 +127,11 @@ public class StockCountingFailExcel {
         ExcelPoiUtils.createCell(row, 15, "Lỗi", headerStyle);
 
     }
+
+
+
+
+
 
     private void writeDataLines() {
         int rowCount =4;

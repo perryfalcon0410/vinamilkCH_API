@@ -20,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,13 +59,13 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_SHOP_IMPORT", ShopImportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, LocalDateTime.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(5, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(6, String.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(7, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(8, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(7, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(8, LocalDateTime.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(9, Long.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
         storedProcedure.setParameter(2, filter.getFromDate());
@@ -105,8 +106,8 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         this.removeDataList(shopImports);
 
         PrintShopImportDTO response = new PrintShopImportDTO(shop.getShopName(), shop.getAddress(), shop.getMobiPhone());
-            response.setFromDate(DateUtils.convertDateToLocalDateTime(filter.getFromDate()));
-            response.setToDate(DateUtils.convertDateToLocalDateTime(filter.getToDate()));
+            response.setFromDate(filter.getFromDate());
+            response.setToDate(filter.getToDate());
 
         if(shopImports.isEmpty()) return response;
 
