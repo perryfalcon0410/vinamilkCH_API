@@ -2,11 +2,14 @@ server:
   port: 9001
 eureka:
   client:
+    fetchRegistry: true
+    registerWithEureka: true
     serviceUrl:
       defaultZone: http://discovery-server:8761/eureka
   instance:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
+    registryFetchIntervalSeconds: 5
 
 ribbon:
   ReadTimeout: 100000
