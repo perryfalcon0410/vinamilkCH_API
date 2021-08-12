@@ -231,8 +231,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage update(Long exchangeTranId, ExchangeTransRequest request, Long shopId) {
         LocalDateTime date = LocalDateTime.now();
-        ExchangeTrans exchange = repository.findById(exchangeTranId).get();
-        if (DateUtils.formatDate2StringDate(exchange.getTransDate()).equals(DateUtils.formatDate2StringDate(date))) {
+        ExchangeTrans exchange = repository.findById(exchangeTranId).orElse(null);
+        if (exchange != null && DateUtils.formatDate2StringDate(exchange.getTransDate()).equals(DateUtils.formatDate2StringDate(date))) {
             List<String> listTransCode = repository.getListExChangeCodes();
             if (listTransCode == null) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
             List<Long> productIds = request.getLstExchangeDetail().stream().map(
