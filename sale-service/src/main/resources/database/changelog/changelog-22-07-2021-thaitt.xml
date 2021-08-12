@@ -1,0 +1,32 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-07-22-add-column-origin-order-number-in-table-sale-orders" author="thaitt">
+        <addColumn tableName="SALE_ORDERS">
+            <column name="ORIGIN_ORDER_NUMBER" type="varchar(100)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="SALE_ORDERS" columnName="ORIGIN_ORDER_NUMBER"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-07-22-change-data-type-in-table-sale-order-combo-detail" author="thaitt">
+
+        <modifyDataType columnName="COMBO_QUANTITY" newDataType="int" tableName="SALE_ORDER_COMBO_DETAIL"/>
+
+        <rollback>
+            <modifyDataType columnName="COMBO_QUANTITY" newDataType="tinyint" tableName="SALE_ORDER_COMBO_DETAIL"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>
+
+
+
+
+

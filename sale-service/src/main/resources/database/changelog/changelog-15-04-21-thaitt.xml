@@ -1,0 +1,141 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="thaitt" id="2021-04-07-change-data-type-column-product-type-table-products">
+        <modifyDataType columnName="PRODUCT_TYPE"
+                         newDataType="varchar(50)"
+                         tableName="PRODUCTS"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-15-add-column-product-name-not-accent-in-table-products" >
+        <addColumn tableName="PRODUCTS">
+            <column name="PRODUCT_NAME_NOT_ACCENT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PRODUCTS" columnName="PRODUCT_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-19-add-column-to-combo_product_trans">
+        <addColumn tableName="COMBO_PRODUCT_TRANS">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="CREATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="UPDATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="thaitt" id="2021-04-19-add-column-to-combo_product_trans_detail">
+        <addColumn tableName="COMBO_PRODUCT_TRANS_DETAIL">
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="DELETED_AT" type="datetime"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="CREATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="UPDATED_AT"/>
+            <dropColumn tableName="COMBO_PRODUCT_TRANS_DETAIL" columnName="DELETED_AT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="22-04-2021-rename-column-product-name-not-accent-in-table-products" author="thaitt">
+        <renameColumn tableName="PRODUCTS" columnDataType="varchar(500)" oldColumnName="PRODUCT_NAME_NOT_ACCENT" newColumnName="PRODUCT_NAME_TEXT"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-23-change-data-type-column-is-combo-table-combo-product-trans-detail">
+        <modifyDataType columnName="IS_COMBO"
+                        newDataType="tinyint"
+                        tableName="COMBO_PRODUCT_TRANS_DETAIL"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-23-change-data-type-column-total-quantity-table-combo-product-trans">
+        <modifyDataType columnName="TOTAL_QUANTITY"
+                        newDataType="int"
+                        tableName="COMBO_PRODUCT_TRANS"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-23-change-data-type-column-factor-table-combo-product-detail">
+        <modifyDataType columnName="FACTOR"
+                        newDataType="int"
+                        tableName="COMBO_PRODUCT_DETAIL"/>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-04-24-add-column-product-name-text-in-table-combo-product" >
+        <addColumn tableName="COMBO_PRODUCT">
+            <column name="PRODUCT_NAME_TEXT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="COMBO_PRODUCT" columnName="PRODUCT_NAME_TEXT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="22-05-2021-rename-column-date-in-table-media_item" >
+        <renameColumn tableName="MEDIA_ITEM" columnDataType="datetime" oldColumnName="CREATE_DATE" newColumnName="CREATED_AT"/>
+        <renameColumn tableName="MEDIA_ITEM" columnDataType="datetime" oldColumnName="UPDATE_DATE" newColumnName="UPDATED_AT"/>
+        <rollback>
+            <dropColumn tableName="MEDIA_ITEM" columnName="CREATED_AT"/>
+            <dropColumn tableName="MEDIA_ITEM" columnName="UPDATED_AT"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="thaitt" id="26-05-2021-drop-table-shop-param">
+        <dropTable tableName="SHOP_PARAM"/>
+        <rollback>
+            <createTable tableName="SHOP_PARAM">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="SHOP_PARAM_KEY" primaryKey="true"/>
+                </column>
+                <column name="SHOP_ID" type="bigint">
+                    <constraints nullable="true"/>
+                </column>
+                <column name="TYPE" type="varchar(100)"/>
+                <column name="CODE" type="varchar(255)">
+                    <constraints uniqueConstraintName="CODE_UNIQUE" unique="true"/>
+                </column>
+                <column name="NAME" type="varchar(255)"/>
+                <column name="DESCRIPTION" type="varchar(255)"/>
+                <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+                <column name="CREATED_AT" type="datetime"/>
+                <column name="UPDATED_AT" type="datetime"/>
+                <column name="DELETED_AT" type="datetime"/>
+
+            </createTable>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="26-05-2021-drop-table-ap-param">
+        <dropTable tableName="AP_PARAM"/>
+        <rollback>
+            <createTable tableName="AP_PARAM">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="AP_PARAM_KEY" primaryKey="true"/>
+                </column>
+                <column name="AP_PARAM_CODE" type="varchar(255)">
+                    <constraints uniqueConstraintName="AP_PARAM_CODE_UNIQUE" unique="true"/>
+                </column>
+                <column name="AP_PARAM_NAME" type="varchar(255)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="VALUE" type="varchar(100)"/>
+                <column name="DESCRIPTION" type="varchar(255)"/>
+                <column name="TYPE" type="varchar(100)"/>
+                <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+                <column name="CREATED_AT" type="datetime"/>
+                <column name="UPDATED_AT" type="datetime"/>
+                <column name="DELETED_AT" type="datetime"/>
+            </createTable>
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>

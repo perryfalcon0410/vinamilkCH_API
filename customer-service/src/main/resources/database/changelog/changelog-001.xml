@@ -1,0 +1,384 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-03-23-create-table-customers" author="tuanba">
+        <validCheckSum>8:daee34d1531f522b5aff3a0e631e04d4</validCheckSum>
+        <validCheckSum>8:0bd9ab0580e73ddf72b6c265467ab391</validCheckSum>
+        <createTable tableName="CUSTOMERS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="CUSTOMERS_KEY" primaryKey="true"/>
+            </column>
+            <column name="CUSTOMER_CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="CUSTOMER_CODE_UNIQUE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FIRST_NAME" type="varchar(255)"/>
+            <column name="LAST_NAME" type="varchar(255)"/>
+            <column name="DOB" type="date"/>
+            <column name="PLACE_OF_BIRTH" type="varchar(255)"/>
+            <column name="OCCUPATION_ID" type="bigint"/>
+            <column name="OCCUPATION_DESCR" type="varchar(255)"/>
+            <column name="MARITAL_STATUS_ID" type="bigint"/>
+            <column name="GENDER_ID" type="int"/>
+            <column name="CUSTOMER_TYPE_ID" type="bigint"/>
+            <column name="ID_NO" type="varchar(255)"/>
+            <column name="ID_NO_ISSUED_DATE" type="date"/>
+            <column name="ID_NO_ISSUED_PLACE" type="varchar(255)"/>
+            <column name="PASSPORT_NO" type="varchar(255)"/>
+            <column name="PASSPORT_NO_ISSUED_DATE" type="date"/>
+            <column name="PASSPORT_NO_ISSUED_PLACE" type="varchar(255)"/>
+            <column name="PHONE" type="varchar(255)">
+                <constraints uniqueConstraintName="PHONE_UNIQUE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="FAX" type="varchar(255)"/>
+            <column name="MOBIPHONE" type="varchar(255)"/>
+            <column name="EMAIL" type="varchar(100)"/>
+            <column name="AREA_ID" type="bigint"/>
+            <column name="STREET" type="varchar(255)"/>
+            <column name="ADDRESS" type="varchar(255)"/>
+            <column name="WORKING_OFFICE" type="varchar(255)"/>
+            <column name="OFFICE_ADDRESS" type="varchar(255)"/>
+            <column name="TAX_CODE" type="varchar(255)"/>
+            <column name="STATUS" type="int" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OLD_CODE" type="varchar(255)"/>
+            <column name="BARCODE" type="varchar(255)"/>
+            <column name="NAME_TEXT" type="varchar(255)"/>
+            <column name="IS_PRIVATE" type="tinyint" defaultOnNull="0"/>
+            <column name="TOTAL_BILL_AMOUNT" type="float"/>
+            <column name="IS_DEFAULT" type="tinyint" defaultOnNull="0"/>
+            <column name="CLOSELY_TYPE_ID" type="bigint"/>
+            <column name="CARD_TYPE_ID" type="bigint"/>
+            <column name="LIMIT_DAY_ORDER" type="int"/>
+            <column name="LIMIT_DAY_AMOUNT" type="int"/>
+            <column name="LIMIT_MONTH_ORDER" type="int"/>
+            <column name="LIMIT_MONTH_AMOUNT" type="int"/>
+            <column name="DAY_ORDER" type="int"/>
+            <column name="DAY_AMOUNT" type="int"/>
+            <column name="MONTH_ORDER" type="int"/>
+            <column name="MONTH_AMOUNT" type="int"/>
+
+            <column name="CREATE_USER" type="varchar(255)"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATE_USER" type="varchar(255)"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="CUSTOMERS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-customer-type" author="tuanba">
+        <validCheckSum>8:84537ceb5eb97444e1ba268d36ec1a21</validCheckSum>
+        <validCheckSum>8:818386c345b44562211a29399767a392</validCheckSum>
+        <createTable tableName="CUSTOMER_TYPE">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="CUSTOMER_TYPE_KEY" primaryKey="true"/>
+            </column>
+            <column name="CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="CODE_UNIQUE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="KA_CUS_TYPE" type="int"/>
+            <column name="POS_MODIFY_CUS" type="int"/>
+            <column name="WAREHOUSE_TYPE_ID" type="bigint"/>
+            <column name="STATUS" type="int" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="CUSTOMER_TYPE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-03-23-create-table-areas" author="tuanba">
+        <validCheckSum>8:0dced5bc17c5b0407ae801e451dfb3dc</validCheckSum>
+        <validCheckSum>8:5d1e6174fa32cbcb5805488185c95380</validCheckSum>
+        <createTable tableName="AREAS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="AREAS_KEY" primaryKey="true"/>
+            </column>
+            <column name="AREA_CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="AREA_CODE_UNIQUE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="AREA_NAME" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="int"/>
+            <column name="PARENT_AREA_ID" type="bigint"/>
+            <column name="PROVINCE" type="varchar(255)"/>
+            <column name="PROVINCE_NAME" type="varchar(255)"/>
+            <column name="DISTRICT" type="varchar(255)"/>
+            <column name="DISTRICT_NAME" type="varchar(255)"/>
+            <column name="PRECINCT" type="varchar(255)"/>
+            <column name="PRECINCT_NAME" type="varchar(255)"/>
+            <column name="PARENT_CODE" type="varchar(255)"/>
+            <column name="STATUS" type="int" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="AREAS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-03-26-change-type-genderId-to-customer">
+        <modifyDataType
+                columnName="GENDER_ID"
+                newDataType="bigint"
+                tableName="CUSTOMERS"/>
+        <rollback>
+            <modifyDataType
+                    columnName="GENDER_ID"
+                    newDataType="int"
+                    tableName="CUSTOMERS"/>
+            <dropColumn tableName="CUSTOMERS" columnName="GENDER_ID"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-03-30-add-column-member_card_id-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="MEMBER_CARD_ID" type="bigint"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="MEMBER_CARD_ID"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-03-31-add-column-NOTED-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="NOTED" type="varchar(4000)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="NOTED"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-04-06-add-column-last-name-not-accent-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="LAST_NAME_NOT_ACCENT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="LAST_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-04-06-add-column-first-name-not-accent-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="FIRST_NAME_NOT_ACCENT" type="varchar(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="13-04-2021-drop-column-member-card-id-in-table-customers" author="minhle">
+        <dropColumn tableName="CUSTOMERS" columnName="MEMBER_CARD_ID"></dropColumn>
+        <rollback>
+            <addColumn tableName="CUSTOMERS">
+                <column name="MEMBER_CARD_ID" type="bigint"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="19-04-2021-rename-column-full-name-not-accent-in-table-customers" author="minhle">
+        <renameColumn tableName="CUSTOMERS" oldColumnName="FIRST_NAME_NOT_ACCENT" newColumnName="FIRST_NAME_TEXT"/>
+        <renameColumn tableName="CUSTOMERS" oldColumnName="LAST_NAME_NOT_ACCENT" newColumnName="LAST_NAME_TEXT"/>
+        <rollback>
+            <renameColumn tableName="CUSTOMERS" oldColumnName="FIRST_NAME_TEXT" newColumnName="FIRST_NAME_NOT_ACCENT"/>
+            <renameColumn tableName="CUSTOMERS" oldColumnName="LAST_NAME_TEXT" newColumnName="LAST_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2021-04-20-create-tables-in-membercard" author="minhld">
+        <validCheckSum>8:4b3ec931aab7edbfc6b006676196d513</validCheckSum>
+        <validCheckSum>8:f8fa3787d7ec6e11fd754487400e4e93</validCheckSum>
+        <createTable tableName="MEMBER_CARD">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="MEMBER_CARD_KEY" primaryKey="true"/>
+            </column>
+            <column name="MEMBER_CARD_CODE" type="varchar(100)">
+                <constraints uniqueConstraintName="MEMBER_CARD_CODE_UNIQUE_CONSTRAINT" unique="true" />
+            </column>
+            <column name="MEMBER_CARD_NAME" type="nvarchar(500)"/>
+            <column name="CUSTOMER_TYPE_ID" type="bigint"/>
+            <column name="LEVEL_CARD" type="bigint"/>
+            <column name="STATUS" type="int" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="MEMBER_CUSTOMER">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="MEMBER_CUSTOMER_KEY" primaryKey="true"/>
+            </column>
+            <column name="MEMBER_CARD_ID" type="bigint"/>
+            <column name="CUSTOMER_ID" type="bigint"/>
+            <column name="SCORE_CUMULATED" type="bigint"/>
+            <column name="ISSUE_DATE" type="date"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="RPT_DATE" type="date"/>
+            <column name="IS_ASSIGN" type="tinyint"/>
+            <column name="TOTAL_SCORE" type="int"/>
+            <column name="UPDATE_USER" type="varchar(50)"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="MEMBER_PRODUCT_APPLY">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="MEMBER_PRODUCT_APPLY_KEY" primaryKey="true"/>
+            </column>
+            <column name="MEMBER_CARD_ID" type="bigint"/>
+            <column name="OBJECT_TYPE" type="int"/>
+            <column name="OBJECT_ID" type="bigint"/>
+            <column name="FROM_DATE" type="date"/>
+            <column name="TO_DATE" type="date"/>
+            <column name="STATUS" type="int" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FACTOR" type="float"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="MEMBER_REGULATION">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="MEMBER_REGULATION_KEY" primaryKey="true"/>
+            </column>
+            <column name="MEMBER_CARD_ID" type="bigint"/>
+            <column name="TYPE" type="int"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="NUM_DATE" type="int"/>
+            <column name="FROM_DATE" type="date"/>
+            <column name="TO_DATE" type="date"/>
+            <column name="STATUS" type="int" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="MEMBER_SCORE_CONVERT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="MEMBER_SCORE_CONVERT_KEY" primaryKey="true"/>
+            </column>
+            <column name="MEMBER_CARD_ID" type="bigint"/>
+            <column name="TYPE" type="int"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="SCORE" type="int"/>
+            <column name="FROM_DATE" type="date"/>
+            <column name="TO_DATE" type="date"/>
+            <column name="STATUS" type="int" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <createTable tableName="RPT_CUS_MEM_AMOUNT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="RPT_CUS_MEM_AMOUNT_KEY" primaryKey="true"/>
+            </column>
+            <column name="CUSTOMER_TYPE_ID" type="bigint"/>
+            <column name="MEMBER_CARD_ID" type="bigint"/>
+            <column name="FROM_DATE" type="date"/>
+            <column name="CUST_SHOP_ID" type="bigint"/>
+            <column name="CUSTOMER_ID" type="bigint"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="AMOUNT" type="float"/>
+            <column name="SCORE" type="int"/>
+            <column name="STATUS" type="int" defaultOnNull="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RPT_DATE" type="date"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="MEMBER_CARD"/>
+            <dropTable tableName="MEMBER_CUSTOMER"/>
+            <dropTable tableName="MEMBER_PRODUCT_APPLY"/>
+            <dropTable tableName="MEMBER_REGULATION"/>
+            <dropTable tableName="MEMBER_SCORE_CONVERT"/>
+            <dropTable tableName="RPT_CUS_MEM_AMOUNT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="27-04-2021-drop-column-first-name-text-and-last-name-text-in-table-customers" author="minhle">
+        <dropColumn tableName="CUSTOMERS" columnName="FIRST_NAME_TEXT"></dropColumn>
+        <dropColumn tableName="CUSTOMERS" columnName="LAST_NAME_TEXT"></dropColumn>
+        <rollback>
+            <addColumn tableName="CUSTOMERS">
+                <column name="FIRST_NAME_TEXT" type="varchar(255)"/>
+            </addColumn>
+            <addColumn tableName="CUSTOMERS">
+                <column name="LAST_NAME_TEXT" type="varchar(255)"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-change-type-name-text-in-table-customers" author="minhle">
+        <validCheckSum>8:2ec7c541cbb02eef0b573f03c58d55f9</validCheckSum>
+        <validCheckSum>8:04f35c5330919e0f2bd9e1a9a7430773</validCheckSum>
+        <modifyDataType tableName="CUSTOMERS" columnName="NAME_TEXT"
+                        newDataType="VARCHAR2(520)"/>
+        <rollback>
+            <modifyDataType tableName="CUSTOMERS" columnName="NAME_TEXT"
+                            newDataType="VARCHAR2(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-change-type-address-in-table-customers" author="minhle">
+        <modifyDataType tableName="CUSTOMERS" columnName="ADDRESS"
+                        newDataType="VARCHAR2(520)"/>
+        <rollback>
+            <modifyDataType tableName="CUSTOMERS" columnName="ADDRESS"
+                            newDataType="VARCHAR2(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhld" id="2021-04-06-add-column-passport_no_expiry_date-to-customer">
+        <addColumn tableName="CUSTOMERS">
+            <column name="PASSPORT_NO_EXPIRY_DATE" type="date"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="PASSPORT_NO_EXPIRY_DATE"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

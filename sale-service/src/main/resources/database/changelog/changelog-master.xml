@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <include file="src/main/resources/database/changelog/changelog-001.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-002.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-02-04-21-tuanba.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-04-04-21-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-07-04-21-nghianh1.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-15-04-21-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-05-05-21-tunguyen.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-24-05-2021-nghianh1.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-04-06-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-09-06-21-minhld.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-10-06-2021-sonpht.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-11-06-21-tunguyen.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-15-06-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-18-06-21-minhld.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-21-06-21-nghianh1.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-01-07-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-09-07-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-19-07-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-22-07-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-29-07-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-30-07-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-03-08-2021-thaitt.xml"/>
+</databaseChangeLog>

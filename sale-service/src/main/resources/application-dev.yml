@@ -1,0 +1,14 @@
+server:
+  port: 9006
+eureka:
+  client:
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+
+ribbon:
+  ReadTimeout: 100000
+  ConnectTimeout: 100000

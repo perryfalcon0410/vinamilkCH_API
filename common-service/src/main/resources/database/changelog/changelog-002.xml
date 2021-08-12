@@ -1,0 +1,75 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-04-23-create-table-for-common" author="tuanba">
+        <validCheckSum>8:d9651e4878d53ef298450f94c13e0359</validCheckSum><!-- old -->
+        <validCheckSum>8:20ed6a992d47652279a2be6040c56b52</validCheckSum><!-- new -->
+        <createTable tableName="AREAS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="AREAS_KEY" primaryKey="true"/>
+            </column>
+            <column name="AREA_CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="AREA_CODE_UNIQUE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="AREA_NAME" type="varchar(255)"/>
+            <column name="TYPE" type="int"/>
+            <column name="PARENT_AREA_ID" type="bigint"/>
+            <column name="PROVINCE" type="varchar(255)"/>
+            <column name="PROVINCE_NAME" type="varchar(255)"/>
+            <column name="DISTRICT" type="varchar(255)"/>
+            <column name="DISTRICT_NAME" type="varchar(255)"/>
+            <column name="PRECINCT" type="varchar(255)"/>
+            <column name="PRECINCT_NAME" type="varchar(255)"/>
+            <column name="PARENT_CODE" type="varchar(255)"/>
+            <column name="STATUS" type="int" defaultOnNull="0"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+        <createTable tableName="CATEGORY_DATA">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="CATEGORY_DATA_KEY" primaryKey="true"/>
+            </column>
+            <column name="CATEGORY_CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="CATEGORY_CODE_UNIQUE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="CATEGORY_NAME" type="varchar(255)"/>
+            <column name="CATEGORY_GROUP_CODE" type="varchar(255)"/>
+            <column name="REMARKS" type="varchar(255)"/>
+            <column name="PARENT_CODE" type="varchar(255)"/>
+            <column name="FREE_FIELD1" type="varchar(255)"/>
+            <column name="FREE_FIELD2" type="varchar(255)"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+        <createTable tableName="AP_PARAM">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="AP_PARAM_KEY" primaryKey="true"/>
+            </column>
+            <column name="AP_PARAM_CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="AP_PARAM_CODE_UNIQUE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="AP_PARAM_NAME" type="varchar(255)"/>
+            <column name="VALUE" type="varchar(100)"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="TYPE" type="varchar(100)"/>
+            <column name="STATUS" type="tinyint"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="AREAS"/>
+            <dropTable tableName="CATEGORY_DATA"/>
+            <dropTable tableName="AP_PARAM"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,17 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="tunguyen" id="2021-05-05-add-column-buyer-in-table-red-invoice" >
+        <addColumn tableName="RED_INVOICES">
+            <column name="BUYER_NAME" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="RED_INVOICES" columnName="BUYER_NAME"/>
+        </rollback>
+    </changeSet>
+
+    </databaseChangeLog>

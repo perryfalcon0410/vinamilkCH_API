@@ -1,0 +1,439 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="24-05-2021-add and drop column in table controls" author="nghianh1">
+        <addColumn tableName="CONTROLS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="CONTROLS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="CONTROLS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="CONTROLS" columnName="CREATED_BY"/>
+            <addColumn tableName="CONTROLS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table forms" author="nghianh1">
+        <addColumn tableName="FORMS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="FORMS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="FORMS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="FORMS" columnName="CREATED_BY"/>
+            <addColumn tableName="FORMS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table function access" author="nghianh1">
+        <addColumn tableName="FUNCTION_ACCESS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="FUNCTION_ACCESS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="FUNCTION_ACCESS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="FUNCTION_ACCESS" columnName="CREATED_BY"/>
+            <addColumn tableName="FUNCTION_ACCESS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table org access" author="nghianh1">
+        <addColumn tableName="ORG_ACCESS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="ORG_ACCESS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="ORG_ACCESS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="ORG_ACCESS" columnName="CREATED_BY"/>
+            <addColumn tableName="ORG_ACCESS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table permissions" author="nghianh1">
+        <addColumn tableName="PERMISSIONS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="PERMISSIONS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="PERMISSIONS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PERMISSIONS" columnName="CREATED_BY"/>
+            <addColumn tableName="PERMISSIONS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table role permission map" author="nghianh1">
+        <addColumn tableName="ROLE_PERMISSION_MAP">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="ROLE_PERMISSION_MAP">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="ROLE_PERMISSION_MAP" columnName="UPDATED_BY"/>
+            <dropColumn tableName="ROLE_PERMISSION_MAP" columnName="CREATED_BY"/>
+            <addColumn tableName="ROLE_PERMISSION_MAP">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table role user" author="nghianh1">
+        <addColumn tableName="ROLE_USER">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="ROLE_USER">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="ROLE_USER" columnName="UPDATED_BY"/>
+            <dropColumn tableName="ROLE_USER" columnName="CREATED_BY"/>
+            <addColumn tableName="ROLE_USER">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table roles" author="nghianh1">
+        <addColumn tableName="ROLES">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="ROLES">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="ROLES" columnName="UPDATED_BY"/>
+            <dropColumn tableName="ROLES" columnName="CREATED_BY"/>
+            <addColumn tableName="ROLES">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table shop param" author="nghianh1">
+        <addColumn tableName="SHOP_PARAM">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="SHOP_PARAM">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SHOP_PARAM" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SHOP_PARAM" columnName="CREATED_BY"/>
+            <addColumn tableName="SHOP_PARAM">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table shops" author="nghianh1">
+        <addColumn tableName="SHOPS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="SHOPS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="SHOPS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="SHOPS" columnName="CREATED_BY"/>
+            <addColumn tableName="SHOPS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table user log on time" author="nghianh1">
+        <addColumn tableName="USER_LOG_ON_TIME">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="USER_LOG_ON_TIME">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="USER_LOG_ON_TIME" columnName="UPDATED_BY"/>
+            <dropColumn tableName="USER_LOG_ON_TIME" columnName="CREATED_BY"/>
+            <addColumn tableName="USER_LOG_ON_TIME">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table users" author="nghianh1">
+        <addColumn tableName="USERS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="USERS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="USERS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="USERS" columnName="CREATED_BY"/>
+            <addColumn tableName="USERS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table users" author="nghianh1">
+        <addColumn tableName="USERS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="USERS">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="USERS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="USERS" columnName="CREATED_BY"/>
+            <addColumn tableName="USERS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-controls">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CONTROLS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CONTROLS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="CONTROLS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="CONTROLS"/>
+
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-forms">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="FORMS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="FORMS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="FORMS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="FORMS"/>
+
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-function-access">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="FUNCTION_ACCESS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="FUNCTION_ACCESS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="FUNCTION_ACCESS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="FUNCTION_ACCESS"/>
+
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-org-access">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ORG_ACCESS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ORG_ACCESS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="ORG_ACCESS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="ORG_ACCESS"/>
+
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-permissions">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PERMISSIONS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PERMISSIONS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="PERMISSIONS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="PERMISSIONS"/>
+
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-role_permission_map">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ROLE_PERMISSION_MAP"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ROLE_PERMISSION_MAP"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="ROLE_PERMISSION_MAP"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="ROLE_PERMISSION_MAP"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-role-user">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ROLE_USER"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ROLE_USER"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="ROLE_USER"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="ROLE_USER"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-table-roles">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ROLES"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="ROLES"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="ROLES"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="ROLES"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-shop-param">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="SHOP_PARAM"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="SHOP_PARAM"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="SHOP_PARAM"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="SHOP_PARAM"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-type-shops">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="SHOPS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="SHOPS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="SHOPS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="SHOPS"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-user-log-on-time">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="USER_LOG_ON_TIME"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="USER_LOG_ON_TIME"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="USER_LOG_ON_TIME"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="USER_LOG_ON_TIME"/>
+        </rollback>
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-users">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="USERS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="USERS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="USERS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="USERS"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>

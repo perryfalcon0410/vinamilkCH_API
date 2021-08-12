@@ -1,0 +1,504 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="02-04-2021-add-column-voucher-name-not-accent-in-table-vouchers" author="thaitt">
+        <addColumn tableName="VOUCHERS">
+            <column name="VOUCHER_NAME_NOT_ACCENT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="VOUCHERS" columnName="VOUCHER_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="02-04-2021-add-column-voucher-name-not-accent-in-table-voucher-program" author="thaitt">
+        <addColumn tableName="VOUCHER_PROGRAM">
+            <column name="PROGRAM_NAME_NOT_ACCENT" type="varchar(500)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="VOUCHER_PROGRAM" columnName="PROGRAM_NAME_NOT_ACCENT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="20-04-2021-rename-column-voucher-name-not-accent-in-table-vouchers" author="thaitt">
+        <renameColumn tableName="VOUCHERS" columnDataType="varchar(500)" oldColumnName="VOUCHER_NAME_NOT_ACCENT" newColumnName="VOUCHER_NAME_TEXT"/>
+    </changeSet>
+
+    <changeSet id="20-04-2021-rename-column-program-name-not-accent-in-table-voucher-program" author="thaitt">
+        <renameColumn tableName="VOUCHER_PROGRAM" columnDataType="varchar(500)" oldColumnName="PROGRAM_NAME_NOT_ACCENT" newColumnName="PROGRAM_NAME_TEXT"/>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion-program" author="thaitt">
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_PROGRAM"/>
+
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_PROGRAM"/>
+
+        <dropColumn tableName="PROMOTION_PROGRAM">
+            <column name="DELETED_AT"/>
+            <column name="DELETED_BY"/>
+        </dropColumn>
+
+        <rollback>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM"/>
+
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM"/>
+
+            <addColumn tableName="PROMOTION_PROGRAM">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="DELETED_BY" type="bigint"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion-program-detail" author="thaitt">
+
+        <addColumn tableName="PROMOTION_PROGRAM_DETAIL">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="PROMOTION_PROGRAM_DETAIL">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="PROMOTION_PROGRAM_DETAIL">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="PROMOTION_PROGRAM_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion-program-discount" author="thaitt">
+
+        <addColumn tableName="PROMOTION_PROGRAM_DISCOUNT">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="PROMOTION_PROGRAM_DISCOUNT">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="PROMOTION_PROGRAM_DISCOUNT">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="PROMOTION_PROGRAM_DISCOUNT">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion-program-product" author="thaitt">
+
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_PROGRAM_PRODUCT"/>
+
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_PROGRAM_PRODUCT"/>
+
+        <dropColumn tableName="PROMOTION_PROGRAM_PRODUCT">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="PROMOTION_PROGRAM_PRODUCT">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn >
+
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM_PRODUCT"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM_PRODUCT"/>
+
+            <addColumn tableName="PROMOTION_PROGRAM_PRODUCT">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion-sale-product" author="thaitt">
+
+        <addColumn tableName="PROMOTION_SALE_PRODUCT">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="PROMOTION_SALE_PRODUCT">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="PROMOTION_SALE_PRODUCT">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="PROMOTION_SALE_PRODUCT">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-rpt_zv23" author="thaitt">
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="RPT_ZV23"/>
+
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="RPT_ZV23"/>
+
+        <dropColumn tableName="RPT_ZV23">
+            <column name="DELETED_AT"/>
+            <column name="DELETED_BY"/>
+        </dropColumn>
+
+        <rollback>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="RPT_ZV23"/>
+
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="RPT_ZV23"/>
+
+            <addColumn tableName="RPT_ZV23">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="DELETED_BY" type="bigint"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion_cust_attr" author="thaitt">
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_CUST_ATTR"/>
+
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_CUST_ATTR"/>
+
+        <dropColumn tableName="PROMOTION_CUST_ATTR">
+            <column name="DELETED_AT"/>
+            <column name="DELETED_BY"/>
+        </dropColumn>
+
+        <rollback>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_CUST_ATTR"/>
+
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_CUST_ATTR"/>
+
+            <addColumn tableName="PROMOTION_CUST_ATTR">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="DELETED_BY" type="bigint"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion_cust_attr_detail" author="thaitt">
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_CUST_ATTR_DETAIL"/>
+
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_CUST_ATTR_DETAIL"/>
+
+        <dropColumn tableName="PROMOTION_CUST_ATTR_DETAIL">
+            <column name="DELETED_AT"/>
+            <column name="DELETED_BY"/>
+        </dropColumn>
+
+        <rollback>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_CUST_ATTR_DETAIL"/>
+
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_CUST_ATTR_DETAIL"/>
+
+            <addColumn tableName="PROMOTION_CUST_ATTR_DETAIL">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="DELETED_BY" type="bigint"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion_program_product" author="thaitt">
+
+        <dropColumn tableName="PROMOTION_PROGRAM_PRODUCT">
+            <column name="DELETED_BY"/>
+        </dropColumn>
+
+        <rollback>
+            <addColumn tableName="PROMOTION_PROGRAM_PRODUCT">
+                <column name="DELETED_BY" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion_shop_map" author="thaitt">
+
+        <addColumn tableName="PROMOTION_SHOP_MAP">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="PROMOTION_SHOP_MAP">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="PROMOTION_SHOP_MAP">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="PROMOTION_SHOP_MAP">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion_item_group" author="thaitt">
+        <addColumn tableName="PROMOTION_ITEM_GROUP">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="UPDATE_AT" type="timestamp"/>
+            <column name="CREATE_AT" type="timestamp"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="PROMOTION_ITEM_GROUP" columnName="CREATED_BY"/>
+            <dropColumn tableName="PROMOTION_ITEM_GROUP" columnName="UPDATED_BY"/>
+            <dropColumn tableName="PROMOTION_ITEM_GROUP" columnName="UPDATE_AT"/>
+            <dropColumn tableName="PROMOTION_ITEM_GROUP" columnName="CREATE_AT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion_item_product" author="thaitt">
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_ITEM_PRODUCT"/>
+
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="PROMOTION_ITEM_PRODUCT"/>
+
+        <dropColumn tableName="PROMOTION_ITEM_PRODUCT">
+            <column name="DELETED_AT"/>
+            <column name="DELETED_BY"/>
+        </dropColumn>
+
+        <rollback>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_ITEM_PRODUCT"/>
+
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="PROMOTION_ITEM_PRODUCT"/>
+
+            <addColumn tableName="PROMOTION_ITEM_PRODUCT">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="DELETED_BY" type="bigint"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-promotion-product_open" author="thaitt">
+
+        <addColumn tableName="PROMOTION_PRODUCT_OPEN">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="PROMOTION_PRODUCT_OPEN">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="PROMOTION_PRODUCT_OPEN">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="PROMOTION_PRODUCT_OPEN">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-voucher-customer_map" author="thaitt">
+
+        <addColumn tableName="VOUCHER_CUSTOMER_MAP">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="VOUCHER_CUSTOMER_MAP">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="VOUCHER_CUSTOMER_MAP">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="VOUCHER_CUSTOMER_MAP">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-voucher-program" author="thaitt">
+
+        <addColumn tableName="VOUCHER_PROGRAM">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="VOUCHER_PROGRAM">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="VOUCHER_PROGRAM">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="VOUCHER_PROGRAM">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-voucher-sale_product" author="thaitt">
+
+        <addColumn tableName="VOUCHER_SALE_PRODUCT">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="VOUCHER_SALE_PRODUCT">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="VOUCHER_SALE_PRODUCT">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="VOUCHER_SALE_PRODUCT">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-voucher-shop_map" author="thaitt">
+
+        <addColumn tableName="VOUCHER_SHOP_MAP">
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="VOUCHER_SHOP_MAP">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="VOUCHER_SHOP_MAP">
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="VOUCHER_SHOP_MAP">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add-and-drop-column-in-table-voucher" author="thaitt">
+
+        <addColumn tableName="VOUCHERS">
+            <column name="CREATED_BY" type="varchar(80)"/>
+        </addColumn>
+
+        <dropColumn tableName="VOUCHERS">
+            <column name="DELETED_AT"/>
+        </dropColumn>
+
+        <rollback>
+            <dropColumn tableName="VOUCHERS">
+                <column name="CREATED_BY" type="varchar(80)"/>
+            </dropColumn>
+
+            <addColumn tableName="VOUCHERS">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+
+    <changeSet id="24-05-2021-rename-column-in-table-voucher" author="thaitt">
+        <renameColumn tableName="VOUCHERS"
+              columnDataType="varchar(80)" oldColumnName="UPDATE_BY" newColumnName="UPDATED_BY"/>
+        <rollback>
+            <renameColumn tableName="VOUCHERS"
+                columnDataType="varchar(80)" oldColumnName="UPDATE_BY" newColumnName="UPDATED_BY"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="thaitt" id="2021-06-10-change-data-promotion-program-discount">
+        <modifyDataType columnName="ORDER_AMOUNT"
+                        newDataType="double"
+                        tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+        <modifyDataType columnName="ACTUAL_DISCOUNT_AMOUNT"
+                        newDataType="double"
+                        tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+        <rollback>
+            <modifyDataType columnName="ORDER_AMOUNT"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+            <modifyDataType columnName="ACTUAL_DISCOUNT_AMOUNT"
+                            newDataType="bigint"
+                            tableName="PROMOTION_PROGRAM_DISCOUNT"/>
+        </rollback>
+
+    </changeSet>
+
+
+</databaseChangeLog>

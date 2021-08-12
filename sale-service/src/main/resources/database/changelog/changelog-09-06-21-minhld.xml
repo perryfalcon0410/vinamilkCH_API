@@ -1,0 +1,148 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet  author="minhld" id="2021-06-09-delete-table-online-order">
+        <dropTable tableName="ONLINE_ORDER"/>
+        <rollback>
+            <createTable tableName="ONLINE_ORDER">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="ONLINE_ORDER_KEY" primaryKey="true"/>
+                </column>
+                <column name="CREATE_DATE" type="date"/>
+                <column name="SYN_STATUS" type="tinyint"/>
+                <column name="VNM_SYN_STATUS" type="tinyint"/>
+                <column name="VNM_SYN_TIME" type="date"/>
+                <column name="SHOP_ID" type="bigint"/>
+                <column name="SALE_ORDER_ID" type="bigint"/>
+                <column name="ORDER_DATE" type="date"/>
+                <column name="ORDER_ID" type="bigint"/>
+                <column name="ORDER_NUMBER" type="varchar(255)"/>
+                <column name="TOTAL_LINE_VALUE" type="float"/>
+                <column name="DISCOUNT_CODE" type="varchar(255)"/>
+                <column name="DISCOUNT_VALUE" type="float"/>
+                <column name="CUSTOMER_NAME" type="varchar(255)"/>
+                <column name="CUSTOMER_ADDRESS" type="varchar(255)"/>
+                <column name="CUSTOMER_PHONE" type="varchar(255)"/>
+                <column name="CUSTOMER_BIRTHDAY" type="date"/>
+                <column name="SHIPPING_ADDRESS" type="varchar(255)"/>
+                <column name="VAT_INVOICE" type="varchar(255)"/>
+                <column name="ORDER_STATUS" type="varchar(255)"/>
+                <column name="SOURCE_NAME" type="varchar(255)"/>
+                <column name="NOTE" type="varchar(255)"/>
+                <column name="CREATED_AT" type="datetime"/>
+                <column name="UPDATED_AT" type="datetime"/>
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </createTable>
+        </rollback>
+    </changeSet>
+
+    <changeSet  author="minhld" id="2021-06-09-delete-table-online-order-detail">
+        <dropTable tableName="ONLINE_ORDER_DETAIL"/>
+        <rollback>
+            <createTable tableName="ONLINE_ORDER_DETAIL">
+                <column name="ID" type="bigint" autoIncrement="true">
+                    <constraints primaryKeyName="ONLINE_ORDER_DETAIL_KEY" primaryKey="true"/>
+                </column>
+                <column name="CREATE_DATE" type="date"/>
+                <column name="SYN_STATUS" type="tinyint"/>
+                <column name="VNM_SYN_STATUS" type="tinyint"/>
+                <column name="VNM_SYN_TIME" type="date"/>
+                <column name="SHOP_ID" type="bigint"/>
+                <column name="SALE_ORDER_ID" type="bigint"/>
+                <column name="ORDER_DATE" type="date"/>
+                <column name="ORDER_ID" type="bigint"/>
+                <column name="ORDER_NUMBER" type="varchar(255)"/>
+                <column name="TOTAL_LINE_VALUE" type="float"/>
+                <column name="DISCOUNT_CODE" type="varchar(255)"/>
+                <column name="DISCOUNT_VALUE" type="float"/>
+                <column name="CUSTOMER_NAME" type="varchar(255)"/>
+                <column name="CUSTOMER_ADDRESS" type="varchar(255)"/>
+                <column name="CUSTOMER_PHONE" type="varchar(255)"/>
+                <column name="CUSTOMER_BIRTHDAY" type="date"/>
+                <column name="SHIPPING_ADDRESS" type="varchar(255)"/>
+                <column name="VAT_INVOICE" type="varchar(255)"/>
+                <column name="ORDER_STATUS" type="varchar(255)"/>
+                <column name="SOURCE_NAME" type="varchar(255)"/>
+                <column name="NOTE" type="varchar(255)"/>
+                <column name="CREATED_AT" type="datetime"/>
+                <column name="UPDATED_AT" type="datetime"/>
+                <column name="CREATED_BY" type="varchar(80)"/>
+                <column name="UPDATED_BY" type="varchar(80)"/>
+            </createTable>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="09-06-2021-create-online-order-for-sale-services" author="minhld">
+        <createTable tableName="ONLINE_ORDER">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="ONLINE_ORDER_KEY" primaryKey="true"/>
+            </column>
+            <column name="CREATE_DATE" type="date"/>
+            <column name="SYN_STATUS" type="tinyint"/>
+            <column name="VNM_SYN_STATUS" type="tinyint"/>
+            <column name="VNM_SYN_TIME" type="date"/>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="SALE_ORDER_ID" type="bigint"/>
+            <column name="ORDER_DATE" type="date"/>
+            <column name="ORDER_ID" type="bigint"/>
+            <column name="ORDER_NUMBER" type="varchar(255)"/>
+            <column name="TOTAL_LINE_VALUE" type="float"/>
+            <column name="DISCOUNT_CODE" type="varchar(255)"/>
+            <column name="DISCOUNT_VALUE" type="float"/>
+            <column name="CUSTOMER_NAME" type="varchar(255)"/>
+            <column name="CUSTOMER_ADDRESS" type="varchar(255)"/>
+            <column name="CUSTOMER_PHONE" type="varchar(255)"/>
+            <column name="CUSTOMER_BIRTHDAY" type="date"/>
+            <column name="SHIPPING_ADDRESS" type="varchar(255)"/>
+            <column name="VAT_INVOICE" type="varchar(255)"/>
+            <column name="ORDER_STATUS" type="varchar(255)"/>
+            <column name="SOURCE_NAME" type="varchar(255)"/>
+            <column name="NOTE" type="varchar(255)"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="ONLINE_ORDER"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="09-06-2021-create-online-order-detail-for-sale-services" author="minhld">
+        <createTable tableName="ONLINE_ORDER_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="ONLINE_ORDER_DETAIL_KEY" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint"/>
+            <column name="ONLINE_ORDER_ID" type="bigint"/>
+            <column name="CREATE_DATE" type="date"/>
+            <column name="SKU" type="varchar(255)"/>
+            <column name="PRODUCT_NAME" type="varchar(255)"/>
+            <column name="QUANTITY" type="int"/>
+            <column name="ORIGINAL_PRICE" type="float"/>
+            <column name="RETAILS_PRICE" type="float"/>
+            <column name="LINE_VALUE" type="float"/>
+            <column name="CHARACTER1_NAME" type="varchar(255)"/>
+            <column name="CHARACTER1_VALUE" type="varchar(255)"/>
+            <column name="CHARACTER2_NAME" type="varchar(255)"/>
+            <column name="CHARACTER2_VALUE" type="varchar(255)"/>
+            <column name="CHARACTER3_NAME" type="varchar(255)"/>
+            <column name="CHARACTER3_VALUE" type="varchar(255)"/>
+            <column name="PROMOTION_NAME" type="varchar(255)"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="ONLINE_ORDER_DETAIL"/>
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>

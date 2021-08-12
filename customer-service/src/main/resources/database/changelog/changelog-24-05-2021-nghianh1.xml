@@ -1,0 +1,291 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="24-05-2021-add and drop column in table customer type" author="nghianh1">
+        <addColumn tableName="CUSTOMER_TYPE">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="CUSTOMER_TYPE">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMER_TYPE" columnName="UPDATED_BY"/>
+            <dropColumn tableName="CUSTOMER_TYPE" columnName="CREATED_BY"/>
+            <addColumn tableName="CUSTOMER_TYPE">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table customers" author="nghianh1">
+        <addColumn tableName="CUSTOMERS">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="CUSTOMERS">
+            <column  name="DELETED_AT"/>
+            <column  name="UPDATE_USER"/>
+            <column  name="CREATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="CUSTOMERS" columnName="UPDATED_BY"/>
+            <dropColumn tableName="CUSTOMERS" columnName="CREATED_BY"/>
+            <addColumn tableName="CUSTOMERS">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+                <column name="CREATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table member card" author="nghianh1">
+        <addColumn tableName="MEMBER_CARD">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="MEMBER_CARD">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="MEMBER_CARD" columnName="UPDATED_BY"/>
+            <dropColumn tableName="MEMBER_CARD" columnName="CREATED_BY"/>
+            <addColumn tableName="MEMBER_CARD">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table member customer" author="nghianh1">
+        <addColumn tableName="MEMBER_CUSTOMER">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+
+        </addColumn>
+        <dropColumn tableName="MEMBER_CUSTOMER">
+            <column  name="DELETED_AT"/>
+            <column name="UPDATE_USER"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="MEMBER_CUSTOMER" columnName="UPDATED_BY"/>
+            <dropColumn tableName="MEMBER_CUSTOMER" columnName="CREATED_BY"/>
+            <addColumn tableName="MEMBER_CUSTOMER">
+                <column name="DELETED_AT" type="timestamp"/>
+                <column name="UPDATE_USER" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table member product apply" author="nghianh1">
+        <addColumn tableName="MEMBER_PRODUCT_APPLY">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="MEMBER_PRODUCT_APPLY">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="MEMBER_PRODUCT_APPLY" columnName="UPDATED_BY"/>
+            <dropColumn tableName="MEMBER_PRODUCT_APPLY" columnName="CREATED_BY"/>
+            <addColumn tableName="MEMBER_PRODUCT_APPLY">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table member regulation" author="nghianh1">
+        <addColumn tableName="MEMBER_REGULATION">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="MEMBER_REGULATION">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="MEMBER_REGULATION" columnName="UPDATED_BY"/>
+            <dropColumn tableName="MEMBER_REGULATION" columnName="CREATED_BY"/>
+            <addColumn tableName="MEMBER_REGULATION">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+    <changeSet id="24-05-2021-add and drop column in table member score convert" author="nghianh1">
+        <addColumn tableName="MEMBER_SCORE_CONVERT">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="MEMBER_SCORE_CONVERT">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="MEMBER_SCORE_CONVERT" columnName="UPDATED_BY"/>
+            <dropColumn tableName="MEMBER_SCORE_CONVERT" columnName="CREATED_BY"/>
+            <addColumn tableName="MEMBER_SCORE_CONVERT">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="24-05-2021-add and drop column in table rpt cus mem amount" author="nghianh1">
+        <addColumn tableName="RPT_CUS_MEM_AMOUNT">
+            <column name="UPDATED_BY" type="bigint"/>
+            <column name="CREATED_BY" type="bigint"/>
+        </addColumn>
+        <dropColumn tableName="RPT_CUS_MEM_AMOUNT">
+            <column  name="DELETED_AT"/>
+        </dropColumn>
+        <rollback>
+            <dropColumn tableName="RPT_CUS_MEM_AMOUNT" columnName="UPDATED_BY"/>
+            <dropColumn tableName="RPT_CUS_MEM_AMOUNT" columnName="CREATED_BY"/>
+            <addColumn tableName="RPT_CUS_MEM_AMOUNT">
+                <column name="DELETED_AT" type="timestamp"/>
+            </addColumn>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-customer-type">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CUSTOMER_TYPE"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CUSTOMER_TYPE"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="CUSTOMER_TYPE"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="CUSTOMER_TYPE"/>
+        </rollback>
+
+
+
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-customers">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CUSTOMERS"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="CUSTOMERS"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="CUSTOMERS"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="CUSTOMERS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-member-card">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_CARD"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_CARD"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_CARD"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_CARD"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-member-customer">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_CUSTOMER"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_CUSTOMER"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_CUSTOMER"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_CUSTOMER"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-member-product-apply">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_PRODUCT_APPLY"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_PRODUCT_APPLY"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_PRODUCT_APPLY"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_PRODUCT_APPLY"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-member-regulation">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_REGULATION"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_REGULATION"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_REGULATION"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_REGULATION"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-member-score-convert">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_SCORE_CONVERT"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="MEMBER_SCORE_CONVERT"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_SCORE_CONVERT"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="MEMBER_SCORE_CONVERT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="nghianh1" id="2021-05-24-change-data-rpt-cus-mem-amount">
+        <modifyDataType columnName="UPDATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="RPT_CUS_MEM_AMOUNT"/>
+        <modifyDataType columnName="CREATED_BY"
+                        newDataType="varchar(80)"
+                        tableName="RPT_CUS_MEM_AMOUNT"/>
+        <rollback>
+            <modifyDataType columnName="UPDATED_BY"
+                            newDataType="bigint"
+                            tableName="RPT_CUS_MEM_AMOUNT"/>
+            <modifyDataType columnName="CREATED_BY"
+                            newDataType="bigint"
+                            tableName="RPT_CUS_MEM_AMOUNT"/>
+        </rollback>
+    </changeSet>
+
+
+
+
+</databaseChangeLog>

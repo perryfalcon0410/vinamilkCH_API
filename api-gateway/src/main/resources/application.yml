@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active:
+    - dev
+  cloud:
+    config:
+      uri: http://localhost:8888
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: self,health,info,refresh
+
+
+ 

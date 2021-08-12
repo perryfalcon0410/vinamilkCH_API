@@ -1,0 +1,92 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="06-04-2021-create-table-shops" author="tuanba">
+        <createTable tableName="SHOPS">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="SHOPS_PK" primaryKey="true"/>
+            </column>
+            <column name="SHOP_CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="SHOP_CODE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="SHOP_NAME" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PARENT_SHOP_ID" type="bigint"/>
+            <column name="PHONE" type="varchar(50)">
+                <constraints uniqueConstraintName="PHONE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="MOBIPHONE" type="varchar(50)">
+                <constraints uniqueConstraintName="MOBIPHONE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="SHOP_TYPE_ID" type="bigint"/>
+            <column name="EMAIL" type="varchar(100)"/>
+            <column name="ADDRESS" type="varchar(255)"/>
+            <column name="TAX_NUM" type="varchar(255)"/>
+            <column name="INVOICE_NUMBER_ACCOUNT" type="varchar(255)"/>
+            <column name="INVOICE_BANK_NAME" type="varchar(255)"/>
+            <column name="FAX" type="varchar(255)"/>
+            <column name="AREA_ID" type="bigint"/>
+            <column name="SHOP_TYPE" type="varchar(255)"/>
+            <column name="SHOP_LOCATION" type="varchar(255)"/>
+            <column name="UNDER_SHOP" type="int"/>
+            <column name="STORE_CODE" type="varchar(255)"/>
+            <column name="PRICE_TYPE" type="int"/>
+            <column name="KA_CODE" type="varchar(255)"/>
+            <column name="OLD_CODE" type="varchar(255)"/>
+            <column name="ENABLE_LOG" type="tinyint"/>
+
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="SHOPS"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="06-04-2021-add-captcha-to-user" author="tuanba">
+        <addColumn tableName="USERS">
+            <column name="CAPTCHA" type="varchar(20)"/>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="USERS" columnName="CAPTCHA"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="019-04-2021-create-table-shop-param" author="tuanba">
+        <createTable tableName="SHOP_PARAM">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="SHOP_PARAM_PK" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="TYPE" type="varchar(100)"/>
+            <column name="CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="CODE_CONSTRAINT" unique="true"/>
+            </column>
+            <column name="NAME" type="varchar(255)"/>
+            <column name="DESCRIPTION" type="varchar(255)"/>
+            <column name="STATUS" type="tinyint" defaultOnNull="0"/>
+
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+            <column name="DELETED_AT" type="datetime"/>
+
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="SHOP_PARAM"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

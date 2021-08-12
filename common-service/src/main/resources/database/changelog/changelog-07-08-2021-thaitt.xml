@@ -1,0 +1,29 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-08-07-create-table-printer-config" author="thaitt">
+        <createTable tableName="PRINTER_CONFIG">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="PRINTER_CONFIG_KEY" primaryKey="true"/>
+            </column>
+            <column name="CLIENT_IP" type="varchar(50)"/>
+            <column name="BILL_PRINTER_NAME" type="nvarchar(200)"/>
+            <column name="REPORT_PRINTER_NAME" type="varchar(200)"/>
+            <column name="DEFAULT_PRINTER_NAME" type="nvarchar(200)"/>
+
+            <column name="CREATED_BY" type="varchar(80)"/>
+            <column name="UPDATED_BY" type="varchar(80)"/>
+            <column name="CREATED_AT" type="datetime"/>
+            <column name="UPDATED_AT" type="datetime"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="PRINTER_CONFIG"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,107 @@
+version: '3'
+services:
+  db:
+    image: store/oracle/database-enterprise:12.2.0.1
+    container_name: oracle_db_12
+    ports:
+      - '1521:1521'
+      - '5500:5500'
+  discovery-server:
+    container_name: discovery-server
+    build: ./discovery-server
+    ports:
+      - "8761:8761"
+    volumes:
+      - "logs:/opt/app/logs"
+  api-gateway:
+    container_name: api-gateway
+    build: ./api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "2407:2407"
+    volumes:
+      - "logs:/opt/app/logs" 
+  authorization-service:
+    container_name: authorization-service
+    build: ./authorization-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9001:9001"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  common-service:
+    container_name: common-service
+    build: ./common-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9002:9002"
+    depends_on: 
+      - db
+  customer-service:
+    container_name: customer-service
+    build: ./customer-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9003:9003"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  promotion-service:
+    container_name: promotion-service
+    build: ./promotion-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9004:9004"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  report-service:
+    container_name: report-service
+    build: ./report-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9005:9005"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"    
+  sale-service:
+    container_name: sale-service
+    build: ./sale-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9006:9006"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+  setting-service:
+    container_name: setting-service
+    build: ./setting-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "9007:9007"
+    depends_on: 
+      - db
+    volumes:
+      - "logs:/opt/app/logs"
+      
+volumes:
+  logs:
+      driver: local
+      driver_opts:
+        type: bind
+        o: bind
+        device: ${PWD}/logs

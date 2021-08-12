@@ -1,0 +1,22 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-05-07-create-test-table" author="tuanba">
+        <createTable tableName="TEST_CONSTRAIN">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="TEST_CONSTRAIN_PK" primaryKey="true"/>
+            </column>
+            <column name="CODE" type="varchar(255)">
+                <constraints uniqueConstraintName="TEST_CONSTRAIN_CODE" unique="true"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="TEST_CONSTRAIN"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
