@@ -384,7 +384,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 if (programDiscounts == null || programDiscounts.isEmpty())
                     return null;
 
-                salePromotion = calZMAmount(program, orderData, shopId, programDiscounts, totalAmountInTax - amountProInTax, totalAmountExtax - amountProExTax, isInclusiveTax,
+                salePromotion = calZMAmount(program, orderData, shopId, programDiscounts,  amountProInTax,  amountProExTax, isInclusiveTax,
                         inputAmount, customerCode, forSaving, false);
 
                 if (salePromotion != null) salePromotion.setLstProductHasPromtion(lstProductIds);
@@ -2219,7 +2219,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         if(request.getPromotionAmountExTax() != null) totalAmountExtax -= request.getPromotionAmountExTax();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
-        SalePromotionDTO salePromotion = calZMAmount(discountDTO.getProgram(), orderData, shopId, Arrays.asList(discountDTO), totalAmountInTax, totalAmountExtax,
+        SalePromotionDTO salePromotion = calZMAmount(discountDTO.getProgram(), orderData, shopId, Arrays.asList(discountDTO), 0, 0,
                 isInclusiveTax, null, customer.getCustomerCode(), false, true);
 
         if ( salePromotion == null){
