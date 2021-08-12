@@ -38,10 +38,10 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.shopId, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 AND ( :shopId IS NULL OR c.shopId =:shopId )" +
-            " AND ( c.nameText like %:searchKeywords OR c.customerCode like %:searchKeywords " +
-            "   OR c.phone like %:searchKeywords OR c.mobiPhone like %:searchKeywords OR c.addressText like %:searchKeywords ) " +
+            " AND ( c.nameText like %:nameCodeAddress% OR upper(c.customerCode) like %:nameCodeAddress% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR c.addressText like %:nameCodeAddress% ) " +
             " ORDER BY c.nameText, c.customerCode")
-    Page<CustomerDTO> searchForSale(Long shopId, String searchKeywords, Pageable pageable);
+    Page<CustomerDTO> searchForSale(Long shopId, String nameCodeAddress, String phone, Pageable pageable);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.shopId, c.totalBill) " +

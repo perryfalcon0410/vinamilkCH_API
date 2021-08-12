@@ -514,8 +514,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 */
                 if(program.getGivenType() != null && program.getGivenType() == 3){
                     if((orderData.getTotalPrice() - amountProInTax) < amountIn){
-                        break;
+                        continue;
                     }
+                    amountProInTax += amountIn;
+                    amountProExTax += amountEx;
                     amtInTax += amountIn;
                     amtExTax += amountEx;
                     discountNeedUpdate.add(discountDTO);

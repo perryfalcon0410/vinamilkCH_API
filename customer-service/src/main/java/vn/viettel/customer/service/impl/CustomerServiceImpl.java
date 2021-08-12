@@ -175,7 +175,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isSearchFoneOnly())
             return repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
 
-        return repository.searchForSale(shop, customerFilter.getSearchKeywords(), pageable);
+        return repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
     }
 
     @Override
