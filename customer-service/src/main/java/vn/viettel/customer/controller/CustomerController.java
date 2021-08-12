@@ -240,17 +240,18 @@ public class CustomerController extends BaseController {
     public Response<Page<CustomerDTO>> findCustomerForSale(HttpServletRequest httpRequest,
                                                      @RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
                                                      @RequestParam(value = "customerOfShop", required = false) Boolean customerOfShop,
-                                                     @RequestParam(value = "searchFoneOnly", required = false) Boolean searchFoneOnly,
+                                                     @RequestParam(value = "searchPhoneOnly", required = false) Boolean searchPhoneOnly,
+                                                     @RequestParam(value = "searchAddressOnly", required = false) Boolean searchAddressOnly,
                                                        @SortDefault.SortDefaults({
                                                                @SortDefault(sort = "customerCode", direction = Sort.Direction.ASC),
                                                                @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
                                                                @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
                                                        }) Pageable pageable ) {
         if(customerOfShop == null) customerOfShop = true;
-        if(searchFoneOnly == null) searchFoneOnly = true;
+        if(searchPhoneOnly == null) searchPhoneOnly = true;
         CustomerSaleFilter filter = new CustomerSaleFilter();
         filter.setCustomerOfShop(customerOfShop);
-        filter.setSearchFoneOnly(searchFoneOnly);
+        filter.setSearchPhoneOnly(searchPhoneOnly);
         filter.setSearchKeywords(searchKeywords.toUpperCase());
 
         return new Response<Page<CustomerDTO>>().withData(service.findCustomerForSale(this.getShopId(), filter, pageable));

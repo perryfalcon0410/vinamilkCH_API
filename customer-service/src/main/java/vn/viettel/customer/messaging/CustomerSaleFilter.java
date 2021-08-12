@@ -19,5 +19,5 @@ public class CustomerSaleFilter {
     private boolean customerOfShop = true;
 
     @ApiModelProperty(value = "Chỉ tìm theo số điện thoại")
-    private boolean searchFoneOnly = true;
+    private boolean searchPhoneOnly = true;
 }

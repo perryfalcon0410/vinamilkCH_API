@@ -172,7 +172,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Long shop = null;
         if(customerFilter.isCustomerOfShop()) shop = shopId;
-        if(customerFilter.isSearchFoneOnly())
+        if(customerFilter.isSearchPhoneOnly())
             return repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
 
         return repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
