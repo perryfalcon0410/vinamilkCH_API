@@ -1,8 +1,10 @@
 package vn.viettel.sale.service.impl;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -1241,6 +1243,18 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public static String withLargeIntegers(Integer value) {
         DecimalFormat df = new DecimalFormat("#,###");
         return df.format(value);
+    }
+
+    public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
+        try {
+            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+            repository.save(saleOrder);
+        }catch (DataIntegrityViolationException | ConstraintViolationException ex){
+            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+            repository.save(saleOrder);
+        }
+
+        return saleOrder;
     }
 
 }
