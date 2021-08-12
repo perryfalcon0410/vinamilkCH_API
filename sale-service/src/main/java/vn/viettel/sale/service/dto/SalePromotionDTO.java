@@ -72,7 +72,7 @@ public class SalePromotionDTO {
     private List<Long> lstProductHasPromtion;
 
     @ApiModelProperty(notes = "khuyến mãi tay cần update với given type = 3")
-    private PromotionProgramDiscountDTO discountDTO;
+    private List<PromotionProgramDiscountDTO> discountDTOs;
 
     @ApiModelProperty(notes = "Khuyến mãi bị ảnh hưởng bới sự thay đổi tiền của khuyến mãi tay nhập tiền")
     private boolean affected = false;

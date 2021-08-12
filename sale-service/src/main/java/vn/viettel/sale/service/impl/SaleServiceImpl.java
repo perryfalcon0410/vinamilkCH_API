@@ -333,7 +333,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             promotionShopMaps.add(promotionShopMap);
                         }
                     }
-                    if(dbPro.getDiscountDTO() != null) discountDTOs.add(dbPro.getDiscountDTO());
+                    if(dbPro.getDiscountDTOs() != null && !dbPro.getDiscountDTOs().isEmpty()) discountDTOs.addAll(dbPro.getDiscountDTOs());
                 }
                 else{
                     throw new ValidateException(ResponseMessage.PROMOTION_IN_USE, inputPro.getPromotionProgramName());
@@ -347,14 +347,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             //3. kiểm tra số tiền km có đúng
 //            checkPromotionValue(request, shopId, voucherAmount, orderRequest, promotionInfo )
         }
-//        else{
-//            List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(new ArrayList<>(mapProductOrder.keySet()));
-//            if(!combos.isEmpty()) {
-//                List<Price> subProductPrices = priceRepository.findProductPriceWithType(combos.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()),
-//                        customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
-//                createSaleOrderComboDetail(saleOrderDetails, combos, subProductPrices).stream().forEachOrdered(listOrderComboDetails::add);
-//            }
-//        }
 
         List<ComboProductDetailDTO> combos = comboProductRepository.findComboProduct(saleOrderDetails.stream().map(SaleOrderDetail::getProductId).collect(Collectors.toList()));
         if(!combos.isEmpty()) {
