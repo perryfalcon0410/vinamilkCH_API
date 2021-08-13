@@ -16,6 +16,8 @@ public class StockCountingDetailDTO extends BaseDTO {
     private Long stockCountingId;
     @ApiModelProperty(notes = "Ngành hàng")
     private String productCategory;
+    @ApiModelProperty(notes = "Mã ngành hàng")
+    private String productCategoryCode;
     @ApiModelProperty(notes = "Id kho hàng")
     private Long warehouseTypeId;
     @ApiModelProperty(notes = "Id cửa hàng")
@@ -49,12 +51,13 @@ public class StockCountingDetailDTO extends BaseDTO {
     @ApiModelProperty(notes = "Nhóm sản phẩm")
     private String productGroup;
 
-    public StockCountingDetailDTO(Long productId, String productCode, String productName, String productGroup, String productCategory,
+    public StockCountingDetailDTO(Long productId, String productCode, String productName, String productGroup, String productCategory, String productCategoryCode,
                                   Integer stockQuantity, String unit, String packetUnit, Integer convfact){
         this.productId = productId;
         this.productCode = productCode;
         this.productName = productName;
         this.productCategory = productCategory;
+        this.productCategoryCode = productCategoryCode;
         this.productGroup = productGroup;
         this.stockQuantity = stockQuantity;
         this.unit = unit;
