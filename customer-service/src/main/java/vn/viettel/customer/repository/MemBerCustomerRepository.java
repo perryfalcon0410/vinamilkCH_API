@@ -11,7 +11,6 @@ public interface MemBerCustomerRepository extends BaseRepository<MemberCustomer>
 
     Optional<MemberCustomer> findByCustomerId(long id);
 
-
     @Query("SELECT mem FROM MemberCustomer mem Join MemberCard card On mem.memberCardId = card.id " +
             " Where mem.customerId = :customerId And card.status = 1")
     Optional<MemberCustomer> getMemberCustomer(Long customerId);

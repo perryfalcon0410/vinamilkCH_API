@@ -121,4 +121,17 @@ public class CustomerDTO extends BaseDTO {
         return fullName == null ? "" : fullName.trim();
     }
 
+    public CustomerDTO(Long id, String firstName, String lastName, String customerCode, String mobiPhone, Long customerTypeId
+            , String street, Long shopId, Double totalBill){
+        setId(id);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.customerCode = customerCode;
+        this.mobiPhone = mobiPhone;
+        this.customerTypeId = customerTypeId;
+        this.street = street;
+        this.shopId = shopId;
+        this.totalBill = totalBill;
+    }
+
 }

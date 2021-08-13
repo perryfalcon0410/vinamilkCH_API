@@ -8,7 +8,4 @@ import java.util.Optional;
 
 public interface VoucherProgramRepository extends BaseRepository<VoucherProgram> {
 
-    @Query("Select p From VoucherProgram p " +
-            "WHERE p.fromDate <= sysdate And (p.toDate Is Null OR sysdate <= p.toDate) And p.status = 1 ")
-    Optional<VoucherProgram> getVoucherProgram(Long id);
 }
