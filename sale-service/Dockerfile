@@ -13,5 +13,4 @@ COPY ./target/sale-service-0.0.1-SNAPSHOT.jar $PROJECT_HOME/sale-service/sale-se
 COPY ./target/classes/machikatsu.pub $PROJECT_HOME/sale-service/machikatsu.pub
 
 WORKDIR $PROJECT_HOME
-
-CMD ["java","-Xmx128m","-Xms16m","-Xmn64m","-jar","./sale-service/sale-service-0.0.1-SNAPSHOT.jar"]
+CMD java $JAVA_OPTS -jar ./sale-service/sale-service-0.0.1-SNAPSHOT.jar
