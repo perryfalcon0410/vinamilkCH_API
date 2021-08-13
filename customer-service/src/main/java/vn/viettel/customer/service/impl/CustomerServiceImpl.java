@@ -610,15 +610,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public Map<Integer, CustomerDTO> getAllCustomerToRedInvoice() {
-        List<Customer> customers = repository.findAll();
-        Map<Integer, CustomerDTO> customerDTOS =  new HashMap<>();
-        for(Customer customer : customers){
-            CustomerDTO customerDTO = modelMapper.map(customer, CustomerDTO.class);
-            Integer id = Math.toIntExact(customerDTO.getId());
-            if(id != null)
-            customerDTOS.put(id, customerDTO);
-        }
+    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
+        List<Customer> customers = repository.getCustomersByIds(customerIds);
+        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
         return customerDTOS;
     }
 

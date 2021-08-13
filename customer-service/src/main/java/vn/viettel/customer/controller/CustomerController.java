@@ -19,6 +19,7 @@ import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
@@ -32,6 +33,7 @@ import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -168,6 +170,7 @@ public class CustomerController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 
@@ -223,8 +226,8 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/feign-customers"})
-    public Response<Map<Integer, CustomerDTO>> getAllCustomerToRedInvocie() {
-        return new Response<Map<Integer, CustomerDTO>>().withData(service.getAllCustomerToRedInvoice());
+    public Response<List<CustomerDTO>> getAllCustomerToRedInvocie(@RequestParam List<Long> customerIds) {
+        return new Response<List<CustomerDTO>>().withData(service.getAllCustomerToRedInvoice(customerIds));
     }
 
     @Override
@@ -250,9 +253,10 @@ public class CustomerController extends BaseController {
         if(customerOfShop == null) customerOfShop = true;
         if(searchPhoneOnly == null) searchPhoneOnly = true;
         CustomerSaleFilter filter = new CustomerSaleFilter();
+
         filter.setCustomerOfShop(customerOfShop);
         filter.setSearchPhoneOnly(searchPhoneOnly);
-        filter.setSearchKeywords(searchKeywords.toUpperCase());
+        filter.setSearchKeywords(VNCharacterUtils.removeAccent(searchKeywords).toUpperCase());
 
         return new Response<Page<CustomerDTO>>().withData(service.findCustomerForSale(this.getShopId(), filter, pageable));
     }

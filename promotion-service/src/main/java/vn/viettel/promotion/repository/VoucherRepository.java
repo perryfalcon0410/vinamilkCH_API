@@ -13,7 +13,7 @@ public interface VoucherRepository extends BaseRepository<Voucher>, JpaSpecifica
 
     @Query("Select v From Voucher v Join VoucherProgram p On v.voucherProgramId = p.id " +
             " Where p.fromDate <=:lastDay And (p.toDate Is Null OR p.toDate >=:firstDay)" +
-            " And v.serial =:serial And v.isUsed = false And v.status = 1")
+            " And upper(v.serial) =:serial And v.isUsed = false And v.status = 1")
     Optional<Voucher> getBySerial(String serial, LocalDateTime firstDay, LocalDateTime lastDay);
 
     @Query(value = "SELECT v FROM Voucher v WHERE v.isUsed = true AND v.saleOrderId = :saleOrderId")

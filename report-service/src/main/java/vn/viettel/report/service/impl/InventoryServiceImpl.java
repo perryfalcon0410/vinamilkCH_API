@@ -145,6 +145,7 @@ public class InventoryServiceImpl implements InventoryService {
         query.execute();
 
         List<ImportExportInventoryDTO> reportDTOS = query.getResultList();
+        entityManager.close();
         return reportDTOS;
     }
 

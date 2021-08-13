@@ -37,8 +37,7 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
 
     @Override
     public Page<ReportVoucherDTO> index(ReportVoucherFilter filter, Pageable pageable) {
-        StoredProcedureQuery storedProcedure = callReportVoucherDTO(filter);
-        List<ReportVoucherDTO> lst = storedProcedure.getResultList();
+        List<ReportVoucherDTO> lst = callReportVoucherDTO(filter);
         List<ReportVoucherDTO> subList = new ArrayList<>();
 
         if(!lst.isEmpty())
@@ -55,7 +54,7 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
     @Override
     public ByteArrayInputStream exportExcel(ReportVoucherFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        List<ReportVoucherDTO> lst = this.callReportVoucherDTO(filter).getResultList();
+        List<ReportVoucherDTO> lst = this.callReportVoucherDTO(filter);
         ReportVoucherExcel reportVoucherExcel = new ReportVoucherExcel(shopDTO, lst);
         reportVoucherExcel.setFromDate(filter.getFromProgramDate());
         reportVoucherExcel.setToDate(filter.getToProgramDate());
@@ -63,7 +62,7 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
         return reportVoucherExcel.export();
     }
 
-    public StoredProcedureQuery callReportVoucherDTO(ReportVoucherFilter filter)
+    public List<ReportVoucherDTO> callReportVoucherDTO(ReportVoucherFilter filter)
     {
         if(filter.getCustomerKeywords()!=null) filter.setCustomerKeywords(VNCharacterUtils.removeAccent(filter.getCustomerKeywords()).toUpperCase(Locale.ROOT));
 
@@ -90,6 +89,8 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
         storedProcedure.setParameter(9, filter.getCustomerMobiPhone());
         storedProcedure.setParameter(10, filter.getShopId());
         storedProcedure.execute();
-        return storedProcedure;
+        List<ReportVoucherDTO> response = storedProcedure.getResultList();
+        entityManager.close();
+        return response;
     }
 }

@@ -144,7 +144,8 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
                 }
             }
         });
-
+        session.close();
+        entityManager.close();
         return tableDynamicDTO;
     }
 

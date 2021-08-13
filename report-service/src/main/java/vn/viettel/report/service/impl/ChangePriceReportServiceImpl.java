@@ -60,6 +60,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
         storedProcedure.setParameter(7, ra == "" ? null : ra);
 
         List<ChangePriceDTO> result = storedProcedure.getResultList();
+        entityManager.close();
         if (result.isEmpty())
             return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>()
                     .withData(new CoverResponse<>(new PageImpl<>(new ArrayList<>()), null));

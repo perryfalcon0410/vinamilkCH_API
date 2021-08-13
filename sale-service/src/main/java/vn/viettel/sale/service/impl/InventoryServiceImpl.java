@@ -372,11 +372,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         InputStream stream = file.getInputStream();
         PoijiOptions options = PoijiOptions.PoijiOptionsBuilder.settings().headerStart(0).build();
 
+        List<StockCountingExcel> response = null;
         if (path.split("\\.")[1].equals("xlsx"))
-            return Poiji.fromExcel(stream, PoijiExcelType.XLSX, StockCountingExcel.class, options);
+            response =  Poiji.fromExcel(stream, PoijiExcelType.XLSX, StockCountingExcel.class, options);
         if (path.split("\\.")[1].equals("xls"))
-            return Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
-        return null;
+            response = Poiji.fromExcel(stream, PoijiExcelType.XLS, StockCountingExcel.class, options);
+
+        stream.close();
+        return response;
     }
 
     public String createStockCountingCode(Long shopId) {

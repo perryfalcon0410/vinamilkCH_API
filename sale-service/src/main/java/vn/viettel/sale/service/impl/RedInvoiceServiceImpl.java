@@ -369,20 +369,34 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if(ids != null)
             list = Stream.of(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
         List<HddtExcel> hddtExcels = hddtExcelRepository.getDataHddtExcel(list);
-        List<HDDTExcelDTO> HDDTExcelDTOS = null;
-        Map<Integer, CustomerDTO> lstCustomer = customerClient.getAllCustomerToRedInvocieV1().getData();
-        Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
+        List<HDDTExcelDTO> HDDTExcelDTOS = new ArrayList<>();
+        if(hddtExcels == null || hddtExcels.isEmpty()) return HDDTExcelDTOS;
+
+        List<CustomerDTO> customers = null;
+        List<Long> customerIds = hddtExcels.stream().map(HddtExcel::getCustomerId).collect(Collectors.toList());
+        if(!customerIds.isEmpty()) customers = customerClient.getAllCustomerToRedInvocieV1(customerIds).getData();
+        Map<Long, CustomerDTO> lstCustomer = new HashMap<>();
+        for(CustomerDTO customer: customers) {
+            if(!lstCustomer.containsKey(customer.getId())) lstCustomer.put(customer.getId(), customer);
+        }
+
+        List<ShopDTO> shops = shopClient.getAllShopToRedInvoiceV1( hddtExcels.stream().map(HddtExcel::getShopId).collect(Collectors.toList())).getData();
+        Map<Long, ShopDTO> shopDTOS = new HashMap<>();
+        for(ShopDTO shop: shops) {
+            if(!shopDTOS.containsKey(shop.getId())) shopDTOS.put(shop.getId(), shop);
+        }
+
         HDDTExcelDTOS = hddtExcels.stream().map(data -> {
             HDDTExcelDTO hddtExcelDTO = modelMapper.map(data, HDDTExcelDTO.class);
             //shop
             if (data.getShopId() != null) {
-                ShopDTO shopDTO = shopDTOS.get(Math.toIntExact(data.getShopId()));
+                ShopDTO shopDTO = shopDTOS.get(data.getShopId());
                 if (shopDTO != null)
                     hddtExcelDTO.setShopCode(shopDTO.getShopCode());
             }
             //customer
             if (data.getCustomerId() != null) {
-                CustomerDTO customerDTO = lstCustomer.get(Math.toIntExact(data.getCustomerId()));
+                CustomerDTO customerDTO = lstCustomer.get(data.getCustomerId());
                 if (customerDTO != null) {
                     hddtExcelDTO.setCustomerCode(customerDTO.getCustomerCode());
                     hddtExcelDTO.setMobiPhone(customerDTO.getMobiPhone());
@@ -404,20 +418,33 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         List<Long> redIds = Arrays.stream(ids.split(",")).map(item -> {Long rs = 0L; try{rs = Long.parseLong(item);}catch(Exception e){} return rs; }).distinct().collect(Collectors.toList());
         List<RedInvoice> redInvoices = redInvoiceRepository.findAllById(redIds);
         List<HDDTO> hddtos = new ArrayList<>();
-        Map<Integer, CustomerDTO> lstCustomer = customerClient.getAllCustomerToRedInvocieV1().getData();
-        Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
+        if(redInvoices == null || redInvoices.isEmpty()) return hddtos;
+
+        List<CustomerDTO> customers = null;
+        List<Long> customerIds = redInvoices.stream().map(RedInvoice::getCustomerId).collect(Collectors.toList());
+        if(!customerIds.isEmpty()) customers = customerClient.getAllCustomerToRedInvocieV1(customerIds).getData();
+        Map<Long, CustomerDTO> lstCustomer = new HashMap<>();
+        for(CustomerDTO customer: customers) {
+            if(!lstCustomer.containsKey(customer.getId())) lstCustomer.put(customer.getId(), customer);
+        }
+
+        List<ShopDTO> shops = shopClient.getAllShopToRedInvoiceV1( redInvoices.stream().map(RedInvoice::getShopId).collect(Collectors.toList())).getData();
+        Map<Long, ShopDTO> shopDTOS = new HashMap<>();
+        for(ShopDTO shop: shops) {
+            if(!shopDTOS.containsKey(shop.getId())) shopDTOS.put(shop.getId(), shop);
+        }
         for(RedInvoice redInvoice:redInvoices) {
             HDDTO hddto = modelMapper.map(redInvoice, HDDTO.class);
             String fullname = "";
             if (redInvoice.getCustomerId() != null) {
-                CustomerDTO customerDTO = lstCustomer.get(Math.toIntExact(redInvoice.getCustomerId()));
+                CustomerDTO customerDTO = lstCustomer.get(redInvoice.getCustomerId());
                 if (customerDTO != null) {
                     fullname += customerDTO.getLastName() + " " + customerDTO.getFirstName();
                     hddto.setFullName(fullname);
                 }
             }
             if (redInvoice.getShopId() != null) {
-                ShopDTO shopDTO = shopDTOS.get(Math.toIntExact(redInvoice.getShopId()));
+                ShopDTO shopDTO = shopDTOS.get(redInvoice.getShopId());
                 if (shopDTO != null)
                     hddto.setShopCode(shopDTO.getShopCode());
             }
@@ -431,12 +458,19 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if(ids != null)
             list = Stream.of(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
         List<CTDVKH> ctdvkhs = ctdvkhRepository.getCTDVKHByIds(list);
-        List<CTDTO> ctdtos = null;
-        Map<Integer, ShopDTO> shopDTOS = shopClient.getAllShopToRedInvoiceV1().getData();
+        List<CTDTO> ctdtos = new ArrayList<>();
+        if(ctdvkhs == null || ctdvkhs.isEmpty()) return ctdtos;
+
+        List<ShopDTO> shops = shopClient.getAllShopToRedInvoiceV1( ctdvkhs.stream().map(CTDVKH::getShopId).collect(Collectors.toList())).getData();
+        Map<Long, ShopDTO> shopDTOS = new HashMap<>();
+        for(ShopDTO shop: shops) {
+            if(!shopDTOS.containsKey(shop.getId())) shopDTOS.put(shop.getId(), shop);
+        }
+
         ctdtos = ctdvkhs.stream().map(data -> {
             CTDTO ctdto = modelMapper.map(data, CTDTO.class);
             if (data.getShopId() != null) {
-                ShopDTO shopDTO = shopDTOS.get(Math.toIntExact(data.getShopId()));
+                ShopDTO shopDTO = shopDTOS.get(data.getShopId());
                 if (shopDTO != null)
                     ctdto.setShopCode(shopDTO.getShopCode());
             }

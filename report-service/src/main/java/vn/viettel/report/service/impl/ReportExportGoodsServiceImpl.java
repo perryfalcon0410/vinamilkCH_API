@@ -229,7 +229,9 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.setParameter(8, filter.getToOrderDate());
         storedProcedure.setParameter(9, filter.getShopId());
         storedProcedure.execute();
-        return storedProcedure.getResultList();
+        List<ShopExportDTO> response =  storedProcedure.getResultList();
+        entityManager.close();
+        return response;
     }
 
     private void removeDataList(List<ShopExportDTO> shopExports) {

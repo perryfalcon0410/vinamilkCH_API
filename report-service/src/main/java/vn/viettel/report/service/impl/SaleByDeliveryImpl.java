@@ -71,6 +71,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.setParameter("toTotal", filter.getToTotal());
         query.execute();
         List<SaleByDeliveryTypeDTO> reportDTOS = query.getResultList();
+        entityManager.close();
         return reportDTOS;
     }
 

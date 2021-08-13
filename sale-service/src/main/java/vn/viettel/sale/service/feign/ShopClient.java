@@ -10,6 +10,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import vn.viettel.core.security.anotation.RoleFeign;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -35,7 +36,7 @@ public interface ShopClient {
     Response<ShopDTO> getByShopCode(@PathVariable String code);
 
     @GetMapping(value = "api/v1/users/shops/feign/shops")
-    Response<Map<Integer, ShopDTO>> getAllShopToRedInvoiceV1();
+    Response<List<ShopDTO>> getAllShopToRedInvoiceV1(@RequestParam List<Long> shopIds);
 
     @GetMapping("/api/v1/users/shops/shop-params")
     Response<ShopParamDTO> getShopParamV1(@RequestParam String type, @RequestParam String code, @RequestParam Long shopId);

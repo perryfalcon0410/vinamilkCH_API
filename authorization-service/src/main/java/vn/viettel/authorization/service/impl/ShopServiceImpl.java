@@ -17,9 +17,8 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> implements ShopService {
@@ -175,16 +174,10 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
     }
 
     @Override
-    public Map<Integer, ShopDTO> getAllShopToRedInvoice() {
-        List<Shop> shops = repository.findAll();
-        Map<Integer, ShopDTO> shopDTOS = new HashMap<>();
-        for(Shop shop : shops)
-        {
-            ShopDTO shopDTO = modelMapper.map(shop, ShopDTO.class);
-            Integer id = Math.toIntExact(shopDTO.getId());
-            if(id != null)
-            shopDTOS.put(id, shopDTO);
-        }
+    public List<ShopDTO> getAllShopToRedInvoice(List<Long> shopIds) {
+        List<Shop> shops = repository.getShopByIds(shopIds);
+        List<ShopDTO> shopDTOS =  shops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
+
         return shopDTOS;
     }
 }

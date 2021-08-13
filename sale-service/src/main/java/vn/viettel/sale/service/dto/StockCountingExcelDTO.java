@@ -15,6 +15,8 @@ public class StockCountingExcelDTO {
 
     private String productCategory;
 
+    private String productCategoryCode;
+
     private String productGroup;
 
     private String productCode;
