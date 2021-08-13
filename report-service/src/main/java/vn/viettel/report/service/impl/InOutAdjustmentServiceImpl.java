@@ -59,6 +59,7 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         storedProcedure.setParameter(4, filter.getProductCodes());
         storedProcedure.setParameter(5, filter.getShopId());
         storedProcedure.execute();
+        entityManager.close();
         List<InOutAdjusmentDTO> data =  storedProcedure.getResultList();
         return new Response<List<InOutAdjusmentDTO>>().withData(data);
     }

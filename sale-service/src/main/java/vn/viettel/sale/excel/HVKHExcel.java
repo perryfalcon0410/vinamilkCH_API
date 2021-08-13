@@ -212,6 +212,9 @@ public class HVKHExcel {
         this.createTableSheet2();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
-        return new ByteArrayInputStream(out.toByteArray());
+        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
+        workbook.close();
+        out.close();
+        return response;
     }
 }

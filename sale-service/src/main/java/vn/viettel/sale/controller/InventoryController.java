@@ -135,6 +135,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Kiem_ke_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 
@@ -155,6 +156,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=stock_counting_fail_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 
@@ -173,6 +175,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=stock_counting_all_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
     @GetMapping(value = { V1 + root + "/inventory/sample-excel"})
@@ -190,6 +193,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Nhap_kiem_ke_mau_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 

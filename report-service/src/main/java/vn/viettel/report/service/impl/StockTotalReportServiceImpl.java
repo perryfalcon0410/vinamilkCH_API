@@ -125,6 +125,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
        storedProcedure.setParameter(5, warehouseTypeId);
 
        List<StockTotalReportDTO> listResult = storedProcedure.getResultList();
+       entityManager.close();
        return listResult;
    }
 }

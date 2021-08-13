@@ -122,6 +122,9 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
                 }
             }
         });
+
+        session.close();
+        entityManager.close();
         return tableDynamicDTO;
     }
 

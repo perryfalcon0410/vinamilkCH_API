@@ -81,6 +81,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         query.execute();
 
         List<SellDTO> reportDTOS = query.getResultList();
+        entityManager.close();
         return reportDTOS;
     }
 

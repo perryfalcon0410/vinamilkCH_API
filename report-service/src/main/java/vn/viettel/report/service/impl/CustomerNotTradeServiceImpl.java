@@ -83,6 +83,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         storedProcedure.setParameter(3, toDate);
         storedProcedure.setParameter(4, ShopId);
         List<CustomerReportDTO> result = storedProcedure.getResultList();
+        entityManager.close();
         return result;
     }
 
@@ -157,6 +158,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         query.setParameter("toPurchaseDate", filter.getToPurchaseDate());
 
         List<CustomerTradeDTO> result = query.getResultList();
+        entityManager.close();
 
         return result;
     }

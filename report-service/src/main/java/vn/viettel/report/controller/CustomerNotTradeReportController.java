@@ -64,9 +64,9 @@ public class    CustomerNotTradeReportController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=report_x_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        response.getOutputStream().flush();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
-
+        in.close();
+        response.getOutputStream().flush();
     }
 
     @ApiOperation(value = "In danh sách báo cáo khách hàng không giao")
@@ -131,6 +131,7 @@ public class    CustomerNotTradeReportController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 

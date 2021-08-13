@@ -49,6 +49,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         query.execute();
 
         List<EntryMenuDetailsDTO> reportDTOS =  query.getResultList();
+        entityManager.close();
         return reportDTOS;
     }
 
