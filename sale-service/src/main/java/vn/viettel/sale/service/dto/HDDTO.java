@@ -24,7 +24,7 @@ public class HDDTO {
     private LocalDateTime printDate;
     @ApiModelProperty(notes = "Mã số doanh nghiệp")
     private String taxCode;
-    @ApiModelProperty(notes = "Tổng số tiền")
+    @ApiModelProperty(notes = "Tổng số tiền trươc thuế")
     private Float totalMoney;
     @ApiModelProperty(notes = "Số hóa đơn")
     private String redInvoiceNum;
