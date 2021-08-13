@@ -27,6 +27,8 @@ public class HDDTExcelDTO {
     private Integer paymentType;
     @ApiModelProperty(notes = "Số đơn đặt hàng")
     private String orderNumbers;
+    @ApiModelProperty(notes = "Số đơn đặt hàng")
+    private String invoiceNumber;
     @ApiModelProperty(notes = "Mã hàng")
     private String productCode;
     @ApiModelProperty(notes = "Tên hàng")

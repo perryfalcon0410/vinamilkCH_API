@@ -1,6 +1,7 @@
 package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
@@ -123,7 +124,7 @@ public class HDDTExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTaxCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getMobiPhone(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPaymentType() == 1 ? "Chuyển khoản" : "Tiền mặt", styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getOrderNumbers(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getInvoiceNumber(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);
@@ -209,7 +210,7 @@ public class HDDTExcel {
         workbook.write(out);
         ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
         workbook.close();
-        out.close();
+        IOUtils.closeQuietly(out);
         return response;
     }
 }

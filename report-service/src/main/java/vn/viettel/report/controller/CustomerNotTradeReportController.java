@@ -1,6 +1,7 @@
 package vn.viettel.report.controller;
 
 import io.swagger.annotations.*;
+import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -65,7 +66,7 @@ public class    CustomerNotTradeReportController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=report_x_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
-        in.close();
+        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 
@@ -131,7 +132,7 @@ public class    CustomerNotTradeReportController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        in.close();
+        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 
