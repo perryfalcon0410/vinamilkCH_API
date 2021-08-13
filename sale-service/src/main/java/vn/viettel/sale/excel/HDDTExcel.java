@@ -124,7 +124,7 @@ public class HDDTExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTaxCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getMobiPhone(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPaymentType() == 1 ? "Chuyển khoản" : "Tiền mặt", styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getOrderNumbers(), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getInvoiceNumber(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom1(), styleTableValue);

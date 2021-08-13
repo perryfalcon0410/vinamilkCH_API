@@ -30,6 +30,8 @@ public class HddtExcel{
     private Long customerId;
     @Column(name = "PAYMENT_TYPE")
     private Integer paymentType;
+    @Column(name = "INVOICE_NUMBER")
+    private String invoiceNumber;
     @Column(name = "ORDER_NUMBER")
     private String orderNumbers;
     @Column(name = "PRODUCT_NAME")
@@ -51,7 +53,7 @@ public class HddtExcel{
                      String buyerName,
                      String officeWorking,
                      String officeAddress,
-                     String taxCode, Long shopId, Long customerId, Integer paymentType, String orderNumbers,
+                     String taxCode, Long shopId, Long customerId, Integer paymentType, String orderNumbers, String invoiceNumber,
                      String productName, String productCode, String uom1, Integer quantity, Float priceNotVat,
                      Float price, String note) {
         this.id = id;
@@ -63,6 +65,7 @@ public class HddtExcel{
         this.customerId = customerId;
         this.paymentType = paymentType;
         this.orderNumbers = orderNumbers;
+        this.invoiceNumber = invoiceNumber;
         this.productName = productName;
         this.productCode = productCode;
         this.uom1 = uom1;
