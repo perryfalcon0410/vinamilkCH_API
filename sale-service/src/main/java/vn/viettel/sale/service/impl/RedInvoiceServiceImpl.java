@@ -386,8 +386,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         List<Long> customerIds = hddtExcels.stream().map(HddtExcel::getCustomerId).collect(Collectors.toList());
         if(!customerIds.isEmpty()) customers = customerClient.getAllCustomerToRedInvocieV1(customerIds).getData();
         Map<Long, CustomerDTO> lstCustomer = new HashMap<>();
-        for(CustomerDTO customer: customers) {
-            if(!lstCustomer.containsKey(customer.getId())) lstCustomer.put(customer.getId(), customer);
+        if(customers!=null) {
+            for(CustomerDTO customer: customers) {
+                if(!lstCustomer.containsKey(customer.getId())) lstCustomer.put(customer.getId(), customer);
+            }
         }
 
         List<ShopDTO> shops = shopClient.getAllShopToRedInvoiceV1( hddtExcels.stream().map(HddtExcel::getShopId).collect(Collectors.toList())).getData();
@@ -413,9 +415,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 }
             }
             hddtExcelDTO.setTotalAmount(data.getQuantity() * data.getPriceNotVat());
+            if(data.getPrice()!=null && data.getPrice() > 0) {
             Double gtgt = (data.getPrice() - data.getPriceNotVat()) / data.getPriceNotVat() * 100;
-            gtgt = Math.ceil((gtgt * 1000) / 1000);
-            hddtExcelDTO.setGTGT(gtgt);
+            gtgt = Math.ceil((gtgt));
+            if(gtgt != null) hddtExcelDTO.setGTGT(gtgt);
+            }
             return hddtExcelDTO;
         }).collect(Collectors.toList());
         Collections.sort(HDDTExcelDTOS, Comparator.comparing(HDDTExcelDTO::getOrderNumbers, Comparator.nullsLast(Comparator.naturalOrder()))
@@ -434,8 +438,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         List<Long> customerIds = redInvoices.stream().map(RedInvoice::getCustomerId).collect(Collectors.toList());
         if(!customerIds.isEmpty()) customers = customerClient.getAllCustomerToRedInvocieV1(customerIds).getData();
         Map<Long, CustomerDTO> lstCustomer = new HashMap<>();
-        for(CustomerDTO customer: customers) {
-            if(!lstCustomer.containsKey(customer.getId())) lstCustomer.put(customer.getId(), customer);
+        if(customers!=null) {
+            for(CustomerDTO customer: customers) {
+                if(!lstCustomer.containsKey(customer.getId())) lstCustomer.put(customer.getId(), customer);
+            }
         }
 
         List<ShopDTO> shops = shopClient.getAllShopToRedInvoiceV1( redInvoices.stream().map(RedInvoice::getShopId).collect(Collectors.toList())).getData();
