@@ -1,6 +1,7 @@
 package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
+import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -282,7 +283,7 @@ public class ReceiptImportController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Phieu_mua_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        in.close();
+        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 }

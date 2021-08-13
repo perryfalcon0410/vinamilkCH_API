@@ -11,7 +11,7 @@ public interface HDDTExcelRepository extends JpaRepository<HddtExcel, Long> {
 
     @Query(value =  "SELECT NEW vn.viettel.sale.entities.HddtExcel(detail.id, red_in.buyerName, red_in.officeWorking, red_in.officeAddress, " +
             "       red_in.taxCode, red_in.shopId, red_in.customerId, red_in.paymentType, " +
-            "       red_in.orderNumbers,pro.productName, pro.productCode, pro.uom1, detail.quantity, " +
+            "       red_in.orderNumbers, red_in.invoiceNumber, pro.productName, pro.productCode, pro.uom1, detail.quantity, " +
             "       detail.priceNotVat, detail.price, detail.note )" +
             "FROM   RedInvoice red_in " +
             "JOIN   RedInvoiceDetail detail on red_in.id = detail.redInvoiceId " +

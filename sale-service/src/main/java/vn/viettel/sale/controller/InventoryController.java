@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -135,7 +136,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Kiem_ke_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        in.close();
+        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 
@@ -156,7 +157,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=stock_counting_fail_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        in.close();
+        IOUtils.closeQuietly(in);;
         response.getOutputStream().flush();
     }
 
@@ -175,7 +176,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=stock_counting_all_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        in.close();
+        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
     @GetMapping(value = { V1 + root + "/inventory/sample-excel"})
@@ -193,7 +194,7 @@ public class InventoryController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Nhap_kiem_ke_mau_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        in.close();
+        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

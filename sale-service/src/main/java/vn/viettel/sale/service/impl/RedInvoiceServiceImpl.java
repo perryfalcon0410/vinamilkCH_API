@@ -414,7 +414,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
             return hddtExcelDTO;
         }).collect(Collectors.toList());
-        Collections.sort(HDDTExcelDTOS, Comparator.comparing(HDDTExcelDTO::getOrderNumbers, Comparator.nullsLast(Comparator.naturalOrder()))
+        Collections.sort(HDDTExcelDTOS, Comparator.comparing(HDDTExcelDTO::getInvoiceNumber, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(HDDTExcelDTO::getProductCode, Comparator.nullsLast(Comparator.naturalOrder())));
 
         return HDDTExcelDTOS;
