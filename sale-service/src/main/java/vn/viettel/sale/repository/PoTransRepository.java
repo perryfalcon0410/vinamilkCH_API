@@ -38,6 +38,9 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
     @Query(value = "SELECT pt.internalNumber FROM PoTrans pt WHERE pt.type = 1 AND pt.status =1 ")
     List<String> getInternalNumber();
 
+    @Query(value = "SELECT pt FROM PoTrans pt WHERE pt.type = 1 AND pt.internalNumber = :internalNumber AND pt.status =1 ")
+    List<PoTrans> getByInternalNumber(String internalNumber);
+
     @Query(value = "" +
             "SELECT pot.ID              AS id,              pot.TRANS_CODE      AS transCode,       pot.RED_INVOICE_NO  AS redInvoiceNo, " +
             "       pot.INTERNAL_NUMBER AS internalNumber,  pot.TOTAL_QUANTITY  AS totalQuantity,   pot.TOTAL_AMOUNT    AS totalAmount, " +

@@ -13,6 +13,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.messaging.ShopParamRequest;
 import vn.viettel.core.security.anotation.RoleFeign;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -47,42 +48,39 @@ public class ShopController extends BaseController {
         return new Response<ShopDTO>().withData(shopDTO);
     }
 
-    @RoleFeign
     @GetMapping(value = V1 + root + "/editable/online-order/{shopId}")
     public Response<Boolean> isEditableOnlineOrder(@PathVariable Long shopId) {
         Boolean response = shopService.isEditableOnlineOrder(shopId);
         return new Response<Boolean>().withData(response);
     }
 
-    @RoleFeign
     @GetMapping(value = V1 + root + "/feign/shops")
-    public Response<Map<Integer, ShopDTO>> getAllShopToRedInvoice() {
-        Map<Integer, ShopDTO> shopDTOS = shopService.getAllShopToRedInvoice();
-        return new Response<Map<Integer, ShopDTO>>().withData(shopDTOS);
+    public Response<List<ShopDTO>> getAllShopToRedInvoice(@RequestParam List<Long> shopIds) {
+        List<ShopDTO> shopDTOS = shopService.getAllShopToRedInvoice(shopIds);
+        return new Response<List<ShopDTO>>().withData(shopDTOS);
     }
 
-    @RoleFeign
+
     @GetMapping(value = V1 + root + "/manually-creatable/online-order/{shopId}")
     Response<Boolean> isManuallyCreatableOnlineOrder(@PathVariable Long shopId) {
         Boolean response = shopService.isManuallyCreatableOnlineOrder(shopId);
         return new Response<Boolean>().withData(response);
     }
 
-//    @RoleFeign
     @GetMapping(value = V1 + root + "/day-return/{shopId}")
     Response<String> dayReturn(@PathVariable Long shopId) {
         String string = shopService.dayReturn(shopId);
         return new Response<String>().withData(string);
     }
 
-    @RoleFeign
+
     @GetMapping(value = V1 + root + "/shop-params")
     Response<ShopParamDTO> getShopParam(@RequestParam String type, @RequestParam String code, @RequestParam Long shopId ) {
         ShopParamDTO dto = shopService.getShopParam(type, code, shopId );
         return new Response<ShopParamDTO>().withData(dto);
     }
 
-    @RoleFeign
+
     @PutMapping(value = V1 + root + "/shop-params-1/{id}")
     Response<ShopParamDTO> updateShopParam(@RequestBody ShopParamRequest request, @PathVariable Long id) {
         ShopParamDTO dto = shopService.updateShopParam(request, id);

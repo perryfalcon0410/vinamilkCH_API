@@ -174,6 +174,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
         query.execute();
 
         List<PromotionProductDTO> reportDTOS = query.getResultList();
+        entityManager.close();
         return reportDTOS;
     }
 

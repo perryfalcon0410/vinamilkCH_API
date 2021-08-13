@@ -61,6 +61,7 @@ public class ExchangeTransController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 

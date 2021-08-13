@@ -77,7 +77,9 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.setParameter(8, filter.getToOrderDate());
         storedProcedure.setParameter(9, filter.getShopId());
         storedProcedure.execute();
-        return new Response<List<ShopImportDTO>>().withData(storedProcedure.getResultList());
+        List<ShopImportDTO> response = storedProcedure.getResultList();
+        entityManager.close();
+        return new Response<List<ShopImportDTO>>().withData(response);
     }
 
     @Override

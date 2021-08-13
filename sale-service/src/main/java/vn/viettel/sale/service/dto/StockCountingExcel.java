@@ -62,13 +62,15 @@ public class StockCountingExcel {
 
     private Long productId;
 
+    private String productCategoryCode;
 
-    public StockCountingExcel(Long productId, String productCode, String productName, String productGroup, String productCategory,
+    public StockCountingExcel(Long productId, String productCode, String productName, String productGroup, String productCategory, String productCategoryCode,
                               Double price, Integer stockQuantity, String unit, String packetUnit, Integer convfact, Integer inventoryQuantity ){
         this.productId = productId;
         this.productCode = productCode;
         this.productName = productName;
         this.productCategory = productCategory;
+        this.productCategoryCode = productCategoryCode;
         this.productGroup = productGroup;
         this.stockQuantity = stockQuantity;
         this.unit = unit;

@@ -59,6 +59,7 @@ public class StockTotalReportController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=BC-ton_kho_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 

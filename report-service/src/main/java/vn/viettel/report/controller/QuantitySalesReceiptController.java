@@ -77,8 +77,9 @@ public class QuantitySalesReceiptController extends BaseController{
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=report_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        response.getOutputStream().flush();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
+        in.close();
+        response.getOutputStream().flush();
     }
 
 }

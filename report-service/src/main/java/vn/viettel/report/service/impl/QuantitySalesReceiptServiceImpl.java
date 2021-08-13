@@ -140,7 +140,8 @@ public class QuantitySalesReceiptServiceImpl implements QuantitySalesReceiptServ
                 }
             }
         });
-
+        session.close();
+        entityManager.close();
         return tableDynamicDTO;
     }
 }

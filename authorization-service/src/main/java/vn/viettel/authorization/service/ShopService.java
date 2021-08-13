@@ -4,6 +4,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.messaging.ShopParamRequest;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ShopService {
@@ -24,6 +25,6 @@ public interface ShopService {
     /*
         Danh sách shop = map sd để ko call db nhiều lần
      */
-    Map<Integer, ShopDTO> getAllShopToRedInvoice();
+    List<ShopDTO> getAllShopToRedInvoice(List<Long> shopIds);
 
 }

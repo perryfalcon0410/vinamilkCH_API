@@ -15,6 +15,9 @@ public interface ShopRepository extends BaseRepository<Shop> {
 
     Shop findByShopCode(String code);
 
+    @Query(value = "SELECT s FROM Shop s WHERE s.id IN (:ids)")
+    List<Shop> getShopByIds(List<Long> ids);
+
     List<Shop> findByParentShopIdAndShopTypeAndStatus(Long parentId, String type, Integer status);
 
 //    @Query(value = "SELECT dta.NAME FROM (\n" +

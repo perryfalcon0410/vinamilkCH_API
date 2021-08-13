@@ -24,6 +24,9 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
     List<Customer> getCustomerInfo(Integer status, List<Long> customerIds);
 
+    @Query(value = "SELECT c FROM Customer c WHERE c.id IN (:customerIds)")
+    List<Customer> getCustomersByIds(List<Long> customerIds);
+
     @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.customerCode NOT LIKE '%.KA___' ORDER BY c.customerCode desc ")
     Page<Customer> getLastCustomerNumber(@Param("shopId") Long shopId,  Pageable pageable);
 

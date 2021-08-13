@@ -166,6 +166,7 @@ public class RedInvoiceController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Hoa_Don_Vat_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
+        in.close();
         response.getOutputStream().flush();
     }
 

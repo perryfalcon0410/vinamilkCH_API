@@ -55,7 +55,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Override
     public VoucherDTO getVoucherBySerial(String serial, Long shopId, Long customerId, List<Long> productIds) {
-        if(serial != null) serial = serial.trim();
+        if(serial != null && !serial.isEmpty()) serial = serial.trim().toUpperCase();
         ShopParamDTO shopParamDTO = shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", shopId).getData();
         if(shopParamDTO == null) throw new ValidateException(ResponseMessage.APPARAM_VOUCHER_NOT_EXITS);
 

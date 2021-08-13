@@ -55,6 +55,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         query.execute();
 
         List<ReturnGoodsDTO> reportDTOS = query.getResultList();
+        entityManager.close();
         return reportDTOS;
     }
 

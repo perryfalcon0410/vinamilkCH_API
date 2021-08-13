@@ -115,6 +115,8 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
                 }
             }
         });
+        session.close();
+        entityManager.close();
         return tableDynamicDTO;
     }
 
