@@ -40,7 +40,7 @@ public interface CustomerClient {
     Response<CustomerDTO> updateFeignV1(@PathVariable(name = "id") Long id, @RequestBody CustomerRequest request);
 
     @GetMapping(value = { "/api/v1/customers/feign-customers"})
-    Response<Map<Integer, CustomerDTO>> getAllCustomerToRedInvocieV1();
+    Response<List<CustomerDTO>> getAllCustomerToRedInvocieV1(@RequestParam List<Long> customerIds);
 
     @PutMapping(value = {"/api/v1/customers/membercustomers/update/{customerId}"})
     Response<Boolean> updateMemberCustomerV1(@PathVariable Long customerId, @RequestBody MemberCustomerRequest request);

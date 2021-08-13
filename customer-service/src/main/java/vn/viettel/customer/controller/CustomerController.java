@@ -223,8 +223,8 @@ public class CustomerController extends BaseController {
     }
 
     @GetMapping(value = { V1 + root + "/feign-customers"})
-    public Response<Map<Integer, CustomerDTO>> getAllCustomerToRedInvocie() {
-        return new Response<Map<Integer, CustomerDTO>>().withData(service.getAllCustomerToRedInvoice());
+    public Response<List<CustomerDTO>> getAllCustomerToRedInvocie(@RequestParam List<Long> customerIds) {
+        return new Response<List<CustomerDTO>>().withData(service.getAllCustomerToRedInvoice(customerIds));
     }
 
     @Override
