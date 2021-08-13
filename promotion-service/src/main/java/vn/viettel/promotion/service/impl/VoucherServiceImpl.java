@@ -64,6 +64,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         Integer currentNumber = Integer.valueOf(shopParamDTO.getDescription()!=null?shopParamDTO.getDescription():"0");
         if(currentNumber > maxNumber) throw new ValidateException(ResponseMessage.CANNOT_SEARCH_VOUCHER);
 
+        if(serial!=null && !serial.isEmpty()) serial = serial.toUpperCase();
         Voucher voucher = repository.getBySerial(serial,
                 DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())).orElse(null);
 
