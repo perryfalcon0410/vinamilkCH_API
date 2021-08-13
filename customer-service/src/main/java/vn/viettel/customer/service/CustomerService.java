@@ -7,6 +7,7 @@ import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
+import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.service.dto.*;
 
 import java.util.List;
@@ -56,5 +57,15 @@ public interface CustomerService extends BaseService {
      void updateCustomerStartDay();
 
      void updateCustomerStartMonth();
+
+     /*
+     Lấy thông tin tiền tích lũy
+      */
+    Double getScoreCumulated(Long customerId);
+
+    /*
+    Lấy thông tin khách hàng khi auto search
+     */
+    Page<CustomerDTO> findCustomerForSale(Long shopId, CustomerSaleFilter customerFilter, Pageable pageable);
 }
 

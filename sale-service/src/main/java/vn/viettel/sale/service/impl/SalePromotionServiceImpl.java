@@ -380,28 +380,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion.setIsEditable(true);
 
             }else { //tặng tiền + % chỉ có discountAmount hoặc discountPercent
-                List<PromotionProgramDiscountDTO> programDiscount = promotionClient.findPromotionDiscountByPromotion(program.getId()).getData();
-                if (programDiscount == null || programDiscount.isEmpty())
+                List<PromotionProgramDiscountDTO> programDiscounts = promotionClient.findPromotionDiscountByPromotion(program.getId()).getData();
+                if (programDiscounts == null || programDiscounts.isEmpty())
                     return null;
 
-                PromotionProgramDiscountDTO discountDTO = programDiscount.get(0);
-                discountDTO.setProgram(program);
-                /*
-                Nếu given_type = 3 thì: bắt buộc KH mua hàng đơn hàng phải có mã customer_code giống với customer_code
-                trong bảng promotion_discount thì mới đc hưởng ctkm tay này
-                 */
-                if(program.getGivenType() != null && program.getGivenType() == 3){
-                    if(discountDTO.getIsUsed() == 1 || customerCode == null || discountDTO.getCustomerCode() == null || discountDTO.getCustomerCode().isEmpty() ||
-                        !discountDTO.getCustomerCode().trim().equalsIgnoreCase(customerCode.trim())){
-                        return null;
-                    }
-                    salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax - amountProInTax, totalAmountExtax - amountProExTax, isInclusiveTax,
-                            inputAmount, forSaving, false);
-                    if (salePromotion != null && forSaving) salePromotion.setDiscountDTO(discountDTO);
-                }else {
-                    salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax, totalAmountExtax, isInclusiveTax,
-                            inputAmount, forSaving, false);
-                }
+                salePromotion = calZMAmount(program, orderData, shopId, programDiscounts,  amountProInTax,  amountProExTax, isInclusiveTax,
+                        inputAmount, customerCode, forSaving, false);
 
                 if (salePromotion != null) salePromotion.setLstProductHasPromtion(lstProductIds);
             }
@@ -430,139 +414,159 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return null;
     }
 
-    private SalePromotionDTO calZMAmount(ProductOrderDataDTO orderData, Long shopId, PromotionProgramDiscountDTO discountDTO, double totalAmountInTax,
-                                         double totalAmountExtax, boolean isInclusiveTax, Double inputAmount, boolean forSaving, boolean forDiscountCode){
-        double compareAmt = totalAmountInTax;
-        if(!isInclusiveTax) compareAmt = totalAmountExtax;
-        //đạt số tiền tối thiểu đơn hàng cần đạt
-        if ( discountDTO.getMinSaleAmount() == null || discountDTO.getMinSaleAmount() > compareAmt){
-            return null;
+    private SalePromotionDTO calZMAmount(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, List<PromotionProgramDiscountDTO> discountDTOs, double amountProInTax,
+                                         double amountProExTax, boolean isInclusiveTax, Double inputAmount, String customerCode, boolean forSaving, boolean forDiscountCode){
+        double totalAmountInTax = orderData.getTotalPrice();
+        double totalAmountExtax = orderData.getTotalPriceNotVAT();
+        double billPercent = (totalAmountInTax - totalAmountExtax) / totalAmountExtax * 100;
+        if(program.getGivenType() != null && program.getGivenType() == 3){
+            totalAmountInTax = totalAmountInTax - amountProInTax;
+            totalAmountExtax = totalAmountExtax - amountProExTax;
         }
-        PromotionProgramDTO program = discountDTO.getProgram();
+        List<PromotionProgramDiscountDTO> discountNeedUpdate = new ArrayList<>();
+
+        //sort sử dụng giảm giá % trước sau đến giảm giá tiền, sau đến nhập tay
+        List<PromotionProgramDiscountDTO> discountItems = new ArrayList<>();
+        List<PromotionProgramDiscountDTO> itemPercents = discountDTOs.stream().filter(p -> p.getDiscountPercent()!=null).collect(Collectors.toList());
+        Collections.sort(itemPercents,  Comparator.comparing(PromotionProgramDiscountDTO::getDiscountPercent));
+
+        List<PromotionProgramDiscountDTO> itemAmounts =  discountDTOs.stream().filter(p -> p.getDiscountAmount()!=null).collect(Collectors.toList());
+        Collections.sort(itemAmounts, Comparator.comparing(PromotionProgramDiscountDTO::getDiscountAmount));
+
+        List<PromotionProgramDiscountDTO> itemMaxes = discountDTOs.stream().filter(p -> p.getMaxDiscountAmount()!=null).collect(Collectors.toList());
+        Collections.sort(itemMaxes, Comparator.comparing(PromotionProgramDiscountDTO::getMaxDiscountAmount));
+
+        discountItems.addAll(itemPercents);
+        discountItems.addAll(itemAmounts);
+        discountItems.addAll(itemMaxes);
+
+        Double amtInTax = 0D;
+        Double amtExTax = 0D;
+        double maxAmount = 0;
+
+        for(PromotionProgramDiscountDTO discountDTO : discountItems){
+            /*
+                Nếu given_type = 3 thì: bắt buộc KH mua hàng đơn hàng phải có mã customer_code giống với customer_code
+                trong bảng promotion_discount thì mới đc hưởng ctkm tay này
+                 */
+            if((program.getGivenType() != null && program.getGivenType() == 3) &&
+                    (discountDTO.getIsUsed() == 1 || customerCode == null || discountDTO.getCustomerCode() == null ||
+                     discountDTO.getCustomerCode().isEmpty() || !discountDTO.getCustomerCode().trim().equalsIgnoreCase(customerCode.trim()) ) ){
+                continue;
+            }
+
+            double compareAmt = totalAmountInTax;
+            if(!isInclusiveTax) compareAmt = totalAmountExtax;
+
+            if ( discountDTO.getMinSaleAmount() != null && discountDTO.getMinSaleAmount() <= compareAmt) {//đạt số tiền tối thiểu đơn hàng cần đạt
+                double amountIn = 0;
+                double amountEx = 0;
+                if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) { //km tiền
+                    amountIn = discountDTO.getDiscountAmount();
+                    amountEx = amountIn / ((100 + billPercent) / 100);
+
+                    if (!isInclusiveTax) {
+                        amountEx = discountDTO.getDiscountAmount();
+                        amountIn = amountEx * ((100 + billPercent) / 100);
+                    }
+                } else if (discountDTO.getDiscountPercent() != null && discountDTO.getDiscountPercent() > 0) { // KM %
+                    double amtSaleInTax = totalAmountInTax;
+                    double amtSaleExTax = totalAmountExtax;
+
+                    //nếu có khai báo số tiền tính km tối đa và < số tiền mua
+                    if (discountDTO.getMaxSaleAmount() != null && discountDTO.getMaxSaleAmount() > 0 && discountDTO.getMaxSaleAmount() < compareAmt) {
+                        amtSaleInTax = discountDTO.getMaxSaleAmount();
+                        amtSaleExTax = amtSaleInTax / ((100 + billPercent) / 100);
+                        if (!isInclusiveTax) {
+                            amtSaleExTax = discountDTO.getMaxSaleAmount();
+                            amtSaleInTax = amtSaleExTax * ((100 + billPercent) / 100);
+                        }
+                    }
+                    amountIn = amtSaleInTax * discountDTO.getDiscountPercent() / 100;
+                    amountEx = amtSaleExTax * discountDTO.getDiscountPercent() / 100;
+                    compareAmt = amountIn;
+                    if (!isInclusiveTax) compareAmt = amountEx;
+                    //nếu khai báo số tiền tối đa && nếu tiền hưởng > tiền tối đa thì chỉ được lấy số tối đa
+                    if (discountDTO.getMaxDiscountAmount() != null && discountDTO.getMaxDiscountAmount() > 0 && compareAmt > discountDTO.getMaxDiscountAmount()) {
+                        amountIn = discountDTO.getMaxDiscountAmount();
+                        amountEx = amountIn / ((100 + billPercent) / 100);
+                        if (!isInclusiveTax) {
+                            amountEx = discountDTO.getMaxDiscountAmount();
+                            amountIn = amountEx * ((100 + billPercent) / 100);
+                        }
+                    }
+                }else if (discountDTO.getMaxDiscountAmount() != null && discountDTO.getMaxDiscountAmount() > 0 && forDiscountCode == false && program.getGivenType() != 3) {
+                    if (inputAmount != null && inputAmount > 0) {
+                        amtInTax = inputAmount;
+                        amtExTax = amtInTax / ((100 + billPercent) / 100);
+                        if (!isInclusiveTax) {
+                            amtExTax = inputAmount;
+                            amtInTax = amtExTax * ((100 + billPercent) / 100);
+                        }
+                    }else amtInTax = null;
+                    maxAmount = discountDTO.getMaxDiscountAmount();
+
+                    break;
+                }
+                /*
+                    kiểm tra nếu là giảm giá khách hàng given type = 3
+                    Nếu tổng tiền đơn hàng - tiền giảm giá < tiền km => thì ko sử dụng giảm giá khách hàng
+                */
+                if(program.getGivenType() != null && program.getGivenType() == 3){
+                    if((orderData.getTotalPrice() - amountProInTax) < amountIn){
+                        continue;
+                    }
+                    amountProInTax += amountIn;
+                    amountProExTax += amountEx;
+                    amtInTax += amountIn;
+                    amtExTax += amountEx;
+                    discountNeedUpdate.add(discountDTO);
+                }else{
+                    amtInTax += amountIn;
+                    amtExTax += amountEx;
+                    break;
+                }
+            }
+        }
 
         SalePromotionDTO salePromotion = null;
-
-        if (discountDTO.getDiscountAmount() != null && discountDTO.getDiscountAmount() > 0) {
-            SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-            salePromotion = new SalePromotionDTO();
-            salePromotion.setProgramId(program.getId());
-            salePromotion.setProgramType(program.getType());
-            Double amount = discountDTO.getDiscountAmount();
-            if(inputAmount != null && inputAmount > 0){
-                amount = inputAmount;
+        //trường hợp amtInTax == null -> cho nhập giá trị
+        if(amtInTax == null || amtInTax > 0) {
+            if(amtInTax == null){
+                amtInTax = 0D;
+                amtExTax = 0D;
             }
-            double percent = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
-            salePromotion.setTotalAmtInTax(amount);
-            salePromotion.setTotalAmtExTax(amount / (( 100 + percent ) / 100));
-            if(!isInclusiveTax){
-                salePromotion.setTotalAmtInTax(amount * (( 100 + percent ) / 100));
-                salePromotion.setTotalAmtExTax(amount);
-            }
-            spDto.setAmount(salePromotion.getTotalAmtInTax());
-            if(!isInclusiveTax && forDiscountCode == false){
-                spDto.setAmount(salePromotion.getTotalAmtExTax());
-            }
-            salePromotion.setIsEditable(false);
-
-            if(forSaving) {
-                spDto.setPercentage(percent);
-                double percentTx = calPercent(totalAmountInTax, amount);
-                spDto.setMaxAmount(amount);
-                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentTx,
-                        isInclusiveTax, salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
-                spDto.setDiscountInfo(saveInfo);
-            }
-            salePromotion.setAmount(spDto);
-            LimitDto value = getPromotionLimit(salePromotion, shopId);
-            salePromotion.setNumberLimited(value.getLimited());
-            salePromotion.setIsUse(value.isUsed());
-        } else if (discountDTO.getDiscountPercent() != null && discountDTO.getDiscountPercent() > 0) { // KM %
-            SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-            double p = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
-            double amtSaleInTax = totalAmountInTax;
-            double amtSaleExTax = totalAmountExtax;
-            compareAmt = amtSaleInTax;
-            if(!isInclusiveTax) compareAmt = amtSaleExTax;
-            //nếu có khai báo số tiền tính km tối đa và < số tiền mua
-            if(discountDTO.getMaxSaleAmount() != null && discountDTO.getMaxSaleAmount() > 0 && discountDTO.getMaxSaleAmount() < compareAmt){
-                amtSaleInTax = discountDTO.getMaxSaleAmount();
-                amtSaleExTax = amtSaleInTax / (( 100 + p ) / 100);
-                if(!isInclusiveTax){
-                    amtSaleExTax = discountDTO.getMaxSaleAmount();
-                    amtSaleInTax = amtSaleExTax * (( 100 + p ) / 100);
-                }
-            }
-            double amtInTax = amtSaleInTax * discountDTO.getDiscountPercent() / 100;
-            double amtExTax = amtSaleExTax * discountDTO.getDiscountPercent() / 100;
-            compareAmt = amtInTax;
-            if(!isInclusiveTax) compareAmt = amtExTax;
-            //nếu khai báo số tiền tối đa && nếu tiền hưởng > tiền tối đa thì chỉ được lấy số tối đa
-            if (discountDTO.getMaxDiscountAmount() != null && discountDTO.getMaxDiscountAmount() > 0 && compareAmt > discountDTO.getMaxDiscountAmount()) {
-                amtInTax = discountDTO.getMaxDiscountAmount();
-                amtExTax = amtInTax / (( 100 + p ) / 100);
-                if(!isInclusiveTax){
-                    amtExTax = discountDTO.getMaxDiscountAmount();
-                    amtInTax = amtExTax * (( 100 + p ) / 100);
-                }
-            }
-            double amount = amtExTax;
-            if(isInclusiveTax){
-                amount = amtInTax;
-            }
-            if(forDiscountCode) amount = amtInTax;
-            spDto.setAmount(amount);
             salePromotion = new SalePromotionDTO();
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
-            if(forSaving) {
-                spDto.setPercentage(discountDTO.getDiscountPercent());
-                double percent = calPercent(totalAmountInTax, amount);
-                spDto.setMaxAmount(amount);
+            SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+            spDto.setAmount(salePromotion.getTotalAmtInTax());
+            if (!isInclusiveTax && forDiscountCode == false) {
+                spDto.setAmount(salePromotion.getTotalAmtExTax());
+            }
+            if (forSaving) {
+                if(amtInTax < 1) spDto.setPercentage(0D);
+                else  spDto.setPercentage((amtInTax - amtExTax )/ amtExTax * 100);
+                spDto.setMaxAmount(spDto.getAmount());
+
+                double percent = calPercent(totalAmountInTax, salePromotion.getTotalAmtInTax());
                 List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percent,
                         isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
                 spDto.setDiscountInfo(saveInfo);
+                salePromotion.setDiscountDTOs(discountNeedUpdate);
             }
             salePromotion.setAmount(spDto);
-            salePromotion.setIsEditable(false);
             LimitDto value = getPromotionLimit(salePromotion, shopId);
             salePromotion.setNumberLimited(value.getLimited());
             salePromotion.setIsUse(value.isUsed());
-        }else if(discountDTO.getMaxDiscountAmount() != null && discountDTO.getMaxDiscountAmount() > 0 && forDiscountCode == false && program.getGivenType() != 3){
-            SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-            Double amount = 0D;
-            salePromotion = new SalePromotionDTO();
-            salePromotion.setProgramId(program.getId());
-            salePromotion.setProgramType(program.getType());
-            if(inputAmount != null && inputAmount > 0){
-                amount = inputAmount;
+            salePromotion.setIsEditable(false);
+            if(maxAmount > 0){
+                spDto.setMaxAmount(maxAmount);
+                salePromotion.setIsEditable(true);
+                salePromotion.setIsUse(false);
             }
-            double percent = (totalAmountInTax - totalAmountExtax )/ totalAmountExtax * 100;
-            salePromotion.setTotalAmtInTax(amount);
-            salePromotion.setTotalAmtExTax(amount / (( 100 + percent ) / 100));
-            if(!isInclusiveTax){
-                salePromotion.setTotalAmtInTax(amount * (( 100 + percent ) / 100));
-                salePromotion.setTotalAmtExTax(amount);
-            }
-            spDto.setAmount(salePromotion.getTotalAmtInTax());
-            if(!isInclusiveTax){
-                spDto.setAmount(salePromotion.getTotalAmtExTax());
-            }
-            salePromotion.setIsEditable(true);
-            spDto.setMaxAmount(discountDTO.getMaxDiscountAmount());
-
-            if(forSaving) {
-                spDto.setPercentage(percent);
-                double percentTx = calPercent(totalAmountInTax, amount);
-                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentTx,
-                        isInclusiveTax, salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
-                spDto.setDiscountInfo(saveInfo);
-            }
-            salePromotion.setAmount(spDto);
-            LimitDto value = getPromotionLimit(salePromotion, shopId);
-            salePromotion.setNumberLimited(value.getLimited());
-            salePromotion.setIsUse(false);
         }
 
         return salePromotion;
@@ -1471,12 +1475,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             amountOrderExTax = productOrder.getTotalPriceNotVAT() * percentExTax/100;
                             if(cnt == mapOrderNumber.size()){
                                 amountOrderInTax = amountDiscountInTax - allOrderInTax;
-                                amountOrderExTax = allOrderExTax - amountDiscountExTax;
+                                amountOrderExTax = amountDiscountExTax - allOrderExTax;
                             }
                             allOrderInTax += amountOrderInTax;
                             allOrderExTax += amountOrderExTax;
-                            saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), amountDiscountInTax,
-                                    amountDiscountExTax, isInclusiveTax));
+                            saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), amountOrderInTax,
+                                    amountOrderExTax, isInclusiveTax));
                         }
                     }
                 }
@@ -2217,8 +2221,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         if(request.getPromotionAmountExTax() != null) totalAmountExtax -= request.getPromotionAmountExTax();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
-        SalePromotionDTO salePromotion = calZMAmount(orderData, shopId, discountDTO, totalAmountInTax, totalAmountExtax,
-                isInclusiveTax, null, false, true);
+        SalePromotionDTO salePromotion = calZMAmount(discountDTO.getProgram(), orderData, shopId, Arrays.asList(discountDTO), 0, 0,
+                isInclusiveTax, null, customer.getCustomerCode(), false, true);
 
         if ( salePromotion == null){
             throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);

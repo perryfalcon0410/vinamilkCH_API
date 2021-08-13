@@ -30,6 +30,7 @@ import java.util.List;
 @EnableJpaAuditing
 @EnableAsync
 @EnableSwagger2
+@EntityScan(value = {"vn.viettel.core.db.entity","vn.viettel.customer.entities"})
 @ComponentScan(basePackages = {"vn.viettel.customer", "vn.viettel.core.handler", "vn.viettel.core.security", "vn.viettel.core.service"})
 public class  CustomerServiceApplication {
 

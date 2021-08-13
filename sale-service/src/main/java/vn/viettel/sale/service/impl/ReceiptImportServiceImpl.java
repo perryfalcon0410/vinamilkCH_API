@@ -1331,8 +1331,9 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTransDTO poTransDTO = modelMapper.map(poTrans, PoTransDTO.class);
         if(poTrans.getWareHouseTypeId()==null)
             throw new ValidateException(ResponseMessage.DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT);
-        Optional<WareHouseType> wareHouseType = wareHouseTypeRepository.findById(poTrans.getWareHouseTypeId());
-        poTransDTO.setWareHouseTypeName(wareHouseType.get().getWareHouseTypeName());
+        WareHouseType wareHouseType = wareHouseTypeRepository.findById(poTrans.getWareHouseTypeId()).orElse(null);
+        if(wareHouseType!=null)
+            poTransDTO.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
         return poTransDTO;
     }
 

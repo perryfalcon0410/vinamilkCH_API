@@ -50,7 +50,7 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, MemberCar
 
     @Override
     public MemberCard update(MemberCardDTO memberCardDTO) {
-        Optional<MemberCard> memberOld = repository.getMemberCardById(memberCardDTO.getId());
+        MemberCard memberOld = repository.getMemberCardById(memberCardDTO.getId()).orElse(null);
         if (memberOld == null) {
             throw new ValidateException(ResponseMessage.MEMBER_CARD_NOT_EXIST);
         }

@@ -116,7 +116,7 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     @Override
     public ApParamDTO getApParamByTypeAndvalue(String type, String value) {
-        ApParam apParam = repository.findByTypeAndValueAndStatus(type, value, 1).get();
+        ApParam apParam = repository.findByTypeAndValueAndStatus(type, value, 1).orElse(null);
         if (apParam == null) return null;
         return modelMapper.map(apParam , ApParamDTO.class);
     }

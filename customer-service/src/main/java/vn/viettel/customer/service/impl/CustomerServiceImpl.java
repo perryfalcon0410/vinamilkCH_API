@@ -1,14 +1,9 @@
 package vn.viettel.customer.service.impl;
 
-import io.swagger.models.auth.In;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +11,6 @@ import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.*;
 import vn.viettel.core.messaging.CustomerOnlRequest;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.AgeCalculator;
 import vn.viettel.core.util.DateUtils;
@@ -34,9 +28,9 @@ import vn.viettel.core.utils.JMSType;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.entities.MemberCustomer;
-import vn.viettel.customer.entities.RptCusMemAmount;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
+import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.repository.MemBerCustomerRepository;
@@ -159,9 +153,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
     @Override
     public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
+
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
+
         List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if(customers.getContent().size() != 0)
@@ -170,6 +167,30 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
         return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
+    }
+
+    @Override
+    public Page<CustomerDTO> findCustomerForSale(Long shopId, CustomerSaleFilter customerFilter, Pageable pageable) {
+        if(customerFilter == null || customerFilter.getSearchKeywords() == null || customerFilter.getSearchKeywords().isEmpty())
+            return  new PageImpl<>(new ArrayList<>());
+
+        Long shop = null;
+        if(customerFilter.isCustomerOfShop()) shop = shopId;
+        if(customerFilter.isSearchPhoneOnly())
+            return repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
+
+        return repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+    }
+
+    @Override
+    public Double getScoreCumulated(Long customerId) {
+        if(customerId == null)
+            return null;
+
+        Optional<MemberCustomer> memberCustomer = memBerCustomerRepos.findByCustomerId(customerId);
+        if(memberCustomer.isPresent()) return memberCustomer.get().getScoreCumulated();
+
+        return null;
     }
 
     @Override
@@ -359,7 +380,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public List<CustomerDTO> getCustomerByMobiPhone(String phone) {
-        List<Customer> customers = repository.getCustomerByMobiPhoneAndStatus(phone, 1);
+        List<Customer> customers = repository.getAllByMobiPhoneAndStatus(phone, 1);
         List<CustomerDTO> customerDTOS = customers.stream().map(c -> {
             CustomerDTO customerDTO =  modelMapper.map(c, CustomerDTO.class);
             MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(c.getId()).orElse(null);
@@ -369,7 +390,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         return customerDTOS;
     }
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)

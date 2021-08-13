@@ -23,6 +23,7 @@ import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
+import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.impl.CustomerExcelExporter;
@@ -243,7 +244,7 @@ public class CustomerController extends BaseController {
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {
         return super.handleAPIBadRequestException(ex, request);
     }
-    
+
 	private void sendSynRequest(List<Long> lstIds) {
 		try {
 			if(!lstIds.isEmpty()) {
@@ -253,4 +254,39 @@ public class CustomerController extends BaseController {
 			LogFile.logToFile("CustomerServiceImpl.sendSynRequest", JMSType.customers, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
 		}
 	}
+    
+    @ApiOperation(value = "Tìm kiếm khách hàng dạng autocomplete ở màn hình bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
+    @GetMapping(value = { V1 + root + "/autocomplete"})
+    public Response<Page<CustomerDTO>> findCustomerForSale(HttpServletRequest httpRequest,
+                                                     @RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
+                                                     @RequestParam(value = "customerOfShop", required = false) Boolean customerOfShop,
+                                                     @RequestParam(value = "searchPhoneOnly", required = false) Boolean searchPhoneOnly,
+                                                     @RequestParam(value = "searchAddressOnly", required = false) Boolean searchAddressOnly,
+                                                       @SortDefault.SortDefaults({
+                                                               @SortDefault(sort = "customerCode", direction = Sort.Direction.ASC),
+                                                               @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
+                                                               @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
+                                                       }) Pageable pageable ) {
+        if(customerOfShop == null) customerOfShop = true;
+        if(searchPhoneOnly == null) searchPhoneOnly = true;
+        CustomerSaleFilter filter = new CustomerSaleFilter();
+        filter.setCustomerOfShop(customerOfShop);
+        filter.setSearchPhoneOnly(searchPhoneOnly);
+        filter.setSearchKeywords(searchKeywords.toUpperCase());
+
+        return new Response<Page<CustomerDTO>>().withData(service.findCustomerForSale(this.getShopId(), filter, pageable));
+    }
+
+    @ApiOperation(value = "Lấy thông tin tiền tích lũy theo khách hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request")}
+    )
+    @GetMapping(value = { V1 + root + "/scorecumulated/{customerId}"})
+    public Response<Double> getScoreCumulated(HttpServletRequest httpRequest, @PathVariable(name = "customerId") Long customerId) {
+        return new Response<Double>().withData(service.getScoreCumulated(customerId));
+    }
+
 }
