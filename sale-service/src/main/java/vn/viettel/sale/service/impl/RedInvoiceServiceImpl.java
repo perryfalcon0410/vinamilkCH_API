@@ -317,13 +317,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             redInvoiceDetailRepository.save(redInvoiceDetailRecord);
         }
 
-        CustomerDTO customer = customerClient.getCustomerByIdV1(redInvoiceNewDataDTO.getCustomerId()).getData();
-        CustomerRequest request = modelMapper.map(customer, CustomerRequest.class);
-        request.setId(redInvoiceNewDataDTO.getCustomerId());
-        request.setWorkingOffice(redInvoiceNewDataDTO.getOfficeWorking());
-        request.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
-        request.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
-        customerClient.updateFeignV1(redInvoiceNewDataDTO.getCustomerId(), request);
+        if(redInvoiceNewDataDTO.getCustomerId()!=null) {
+            CustomerDTO customer = customerClient.getCustomerByIdV1(redInvoiceNewDataDTO.getCustomerId()).getData();
+            CustomerRequest request = modelMapper.map(customer, CustomerRequest.class);
+            request.setId(redInvoiceNewDataDTO.getCustomerId());
+            request.setWorkingOffice(redInvoiceNewDataDTO.getOfficeWorking());
+            request.setTaxCode(redInvoiceNewDataDTO.getTaxCode());
+            request.setOfficeAddress(redInvoiceNewDataDTO.getOfficeAddress());
+            customerClient.updateFeignV1(redInvoiceNewDataDTO.getCustomerId(), request);
+        }
 
         return redInvoiceDTO;
     }
