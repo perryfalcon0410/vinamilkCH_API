@@ -3,6 +3,7 @@ package vn.viettel.report.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -61,7 +62,7 @@ public class ExchangeTransController extends BaseController {
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
-        in.close();
+        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

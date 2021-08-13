@@ -1,6 +1,7 @@
 package vn.viettel.sale.excel;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
@@ -214,7 +215,7 @@ public class HVKHExcel {
         workbook.write(out);
         ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
         workbook.close();
-        out.close();
+        IOUtils.closeQuietly(out);
         return response;
     }
 }

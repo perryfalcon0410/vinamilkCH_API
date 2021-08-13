@@ -1,6 +1,7 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
@@ -94,7 +95,7 @@ public class QuantitySalesReceiptExcel {
         workbook.write(out);
         ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
         workbook.close();
-        out.close();
+        IOUtils.closeQuietly(out);
         return response;
     }
 }
