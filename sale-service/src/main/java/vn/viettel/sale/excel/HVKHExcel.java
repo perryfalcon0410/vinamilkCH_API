@@ -107,7 +107,7 @@ public class HVKHExcel {
                 ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getPrintDate()), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, null, styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTaxCode(), styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalMoney(), formatCurrency);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getAmountNotVat(), formatCurrency);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getWareHouse(), styleTableValue);
             }
         }

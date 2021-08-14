@@ -423,6 +423,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     private List<HDDTO> getDataHdDvkh(String ids) {
         List<Long> redIds = Arrays.stream(ids.split(",")).map(item -> {Long rs = 0L; try{rs = Long.parseLong(item);}catch(Exception e){} return rs; }).distinct().collect(Collectors.toList());
         List<RedInvoice> redInvoices = redInvoiceRepository.findAllById(redIds);
+
         List<HDDTO> hddtos = new ArrayList<>();
         if(redInvoices == null || redInvoices.isEmpty()) return hddtos;
 

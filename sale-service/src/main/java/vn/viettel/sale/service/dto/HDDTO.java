@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.tomcat.jni.Local;
 import vn.viettel.sale.messaging.RedInvoicePrint;
 
 import javax.persistence.Column;
@@ -25,7 +26,7 @@ public class HDDTO {
     @ApiModelProperty(notes = "Mã số doanh nghiệp")
     private String taxCode;
     @ApiModelProperty(notes = "Tổng số tiền trươc thuế")
-    private Float totalMoney;
+    private Double amountNotVat;
     @ApiModelProperty(notes = "Số hóa đơn")
     private String redInvoiceNum;
     @ApiModelProperty(notes = "Kho")
