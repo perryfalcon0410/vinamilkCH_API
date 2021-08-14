@@ -3,13 +3,13 @@ server:
 eureka:
   client:
     fetchRegistry: true
-    registerWithEureka: true
+#    registerWithEureka: true
     serviceUrl:
       defaultZone: ${EUREKA_URL}
   instance:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
-    registryFetchIntervalSeconds: 5
+#    registryFetchIntervalSeconds: 5
     hostname: ${HOST_NAME}
     preferIpAddress: true
 

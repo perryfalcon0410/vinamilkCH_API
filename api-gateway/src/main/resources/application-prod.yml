@@ -4,11 +4,11 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
-    registryFetchIntervalSeconds: 5
+#    registryFetchIntervalSeconds: 5
     preferIpAddress: false
   client:
-    fetchRegistry: true
-    registerWithEureka: true
+#    fetchRegistry: true
+#    registerWithEureka: true
     serviceUrl:
       defaultZone: http://discovery-server:8761/eureka/
 

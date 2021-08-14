@@ -4,11 +4,11 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
-    registryFetchIntervalSeconds: 5
+#    registryFetchIntervalSeconds: 5
     preferIpAddress: true
   client:
-    fetchRegistry: true
-    registerWithEureka: true
+#    fetchRegistry: true
+#    registerWithEureka: true
     serviceUrl:
       defaultZone: ${EUREKA_URL}
 
@@ -60,7 +60,7 @@ hystrix:
       execution:
         timeout:
           enabled: false
-            
+
 ribbon:
   ReadTimeout: 20000
   ConnectTimeout: 20000

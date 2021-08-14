@@ -1,0 +1,149 @@
+version: '3'
+services:
+  discovery-server:
+    image: salemt/discovery-server:1.0
+    container_name: discovery-server
+    networks:
+      - backend
+    environment:
+      - "JAVA_OPTS=-Xms256m -Xmx2G -Xmn1G"
+    init: true
+    ports:
+      - "8761:8761"
+    volumes:
+      - "logs:/opt/app/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+  api-gateway:
+    image: salemt/api-gateway:1.0
+    container_name: api-gateway
+    networks:
+      - backend
+    environment:
+      - "SPRING_PROFILES_ACTIVE= prod"
+      - "JAVA_OPTS=-Xms128m -Xmx1G -Xmn512m"
+    init: true
+    ports:
+      - "2407:2407"
+    volumes:
+      - "logs:/opt/app/api-gateway/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+  authorization-service:
+    image: salemt/authorization-service:1.0
+    container_name: authorization-service
+    networks:
+      - backend
+    environment:
+      - "SPRING_PROFILES_ACTIVE= prod"
+      - "JAVA_OPTS=-Xms64m -Xmx512m -Xmn256m"
+    init: true
+    ports:
+      - "9001:9001"
+    volumes:
+      - "logs:/opt/app/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "vnmch-db-01:10.254.157.136"
+      - "vnmch-db-02:10.254.157.137"
+  common-service:
+    image: salemt/common-service:1.0
+    container_name: common-service
+    networks:
+      - backend
+    environment:
+      - "SPRING_PROFILES_ACTIVE= prod"
+      - "JAVA_OPTS=-Xms128m -Xmx1G -Xmn512m"
+    init: true
+    ports:
+      - "9002:9002"
+    volumes:
+      - "logs:/opt/app/common-service/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "vnmch-db-01:10.254.157.136"
+      - "vnmch-db-02:10.254.157.137"
+  customer-service:
+    image: salemt/customer-service:1.0
+    container_name: customer-service
+    networks:
+      - backend
+    environment:
+      - "SPRING_PROFILES_ACTIVE= prod"
+      - "JAVA_OPTS=-Xms1G -Xmx8G -Xmn4G"
+    init: true
+    ports:
+      - "9003:9003"
+    volumes:
+      - "logs:/opt/app/customer-service/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "vnmch-db-01:10.254.157.136"
+      - "vnmch-db-02:10.254.157.137"
+  promotion-service:
+    image: salemt/promotion-service:1.0
+    container_name: promotion-service
+    networks:
+      - backend
+    environment:
+      - "SPRING_PROFILES_ACTIVE= prod"
+      - "JAVA_OPTS=-Xms256m -Xmx2G -Xmn1G"
+    init: true
+    ports:
+      - "9004:9004"
+    volumes:
+      - "logs:/opt/app/promotion-service/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "vnmch-db-01:10.254.157.136"
+      - "vnmch-db-02:10.254.157.137"
+  report-service:
+    image: salemt/report-service:1.0
+    container_name: report-service
+    networks:
+      - backend
+    environment:
+      - "SPRING_PROFILES_ACTIVE= prod"
+      - "JAVA_OPTS=-Xms256m -Xmx2G -Xmn1G"
+    init: true
+    ports:
+      - "9005:9005"
+    volumes:
+      - "logs:/opt/app/report-service/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "vnmch-db-01:10.254.157.136"
+      - "vnmch-db-02:10.254.157.137"
+  sale-service:
+    image: salemt/sale-service:1.0
+    container_name: sale-service
+    networks:
+      - backend
+    environment:
+      - "SPRING_PROFILES_ACTIVE= prod"
+      - "JAVA_OPTS=-Xms256m -Xmx2G -Xmn1G"
+    init: true
+    ports:
+      - "9006:9006"
+    volumes:
+      - "logs:/opt/app/sale-service/logs"
+      - /etc/timezone_host:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "vnmch-db-01:10.254.157.136"
+      - "vnmch-db-02:10.254.157.137"
+networks:
+  backend:
+    driver: bridge
+volumes:
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/logs
