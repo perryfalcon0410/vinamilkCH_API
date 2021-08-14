@@ -119,14 +119,14 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         response.setImpAdjust(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 1).collect(Collectors.toList())));
         // Nhập vay mượn
         response.setImpBorrow(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 2).collect(Collectors.toList())));
-        // Xuất trả Po lấy ra âm
-        response.setExpPO(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 0 && t.getType() != null && t.getType() == 2).collect(Collectors.toList())));
+        // Xuất trả Po lấy ra âm - po trả ko lấy trong in
+        //response.setExpPO(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 0 && t.getType() != null && t.getType() == 2).collect(Collectors.toList())));
 
         Long totalQuantity = 0L;
         Double totalAmount = 0.0;
         if(response.getImpPO()!=null){
             totalQuantity += response.getImpPO().getTotalQuantity();
-            totalAmount += response.getImpPO().getTotalPriceNotVat();
+            totalAmount += response.getImpPO().getTotalPriceVat();
         }
         if(response.getImpAdjust()!=null){
             totalQuantity += response.getImpAdjust().getTotalQuantity();
@@ -135,10 +135,6 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         if(response.getImpBorrow()!=null){
             totalQuantity += response.getImpBorrow().getTotalQuantity();
             totalAmount += response.getImpBorrow().getTotalPriceVat();
-        }
-        if(response.getExpPO()!=null){
-            totalQuantity += response.getExpPO().getTotalQuantity();
-            totalAmount += response.getExpPO().getTotalPriceNotVat();
         }
 
         response.setTotalQuantity(totalQuantity);
