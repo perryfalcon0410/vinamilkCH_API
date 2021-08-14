@@ -119,30 +119,31 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         response.setImpAdjust(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 1).collect(Collectors.toList())));
         // Nhập vay mượn
         response.setImpBorrow(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 2).collect(Collectors.toList())));
-        // Xuất trả Po lấy ra âm
-        response.setExpPO(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 0 && t.getType() != null && t.getType() == 2).collect(Collectors.toList())));
+        // Xuất trả Po lấy ra âm - po trả ko lấy trong in
+        //response.setExpPO(this.filterData(shopImports.stream().filter(t -> t.getTypess() == 0 && t.getType() != null && t.getType() == 2).collect(Collectors.toList())));
 
         Long totalQuantity = 0L;
         Double totalAmount = 0.0;
+        Double totalAmountVAT =0.0;
         if(response.getImpPO()!=null){
             totalQuantity += response.getImpPO().getTotalQuantity();
-            totalAmount += response.getImpPO().getTotalPriceNotVat();
+            totalAmount += response.getImpPO().getTotalPriceVat();
+            totalAmountVAT += response.getImpPO().getTotalPriceNotVat();
         }
         if(response.getImpAdjust()!=null){
             totalQuantity += response.getImpAdjust().getTotalQuantity();
             totalAmount += response.getImpAdjust().getTotalPriceVat();
+            totalAmountVAT += response.getImpAdjust().getTotalPriceNotVat();
         }
         if(response.getImpBorrow()!=null){
             totalQuantity += response.getImpBorrow().getTotalQuantity();
             totalAmount += response.getImpBorrow().getTotalPriceVat();
-        }
-        if(response.getExpPO()!=null){
-            totalQuantity += response.getExpPO().getTotalQuantity();
-            totalAmount += response.getExpPO().getTotalPriceNotVat();
+            totalAmountVAT += response.getImpBorrow().getTotalPriceNotVat();
         }
 
         response.setTotalQuantity(totalQuantity);
         response.setTotalAmount(totalAmount);
+        response.setTotalVat(totalAmount - totalAmountVAT);
 
         return response;
     }
@@ -211,6 +212,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 orderImport.setTotalQuantity(totalOrderQty);
                 orderImport.setTotalPriceNotVat(totalOrderPriceNotVat);
                 orderImport.setTotalPriceVat(totalOrderPriceVat);
+                orderImport.setVat(totalOrderPriceVat - totalOrderPriceNotVat);
 
                 shopImport.addOrderImport(orderImport);
             }

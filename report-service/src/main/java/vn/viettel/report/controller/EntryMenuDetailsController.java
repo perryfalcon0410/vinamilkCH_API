@@ -59,7 +59,7 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "fromDate") Date fromDate,
             @RequestParam(value = "toDate") Date toDate,
             Pageable pageable) {
-        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate));
         CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO> response = entryMenuDetailsReportService.getEntryMenuDetailsReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
         return new Response<CoverResponse<Page<EntryMenuDetailsDTO>,ReportTotalDTO>>().withData(response);
@@ -77,7 +77,7 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "fromDate") Date fromDate,
             @RequestParam(value = "toDate") Date toDate, HttpServletResponse response) throws IOException {
 
-        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate));
         ByteArrayInputStream in = entryMenuDetailsReportService.exportExcel(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
         response.setContentType("application/octet-stream");
@@ -98,7 +98,7 @@ public class EntryMenuDetailsController extends BaseController {
             HttpServletRequest request,
             @RequestParam(value = "fromDate") Date fromDate,
             @RequestParam(value = "toDate") Date toDate) {
-        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate));
         CoverResponse<List<EntryMenuDetailsDTO> , ReportDateDTO> response = entryMenuDetailsReportService.getEntryMenuDetails(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
         return new Response<CoverResponse<List<EntryMenuDetailsDTO> , ReportDateDTO>>().withData(response);

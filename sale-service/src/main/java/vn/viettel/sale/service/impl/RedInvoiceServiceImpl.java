@@ -249,8 +249,18 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
 
             for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
+                if(redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat() == null && redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat() == null)
+                    continue;
+
+                if((redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat() != null && redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat() == null)
+                    ||
+                    (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat() == null && redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat() != null)
+                )
+                    throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
+
                 if (!redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat().equals(redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat()))
                     throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
+
             }
         }
 
@@ -423,6 +433,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     private List<HDDTO> getDataHdDvkh(String ids) {
         List<Long> redIds = Arrays.stream(ids.split(",")).map(item -> {Long rs = 0L; try{rs = Long.parseLong(item);}catch(Exception e){} return rs; }).distinct().collect(Collectors.toList());
         List<RedInvoice> redInvoices = redInvoiceRepository.findAllById(redIds);
+
         List<HDDTO> hddtos = new ArrayList<>();
         if(redInvoices == null || redInvoices.isEmpty()) return hddtos;
 

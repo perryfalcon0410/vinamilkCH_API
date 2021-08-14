@@ -41,6 +41,9 @@ public class PrintShopImportDTO {
     @ApiModelProperty(notes = "Tổng thành tiền")
     private Double totalAmount;
 
+    @ApiModelProperty(notes = "Tổng tiền thuế")
+    private Double totalVat;
+
     @ApiModelProperty(notes = "Danh sách nhập hàng PO")
     private PrintShopImportTotalDTO impPO;
 

@@ -687,7 +687,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setTransDate(transDate);
             poRecord.setShopId(shopId);
             poRecord.setWareHouseTypeId(poConfirm.getWareHouseTypeId());
-            poRecord.setOrderDate(poConfirm.getOrderDate());
+            poRecord.setOrderDate(request.getOrderDate());
             poRecord.setInternalNumber(poConfirm.getInternalNumber());
             poRecord.setPoId(poConfirm.getId());
             poRecord.setTotalAmount(poConfirm.getTotalAmount());

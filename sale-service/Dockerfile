@@ -13,4 +13,4 @@ COPY ./invoice-import.jrxml $PROJECT_HOME/sale-service/invoice-import.jrxml
 
 WORKDIR $PROJECT_HOME
 
-CMD ["java","-Xmx128m","-Xms16m","-Xmn64m","-jar","./sale-service/sale-service-0.0.1-SNAPSHOT.jar"]
+CMD ["java","-Xmx1024m","-Xms512m","-Xmn64m","-jar","./sale-service/sale-service-0.0.1-SNAPSHOT.jar"]

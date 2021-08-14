@@ -7,4 +7,4 @@ COPY ./discovery-server-0.0.1-SNAPSHOT.jar $PROJECT_HOME/discovery-server/discov
 
 WORKDIR $PROJECT_HOME
 
-CMD ["java","-Xmx128m","-Xms16m","-Xmn64m","-jar","./discovery-server/discovery-server-0.0.1-SNAPSHOT.jar"]
+CMD ["java","-Xmx1024m","-Xms512m","-Xmn64m","-jar","./discovery-server/discovery-server-0.0.1-SNAPSHOT.jar"]

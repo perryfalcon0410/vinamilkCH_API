@@ -61,7 +61,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         List<EntryMenuDetailsDTO> dtoList = new ArrayList<>();
 
        if (!reportDTOS.isEmpty()){
-           EntryMenuDetailsDTO dto = reportDTOS.get(0);
+           EntryMenuDetailsDTO dto = reportDTOS.get(reportDTOS.size() -1);
            totalDTO.setTotalAmount(dto.getTotalAmount());
 
            this.removeDataList(reportDTOS);
@@ -83,7 +83,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         EntryMenuDetailsDTO entryMenuDetailsDTO = new EntryMenuDetailsDTO();
         if (!reportDTOS.isEmpty()){
-            entryMenuDetailsDTO = reportDTOS.get(0);
+            entryMenuDetailsDTO = reportDTOS.get(reportDTOS.size() -1);
             this.removeDataList(reportDTOS);
         }
 
@@ -98,7 +98,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         ReportDateDTO dateDTO = new ReportDateDTO();
 
         if (!reportDTOS.isEmpty()){
-            EntryMenuDetailsDTO entryMenuDetailsDTO = reportDTOS.get(0);
+            EntryMenuDetailsDTO entryMenuDetailsDTO = reportDTOS.get(reportDTOS.size() -1);
             dateDTO.setFromDate(filter.getFromDate());
             dateDTO.setToDate(filter.getToDate());
             dateDTO.setDateOfPrinting(DateUtils.formatDate2StringDate(LocalDate.now()));
@@ -114,7 +114,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
 
 
     private void removeDataList(List<EntryMenuDetailsDTO> reportDTOS) {
-        reportDTOS.remove(0);
-        reportDTOS.remove(0);
+        reportDTOS.remove(reportDTOS.size() -1);
+        reportDTOS.remove(reportDTOS.size() -1);
     }
 }
