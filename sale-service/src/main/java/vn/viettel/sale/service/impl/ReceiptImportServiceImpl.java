@@ -630,7 +630,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if(request.getRedInvoiceNo() != null && request.getRedInvoiceNo().length() >50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         checkNoteLength(request.getNote());
         LocalDateTime transDate = LocalDateTime.now();
-        if(request.getTransDate()!=null) transDate = request.getTransDate();
 
         if (request.getPoId() == null) {
             List<String> lstInternalNumber = repository.getInternalNumber();
@@ -736,7 +735,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         CustomerDTO cus = customerClient.getCusDefault(shopId);
         if(cus.getId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         LocalDateTime transDate = LocalDateTime.now();
-        if(request.getTransDate()!=null) transDate = request.getTransDate();
 
         if (request.getImportType() == 1) {
             ShopDTO shop = shopClient.getByIdV1(shopId).getData();
@@ -791,7 +789,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
 
             List<Price> prices = productPriceRepository.findProductPriceWithType(stockAdjustmentDetails.stream().map(item -> item.getProductId()).distinct()
-                    .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+                    .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), DateUtils.convertToDate(transDate));
 
             for (StockAdjustmentDetail sad : stockAdjustmentDetails) {
                 if(sad.getPrice() == null) sad.setPrice(0D);
@@ -850,7 +848,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage createBorrowingTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         LocalDateTime transDate = LocalDateTime.now();
-        if(request.getTransDate()!=null) transDate = request.getTransDate();
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
