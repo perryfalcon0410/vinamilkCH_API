@@ -124,21 +124,26 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
 
         Long totalQuantity = 0L;
         Double totalAmount = 0.0;
+        Double totalAmountVAT =0.0;
         if(response.getImpPO()!=null){
             totalQuantity += response.getImpPO().getTotalQuantity();
             totalAmount += response.getImpPO().getTotalPriceVat();
+            totalAmountVAT += response.getImpPO().getTotalPriceNotVat();
         }
         if(response.getImpAdjust()!=null){
             totalQuantity += response.getImpAdjust().getTotalQuantity();
             totalAmount += response.getImpAdjust().getTotalPriceVat();
+            totalAmountVAT += response.getImpAdjust().getTotalPriceNotVat();
         }
         if(response.getImpBorrow()!=null){
             totalQuantity += response.getImpBorrow().getTotalQuantity();
             totalAmount += response.getImpBorrow().getTotalPriceVat();
+            totalAmountVAT += response.getImpBorrow().getTotalPriceNotVat();
         }
 
         response.setTotalQuantity(totalQuantity);
         response.setTotalAmount(totalAmount);
+        response.setTotalVat(totalAmount - totalAmountVAT);
 
         return response;
     }
@@ -207,6 +212,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 orderImport.setTotalQuantity(totalOrderQty);
                 orderImport.setTotalPriceNotVat(totalOrderPriceNotVat);
                 orderImport.setTotalPriceVat(totalOrderPriceVat);
+                orderImport.setVat(totalOrderPriceVat - totalOrderPriceNotVat);
 
                 shopImport.addOrderImport(orderImport);
             }
