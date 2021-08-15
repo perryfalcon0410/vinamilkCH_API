@@ -617,13 +617,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartDay() {
         repository.schedulerUpdateStartDay();
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
     }
