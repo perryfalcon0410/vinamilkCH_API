@@ -1438,9 +1438,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         if("zv13".equalsIgnoreCase(type) || "zv16".equalsIgnoreCase(type)) {
                             discountPercent = discountItem.getDisPer();
                         }else{
-                            amountDiscountInTax = discountItem.getDiscAmt();
+                            amountDiscountInTax = discountItem.getDiscAmt()*multi;
                             if(isInclusiveTax){
-                                amountDiscountExTax = discountItem.getDiscAmt();
+                                amountDiscountExTax = discountItem.getDiscAmt()*multi;
                             }
                         }
                     }
