@@ -13,6 +13,7 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.InOutAdjustmentFilter;
 import vn.viettel.report.service.InOutAdjustmentService;
@@ -41,7 +42,7 @@ public class InOutAdjustmentController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO>> find (@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
-        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes,this.getShopId());
+        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId());
         CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO> dtos = inOutAdjustmentService.find(filter,pageable);
         return new Response<CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO>>().withData(dtos);
     }
@@ -53,7 +54,7 @@ public class InOutAdjustmentController extends BaseController {
     )
     public void exportToExcel(@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable, HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(fromDate, toDate, productCodes,this.getShopId());
+        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId());
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
         InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop,filter);
         ByteArrayInputStream in = inOutAdjustmentExcel.export();

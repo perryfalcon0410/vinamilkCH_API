@@ -450,7 +450,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 trong bảng promotion_discount thì mới đc hưởng ctkm tay này
                  */
             if((program.getGivenType() != null && program.getGivenType() == 3) &&
-                    (discountDTO.getIsUsed() == 1 || customerCode == null || discountDTO.getCustomerCode() == null ||
+                    ( (discountDTO.getIsUsed()!=null && discountDTO.getIsUsed() == 1) || customerCode == null || discountDTO.getCustomerCode() == null ||
                      discountDTO.getCustomerCode().isEmpty() || !discountDTO.getCustomerCode().trim().equalsIgnoreCase(customerCode.trim()) ) ){
                 continue;
             }
@@ -520,6 +520,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     amountProExTax += amountEx;
                     amtInTax += amountIn;
                     amtExTax += amountEx;
+                    discountDTO.setActualDiscountAmount(amountIn);
                     discountNeedUpdate.add(discountDTO);
                 }else{
                     amtInTax += amountIn;
@@ -1420,27 +1421,49 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     if(mapOrderNumber.containsKey(productOrder.getProductId())) {
                         allOrderInTax += productOrder.getTotalPrice();
                         allOrderExTax += productOrder.getTotalPriceNotVAT();
+                        double amtOrderInTax = 0;
+                        double amtOrderExTax = 0;
                         PromotionProgramDetailDTO discountItem = mapOrderNumber.get(productOrder.getProductId()).get(entry.getKey()).get(0);
                         if("zv13".equalsIgnoreCase(type) || "zv14".equalsIgnoreCase(type)){ // km %
-                            amountOrderInTax += discountItem.getSaleQty() * productOrder.getPrice() * multi;
-                            amountOrderExTax += discountItem.getSaleQty() * productOrder.getPriceNotVAT() * multi;
+                            amtOrderInTax = discountItem.getSaleQty() * productOrder.getPrice() * multi;
+                            amtOrderExTax = discountItem.getSaleQty() * productOrder.getPriceNotVAT() * multi;
                         }else if("zv16".equalsIgnoreCase(type) || "zv17".equalsIgnoreCase(type)) { // km tiền
                             double productPercent = (productOrder.getPrice() - productOrder.getPriceNotVAT() )/ productOrder.getPriceNotVAT() * 100;
                             if(isInclusiveTax) {
-                                amountOrderInTax += discountItem.getSaleAmt() * multi;
-                                amountOrderExTax += discountItem.getSaleAmt() / (( 100 + productPercent ) / 100) * multi;
+                                amtOrderInTax = discountItem.getSaleAmt() * multi;
+                                amtOrderExTax = discountItem.getSaleAmt() / (( 100 + productPercent ) / 100) * multi;
                             }else{
-                                amountOrderInTax += discountItem.getSaleAmt() * (( 100 + productPercent ) / 100) * multi;
-                                amountOrderExTax += discountItem.getSaleAmt() * multi;
+                                amtOrderInTax = discountItem.getSaleAmt() * (( 100 + productPercent ) / 100) * multi;
+                                amtOrderExTax = discountItem.getSaleAmt() * multi;
                             }
                         }
+                        amountOrderInTax += amtOrderInTax;
+                        amountOrderExTax += amtOrderExTax;
 
                         if("zv13".equalsIgnoreCase(type) || "zv16".equalsIgnoreCase(type)) {
                             discountPercent = discountItem.getDisPer();
+                            if(forSaving) {
+                            /*
+                            Đối với ZV16 dạng buldle thì chia tỉ lệ KM cho từng SP sẽ dựa vào khai báo và bội số nhận được
+                            thì tiền KM = Bội số * điều kiện số tiền mua SP này của mức * phần trăm KM/100
+                             */
+                                SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
+                                saveDTO.setProductId(productOrder.getProductId());
+                                saveDTO.setLevelNumber(level);
+                                saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
+                                saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
+                                saveDTO.setAmount(saveDTO.getAmountExTax());
+                                saveDTO.setMaxAmount(saveDTO.getAmountExTax());
+                                if (isInclusiveTax) {
+                                    saveDTO.setAmount(saveDTO.getAmountInTax());
+                                    saveDTO.setMaxAmount(saveDTO.getAmountInTax());
+                                }
+                                saveInfo.add(saveDTO);
+                            }
                         }else{
-                            amountDiscountInTax = discountItem.getDiscAmt();
+                            amountDiscountInTax = discountItem.getDiscAmt() * multi;
                             if(isInclusiveTax){
-                                amountDiscountExTax = discountItem.getDiscAmt();
+                                amountDiscountExTax = discountItem.getDiscAmt() * multi;
                             }
                         }
                     }
@@ -1462,7 +1485,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalAmountDiscountExTax += amountDiscountExTax;
                 totalAmountOrderInTax += amountOrderInTax;
 
-                if(forSaving) {
+                if(forSaving && (!"zv13".equalsIgnoreCase(type) && !"zv16".equalsIgnoreCase(type)) ) {
                     double percentInTax = calPercent(allOrderInTax,amountDiscountInTax);
                     double percentExTax = calPercent(allOrderExTax,amountDiscountExTax);
                     allOrderInTax = 0;

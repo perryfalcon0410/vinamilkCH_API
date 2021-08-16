@@ -440,6 +440,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update zm with given type = 3
         for(PromotionProgramDiscountDTO item : discountDTOs){
             item.setIsUsed(1);
+            item.setOrderDate(saleOrder.getOrderDate());
+            item.setOrderNumber(saleOrder.getOrderNumber());
+            item.setOrderShopCode(shop.getShopCode());
+            item.setOrderCustomerCode(customer.getCustomerCode());
+            item.setOrderAmount(saleOrder.getTotal());
             promotionClient.updatePromotionProgramDiscountV1(item);
         }
 

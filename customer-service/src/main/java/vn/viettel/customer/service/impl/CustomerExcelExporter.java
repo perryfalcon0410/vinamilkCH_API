@@ -8,6 +8,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import vn.viettel.core.utils.ExcelPoiUtils;
+import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.service.dto.ExportCustomerDTO;
 
 import java.awt.Color;
@@ -16,15 +17,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+
 
 public class CustomerExcelExporter {
 
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
-    private List<ExportCustomerDTO> customerList;
+    private List<Customer> customers;
+    Map<Long, String> customerTypeMaps;
+    Map<Long, String> closelyTypeMaps;
+    Map<Long, String> cardTypeMaps;
 
-    public CustomerExcelExporter(List<ExportCustomerDTO> customerList) {
-        this.customerList = customerList;
+    public CustomerExcelExporter(List<Customer> customers,   Map<Long, String> customerTypeMaps, Map<Long, String> closelyTypeMaps, Map<Long, String> cardTypeMaps) {
+        this.customers = customers;
+        this.customerTypeMaps = customerTypeMaps;
+        this.closelyTypeMaps = closelyTypeMaps;
+        this.cardTypeMaps = cardTypeMaps;
         workbook = new SXSSFWorkbook();
     }
 
@@ -104,7 +113,7 @@ public class CustomerExcelExporter {
         XSSFColor customColor1 = new XSSFColor(Color.WHITE, null);
         totalRowStyleRGB1.setFillForegroundColor(customColor1);
 
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:U1"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:V1"));
         ExcelPoiUtils.createCell(row, 0, "DANH SÁCH KHÁCH HÀNG", styleHeader1);
         ExcelPoiUtils.createCell(row1, 0, "STT", styleHeader);
         ExcelPoiUtils.createCell(row1, 1, "Mã KH", styleHeader);
@@ -128,9 +137,9 @@ public class CustomerExcelExporter {
         ExcelPoiUtils.createCell(row1, 19, "Loại KH", styleHeader);
         ExcelPoiUtils.createCell(row1, 20, "Ngày tạo", styleHeader);
         ExcelPoiUtils.createCell(row1, 21, "Ghi chú", styleHeader);
-
         row.setHeight((short) 800);
         row1.setHeight((short) 650);
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 21);
     }
 
     private void writeDataLines() {
@@ -160,7 +169,7 @@ public class CustomerExcelExporter {
         style1.setBorderBottom(BorderStyle.THIN);
         style1.setBorderLeft(BorderStyle.THIN);
         style1.setBorderRight(BorderStyle.THIN);
-        for (ExportCustomerDTO customer : customerList) {
+        for (Customer customer: customers) {
             stt++;
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
@@ -185,7 +194,7 @@ public class CustomerExcelExporter {
             } else {
                 ExcelPoiUtils.createCell(row, columnCount++, "Khác", style);
             }
-            ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getCustomerTypeName()), style);
+            ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(this.getCustomerTypeName(customer.getCustomerTypeId())), style);
             if (customer.getStatus() == 1) {
                 ExcelPoiUtils.createCell(row, columnCount++, "Hoạt động", style);
             } else {
@@ -215,8 +224,8 @@ public class CustomerExcelExporter {
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getWorkingOffice()), style);
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getOfficeAddress()), style);
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getTaxCode()), style);
-            ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getMemberCardName()), style);
-            ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(customer.getApParamName()), style);
+            ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(this.getMemberCardName(customer.getCardTypeId())), style);
+            ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(this.getCloselyName(customer.getCloselyTypeId())), style);
             DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             String createdAt = null;
             if(customer.getCreatedAt()!=null) createdAt = formatter1.format(customer.getCreatedAt());
@@ -233,6 +242,27 @@ public class CustomerExcelExporter {
         } else {
             return s;
         }
+    }
+
+    private String getCustomerTypeName(Long id){
+        String type = "";
+        if(customerTypeMaps.containsKey(id))
+            type = customerTypeMaps.get(id);
+        return type;
+    }
+
+    private String getMemberCardName(Long id){
+        String type = "";
+        if(cardTypeMaps.containsKey(id))
+            type = cardTypeMaps.get(id);
+        return type;
+    }
+
+    private String getCloselyName(Long id){
+        String type = "";
+        if(closelyTypeMaps.containsKey(id))
+            type = closelyTypeMaps.get(id);
+        return type;
     }
 
     public ByteArrayInputStream export() throws IOException {
