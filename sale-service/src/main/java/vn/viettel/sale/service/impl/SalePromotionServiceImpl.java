@@ -450,7 +450,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 trong bảng promotion_discount thì mới đc hưởng ctkm tay này
                  */
             if((program.getGivenType() != null && program.getGivenType() == 3) &&
-                    (discountDTO.getIsUsed() == 1 || customerCode == null || discountDTO.getCustomerCode() == null ||
+                    ( (discountDTO.getIsUsed()!=null && discountDTO.getIsUsed() == 1) || customerCode == null || discountDTO.getCustomerCode() == null ||
                      discountDTO.getCustomerCode().isEmpty() || !discountDTO.getCustomerCode().trim().equalsIgnoreCase(customerCode.trim()) ) ){
                 continue;
             }
@@ -520,6 +520,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     amountProExTax += amountEx;
                     amtInTax += amountIn;
                     amtExTax += amountEx;
+                    discountDTO.setActualDiscountAmount(amountIn);
                     discountNeedUpdate.add(discountDTO);
                 }else{
                     amtInTax += amountIn;
@@ -1448,15 +1449,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
                             saveDTO.setProductId(productOrder.getProductId());
                             saveDTO.setLevelNumber(level);
-                            saveDTO.setAmountExTax(roundValue(amtOrderInTax * discountPercent / 100));
-                            saveDTO.setAmountInTax(roundValue(amtOrderExTax * discountPercent / 100));
+                            saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
+                            saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
                             saveDTO.setAmount(saveDTO.getAmountExTax());
                             saveDTO.setMaxAmount(saveDTO.getAmountExTax());
                             if (isInclusiveTax) {
                                 saveDTO.setAmount(saveDTO.getAmountInTax());
                                 saveDTO.setMaxAmount(saveDTO.getAmountInTax());
                             }
-                            saveInfo.add(saveDTO)
+                            saveInfo.add(saveDTO);
                         }else{
                             amountDiscountInTax = discountItem.getDiscAmt() * multi;
                             if(isInclusiveTax){

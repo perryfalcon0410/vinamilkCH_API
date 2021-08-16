@@ -443,7 +443,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             item.setOrderDate(saleOrder.getOrderDate());
             item.setOrderNumber(saleOrder.getOrderNumber());
             item.setOrderShopCode(shop.getShopCode());
-            item.setCustomerCode(customer.getCustomerCode());
+            item.setOrderCustomerCode(customer.getCustomerCode());
             item.setOrderAmount(saleOrder.getTotal());
             promotionClient.updatePromotionProgramDiscountV1(item);
         }
