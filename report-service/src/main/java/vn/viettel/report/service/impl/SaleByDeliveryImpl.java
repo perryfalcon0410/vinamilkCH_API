@@ -52,7 +52,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.registerStoredProcedureParameter("DELIVERY_TYPE", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("fromDate", LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toDate", LocalDateTime.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("shopId", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("shopId", Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("orderNumber", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("apValue", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("customerKW", String.class, ParameterMode.IN);
@@ -60,9 +60,9 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.registerStoredProcedureParameter("fromTotal", Float.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("toTotal", Float.class, ParameterMode.IN);
 
-        query.setParameter("fromDate", DateUtils.convertFromDate(filter.getFromDate()));
-        query.setParameter("toDate", DateUtils.convertToDate(filter.getToDate()));
-        query.setParameter("shopId", Integer.valueOf(filter.getShopId().toString()));
+        query.setParameter("fromDate", filter.getFromDate());
+        query.setParameter("toDate", filter.getToDate());
+        query.setParameter("shopId", filter.getShopId());
         query.setParameter("orderNumber", VNCharacterUtils.removeAccent(filter.getOrderNumber()).toUpperCase(Locale.ROOT).trim());
         query.setParameter("apValue", filter.getApValue());
         query.setParameter("customerKW", VNCharacterUtils.removeAccent(filter.getCustomerKW()).trim().toUpperCase(Locale.ROOT));
