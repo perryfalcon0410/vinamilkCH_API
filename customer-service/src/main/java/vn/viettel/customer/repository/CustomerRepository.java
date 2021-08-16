@@ -39,7 +39,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     List<Long> getCustomerIds(String nameOrCode, String customerPhone);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone," +
-            " c.customerTypeId, c.street, c.shopId, c.totalBill) " +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 AND ( :shopId IS NULL OR c.shopId =:shopId )" +
             " AND ( c.nameText like %:nameCodeAddress% OR upper(c.customerCode) like %:nameCodeAddress% " +
             "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR c.addressText like %:nameCodeAddress% ) " +
@@ -47,7 +47,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     Page<CustomerDTO> searchForSale(Long shopId, String nameCodeAddress, String phone, Pageable pageable);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone," +
-            " c.customerTypeId, c.street, c.shopId, c.totalBill) " +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 AND ( :shopId IS NULL OR c.shopId =:shopId )" +
             " AND ( c.phone like %:phone OR c.mobiPhone like %:phone ) " +
             " ORDER BY c.nameText, c.customerCode")

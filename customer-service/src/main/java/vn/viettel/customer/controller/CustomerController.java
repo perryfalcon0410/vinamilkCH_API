@@ -165,9 +165,7 @@ public class CustomerController extends BaseController {
                                                ) throws IOException {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
-        List<ExportCustomerDTO> customerDTOPage = service.findAllCustomer(customerFilter);
-        CustomerExcelExporter customerExcelExporter = new CustomerExcelExporter(customerDTOPage);
-        ByteArrayInputStream in = customerExcelExporter.export();
+        ByteArrayInputStream in = service.exportExcel(customerFilter);
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
@@ -257,7 +255,7 @@ public class CustomerController extends BaseController {
 
         filter.setCustomerOfShop(customerOfShop);
         filter.setSearchPhoneOnly(searchPhoneOnly);
-        filter.setSearchKeywords(VNCharacterUtils.removeAccent(searchKeywords).toUpperCase());
+        filter.setSearchKeywords(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase());
 
         return new Response<Page<CustomerDTO>>().withData(service.findCustomerForSale(this.getShopId(), filter, pageable));
     }
