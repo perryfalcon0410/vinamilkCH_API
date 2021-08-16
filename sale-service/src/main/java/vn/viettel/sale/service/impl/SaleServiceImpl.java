@@ -25,6 +25,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.util.ValidationUtils;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
@@ -90,6 +91,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public Object createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, boolean printTemp) {
         // check existing customer
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
+        HashMap<String,List<Long>> syncMap = new HashMap<>();
         if (customer == null)
             throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
@@ -410,7 +412,13 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //update voucher
         updateVoucher(saleOrder, lstVoucherNeedSave);
+        if(!lstVoucherNeedSave.isEmpty()) {
+            List<Long> voucherIds = lstVoucherNeedSave.stream().map(vc -> vc.getId()).collect(Collectors.toList());
+            syncMap.put(JMSType.vouchers, voucherIds);
+        }
 
+        
+        List<Long> programDiscountIds = new ArrayList<Long>();
         //update discount
         if(discountNeedSave != null && saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
             discountNeedSave.setIsUsed(1);
@@ -423,6 +431,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             promotionShopMap.setQuantityReceived(received + saleOrder.getDiscountCodeAmount());
             promotionShopMaps.add(promotionShopMap);
             updatePromotionProgramDiscount(saleOrder, discountNeedSave);
+            programDiscountIds.add(discountNeedSave.getId());
         }
 
         //update combo
@@ -440,7 +449,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for(PromotionProgramDiscountDTO item : discountDTOs){
             item.setIsUsed(1);
             promotionClient.updatePromotionProgramDiscountV1(item);
+            programDiscountIds.add(item.getId());
         }
+        syncMap.put(JMSType.promotion_program_discount, programDiscountIds);
 
         this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );
 
@@ -456,8 +467,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
             }
         }
-
-        return saleOrder.getId();
+        syncMap.put(JMSType.sale_order, Arrays.asList(saleOrder.getId()));
+        return syncMap;
     }
 
     private SaleOrderDetail createOrderDetail(Long shopId, SalePromotionDTO inputPro, FreeProductDTO product){

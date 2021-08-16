@@ -68,13 +68,15 @@ public class SaleController extends BaseController {
     @PostMapping(value = { V1 + root })
     public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
         if (request.getProducts().isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
-        Long id = (Long) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
-        if (id != null) {
-        	sendSynRequest(Arrays.asList(id));
-        }
+        HashMap<String,List<Long>> syncmap = new HashMap<>();
+        syncmap = (HashMap<String,List<Long>>) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
+        List<Long> saleOrderIds = syncmap.get(JMSType.sale_order);
+        sendSynRequest(JMSType.vouchers, syncmap.get(JMSType.vouchers));
+        sendSynRequest(JMSType.promotion_program_discount, syncmap.get(JMSType.promotion_program_discount));
+        sendSynRequest(JMSType.sale_order, saleOrderIds);
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
-        map.put("orderId", id);
+        map.put("orderId", saleOrderIds.get(0));
         return response.withData(map);
     }
 
@@ -161,10 +163,10 @@ public class SaleController extends BaseController {
         return new Response<SalePromotionDTO>().withData(discount);
     }
     
-    private void sendSynRequest(List<Long> lstIds) {
+    private void sendSynRequest(String type, List<Long> lstIds) {
 		try {
-			if(!lstIds.isEmpty()) {
-				jmsSender.sendMessage(JMSType.sale_order, lstIds);
+			if(lstIds != null && !lstIds.isEmpty()) {
+				jmsSender.sendMessage(type, lstIds);
 			}
 		} catch (Exception ex) {
 			LogFile.logToFile("vn.viettel.sale.service.impl.SaleServiceImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
