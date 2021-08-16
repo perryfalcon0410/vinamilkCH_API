@@ -627,20 +627,20 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     ////////////////////////////////////////////////////////////////////////////////////////////////
     @Transactional(rollbackFor = Exception.class)
     public List<Long> createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
-        List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
-        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+        List<PoTrans> lstRedInvoiceNos = repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim());
+        if(!lstRedInvoiceNos.isEmpty()) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         if(request.getRedInvoiceNo() != null && request.getRedInvoiceNo().length() >50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         checkNoteLength(request.getNote());
         List<Long> syncIds = new ArrayList<Long>();
         LocalDateTime transDate = LocalDateTime.now();
 
         if (request.getPoId() == null) {
-            List<String> lstInternalNumber = repository.getInternalNumber();
-            List<String> lstPoCoNumber = repository.getPoCoNumber();
             if(request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
             if(request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-            if(lstPoCoNumber.contains(request.getPoCoNumber())) throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
-            if(lstInternalNumber.contains(request.getInternalNumber())) throw  new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
+            List<PoTrans> lstPoCoNumbers = repository.getByPoCoNumber(request.getPoCoNumber().trim());
+            if(!lstPoCoNumbers.isEmpty()) throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
+            List<PoTrans> lstInternalNumbers = repository.getByInternalNumber(request.getInternalNumber().trim());
+            if(!lstInternalNumbers.isEmpty()) throw new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             poRecord.setTransDate(transDate);
@@ -913,13 +913,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         checkNoteLength(request.getNote());
         PoTrans poTrans = repository.findById(id).get();
         if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
-        List<String> lstRedInvoiceNo = repository.getRedInvoiceNo();
-        List<String> lstPoNo = repository.getPoCoNumber();
-        List<String> lstInternalNumber = repository.getInternalNumber();
-        lstRedInvoiceNo.remove(poTrans.getRedInvoiceNo());
-        lstPoNo.remove(poTrans.getPocoNumber());
-        lstInternalNumber.remove(poTrans.getInternalNumber());
-        if(lstRedInvoiceNo.contains(request.getRedInvoiceNo().trim())) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+
+        List<PoTrans> lstRedInvoiceNos = repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim());
+        if(!lstRedInvoiceNos.isEmpty() && !lstRedInvoiceNos.get(0).getId().equals(poTrans.getId()))
+            throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
+
         poTrans.setNote(request.getNote());
         poTrans.setRedInvoiceNo(request.getRedInvoiceNo().trim());
         if (DateUtils.formatDate2StringDate(poTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))){
@@ -931,8 +929,15 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if (poTrans.getPoId() == null) {
                 if(request.getInternalNumber() != null && request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
                 if(request.getPoCoNumber() == null || request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
-                if(lstPoNo.contains(request.getPoCoNumber())) throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
-                if(lstInternalNumber.contains(request.getInternalNumber())) throw new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
+
+                List<PoTrans> lstPoNos = repository.getByPoCoNumber(request.getPoCoNumber().trim());
+                if(!lstPoNos.isEmpty() && !lstPoNos.get(0).getId().equals(poTrans.getId()))
+                    throw new ValidateException(ResponseMessage.PO_NO_IS_EXIST);
+
+                List<PoTrans> lstInternalNumbers = repository.getByInternalNumber(request.getInternalNumber().trim());
+                if(!lstInternalNumbers.isEmpty() && !lstInternalNumbers.get(0).getId().equals(poTrans.getId()))
+                    throw new ValidateException(ResponseMessage.INTERNAL_NUMBER_IS_EXIST);
+
                 poTrans.setPocoNumber(request.getPoCoNumber());
                 poTrans.setOrderDate(request.getOrderDate());
                 poTrans.setInternalNumber(request.getInternalNumber());

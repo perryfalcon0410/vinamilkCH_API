@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,7 +32,7 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         InOutAdjustmentTotalDTO totalDTO = new InOutAdjustmentTotalDTO();
         List<InOutAdjusmentDTO> subList = new ArrayList<>();
         if(!data.isEmpty()) {
-            InOutAdjusmentDTO total = data.get(0);
+            InOutAdjusmentDTO total = data.get(data.size() -1);
             totalDTO.setTotalQuantity(total.getQuantity());
             totalDTO.setTotalPrice(total.getTotal());
             this.removeDataList(data);
@@ -49,8 +50,8 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_IN_OUT_ADJUSTMENT", InOutAdjusmentDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, LocalDateTime.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(5, Long.class, ParameterMode.IN);
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +74,7 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         return data;
     }
     private void removeDataList(List<InOutAdjusmentDTO> shopImports) {
-        shopImports.remove(shopImports.get(0));
-        shopImports.remove(shopImports.get(0));
+        shopImports.remove(shopImports.get(shopImports.size() -1));
+        shopImports.remove(shopImports.get(shopImports.size() -1));
     }
 }

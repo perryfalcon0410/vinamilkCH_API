@@ -10,6 +10,8 @@ import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.service.dto.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +35,7 @@ public interface CustomerService extends BaseService {
 
     List<Long> getIdCustomerBy(String searchKeywords, String customerPhone);
 
-    List<ExportCustomerDTO> findAllCustomer(CustomerFilter customerFilter);
+    ByteArrayInputStream exportExcel(CustomerFilter filter) throws IOException;
 
     CustomerDTO getCustomerDefault(Long shopId);
 

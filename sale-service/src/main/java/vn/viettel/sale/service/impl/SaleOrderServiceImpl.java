@@ -79,7 +79,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         String orderNumber = saleOrderFilter.getOrderNumber();
         if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
         LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
-        LocalDateTime toDate = DateUtils.convertFromDate(saleOrderFilter.getToDate());
+        LocalDateTime toDate = DateUtils.convertToDate(saleOrderFilter.getToDate());
 
         Page<SaleOrder> findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
                 .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))

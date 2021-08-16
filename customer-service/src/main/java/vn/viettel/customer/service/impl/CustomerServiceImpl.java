@@ -43,6 +43,8 @@ import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -503,7 +505,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<ExportCustomerDTO> findAllCustomer(CustomerFilter filter) {
+    public ByteArrayInputStream exportExcel(CustomerFilter filter) throws IOException {
         String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
         List<AreaDTO> precincts = null;
         if (filter.getAreaId() != null) {
@@ -523,47 +525,30 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
                 Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
         List<ExportCustomerDTO> dtos = new ArrayList<>();
-        if(!customers.isEmpty()){
+
+        Map<Long, String> customerTypeMaps = new HashMap<>();
+        if(!customers.isEmpty()) {
             List<CustomerTypeDTO> customerTypes = customerTypeService.findByIds(customers.stream().map(item -> item.getCustomerTypeId())
                     .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
-            List<CustomerMemberCardDTO> memberCards = memberCardService.getCustomerMemberCard(customers.stream().map(item -> item.getId()).collect(Collectors.toList()));
-            List<ApParamDTO> apParams = apParamClient.getCloselytypesV1().getData();
-
-            for (Customer customer : customers) {
-                modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-                ExportCustomerDTO customerDTO = modelMapper.map(customer, ExportCustomerDTO.class);
-                customerDTO.setCustomerTypeName(" ");
-                if (customerTypes != null) {
-                    for(CustomerTypeDTO customerType : customerTypes){
-                        if(customerType.getId().equals(customer.getCustomerTypeId())){
-                            customerDTO.setCustomerTypeName(customerType.getName());
-                            break;
-                        }
-                    }
-                }
-                customerDTO.setMemberCardName(" ");
-                if (memberCards != null) {
-                    for(CustomerMemberCardDTO memberCard : memberCards){
-                        if(memberCard.getCustomerId().equals(customer.getId())){
-                            customerDTO.setMemberCardName(memberCard.getMemberCardName());
-                            break;
-                        }
-                    }
-                }
-                customerDTO.setApParamName(" ");
-                if (apParams != null) {
-                    for(ApParamDTO apParam : apParams){
-                        if(apParam.getId().equals(customer.getCloselyTypeId())){
-                            customerDTO.setApParamName(apParam.getApParamName());
-                            break;
-                        }
-                    }
-                }
-                dtos.add(customerDTO);
+            for(CustomerTypeDTO type: customerTypes) {
+                if(!customerTypeMaps.containsKey(type.getId())) customerTypeMaps.put(type.getId(), type.getName());
             }
-            return dtos;
-        }else return dtos;
+        }
 
+        List<ApParamDTO> closelyTypes = apParamClient.getCloselytypesV1().getData();
+        Map<Long, String> closelyTypeMaps = new HashMap<>();
+        for(ApParamDTO closely: closelyTypes) {
+            if(!closelyTypeMaps.containsKey(closely.getId())) closelyTypeMaps.put(closely.getId(), closely.getApParamName());
+        }
+
+        List<ApParamDTO> cardTypes = apParamClient.getCardTypesV1().getData();
+        Map<Long, String> cardTypeMaps = new HashMap<>();
+        for(ApParamDTO cardType: cardTypes) {
+            if(!cardTypeMaps.containsKey(cardType.getId())) cardTypeMaps.put(cardType.getId(), cardType.getApParamName());
+        }
+
+        CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps);
+        return excel.export();
     }
 
     @Override
@@ -622,13 +607,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartDay() {
         repository.schedulerUpdateStartDay();
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
     }

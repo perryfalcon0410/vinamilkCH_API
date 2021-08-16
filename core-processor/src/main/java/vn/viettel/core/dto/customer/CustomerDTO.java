@@ -122,7 +122,7 @@ public class CustomerDTO extends BaseDTO {
     }
 
     public CustomerDTO(Long id, String firstName, String lastName, String customerCode, String mobiPhone, Long customerTypeId
-            , String street, Long shopId, Double totalBill){
+            , String street, String address, Long shopId, Double totalBill){
         setId(id);
         this.firstName = firstName;
         this.lastName = lastName;
@@ -130,6 +130,7 @@ public class CustomerDTO extends BaseDTO {
         this.mobiPhone = mobiPhone;
         this.customerTypeId = customerTypeId;
         this.street = street;
+        this.address = address;
         this.shopId = shopId;
         this.totalBill = totalBill;
     }

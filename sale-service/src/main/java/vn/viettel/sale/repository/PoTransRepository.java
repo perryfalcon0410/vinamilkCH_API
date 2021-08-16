@@ -29,14 +29,11 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
            " ORDER BY p.transCode desc ")
    Page<PoTrans> getLastTransCode(Integer type, String startWith, LocalDateTime startDate, Pageable pageable);
 
-    @Query(value = "SELECT pt.redInvoiceNo FROM PoTrans pt WHERE pt.type = 1 AND pt.status =1 ")
-    List<String> getRedInvoiceNo();
+    @Query(value = "SELECT pt FROM PoTrans pt WHERE pt.type = 1 AND pt.redInvoiceNo =:redInvoiceNo AND pt.status =1 ")
+    List<PoTrans> getByRedInvoiceNo(String redInvoiceNo);
 
-    @Query(value = "SELECT pt.pocoNumber FROM PoTrans pt WHERE pt.type = 1 AND pt.status =1 ")
-    List<String> getPoCoNumber();
-
-    @Query(value = "SELECT pt.internalNumber FROM PoTrans pt WHERE pt.type = 1 AND pt.status =1 ")
-    List<String> getInternalNumber();
+   @Query(value = "SELECT pt FROM PoTrans pt WHERE pt.type = 1 AND pt.pocoNumber =:pocoNumber AND pt.status =1 ")
+   List<PoTrans> getByPoCoNumber(String pocoNumber);
 
     @Query(value = "SELECT pt FROM PoTrans pt WHERE pt.type = 1 AND pt.internalNumber = :internalNumber AND pt.status =1 ")
     List<PoTrans> getByInternalNumber(String internalNumber);
