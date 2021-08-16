@@ -358,6 +358,7 @@ public class ReceiptImportController extends BaseController {
                                 @ApiParam("Id phiếu mua hàng")@PathVariable long Id,
                                 @RequestBody NotImportRequest rq) {
         ResponseMessage message = receiptService.setNotImport(Id,this.getUserName(),rq);
+        sendSynRequest(JMSType.po_confirm, Arrays.asList(Id));
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
