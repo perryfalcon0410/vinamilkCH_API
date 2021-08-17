@@ -21,6 +21,6 @@ public interface StockCountingDetailRepository extends BaseRepository<StockCount
             " LEFT JOIN ProductInfo gcat ON p.groupCatId = gcat.id and gcat.type = 6 " +
             " LEFT JOIN ProductInfo cat ON p.catId = cat.id and cat.type = 1 " +
             " WHERE dtl.stockCountingId = :stockCountingId " +
-            " ORDER BY cat.productInfoCode asc, p.productCode asc, p.productName asc ")
+            " ORDER BY cat.productInfoCode asc, p.productCode asc ")
     List<StockCountingExcel> getStockCountingExcel(Long stockCountingId);
 }

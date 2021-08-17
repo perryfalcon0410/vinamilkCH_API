@@ -108,6 +108,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         else totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumTotalMoney());
 
         CoverResponse coverResponse = new CoverResponse(redInvoiceDTOS, totalRedInvoice);
+        System.gc();
         return coverResponse;
     }
 
@@ -219,6 +220,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     , taxCode, null, null);
             List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
             CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
+            System.gc();
             return response;
         }
     }
@@ -437,16 +439,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         List<HDDTO> hddtos = new ArrayList<>();
         if(redInvoices == null || redInvoices.isEmpty()) return hddtos;
 
-        List<CustomerDTO> customers = null;
-        List<Long> customerIds = redInvoices.stream().map(RedInvoice::getCustomerId).collect(Collectors.toList());
-        if(!customerIds.isEmpty()) customers = customerClient.getAllCustomerToRedInvocieV1(customerIds).getData();
-        Map<Long, CustomerDTO> lstCustomer = new HashMap<>();
-        if(customers!=null) {
-            for(CustomerDTO customer: customers) {
-                if(!lstCustomer.containsKey(customer.getId())) lstCustomer.put(customer.getId(), customer);
-            }
-        }
-
         List<ShopDTO> shops = shopClient.getAllShopToRedInvoiceV1( redInvoices.stream().map(RedInvoice::getShopId).collect(Collectors.toList())).getData();
         Map<Long, ShopDTO> shopDTOS = new HashMap<>();
         for(ShopDTO shop: shops) {
@@ -454,14 +446,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         }
         for(RedInvoice redInvoice:redInvoices) {
             HDDTO hddto = modelMapper.map(redInvoice, HDDTO.class);
-            String fullname = "";
-            if (redInvoice.getCustomerId() != null) {
-                CustomerDTO customerDTO = lstCustomer.get(redInvoice.getCustomerId());
-                if (customerDTO != null) {
-                    fullname += customerDTO.getLastName() + " " + customerDTO.getFirstName();
-                    hddto.setFullName(fullname);
-                }
-            }
+            hddto.setFullName(redInvoice.getOfficeWorking());
             if (redInvoice.getShopId() != null) {
                 ShopDTO shopDTO = shopDTOS.get(redInvoice.getShopId());
                 if (shopDTO != null)

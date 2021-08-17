@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.enums.PromotionCustObjectType;
@@ -73,9 +74,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         // get default warehouse
-        Long warehouseTypeId = customerTypeClient.getWarehouseTypeByShopId(shopId);
-        if (warehouseTypeId == null)
-            throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
+        CustomerTypeDTO customerType = null;
+        if(request.getCustomerId() != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
+        if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
+        if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
         List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
@@ -115,7 +117,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 case ZV16:
                 case ZV17:
                 case ZV18:
-                    this.addItemPromotion(results, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, warehouseTypeId, 0,0,0,0, forSaving));
+                    this.addItemPromotion(results, this.getAutoItemPromotionZV01ToZV21(program, orderData, shopId, customerType.getWareHouseTypeId(), 0,0,0,0, forSaving));
                     break;
                 case ZV19:
                 case ZV20:
@@ -131,7 +133,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     break;
                 case ZM:
                     if (program.getGivenType() != null && program.getGivenType() == 3) lstZmType3.put(program,amount);
-                    else this.addItemPromotion(results, this.getItemPromotionZM(program, orderData, shopId, warehouseTypeId, amount,
+                    else this.addItemPromotion(results, this.getItemPromotionZM(program, orderData, shopId, customerType.getWareHouseTypeId(), amount,
                             customer.getCustomerCode(), 0, 0, forSaving));
                     break;
                 default:
@@ -167,7 +169,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //Tính zv19 - 21 trước zv23
         for(Map.Entry<PromotionProgramDTO, Boolean> entry: mapZV192021.entrySet()){
             if(entry.getValue() == null || entry.getValue()){
-                SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
+                SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, customerType.getWareHouseTypeId(),
                         totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, forSaving);
                 if(item != null && item.getIsUse()) {
                     totalZV1921InTax += item.getTotalAmtInTax() == null ? 0 : item.getTotalAmtInTax();
@@ -181,7 +183,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         //tính zv23
         for (PromotionProgramDTO programDTO : lstZV23){
-            SalePromotionDTO item = this.getItemPromotionZV23(programDTO, orderData, shopId, warehouseTypeId, request.getCustomerId(),
+            SalePromotionDTO item = this.getItemPromotionZV23(programDTO, orderData, shopId, customerType.getWareHouseTypeId(), request.getCustomerId(),
                     totalZV0118zmInTax + totalZV1921InTax, totalZV0118zmExTax + totalZV1921ExTax, forSaving);
             if( item != null){
                 if(item.getIsUse()) {
@@ -197,7 +199,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         //Tính zv19 - 21 sau zv23
         for(Map.Entry<PromotionProgramDTO, Boolean> entry: mapZV192021.entrySet()){
             if(entry.getValue() != null && !entry.getValue()){
-                SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, warehouseTypeId,
+                SalePromotionDTO item = this.getAutoItemPromotionZV01ToZV21(entry.getKey(), orderData, shopId, customerType.getWareHouseTypeId(),
                         totalZV0118zmInTax, totalZV0118zmExTax, totalZV23InTax, totalZV23ExTax, forSaving);
                 if(item != null && item.getIsUse()) {
                     if(item.getIsUse()) {
@@ -215,7 +217,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         zm give type 3 thì nó lại ở sau cùng, sau các tự động zv, sau cả zm type 0
          */
         for (Map.Entry<PromotionProgramDTO, Double> entry : lstZmType3.entrySet()){
-            SalePromotionDTO item = this.getItemPromotionZM(entry.getKey(), orderData, shopId, warehouseTypeId, entry.getValue(),
+            SalePromotionDTO item = this.getItemPromotionZM(entry.getKey(), orderData, shopId, customerType.getWareHouseTypeId(), entry.getValue(),
                     customer.getCustomerCode(), promotionAmount, promotionAmountExTax, forSaving);
             if( item != null){
                 if(item.getIsUse()) {
@@ -236,7 +238,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(paymentAmount < 0) paymentAmount = 0;
         calculationDTO.setPaymentAmount(paymentAmount);
         calculationDTO.setLockVoucher(this.checkLockVoucher(shopId));
-
+        System.gc();
         return calculationDTO;
     }
 
@@ -1414,13 +1416,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 double discountPercent = 0;
                 double amountDiscountInTax = 0;
                 double amountDiscountExTax = 0;
-                double allOrderInTax = 0;
-                double allOrderExTax = 0;
+
 
                 for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()){
                     if(mapOrderNumber.containsKey(productOrder.getProductId())) {
-                        allOrderInTax += productOrder.getTotalPrice();
-                        allOrderExTax += productOrder.getTotalPriceNotVAT();
                         double amtOrderInTax = 0;
                         double amtOrderExTax = 0;
                         PromotionProgramDetailDTO discountItem = mapOrderNumber.get(productOrder.getProductId()).get(entry.getKey()).get(0);
@@ -1442,24 +1441,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
                         if("zv13".equalsIgnoreCase(type) || "zv16".equalsIgnoreCase(type)) {
                             discountPercent = discountItem.getDisPer();
-                            if(forSaving) {
-                            /*
-                            Đối với ZV16 dạng buldle thì chia tỉ lệ KM cho từng SP sẽ dựa vào khai báo và bội số nhận được
-                            thì tiền KM = Bội số * điều kiện số tiền mua SP này của mức * phần trăm KM/100
-                             */
-//                                SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
-//                                saveDTO.setProductId(productOrder.getProductId());
-//                                saveDTO.setLevelNumber(level);
-//                                saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
-//                                saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
-//                                saveDTO.setAmount(saveDTO.getAmountExTax());
-//                                saveDTO.setMaxAmount(saveDTO.getAmountExTax());
-//                                if (isInclusiveTax) {
-//                                    saveDTO.setAmount(saveDTO.getAmountInTax());
-//                                    saveDTO.setMaxAmount(saveDTO.getAmountInTax());
-//                                }
-//                                saveInfo.add(saveDTO);
-                            }
                         }else{
                             amountDiscountInTax = discountItem.getDiscAmt() * multi;
                             if(isInclusiveTax){
@@ -1485,25 +1466,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalAmountDiscountExTax += amountDiscountExTax;
                 totalAmountOrderInTax += amountOrderInTax;
 
-                if(forSaving/* && (!"zv13".equalsIgnoreCase(type) && !"zv16".equalsIgnoreCase(type))*/ ) {
-//                    double percentInTax = calPercent(allOrderInTax,amountDiscountInTax);
-//                    double percentExTax = calPercent(allOrderExTax,amountDiscountExTax);
-//                    allOrderInTax = 0;
-//                    allOrderExTax = 0;
-//                    int cnt = 0;
+                if(forSaving ) {
                     for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()) {
                         if (mapOrderNumber.containsKey(productOrder.getProductId())) {
-                            /*cnt += 1;
-                            amountOrderInTax = Math.round(productOrder.getTotalPrice() * percentInTax/100);
-                            amountOrderExTax = productOrder.getTotalPriceNotVAT() * percentExTax/100;
-                            if(cnt == mapOrderNumber.size()){
-                                amountOrderInTax = amountDiscountInTax - allOrderInTax;
-                                amountOrderExTax = amountDiscountExTax - allOrderExTax;
-                            }
-                            allOrderInTax += amountOrderInTax;
-                            allOrderExTax += amountOrderExTax;
-                            saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), amountOrderInTax,
-                                    amountOrderExTax, isInclusiveTax));*/
+
                             double amtOrderInTax = 0;
                             double amtOrderExTax = 0;
                             PromotionProgramDetailDTO discountItem = mapOrderNumber.get(productOrder.getProductId()).get(entry.getKey()).get(0);
@@ -1522,7 +1488,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             }
                             SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
                             saveDTO.setProductId(productOrder.getProductId());
-                            saveDTO.setLevelNumber(level);
+                            saveDTO.setLevelNumber(entry.getKey());
                             saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
                             saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
                             saveDTO.setAmount(saveDTO.getAmountExTax());

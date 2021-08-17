@@ -40,7 +40,6 @@ public class PromotionController extends BaseController {
     PromotionItemProductService itemProductService;
 
 
-    @RoleFeign
     @GetMapping(value = { V1 + root + "/promotion-program-discount/{orderNumber}"})
     Response<List<PromotionProgramDiscountDTO>> listPromotionProgramDiscountByOrderNumber(HttpServletRequest request, @PathVariable String orderNumber) {
         List<PromotionProgramDiscountDTO> response = promotionProgramService.listPromotionProgramDiscountByOrderNumber(orderNumber);
@@ -48,7 +47,7 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionProgramDiscountDTO>>().withData(response);
     }
 
-    @RoleFeign
+
     @ApiOperation(value = "Api dùng khi tạo đơn bán hàng để lấy thông tin chương trình khuyến mãi theo id")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/{id}"})
@@ -139,7 +138,6 @@ public class PromotionController extends BaseController {
         return response;
     }
 
-    @RoleFeign
     @GetMapping(value = {V1 + root + "/promotion-programs/shop/{id}"})
     Response<List<PromotionProgramDTO>> findPromotionPrograms(@PathVariable Long id,@RequestParam Long orderType,@RequestParam Long customerTypeId,
                                                               @RequestParam(required = false) Long memberCard,@RequestParam(required = false) Long cusCloselyTypeId,@RequestParam(required = false) Long cusCardTypeId) {

@@ -410,6 +410,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }
         }
         connectFTP.disconnectFTPServer();
+        System.gc();
     }
 
     @Override
@@ -447,6 +448,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }
             connectFTP.disconnectFTPServer();
         }
+        System.gc();
     }
 
     private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){

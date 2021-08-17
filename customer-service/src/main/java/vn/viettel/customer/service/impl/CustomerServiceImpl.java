@@ -120,36 +120,23 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasPhoneToCustomer(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
-        List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        if(customers.getContent().size() != 0)
-        {
-            memberCustomer = memBerCustomerRepos.getMemberCustomers(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
-        }
-        List<MemberCustomer> memberCustomers = memberCustomer;
         List<CategoryDataDTO> genders =  categoryDataClient.getGendersV1().getData();
-       return customers.map(item -> {
-           CustomerDTO dto = modelMapper.map(item, CustomerDTO.class);
-
-            for (MemberCustomer member : memberCustomers) {
-                if (member.getCustomerId().equals(item.getId())) {
-                    dto.setAmountCumulated(member.getScoreCumulated());
+        Page<CustomerDTO> response = customers.map(item -> {
+            CustomerDTO dto = modelMapper.map(item, CustomerDTO.class);
+            for (CategoryDataDTO gender : genders) {
+                if (gender.getId().equals(item.getGenderId())) {
+                    dto.setGenderName(gender.getCategoryName());
                     break;
                 }
             }
 
-           for (CategoryDataDTO gender : genders) {
-               if (gender.getId().equals(item.getGenderId())) {
-                   dto.setGenderName(gender.getCategoryName());
-                   break;
-               }
-           }
-
-           return  dto;
-       });
-
+            return  dto;
+        });
+        System.gc();
+       return response;
     }
-    @Override
+/*    @Override
     public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
 
@@ -165,7 +152,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
         List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
         return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
-    }
+    }*/
 
     @Override
     public Page<CustomerDTO> findCustomerForSale(Long shopId, CustomerSaleFilter customerFilter, Pageable pageable) {
@@ -173,11 +160,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             return  new PageImpl<>(new ArrayList<>());
 
         Long shop = null;
+        Page<CustomerDTO> response = null;
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
-            return repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
-
-        return repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
+        else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+        System.gc();
+        return response;
     }
 
     @Override
@@ -521,7 +510,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 ),
 
                 Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
-        List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         Map<Long, String> customerTypeMaps = new HashMap<>();
         if(!customers.isEmpty()) {
@@ -545,6 +533,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps);
+        System.gc();
         return excel.export();
     }
 
@@ -605,12 +594,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartDay() {
         repository.schedulerUpdateStartDay();
+        System.gc();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
+        System.gc();
     }
 
 }

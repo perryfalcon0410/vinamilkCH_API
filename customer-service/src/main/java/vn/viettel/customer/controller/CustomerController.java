@@ -75,7 +75,7 @@ public class CustomerController extends BaseController {
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
 
-    @ApiOperation(value = "Tìm kiếm danh sách khách hàng chức năng bán hàng")
+/*    @ApiOperation(value = "Tìm kiếm danh sách khách hàng chức năng bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
@@ -91,7 +91,7 @@ public class CustomerController extends BaseController {
         Page<CustomerDTO> customerDTOS = service.getAllCustomerToSaleService(searchKeywords, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
-    }
+    }*/
 
     @ApiOperation(value = "Tạo khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
