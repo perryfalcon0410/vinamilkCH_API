@@ -71,9 +71,7 @@ public class ReturnGoodsExcel {
             totalDTO.setTotalQuantity(totalQuantity);
             totalDTO.setTotalAmount(totalAmount);
             totalDTO.setTotalRefunds(totalRefunds);
-
-            RuleBasedCollator ru = new RuleBasedCollator(Constants.rules);
-            Collections.sort(dtoList, (ReturnGoodsDTO t1, ReturnGoodsDTO t2)->ru.compare(t1.getIndustry(), t2.getIndustry()) );
+            Collections.sort(dtoList, Comparator.comparing(ReturnGoodsDTO::getIndustry));
 
             listArrayList.add(dtoList);
         }

@@ -117,8 +117,7 @@ public final class CustomerSpecification {
                     criteriaBuilder.like(root.get(Customer_.nameText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
                     criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords),
-                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords),
-                    criteriaBuilder.like(root.get(Customer_.addressText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%")
+                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords)
             );
         };
     }

@@ -148,7 +148,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             }
 
         }
-
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> response =
                 new CoverResponse(rs, totalStockCounting);
         return response;
@@ -327,9 +326,10 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                 countingDetailRepository.deleteAll(countingDetailRepository.findByStockCountingId(countingNumberInDay.get(0).getId()));
                 stockCounting = countingNumberInDay.get(0);
             }
+        }else{
+            stockCounting.setStockCountingCode(createStockCountingCode(shopId));
         }
 
-        stockCounting.setStockCountingCode(createStockCountingCode(shopId));
         stockCounting.setCountingDate(LocalDateTime.now());
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseTypeId);

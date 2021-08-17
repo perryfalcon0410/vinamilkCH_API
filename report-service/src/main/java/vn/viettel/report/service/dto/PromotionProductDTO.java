@@ -27,7 +27,7 @@ public class PromotionProductDTO implements Cloneable{
     @ApiModelProperty(notes = "Id ngành hàng")
     @Column(name = "PRODUCT_CAT_ID")
     private Long productCatId;
-    @ApiModelProperty(notes = "Tên ngành hàng")
+    @ApiModelProperty(notes = "Mã ngành hàng")
     @Column(name = "PRODUCT_CAT_NAME")
     private String productCatName;
     @ApiModelProperty(notes = "Mã sản phẩm")

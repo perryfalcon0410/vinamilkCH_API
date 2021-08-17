@@ -55,8 +55,8 @@ public class ReportExportGoodsController extends BaseController {
                                                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                       @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                                                                                       @RequestParam(value = "toOrderDate", required = false) Date toOrderDate, Pageable pageable) {
-        ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertToDate(toExportDate), productCodes, importType, searchKeywords,
-                DateUtils.convertFromDate(fromOrderDate), DateUtils.convertToDate(toOrderDate), this.getShopId());
+        ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertFromDate(toExportDate), productCodes, importType, searchKeywords,
+                DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), this.getShopId());
         CoverResponse<Page<ShopExportDTO>, TotalReport> response = reportExportGoodsService.index(shopExportFilter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_EXPORT_GOODS_SUCCESS);
         return new Response<CoverResponse<Page<ShopExportDTO>, TotalReport>>().withData(response);
@@ -77,8 +77,8 @@ public class ReportExportGoodsController extends BaseController {
                               @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                               @RequestParam(value = "toOrderDate", required = false) Date toOrderDate, HttpServletResponse response) throws IOException {
 
-        ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertToDate(toExportDate), productCodes, importType, searchKeywords,
-                DateUtils.convertFromDate(fromOrderDate), DateUtils.convertToDate(toOrderDate), this.getShopId());
+        ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertFromDate(toExportDate), productCodes, importType, searchKeywords,
+                DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), this.getShopId());
         ByteArrayInputStream in = reportExportGoodsService.exportExcel(shopExportFilter);
 
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
@@ -103,8 +103,8 @@ public class ReportExportGoodsController extends BaseController {
                                                        @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                        @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                                                        @RequestParam(value = "toOrderDate", required = false) Date toOrderDate) {
-        ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertToDate(toExportDate), productCodes, importType, searchKeywords,
-                DateUtils.convertFromDate(fromOrderDate), DateUtils.convertToDate(toOrderDate), this.getShopId());
+        ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertFromDate(toExportDate), productCodes, importType, searchKeywords,
+                DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), this.getShopId());
         PrintShopExportDTO coverResponse = reportExportGoodsService.getDataToPrint(shopExportFilter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRINT_REPORT_EXPORT_GOODS_SUCCESS);
         return new Response<PrintShopExportDTO>().withData(coverResponse);

@@ -53,10 +53,7 @@ public class OrderImportDTO {
     private Double vat;
 
     @ApiModelProperty(notes = "Danh sách ngành hàng")
-    private List<ShopImportCatDTO> cats = new ArrayList<>();
+    private List<ShopImportCatDTO> cats;
 
-    public void addCat(ShopImportCatDTO cat) {
-        this.cats.add(cat);
-    }
 
 }
