@@ -116,9 +116,7 @@ public class InventoryServiceImpl implements InventoryService {
             cats.add(cat);
         }
 
-        //sort vietnames
-        RuleBasedCollator ru = new RuleBasedCollator(Constants.rules);
-        Collections.sort(cats, (PrintInventoryCatDTO t1, PrintInventoryCatDTO t2)->ru.compare(t1.getCatName(), t2.getCatName()));
+        Collections.sort(cats, Comparator.comparing(PrintInventoryCatDTO::getCatName));
 
         printInventoryDTO.setCats(cats);
         return printInventoryDTO;

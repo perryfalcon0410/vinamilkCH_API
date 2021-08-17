@@ -121,9 +121,7 @@ public class PromotionProductServiceImpl implements PromotionProductService {
                 }
                 cats.add(productCatDTO);
             }
-            //sort vietnames
-            RuleBasedCollator ru = new RuleBasedCollator(Constants.rules);
-            Collections.sort(cats, (PromotionProductCatDTO t1, PromotionProductCatDTO t2)->ru.compare(t1.getProductCatName(), t2.getProductCatName()));
+            Collections.sort(cats, Comparator.comparing(PromotionProductCatDTO::getProductCatName));
             reportDTO.setProductCats(cats);
         }
 

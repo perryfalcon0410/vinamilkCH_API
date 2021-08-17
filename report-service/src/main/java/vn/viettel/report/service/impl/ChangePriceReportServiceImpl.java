@@ -21,6 +21,7 @@ import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -32,16 +33,18 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     ShopClient shopClient;
 
     @Override
-    public Object index(String searchKey, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate, LocalDate toOrderDate, String ids, Pageable pageable, Boolean isPaging) {
+    public Object index(String searchKey, Long shopId, LocalDateTime fromTransDate, LocalDateTime toTransDate,
+                        LocalDateTime fromOrderDate, LocalDateTime toOrderDate, String ids, Pageable pageable, Boolean isPaging) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CHANGE_PRICE", ChangePriceDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, LocalDate.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(4, LocalDate.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(5, LocalDate.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(6, LocalDate.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(7, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, Long.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(4, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(5, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(6, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(7, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
         String ra = "";
         if(ids!=null){
             String rs[] = ids.split(",");
@@ -52,12 +55,13 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
                     ra +=rs[i].trim()+",";
             }
         }
-        storedProcedure.setParameter(2, searchKey);
-        storedProcedure.setParameter(3, fromTransDate);
-        storedProcedure.setParameter(4, toTransDate);
-        storedProcedure.setParameter(5, fromOrderDate);
-        storedProcedure.setParameter(6, toOrderDate);
-        storedProcedure.setParameter(7, ra == "" ? null : ra);
+        storedProcedure.setParameter(2, shopId);
+        storedProcedure.setParameter(3, searchKey);
+        storedProcedure.setParameter(4, fromTransDate);
+        storedProcedure.setParameter(5, toTransDate);
+        storedProcedure.setParameter(6, fromOrderDate);
+        storedProcedure.setParameter(7, toOrderDate);
+        storedProcedure.setParameter(8, ra == "" ? null : ra);
 
         List<ChangePriceDTO> result = storedProcedure.getResultList();
         entityManager.close();
@@ -81,10 +85,10 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     }
 
     @Override
-    public ChangePricePrintDTO getAll(String searchKey, Long shopId, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate, LocalDate toOrderDate, String ids, Pageable pageable) {
+    public ChangePricePrintDTO getAll(String searchKey, Long shopId, LocalDateTime fromTransDate, LocalDateTime toTransDate, LocalDateTime fromOrderDate, LocalDateTime toOrderDate, String ids, Pageable pageable) {
 
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> data =
-                (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
+                (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, shopId, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
         ChangePricePrintDTO response = new ChangePricePrintDTO();
         List<ChangePriceDTO> listPriceChange = data.getData().getResponse();
         ChangePriceTotalDTO changePriceTotal = data.getData().getInfo();

@@ -48,7 +48,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
         cal1.set(2021, 4, 1);
         Calendar cal2 = Calendar.getInstance();
         cal2.set(2021, 5, 30);
-        given(changePriceReportService.index(any(), any(), any(), any(), any(), any(), any(), any())).willReturn(response);
+        given(changePriceReportService.index(any(), any(), any(), any(), any(), any(), any(), any(), any())).willReturn(response);
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .param("fromTransDate", "01/04/2021")
                 .param("toTransDate", "01/05/2021")
@@ -78,7 +78,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
         cal1.set(2021, 4, 1);
         Calendar cal2 = Calendar.getInstance();
         cal2.set(2021, 5, 30);
-        given(changePriceReportService.index(any(), any(), any(), any(), any(), any(), any(), any())).willReturn(response);
+        given(changePriceReportService.index(any(),  any(), any(), any(), any(), any(), any(), any(), any())).willReturn(response);
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .param("fromTransDate", "01/04/2021")
                 .param("toTransDate", "01/05/2021")

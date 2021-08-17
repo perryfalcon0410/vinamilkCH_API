@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2021-08-17-add-column-imp_return_sale_qty-in-table-table-rpt-stock-aggregated" author="thaitt">
+        <addColumn tableName="RPT_STOCK_AGGREGATED">
+            <column name="IMP_RETURN_SALE_QTY" type="int"/>
+            <column name="IMP_RETURN_PRO_QTY" type="int"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMP_RETURN_SALE_QTY"/>
+            <dropColumn tableName="RPT_STOCK_AGGREGATED" columnName="IMP_RETURN_PRO_QTY"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
