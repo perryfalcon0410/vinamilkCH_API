@@ -108,7 +108,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         else totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumTotalMoney());
 
         CoverResponse coverResponse = new CoverResponse(redInvoiceDTOS, totalRedInvoice);
-        System.gc();
+       /* System.gc();*/
         return coverResponse;
     }
 
@@ -220,7 +220,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     , taxCode, null, null);
             List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
             CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
-            System.gc();
+           /* System.gc();*/
             return response;
         }
     }

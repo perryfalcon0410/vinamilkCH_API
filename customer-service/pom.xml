@@ -138,7 +138,7 @@
 					<propertyFile>src/main/resources/liquibase.properties</propertyFile>
 				</configuration>
 			</plugin>
-			<plugin>
+<!--			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
@@ -155,7 +155,7 @@
 						-Xmx1g
 					</jvmArguments>
 				</configuration>
-			</plugin>
+			</plugin>-->
 		</plugins>
 	</build>
 

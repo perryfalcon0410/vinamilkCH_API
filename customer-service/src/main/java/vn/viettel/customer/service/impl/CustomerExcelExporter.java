@@ -273,7 +273,7 @@ public class CustomerExcelExporter {
         ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
         workbook.close();
         IOUtils.closeQuietly(out);
-        System.gc();
+       /* System.gc();*/
         return response;
     }
 }

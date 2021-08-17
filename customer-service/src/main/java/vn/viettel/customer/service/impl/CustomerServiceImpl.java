@@ -133,7 +133,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
             return  dto;
         });
-        System.gc();
+      /*  System.gc();*/
        return response;
     }
 /*    @Override
@@ -165,7 +165,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isSearchPhoneOnly())
             response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
         else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
-        System.gc();
+        /*System.gc();*/
         return response;
     }
 
@@ -533,7 +533,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps);
-        System.gc();
+       /* System.gc();*/
         return excel.export();
     }
 
@@ -594,14 +594,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartDay() {
         repository.schedulerUpdateStartDay();
-        System.gc();
+       /* System.gc();*/
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
-        System.gc();
+       /* System.gc();*/
     }
 
 }

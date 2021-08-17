@@ -270,13 +270,13 @@ public class CustomerController extends BaseController {
         return new Response<Double>().withData(service.getScoreCumulated(customerId));
     }
 
-    @GetMapping( V1 + root + "/memory-status")
+/*    @GetMapping( V1 + root + "/memory-status")
     public MemoryStats getMemoryStatistics() {
         MemoryStats stats = new MemoryStats();
         stats.setHeapSize(Runtime.getRuntime().totalMemory());
         stats.setHeapMaxSize(Runtime.getRuntime().maxMemory());
         stats.setHeapFreeSize(Runtime.getRuntime().freeMemory());
         return stats;
-    }
+    }*/
 
 }
