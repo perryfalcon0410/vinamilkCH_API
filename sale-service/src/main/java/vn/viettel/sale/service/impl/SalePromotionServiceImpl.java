@@ -1443,7 +1443,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             discountPercent = discountItem.getDisPer();
                         }else{
                             amountDiscountInTax = discountItem.getDiscAmt() * multi;
-                            if(isInclusiveTax){
+                            if(!isInclusiveTax){
                                 amountDiscountExTax = discountItem.getDiscAmt() * multi;
                             }
                         }

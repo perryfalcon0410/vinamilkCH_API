@@ -75,12 +75,12 @@ public class CustomerController extends BaseController {
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
 
-/*    @ApiOperation(value = "Tìm kiếm danh sách khách hàng chức năng bán hàng")
+    @ApiOperation(value = "Tìm kiếm danh sách khách hàng chức năng đổi hàng hỏng - hàng trả lại")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root +"/customers-to-sale"})
-    public Response<Page<CustomerDTO>> getAllCustomerToSaleService(HttpServletRequest httpRequest,
+    public Response<Page<CustomerDTO>> getAllCustomerForChangeProducts(HttpServletRequest httpRequest,
                                                       @ApiParam(value = "Tìm theo tên, Mã khách hàng, Sdt")
                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @SortDefault.SortDefaults({
@@ -88,10 +88,10 @@ public class CustomerController extends BaseController {
                                                               @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
                                                               @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
                                                       }) Pageable pageable) {
-        Page<CustomerDTO> customerDTOS = service.getAllCustomerToSaleService(searchKeywords, pageable);
+        Page<CustomerDTO> customerDTOS = service.getAllCustomerForChangeProducts(searchKeywords, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
-    }*/
+    }
 
     @ApiOperation(value = "Tạo khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -270,13 +270,13 @@ public class CustomerController extends BaseController {
         return new Response<Double>().withData(service.getScoreCumulated(customerId));
     }
 
-/*    @GetMapping( V1 + root + "/memory-status")
+  @GetMapping( V1 + root + "/memory-status")
     public MemoryStats getMemoryStatistics() {
         MemoryStats stats = new MemoryStats();
         stats.setHeapSize(Runtime.getRuntime().totalMemory());
         stats.setHeapMaxSize(Runtime.getRuntime().maxMemory());
         stats.setHeapFreeSize(Runtime.getRuntime().freeMemory());
         return stats;
-    }*/
+    }
 
 }

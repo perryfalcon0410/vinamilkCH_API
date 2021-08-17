@@ -29,7 +29,7 @@ public interface CustomerService extends BaseService {
 
     Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 
-/*    Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable);*/
+   Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable);
 
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 

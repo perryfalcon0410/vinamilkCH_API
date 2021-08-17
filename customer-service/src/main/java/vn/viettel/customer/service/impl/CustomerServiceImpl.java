@@ -133,26 +133,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
             return  dto;
         });
-      /*  System.gc();*/
+        System.gc();
        return response;
     }
-/*    @Override
-    public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
-        if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
-
-        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
-
-        List<MemberCustomer> memberCustomer = null;
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        if(customers.getContent().size() != 0)
-        {
-            memberCustomer = memBerCustomerRepos.getMemberCustomers(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
-        }
-        List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
-        return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
-    }*/
 
     @Override
     public Page<CustomerDTO> findCustomerForSale(Long shopId, CustomerSaleFilter customerFilter, Pageable pageable) {
@@ -532,9 +515,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(!cardTypeMaps.containsKey(cardType.getId())) cardTypeMaps.put(cardType.getId(), cardType.getApParamName());
         }
 
-        CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps);
-       /* System.gc();*/
+        List<CategoryDataDTO> genders = categoryDataClient.getGendersV1().getData();
+        Map<Long, String> genderMaps = new HashMap<>();
+        for(CategoryDataDTO category: genders) {
+            if(!genderMaps.containsKey(category.getId())) genderMaps.put(category.getId(), category.getCategoryName());
+        }
+
+        CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps, genderMaps);
+        System.gc();
         return excel.export();
+    }
+
+    /*
+        Đổi hàng hỏng  - hàng trả lại
+     */
+    @Override
+    public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
+        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+        Page<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
+        Page<CustomerDTO> response = customers.map(item -> modelMapper.map(item, CustomerDTO.class));
+        System.gc();
+        return response;
     }
 
     @Override

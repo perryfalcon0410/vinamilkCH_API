@@ -138,24 +138,6 @@
 					<propertyFile>src/main/resources/liquibase.properties</propertyFile>
 				</configuration>
 			</plugin>
-<!--			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<configuration>
-							<mainClass>com.baeldung.heap.HeapSizeDemoApplication</mainClass>
-						</configuration>
-					</execution>
-				</executions>
-				<configuration>
-					<executable>true</executable>
-					<jvmArguments>
-						-Xms256m
-						-Xmx1g
-					</jvmArguments>
-				</configuration>
-			</plugin>-->
 		</plugins>
 	</build>
 
