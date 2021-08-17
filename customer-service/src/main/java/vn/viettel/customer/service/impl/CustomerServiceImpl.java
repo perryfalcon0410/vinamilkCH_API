@@ -590,6 +590,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
         List<Customer> customers = repository.getCustomersByIds(customerIds);
         List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
+        System.gc();
         return customerDTOS;
     }
 
