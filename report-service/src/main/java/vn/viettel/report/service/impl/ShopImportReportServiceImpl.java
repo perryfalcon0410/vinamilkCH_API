@@ -174,6 +174,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
 
                 //Gộp id ngành hàng, DS SP thuộc ngành đó
                 Map<Long, List<ShopImportDTO>> catMaps = orderMapValues.stream().collect(Collectors.groupingBy(ShopImportDTO::getCatId));
+                List<ShopImportCatDTO> cats = new ArrayList<>();
                 for(Map.Entry<Long, List<ShopImportDTO>> entryCat : catMaps.entrySet()) {
                     String catName = "";
                     int totalCatQty = 0;
@@ -205,10 +206,12 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                     cat.setTotalPriceNotVat(totalCatPriceNotVat);
                     cat.setTotalPriceVat(totalCatPriceVat);
                     cat.setProducts(entryCat.getValue());
+                    cats.add(cat);
 
-                    orderImport.addCat(cat);
                 }
+                Collections.sort(cats, Comparator.comparing(ShopImportCatDTO::getCatName));
 
+                orderImport.setCats(cats);
                 orderImport.setTotalQuantity(totalOrderQty);
                 orderImport.setTotalPriceNotVat(totalOrderPriceNotVat);
                 orderImport.setTotalPriceVat(totalOrderPriceVat);
@@ -216,7 +219,6 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
 
                 shopImport.addOrderImport(orderImport);
             }
-
             shopImport.setTotalQuantity(totalPoQty);
             shopImport.setTotalPriceNotVat(totalPoPriceNotVat);
             shopImport.setTotalPriceVat(totalPoPriceVat);
