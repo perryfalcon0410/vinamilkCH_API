@@ -5,11 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCounting_;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
 
 public class InventorySpecification {
 

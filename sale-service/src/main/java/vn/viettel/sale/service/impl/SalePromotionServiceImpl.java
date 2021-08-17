@@ -1447,18 +1447,18 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             Đối với ZV16 dạng buldle thì chia tỉ lệ KM cho từng SP sẽ dựa vào khai báo và bội số nhận được
                             thì tiền KM = Bội số * điều kiện số tiền mua SP này của mức * phần trăm KM/100
                              */
-                                SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
-                                saveDTO.setProductId(productOrder.getProductId());
-                                saveDTO.setLevelNumber(level);
-                                saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
-                                saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
-                                saveDTO.setAmount(saveDTO.getAmountExTax());
-                                saveDTO.setMaxAmount(saveDTO.getAmountExTax());
-                                if (isInclusiveTax) {
-                                    saveDTO.setAmount(saveDTO.getAmountInTax());
-                                    saveDTO.setMaxAmount(saveDTO.getAmountInTax());
-                                }
-                                saveInfo.add(saveDTO);
+//                                SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
+//                                saveDTO.setProductId(productOrder.getProductId());
+//                                saveDTO.setLevelNumber(level);
+//                                saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
+//                                saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
+//                                saveDTO.setAmount(saveDTO.getAmountExTax());
+//                                saveDTO.setMaxAmount(saveDTO.getAmountExTax());
+//                                if (isInclusiveTax) {
+//                                    saveDTO.setAmount(saveDTO.getAmountInTax());
+//                                    saveDTO.setMaxAmount(saveDTO.getAmountInTax());
+//                                }
+//                                saveInfo.add(saveDTO);
                             }
                         }else{
                             amountDiscountInTax = discountItem.getDiscAmt() * multi;
@@ -1485,15 +1485,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalAmountDiscountExTax += amountDiscountExTax;
                 totalAmountOrderInTax += amountOrderInTax;
 
-                if(forSaving && (!"zv13".equalsIgnoreCase(type) && !"zv16".equalsIgnoreCase(type)) ) {
-                    double percentInTax = calPercent(allOrderInTax,amountDiscountInTax);
-                    double percentExTax = calPercent(allOrderExTax,amountDiscountExTax);
-                    allOrderInTax = 0;
-                    allOrderExTax = 0;
-                    int cnt = 0;
+                if(forSaving/* && (!"zv13".equalsIgnoreCase(type) && !"zv16".equalsIgnoreCase(type))*/ ) {
+//                    double percentInTax = calPercent(allOrderInTax,amountDiscountInTax);
+//                    double percentExTax = calPercent(allOrderExTax,amountDiscountExTax);
+//                    allOrderInTax = 0;
+//                    allOrderExTax = 0;
+//                    int cnt = 0;
                     for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()) {
                         if (mapOrderNumber.containsKey(productOrder.getProductId())) {
-                            cnt += 1;
+                            /*cnt += 1;
                             amountOrderInTax = Math.round(productOrder.getTotalPrice() * percentInTax/100);
                             amountOrderExTax = productOrder.getTotalPriceNotVAT() * percentExTax/100;
                             if(cnt == mapOrderNumber.size()){
@@ -1503,7 +1503,35 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             allOrderInTax += amountOrderInTax;
                             allOrderExTax += amountOrderExTax;
                             saveInfo.add(initSaleDiscount(productOrder.getProductId(), entry.getKey(), amountOrderInTax,
-                                    amountOrderExTax, isInclusiveTax));
+                                    amountOrderExTax, isInclusiveTax));*/
+                            double amtOrderInTax = 0;
+                            double amtOrderExTax = 0;
+                            PromotionProgramDetailDTO discountItem = mapOrderNumber.get(productOrder.getProductId()).get(entry.getKey()).get(0);
+                            if("zv13".equalsIgnoreCase(type) || "zv14".equalsIgnoreCase(type)){ // km %
+                                amtOrderInTax = discountItem.getSaleQty() * productOrder.getPrice() * multi;
+                                amtOrderExTax = discountItem.getSaleQty() * productOrder.getPriceNotVAT() * multi;
+                            }else if("zv16".equalsIgnoreCase(type) || "zv17".equalsIgnoreCase(type)) { // km tiền
+                                double productPercent = (productOrder.getPrice() - productOrder.getPriceNotVAT() )/ productOrder.getPriceNotVAT() * 100;
+                                if(isInclusiveTax) {
+                                    amtOrderInTax = discountItem.getSaleAmt() * multi;
+                                    amtOrderExTax = discountItem.getSaleAmt() / (( 100 + productPercent ) / 100) * multi;
+                                }else{
+                                    amtOrderInTax = discountItem.getSaleAmt() * (( 100 + productPercent ) / 100) * multi;
+                                    amtOrderExTax = discountItem.getSaleAmt() * multi;
+                                }
+                            }
+                            SaleDiscountSaveDTO saveDTO = new SaleDiscountSaveDTO();
+                            saveDTO.setProductId(productOrder.getProductId());
+                            saveDTO.setLevelNumber(level);
+                            saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
+                            saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
+                            saveDTO.setAmount(saveDTO.getAmountExTax());
+                            saveDTO.setMaxAmount(saveDTO.getAmountExTax());
+                            if (isInclusiveTax) {
+                                saveDTO.setAmount(saveDTO.getAmountInTax());
+                                saveDTO.setMaxAmount(saveDTO.getAmountInTax());
+                            }
+                            saveInfo.add(saveDTO);
                         }
                     }
                 }

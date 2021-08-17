@@ -21,6 +21,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.customer.entities.MemoryStats;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
@@ -267,6 +268,15 @@ public class CustomerController extends BaseController {
     @GetMapping(value = { V1 + root + "/scorecumulated/{customerId}"})
     public Response<Double> getScoreCumulated(HttpServletRequest httpRequest, @PathVariable(name = "customerId") Long customerId) {
         return new Response<Double>().withData(service.getScoreCumulated(customerId));
+    }
+
+    @GetMapping( V1 + root + "/memory-status")
+    public MemoryStats getMemoryStatistics() {
+        MemoryStats stats = new MemoryStats();
+        stats.setHeapSize(Runtime.getRuntime().totalMemory());
+        stats.setHeapMaxSize(Runtime.getRuntime().maxMemory());
+        stats.setHeapFreeSize(Runtime.getRuntime().freeMemory());
+        return stats;
     }
 
 }

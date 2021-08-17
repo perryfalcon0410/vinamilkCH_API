@@ -198,7 +198,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
     }
 
 
-    public static ConnectFTP getConnectFTP2(List<ApParamDTO> apParamDTOList) {
+    public ConnectFTP getConnectFTP2(List<ApParamDTO> apParamDTOList) {
         String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
