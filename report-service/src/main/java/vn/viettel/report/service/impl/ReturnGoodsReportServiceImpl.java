@@ -150,6 +150,8 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
             cat.setOrderReturnGoods(lstOrderReturn);
             dataByCat.add(cat);
         }
+        Collections.sort(dataByCat, Comparator.comparing(ReportPrintOrderTotalDTO::getCategory));
+
         printDTO.setShopName(shopDTO.getShopName());
         printDTO.setShopTel(shopDTO.getMobiPhone());
         printDTO.setAddress(shopDTO.getAddress());
