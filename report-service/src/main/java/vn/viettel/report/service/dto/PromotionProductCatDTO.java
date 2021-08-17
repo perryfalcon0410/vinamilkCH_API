@@ -19,7 +19,7 @@ import java.util.List;
 public class PromotionProductCatDTO {
     @JsonIgnore
     private Long productCatId;
-    @ApiModelProperty(notes = "Tên ngành hàng")
+    @ApiModelProperty(notes = "Mã ngành hàng")
     private String productCatName;
     @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity = 0;

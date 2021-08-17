@@ -26,10 +26,7 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -157,6 +154,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
 
             //Gộp id ngành hàng, DS SP thuộc ngành đó
             Map<Long, List<ShopExportDTO>> catMaps = orderMapValues.stream().collect(Collectors.groupingBy(ShopExportDTO::getCatId));
+            List<ShopExportCatDTO> cats = new ArrayList<>();
             for (Map.Entry<Long, List<ShopExportDTO>> entryCat : catMaps.entrySet()) {
                 String catName = "";
                 int totalCatQty = 0;
@@ -189,9 +187,11 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
                 cat.setTotalPriceVat(totalCatPriceVat);
                 cat.setProducts(entryCat.getValue());
 
-                orderExp.addCat(cat);
+                cats.add(cat);
             }
 
+            Collections.sort(cats, Comparator.comparing(ShopExportCatDTO::getCatName));
+            orderExp.setCats(cats);
             orderExp.setTotalQuantity(totalOrderQty);
             orderExp.setTotalPriceNotVat(totalOrderPriceNotVat);
             orderExp.setTotalPriceVat(totalOrderPriceVat);

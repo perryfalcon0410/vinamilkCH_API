@@ -8,11 +8,12 @@ import vn.viettel.report.service.dto.ChangePriceTotalDTO;
 
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChangePriceReportService {
-    Object index(String searchKey, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate,
-                 LocalDate toOrderDate, String ids, Pageable pageable, Boolean isPaging) throws ParseException;
-    ChangePricePrintDTO getAll(String searchKey,  Long shopId, LocalDate fromTransDate, LocalDate toTransDate, LocalDate fromOrderDate,
-                               LocalDate toOrderDate, String ids, Pageable pageable) throws ParseException;
+    Object index(String searchKey, Long shopId, LocalDateTime fromTransDate, LocalDateTime toTransDate, LocalDateTime fromOrderDate,
+                 LocalDateTime toOrderDate, String ids, Pageable pageable, Boolean isPaging) throws ParseException;
+    ChangePricePrintDTO getAll(String searchKey,  Long shopId, LocalDateTime fromTransDate, LocalDateTime toTransDate, LocalDateTime fromOrderDate,
+                               LocalDateTime toOrderDate, String ids, Pageable pageable) throws ParseException;
 }

@@ -124,51 +124,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                         .and(CustomerSpecification.hasPhoneToCustomer(filter.getPhone()))
                         .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
 
-        List<MemberCustomer> memberCustomer = null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        if(customers.getContent().size() != 0)
-        {
-            memberCustomer = memBerCustomerRepos.getMemberCustomers(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
-        }
-        List<MemberCustomer> memberCustomers = memberCustomer;
         List<CategoryDataDTO> genders =  categoryDataClient.getGendersV1().getData();
-       return customers.map(item -> {
-           CustomerDTO dto = modelMapper.map(item, CustomerDTO.class);
-
-            for (MemberCustomer member : memberCustomers) {
-                if (member.getCustomerId().equals(item.getId())) {
-                    dto.setAmountCumulated(member.getScoreCumulated());
+        Page<CustomerDTO> response = customers.map(item -> {
+            CustomerDTO dto = modelMapper.map(item, CustomerDTO.class);
+            for (CategoryDataDTO gender : genders) {
+                if (gender.getId().equals(item.getGenderId())) {
+                    dto.setGenderName(gender.getCategoryName());
                     break;
                 }
             }
 
-           for (CategoryDataDTO gender : genders) {
-               if (gender.getId().equals(item.getGenderId())) {
-                   dto.setGenderName(gender.getCategoryName());
-                   break;
-               }
-           }
-
-           return  dto;
-       });
-
-    }
-    @Override
-    public Page<CustomerDTO> getAllCustomerToSaleService(String searchKeywords, Pageable pageable) {
-        if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
-
-        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
-
-        List<MemberCustomer> memberCustomer = null;
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        if(customers.getContent().size() != 0)
-        {
-            memberCustomer = memBerCustomerRepos.getMemberCustomers(customers.getContent().stream().map(i -> i.getId()).collect(Collectors.toList()));
-        }
-        List<MemberCustomer> finalRptCusMemAmounts = memberCustomer;
-        return customers.map(item -> mapCustomerToCustomerResponse(item, finalRptCusMemAmounts));
+            return  dto;
+        });
+        System.gc();
+       return response;
     }
 
     @Override
@@ -177,11 +147,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             return  new PageImpl<>(new ArrayList<>());
 
         Long shop = null;
+        Page<CustomerDTO> response = null;
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
-            return repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
-
-        return repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
+        else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+        /*System.gc();*/
+        return response;
     }
 
     @Override
@@ -524,7 +496,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 ),
 
                 Sort.by(Sort.Direction.ASC, "customerCode").and(Sort.by(Sort.Direction.ASC, "mobiPhone")));
-        List<ExportCustomerDTO> dtos = new ArrayList<>();
 
         Map<Long, String> customerTypeMaps = new HashMap<>();
         if(!customers.isEmpty()) {
@@ -547,8 +518,29 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(!cardTypeMaps.containsKey(cardType.getId())) cardTypeMaps.put(cardType.getId(), cardType.getApParamName());
         }
 
-        CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps);
+        List<CategoryDataDTO> genders = categoryDataClient.getGendersV1().getData();
+        Map<Long, String> genderMaps = new HashMap<>();
+        for(CategoryDataDTO category: genders) {
+            if(!genderMaps.containsKey(category.getId())) genderMaps.put(category.getId(), category.getCategoryName());
+        }
+
+        CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps, genderMaps);
+        System.gc();
         return excel.export();
+    }
+
+    /*
+        Đổi hàng hỏng  - hàng trả lại
+     */
+    @Override
+    public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
+        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+        Page<Customer> customers = repository.findAll( Specification
+                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
+        Page<CustomerDTO> response = customers.map(item -> modelMapper.map(item, CustomerDTO.class));
+        System.gc();
+        return response;
     }
 
     @Override
@@ -601,6 +593,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
         List<Customer> customers = repository.getCustomersByIds(customerIds);
         List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
+        System.gc();
         return customerDTOS;
     }
     
@@ -610,12 +603,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartDay() {
         repository.schedulerUpdateStartDay();
+       /* System.gc();*/
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
+       /* System.gc();*/
     }
 
 }

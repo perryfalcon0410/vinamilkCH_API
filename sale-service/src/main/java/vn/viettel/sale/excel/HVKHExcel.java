@@ -13,13 +13,10 @@ import vn.viettel.sale.service.dto.HDDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class HVKHExcel {
-    private static final String FONT_NAME= "Times New Roman";
+    private String FONT_NAME= "Times New Roman";
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet1;
     private SXSSFSheet sheet2;

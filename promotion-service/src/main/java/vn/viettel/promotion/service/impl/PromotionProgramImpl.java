@@ -81,12 +81,12 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     public PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId) {
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
 
-        PromotionShopMap promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
-        if(promotionShopMap == null && shopDTO.getParentShopId()!=null)
+        List<PromotionShopMap> promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
+        if(promotionShopMap.isEmpty() && shopDTO.getParentShopId()!=null)
             promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId());
-        if (promotionShopMap == null) return null;
+        if (promotionShopMap.isEmpty()) return null;
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return modelMapper.map(promotionShopMap, PromotionShopMapDTO.class);
+        return modelMapper.map(promotionShopMap.get(0), PromotionShopMapDTO.class);
     }
 
     @Override
@@ -160,7 +160,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
                 , cusCardTypeId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<PromotionProgramDTO> dtos  = programs.stream().map(program ->modelMapper.map(program, PromotionProgramDTO.class)).collect(Collectors.toList());
-
+       /* System.gc();*/
         return dtos;
     }
 

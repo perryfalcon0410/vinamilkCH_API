@@ -28,12 +28,14 @@ public class CustomerExcelExporter {
     Map<Long, String> customerTypeMaps;
     Map<Long, String> closelyTypeMaps;
     Map<Long, String> cardTypeMaps;
+    Map<Long, String> genderMaps;
 
-    public CustomerExcelExporter(List<Customer> customers,   Map<Long, String> customerTypeMaps, Map<Long, String> closelyTypeMaps, Map<Long, String> cardTypeMaps) {
+    public CustomerExcelExporter(List<Customer> customers,   Map<Long, String> customerTypeMaps, Map<Long, String> closelyTypeMaps, Map<Long, String> cardTypeMaps, Map<Long, String> genderMaps) {
         this.customers = customers;
         this.customerTypeMaps = customerTypeMaps;
         this.closelyTypeMaps = closelyTypeMaps;
         this.cardTypeMaps = cardTypeMaps;
+        this.genderMaps = genderMaps;
         workbook = new SXSSFWorkbook();
     }
 
@@ -185,15 +187,8 @@ public class CustomerExcelExporter {
             }
             ExcelPoiUtils.createCell(row, columnCount++, dob, style);
 
-            if (customer.getGenderId() == null) {
-                ExcelPoiUtils.createCell(row, columnCount++, "", style);
-            } else if (customer.getGenderId() == 1) {
-                ExcelPoiUtils.createCell(row, columnCount++, "Nam", style);
-            } else if (customer.getGenderId() == 2) {
-                ExcelPoiUtils.createCell(row, columnCount++, "Nữ", style);
-            } else {
-                ExcelPoiUtils.createCell(row, columnCount++, "Khác", style);
-            }
+            ExcelPoiUtils.createCell(row, columnCount++, this.getGenderName(customer.getGenderId()), style);
+
             ExcelPoiUtils.createCell(row, columnCount++, this.checkNull(this.getCustomerTypeName(customer.getCustomerTypeId())), style);
             if (customer.getStatus() == 1) {
                 ExcelPoiUtils.createCell(row, columnCount++, "Hoạt động", style);
@@ -265,6 +260,13 @@ public class CustomerExcelExporter {
         return type;
     }
 
+    private String getGenderName(Long id){
+        String type = "";
+        if(genderMaps.containsKey(id))
+            type = genderMaps.get(id);
+        return type;
+    }
+
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
@@ -273,6 +275,7 @@ public class CustomerExcelExporter {
         ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
         workbook.close();
         IOUtils.closeQuietly(out);
+       /* System.gc();*/
         return response;
     }
 }

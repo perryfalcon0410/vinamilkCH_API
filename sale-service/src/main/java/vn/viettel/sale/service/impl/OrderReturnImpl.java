@@ -383,6 +383,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         for (SaleOrderDetail promotionDetail : saleOrderPromotions) {
             NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
             SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
+            promotionReturn.setOrderDate(returnDate);
             promotionReturn.setSaleOrderId(newOrderReturn.getId());
             promotionReturn.setPrice(promotionDetail.getPrice());
             promotionReturn.setAmount(0D);

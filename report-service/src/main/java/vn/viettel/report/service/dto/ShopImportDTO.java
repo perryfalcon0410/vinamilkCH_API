@@ -53,7 +53,7 @@ public class ShopImportDTO {
     @ApiModelProperty(notes = "ID nghành hàng cha")
     @Column(name = "CAT_ID")
     private Long catId;
-    @ApiModelProperty(notes = "Ngành hàng")
+    @ApiModelProperty(notes = "Ngành hàng lấy mã")
     @Column(name = "PRODUCT_INFO_NAME")
     private String productInfoName;
     @ApiModelProperty(notes = "Mã sản phẩm")
