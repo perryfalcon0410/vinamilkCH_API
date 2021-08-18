@@ -1467,9 +1467,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 totalAmountOrderInTax += amountOrderInTax;
 
                 if(forSaving ) {
+                    int cnt = 0;
+                    double amtIn = 0;
+                    double amtEx = 0;
                     for (ProductOrderDetailDataDTO productOrder : orderData.getProducts()) {
                         if (mapOrderNumber.containsKey(productOrder.getProductId())) {
-
+                            cnt++;
                             double amtOrderInTax = 0;
                             double amtOrderExTax = 0;
                             PromotionProgramDetailDTO discountItem = mapOrderNumber.get(productOrder.getProductId()).get(entry.getKey()).get(0);
@@ -1491,6 +1494,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             saveDTO.setLevelNumber(entry.getKey());
                             saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
                             saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
+                            if(cnt == mapOrderNumber.size()){
+                                saveDTO.setAmountExTax(roundValue(amountDiscountInTax - amtIn));
+                                saveDTO.setAmountInTax(roundValue(amountDiscountExTax - amtEx));
+                            }
+                            amtIn += saveDTO.getAmountInTax();
+                            amtEx += saveDTO.getAmountExTax();
                             saveDTO.setAmount(saveDTO.getAmountExTax());
                             saveDTO.setMaxAmount(saveDTO.getAmountExTax());
                             if (isInclusiveTax) {
