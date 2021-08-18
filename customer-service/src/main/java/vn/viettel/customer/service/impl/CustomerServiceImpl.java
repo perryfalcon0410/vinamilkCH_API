@@ -148,7 +148,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isSearchPhoneOnly())
             response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
         else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
-        /*System.gc();*/
+        System.gc();
         return response;
     }
 
@@ -357,7 +357,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(memberCustomer != null) customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
             return customerDTO;
         }).collect(Collectors.toList());
-
+        System.gc();
         return customerDTOS;
     }
 

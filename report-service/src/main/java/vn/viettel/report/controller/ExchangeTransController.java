@@ -63,6 +63,7 @@ public class ExchangeTransController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
+        System.gc();
         response.getOutputStream().flush();
     }
 
@@ -82,6 +83,7 @@ public class ExchangeTransController extends BaseController {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId());
         ExchangeTransReportDTO response = exchangeTransReportService.getExchangeTransReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        System.gc();
         return new Response<ExchangeTransReportDTO>().withData(response);
     }
 
