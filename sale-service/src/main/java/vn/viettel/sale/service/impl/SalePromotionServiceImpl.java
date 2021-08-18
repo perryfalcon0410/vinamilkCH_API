@@ -1495,8 +1495,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                             saveDTO.setAmountExTax(roundValue(amtOrderExTax * discountPercent / 100));
                             saveDTO.setAmountInTax(roundValue(amtOrderInTax * discountPercent / 100));
                             if(cnt == mapOrderNumber.size()){
-                                saveDTO.setAmountExTax(roundValue(amountDiscountInTax - amtIn));
-                                saveDTO.setAmountInTax(roundValue(amountDiscountExTax - amtEx));
+                                saveDTO.setAmountInTax(roundValue(amountDiscountInTax - amtIn));
+                                saveDTO.setAmountExTax(roundValue(amountDiscountExTax - amtEx));
                             }
                             amtIn += saveDTO.getAmountInTax();
                             amtEx += saveDTO.getAmountExTax();

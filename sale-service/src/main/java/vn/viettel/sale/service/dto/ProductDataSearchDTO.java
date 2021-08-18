@@ -22,6 +22,8 @@ public class ProductDataSearchDTO {
     private String uom1;
     @ApiModelProperty(notes = "Ngành hàng")
     private String groupVat;
+    @ApiModelProperty(notes = "Số lượng quy đổi")
+    private Integer convfact;
     @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
     @ApiModelProperty(notes = "Thành tiền")

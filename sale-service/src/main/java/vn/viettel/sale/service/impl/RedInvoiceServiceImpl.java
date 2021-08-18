@@ -421,7 +421,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             hddtExcelDTO.setTotalAmount(data.getQuantity() * data.getPriceNotVat());
             if(data.getPrice()!=null && data.getPrice() > 0) {
             Double gtgt = (data.getPrice() - data.getPriceNotVat()) / data.getPriceNotVat() * 100;
-            gtgt = Math.ceil((gtgt));
+            gtgt = (double) Math.round((gtgt));
             if(gtgt != null) hddtExcelDTO.setGTGT(gtgt);
             }
             return hddtExcelDTO;
