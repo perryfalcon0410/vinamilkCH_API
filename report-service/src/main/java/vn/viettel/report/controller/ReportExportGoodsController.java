@@ -86,6 +86,7 @@ public class ReportExportGoodsController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=BC_xuat_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
+        System.gc();
         response.getOutputStream().flush();
     }
 

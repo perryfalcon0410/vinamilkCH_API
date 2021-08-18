@@ -58,6 +58,7 @@ public class SaleByCategoryController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=BC_doanh_so_theo_nganh_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
+        System.gc();
         response.getOutputStream().flush();
     }
 

@@ -44,6 +44,9 @@ public class RedInvoiceDataDTO extends BaseDTO {
     @ApiModelProperty(notes = "Ghi chú")
     private String note;
 
+    @ApiModelProperty(notes = "Số lượng quy đổi")
+    private Integer convFact;
+
     //Không được sửa hàm này vì được sử dụng ở SaleOrderDetailRepository
     public RedInvoiceDataDTO(Long saleOrderId, String note, Long productId, String productCode, String productName, String uom1, String uom2, Double vat,
                              String groupVat, Integer quantity, Double price, Double priceNotVat, Double amount ){
