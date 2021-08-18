@@ -162,6 +162,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                                     dataDTO.setGroupVat(product.getGroupVat());
                                     dataDTO.setUom1(product.getUom1());
                                     dataDTO.setUom2(product.getUom2());
+                                    dataDTO.setConvFact(product.getConvFact());
                                     int integerQuantity = detail.getQuantity() / product.getConvFact();
                                     int residuaQuantity = detail.getQuantity() % product.getConvFact();
                                     dataDTO.setNote(integerQuantity + "T" + residuaQuantity);
@@ -306,7 +307,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         }
         Float totalMoney = 0F;
         for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
-            totalMoney += ((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
+            totalMoney += Math.round((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
         }
         redInvoiceRecord.setShopId(shopId);
         redInvoiceRecord.setTotalMoney(totalMoney);
@@ -320,10 +321,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             redInvoiceDetailRecord.setShopId(shopId);
             redInvoiceDetailRecord.setProductId(productDataDTO.getProductId());
             redInvoiceDetailRecord.setQuantity(productDataDTO.getQuantity().intValue());
-            redInvoiceDetailRecord.setPrice(((productDataDTO.getPriceNotVat() * productDataDTO.getVat()) / 100) + productDataDTO.getPriceNotVat());
+            redInvoiceDetailRecord.setPrice((float) Math.round(((productDataDTO.getPriceNotVat() * productDataDTO.getVat()) / 100) + productDataDTO.getPriceNotVat()));
             redInvoiceDetailRecord.setPriceNotVat(productDataDTO.getPriceNotVat());
-            redInvoiceDetailRecord.setAmount((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
-            redInvoiceDetailRecord.setAmountNotVat(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity());
+            redInvoiceDetailRecord.setAmount((float) Math.round((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity())));
+            redInvoiceDetailRecord.setAmountNotVat((float) Math.round(productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
             redInvoiceDetailRecord.setCreatedBy(userDTO.getLastName() + " " + userDTO.getFirstName());
             redInvoiceDetailRecord.setNote(productDataDTO.getNoteRedInvoiceDetail());
             redInvoiceDetailRepository.save(redInvoiceDetailRecord);
