@@ -80,6 +80,7 @@ public class QuantitySalesReceiptController extends BaseController{
         FileCopyUtils.copy(in, response.getOutputStream());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         IOUtils.closeQuietly(in);
+        System.gc();
         response.getOutputStream().flush();
     }
 

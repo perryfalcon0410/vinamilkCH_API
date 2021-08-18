@@ -198,6 +198,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                         dto.setIntoMoney((double) 0);
                         dto.setVat((double) 0);
                         dto.setVatAmount((double) 0);
+                        dto.setConvfact(item.getConvFact());
                         if(prices != null){
                             for(Price price : prices){
                                 if(price.getProductId().equals(item.getId())){

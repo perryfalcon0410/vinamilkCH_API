@@ -64,6 +64,7 @@ public class ProductController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=BC_hang_khuyen_mai_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
+        System.gc();
         response.getOutputStream().flush();
     }
 
@@ -84,6 +85,7 @@ public class ProductController extends BaseController {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
         CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO> response = promotionProductService.getReportPromotionProducts(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        System.gc();
         return new Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>>().withData(response);
     }
 
@@ -103,6 +105,7 @@ public class ProductController extends BaseController {
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
         PromotionProductReportDTO response = promotionProductService.getDataPrint(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        System.gc();
         return new Response<PromotionProductReportDTO>().withData(response);
     }
 
