@@ -24,6 +24,7 @@ import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
@@ -148,6 +149,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isSearchPhoneOnly())
             response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
         else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+        System.gc();
+        return response;
+    }
+
+    @Override
+    public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
+        Page<CustomerDTO> response = repository.searchForRedInvoice(
+                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
         System.gc();
         return response;
     }
