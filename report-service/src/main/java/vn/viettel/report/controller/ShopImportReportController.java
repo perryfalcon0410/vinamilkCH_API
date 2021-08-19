@@ -66,7 +66,7 @@ public class ShopImportReportController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=report_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
-        System.gc();
+
         response.getOutputStream().flush();
     }
 

@@ -128,11 +128,9 @@ public class InventoryController extends BaseController {
     public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
         List<StockCountingExcelDTO> export = inventoryService.getByStockCountingId(id).getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        ShopDTO parentShop = null;
-        if(shop.getParentShopId()!=null) parentShop = shopClient.getByIdV1(shop.getParentShopId()).getData();
         LocalDateTime countingDate = inventoryService.getStockCountingById(id).getCountingDate();
         StockCountingFilledExcel stockCountingFilledExcel =
-                new StockCountingFilledExcel(export, shop, parentShop, countingDate);
+                new StockCountingFilledExcel(export, shop, shop.getParentShop(), countingDate);
         ByteArrayInputStream in = stockCountingFilledExcel.export();
 
         response.setContentType("application/octet-stream");
@@ -169,12 +167,10 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExportAll( HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        ShopDTO parentShop = null;
-        if(shop.getParentShopId()!=null) parentShop = shopClient.getByIdV1(shop.getParentShopId()).getData();
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(),null,null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll =
-                new StockCountingAllExcel(listAll, shop, parentShop, LocalDateTime.now());
+                new StockCountingAllExcel(listAll, shop, shop.getParentShop(), LocalDateTime.now());
         ByteArrayInputStream in = stockCountingAll.export();
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=stock_counting_all_" + StringUtils.createExcelFileName());

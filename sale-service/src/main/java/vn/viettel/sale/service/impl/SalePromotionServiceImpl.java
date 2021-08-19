@@ -238,7 +238,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(paymentAmount < 0) paymentAmount = 0;
         calculationDTO.setPaymentAmount(paymentAmount);
         calculationDTO.setLockVoucher(this.checkLockVoucher(shopId));
-        System.gc();
         return calculationDTO;
     }
 

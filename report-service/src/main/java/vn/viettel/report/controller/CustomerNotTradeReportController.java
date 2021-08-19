@@ -67,7 +67,6 @@ public class    CustomerNotTradeReportController extends BaseController {
         FileCopyUtils.copy(in, response.getOutputStream());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
         IOUtils.closeQuietly(in);
-        System.gc();
         response.getOutputStream().flush();
     }
 
@@ -105,7 +104,6 @@ public class    CustomerNotTradeReportController extends BaseController {
 
         CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO> response = service.findCustomerTrades(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_CUSTOMER_TRADE_SUCCESS);
-        System.gc();
         return new Response<CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO>>().withData(response);
     }
 
@@ -135,7 +133,6 @@ public class    CustomerNotTradeReportController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
-        System.gc();
         response.getOutputStream().flush();
     }
 

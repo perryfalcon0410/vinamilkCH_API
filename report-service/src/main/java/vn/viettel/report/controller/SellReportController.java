@@ -98,7 +98,6 @@ public class SellReportController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=Bao_Cao_Ban_Hang_Filled_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
-        System.gc();
         response.getOutputStream().flush();
     }
 

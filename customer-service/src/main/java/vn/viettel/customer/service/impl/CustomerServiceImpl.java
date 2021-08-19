@@ -134,7 +134,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
             return  dto;
         });
-        System.gc();
        return response;
     }
 
@@ -149,7 +148,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isSearchPhoneOnly())
             response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
         else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
-        System.gc();
         return response;
     }
 
@@ -157,7 +155,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
         Page<CustomerDTO> response = repository.searchForRedInvoice(
                 filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
-        System.gc();
         return response;
     }
 
@@ -375,7 +372,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(memberCustomer != null) customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
             return customerDTO;
         }).collect(Collectors.toList());
-        System.gc();
         return customerDTOS;
     }
 
@@ -548,7 +544,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps, genderMaps);
-        System.gc();
         return excel.export();
     }
 
@@ -562,7 +557,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
         Page<CustomerDTO> response = customers.map(item -> modelMapper.map(item, CustomerDTO.class));
-        System.gc();
         return response;
     }
 
@@ -616,7 +610,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
         List<Customer> customers = repository.getCustomersByIds(customerIds);
         List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-        System.gc();
         return customerDTOS;
     }
 
@@ -624,14 +617,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartDay() {
         repository.schedulerUpdateStartDay();
-       /* System.gc();*/
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
-       /* System.gc();*/
     }
 
 }

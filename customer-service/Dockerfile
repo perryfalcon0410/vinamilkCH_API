@@ -12,4 +12,4 @@ COPY ./machikatsu.pub $PROJECT_HOME/customer-service/machikatsu.pub
 
 WORKDIR $PROJECT_HOME
 
-CMD ["java","-Xmx2048m","-Xms512m","-Xmn64m","-jar","./customer-service/customer-service-0.0.1-SNAPSHOT.jar"]
+CMD ["java","-Xmx1024m","-Xms512m","-Xmn64m","-jar","./customer-service/customer-service-0.0.1-SNAPSHOT.jar"]

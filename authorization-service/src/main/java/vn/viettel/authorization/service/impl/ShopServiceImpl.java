@@ -27,7 +27,14 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
     @Override
     public ShopDTO getById(Long id) {
-        return modelMapper.map(repository.findById(id).get(), ShopDTO.class);
+        Shop shop = repository.findById(id).orElse(null);
+        if(shop == null) return null;
+        ShopDTO shopDTO = modelMapper.map(shop, ShopDTO.class);
+        if(shop.getParentShopId()!=null) {
+            Shop shopP = repository.findById(id).orElse(null);
+            if(shopP != null) shopDTO.setParentShop(modelMapper.map(shopP, ShopDTO.class));
+        }
+        return shopDTO;
     }
 
     @Override
