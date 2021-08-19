@@ -214,7 +214,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
                         return dto;
                     }
             ).collect(Collectors.toList());
-        }throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND);
+        }
+        return new ArrayList<>();
     }
 
     @Override

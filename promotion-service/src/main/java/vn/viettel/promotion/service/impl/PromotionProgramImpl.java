@@ -160,7 +160,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
                 , cusCardTypeId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<PromotionProgramDTO> dtos  = programs.stream().map(program ->modelMapper.map(program, PromotionProgramDTO.class)).collect(Collectors.toList());
-       /
         return dtos;
     }
 
