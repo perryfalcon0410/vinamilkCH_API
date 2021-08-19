@@ -310,7 +310,14 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             print.setUserName(user.getFullName());
         print.setOrderDate(saleOrder.getOrderDate());
         print.setOrderNumber(saleOrder.getOrderNumber());
-        print.setCustomerPurchase(saleOrder.getTotalCustomerPurchase());
+        if(saleOrder.getId() == null){
+            print.setCustomerPurchase( (customer.getTotalBill()!=null?customer.getTotalBill():0.0)
+                    + (saleOrder.getCustomerPurchase()!=null?saleOrder.getCustomerPurchase():0.0));
+        }else{
+            print.setCustomerPurchase((saleOrder.getTotalCustomerPurchase()!=null?saleOrder.getTotalCustomerPurchase():0.0)
+                    +(saleOrder.getCustomerPurchase()!=null?saleOrder.getCustomerPurchase():0.0));
+        }
+
         print.setAmount(saleOrder.getAmount());
         if(apParam!=null) print.setDeliveryType(apParam.getApParamName());
         double amountNotVat = 0;
