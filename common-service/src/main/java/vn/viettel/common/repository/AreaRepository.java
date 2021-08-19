@@ -2,6 +2,7 @@ package vn.viettel.common.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import vn.viettel.common.entities.Area;
+import vn.viettel.common.messaging.AreaSearch;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.repository.BaseRepository;
 
@@ -10,8 +11,10 @@ import java.util.Optional;
 
 public interface AreaRepository extends BaseRepository<Area> {
 
-    @Query(value = "SELECT a FROM Area a WHERE a.type = 2")
-    List<Area> getAllDistrict();
+    @Query("SELECT NEW vn.viettel.common.messaging.AreaSearch(a.id, a.areaCode,a.areaName, a.provinceName, a.districtName, Case when a.id =:districtId then true else false end) FROM Area a " +
+            " WHERE a.type = 2 ")
+    List<AreaSearch> getAllDistrict(Long districtId);
+
 
     @Query(value = "SELECT a FROM Area a " +
             "WHERE a.precinctName =:provinceName AND a.districtName =:districtName " +

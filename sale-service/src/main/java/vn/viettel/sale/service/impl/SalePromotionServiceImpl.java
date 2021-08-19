@@ -1849,12 +1849,22 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         double exTax = 0;
         for (ProductOrderDetailDataDTO product : products) {
             count++;
-            SaleDiscountSaveDTO saveDTO = initSaleDiscount(product.getProductId(), level, product.getTotalPrice() * percentInTax / 100,
-                    product.getTotalPriceNotVAT() * percentExTax / 100,
-                     isInclusiveTax);
+            double amtIn = product.getTotalPrice() * percentInTax / 100;
+            double amtEx = product.getTotalPriceNotVAT() * percentExTax / 100;
+            if(percentInTax == 0 || percentExTax == 0) {
+                 double percent = ((product.getPrice()-product.getPriceNotVAT())/product.getPriceNotVAT())*100;
+                 amtIn = product.getTotalPrice() * percentInTax / 100;
+                 amtEx = amtIn/((100 + percent)/100);
+                if(!isInclusiveTax) {
+                    amtEx = product.getTotalPriceNotVAT() * percentExTax / 100;
+                    amtIn = amtEx * ((100+percent)/100);
+                }
+            }
+
+            SaleDiscountSaveDTO saveDTO = initSaleDiscount(product.getProductId(), level, amtIn, amtEx, isInclusiveTax);
             if(count == products.size()) {
-                saveDTO.setAmountInTax(roundValue(amountInTax) - inTax);
-                saveDTO.setAmountExTax(roundValue(amountExTax) - exTax);
+                if(amountInTax > 0) saveDTO.setAmountInTax(roundValue(amountInTax) - inTax);
+                if(amountExTax > 0) saveDTO.setAmountExTax(roundValue(amountExTax) - exTax);
                 saveDTO.setAmount(saveDTO.getAmountExTax());
                 if (isInclusiveTax) {
                     saveDTO.setAmount(saveDTO.getAmountInTax());
@@ -2017,7 +2027,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 double discountInTax = 0;
                 double discountExTax = 0;
                 Map<Integer, Integer> sortedLstLv = new TreeMap<>(lstLv);
-                double productPercent = (totalAmountInTax - totalAmountExTax )/ totalAmountExTax * 100;
+      //          double productPercent = (totalAmountInTax - totalAmountExTax )/ totalAmountExTax * 100;
                 List<SaleDiscountSaveDTO> saveInfo = new ArrayList<>();
                 //Còn riêng chiết khấu % thì : các ctkm zv khác ( trừ bundle) thì ko có bội số, tối ưu
                 for (Map.Entry<Integer, Integer> entry : sortedLstLv.entrySet()) {
@@ -2028,18 +2038,21 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     PromotionProgramDetailDTO discountItem = mapOrderNumber.get(entry.getKey()).get(0);
                     if(discountItem.getDiscAmt() == null) discountItem.setDiscAmt(0.0);
                     double amtInTax = discountItem.getDiscAmt() * multi;
-                    double amtExTax = (discountItem.getDiscAmt() / (( 100 + productPercent ) / 100)) * multi;
+                    double amtExTax = 0;  //(discountItem.getDiscAmt() / (( 100 + productPercent ) / 100)) * multi;
                     if(!isInclusiveTax){
                         amtExTax = discountItem.getDiscAmt() * multi;
-                        amtInTax = (discountItem.getDiscAmt() * (( 100 + productPercent ) / 100)) * multi;
+                        amtInTax = 0;//(discountItem.getDiscAmt() * (( 100 + productPercent ) / 100)) * multi;
                     }
-                    discountInTax += amtInTax;
-                    discountExTax += amtExTax;
                     double pcInTax = calPercent(orderData.getTotalPrice(), amtInTax);
                     double pcExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
                     List<SaleDiscountSaveDTO> infos = initSaleDiscountSaveDTO(orderData.getProducts(), entry.getKey(), pcInTax, pcExTax, isInclusiveTax,
                             amtInTax, amtExTax);
-                    infos.stream().forEachOrdered(saveInfo::add);
+
+                    for(SaleDiscountSaveDTO info : infos) {
+                        saveInfo.add(info);
+                        discountInTax += info.getAmountInTax();
+                        discountExTax += info.getAmountExTax();
+                    }
 
                     if (checkMulti == MR_RECURSIVE || checkMulti == MR_MULTIPLE_RECURSIVE) { // có tối ưu thì tính tiếp
                     } else break; // không tính tối ưu thì dừng lại
