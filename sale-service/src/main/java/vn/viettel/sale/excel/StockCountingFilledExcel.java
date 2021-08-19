@@ -64,12 +64,12 @@ public class StockCountingFilledExcel {
 
         ExcelPoiUtils.createCell(customerRow, 0, shop.getShopName(),customerStyle);
         ExcelPoiUtils.createCell(customerAddressRow, 0, shop.getAddress(),customerAddressStyle);
-        ExcelPoiUtils.createCell(customerPhoneRow, 0,   (shop.getMobiPhone()!=null? ("Tel: " + shop.getMobiPhone()):"") +  (shop.getFax()!=null?(" Fax: " + shop.getFax()):""),customerAddressStyle);
+        ExcelPoiUtils.createCell(customerPhoneRow, 0,   "Tel: " + (shop.getMobiPhone()!=null? shop.getMobiPhone():"") + " Fax: " + (shop.getFax()!=null?shop.getFax():""),customerAddressStyle);
 
         if(parentShop!=null) {
             ExcelPoiUtils.createCell(customerRow, 9, parentShop.getShopName(),customerStyle);
             ExcelPoiUtils.createCell(customerAddressRow, 9, parentShop.getAddress(),customerAddressStyle);
-            ExcelPoiUtils.createCell(customerPhoneRow, 9, (parentShop.getMobiPhone()!=null?("Tel: " + parentShop.getMobiPhone()):"") + (parentShop.getFax()!=null?(" Fax: " +parentShop.getFax()):""),customerAddressStyle);
+            ExcelPoiUtils.createCell(customerPhoneRow, 9, "Tel: " +  (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""),customerAddressStyle);
         }
 
         ////////// COMPANY HEADER /////////////////////////////

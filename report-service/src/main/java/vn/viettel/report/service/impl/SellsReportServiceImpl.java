@@ -137,7 +137,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             sellDTO = reportDTOS.get(reportDTOS.size() - 1);
             this.removeDataList(reportDTOS);
         }
-        SellExcel excel = new SellExcel(shopDTO, reportDTOS, sellDTO, filter);
+        SellExcel excel = new SellExcel(shopDTO, shopDTO.getParentShop(), reportDTOS, sellDTO, filter);
         return excel.export();
     }
 

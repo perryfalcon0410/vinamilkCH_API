@@ -56,7 +56,7 @@ public class InOutAdjustmentController extends BaseController {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId());
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
-        InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop,filter);
+        InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop, shop.getParentShop(), filter);
         ByteArrayInputStream in = inOutAdjustmentExcel.export();
 
         response.setContentType("application/octet-stream");

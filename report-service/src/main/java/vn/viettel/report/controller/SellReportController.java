@@ -93,7 +93,6 @@ public class SellReportController extends BaseController {
 
         SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         ByteArrayInputStream in = sellsReportService.exportExcel(filter);
-
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Bao_Cao_Ban_Hang_Filled_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());

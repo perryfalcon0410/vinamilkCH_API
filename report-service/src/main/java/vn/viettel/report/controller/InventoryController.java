@@ -61,10 +61,9 @@ public class InventoryController extends BaseController {
                                         @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), warehouseTypeId, productCodes);
         ByteArrayInputStream in = inventoryService.exportImportExcel(filter);
-
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);
         response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Xuất_nhập_tồn_Filled_" + StringUtils.createExcelFileName());
+        response.addHeader("Content-Disposition", "attachment; filename=Xuat_nhap_ton_Filled_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
         response.getOutputStream().flush();

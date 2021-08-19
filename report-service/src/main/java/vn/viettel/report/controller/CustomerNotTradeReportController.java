@@ -59,7 +59,7 @@ public class    CustomerNotTradeReportController extends BaseController {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable, this.getShopId());
 
-        CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, fromDate, toDate);
+        CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, shop.getParentShop(), fromDate, toDate);
 
         ByteArrayInputStream in = exportExcel.export();
         response.setContentType("application/octet-stream");

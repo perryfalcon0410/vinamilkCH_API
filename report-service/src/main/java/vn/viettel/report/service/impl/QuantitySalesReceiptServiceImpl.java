@@ -44,11 +44,9 @@ public class QuantitySalesReceiptServiceImpl implements QuantitySalesReceiptServ
     @Override
     public ByteArrayInputStream exportExcel(QuantitySalesReceiptFilter filter) throws IOException {
         this.validMonth(filter);
-
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         TableDynamicDTO  tableDynamicDTO = this.callProcedure(filter);
-        QuantitySalesReceiptExcel excel = new QuantitySalesReceiptExcel(filter, tableDynamicDTO, shopDTO, parentShopDTO);
+        QuantitySalesReceiptExcel excel = new QuantitySalesReceiptExcel(filter, tableDynamicDTO, shopDTO, shopDTO.getParentShop());
         return excel.export();
     }
 

@@ -78,7 +78,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
             this.removeDataList(shopExports);
         }
 
-        ShopExportExcel excel = new ShopExportExcel(shopDTO, shopExports, totalReport);
+        ShopExportExcel excel = new ShopExportExcel(shopDTO, shopDTO.getParentShop(), shopExports, totalReport);
         excel.setFromDate(filter.getFromDate());
         excel.setToDate(filter.getToDate());
 
