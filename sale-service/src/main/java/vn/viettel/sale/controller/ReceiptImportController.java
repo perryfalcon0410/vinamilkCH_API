@@ -276,8 +276,9 @@ public class ReceiptImportController extends BaseController {
         CoverResponse<List<PoDetailDTO>,TotalResponseV1> soConfirmList2 = receiptService.getPoDetailByPoIdAndPriceIsNull(poId,this.getShopId());
         List<PoDetailDTO> list2 = soConfirmList2.getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        ShopDTO shops = shopClient.getByIdV1(shop.getParentShopId()).getData();
-        ExportExcel exportExcel = new ExportExcel(list1,list2,shops);
+        ShopDTO parentShop = null;
+        if (shop.getParentShopId()!=null) parentShop = shopClient.getByIdV1(shop.getParentShopId()).getData();
+        ExportExcel exportExcel = new ExportExcel(list1,list2,parentShop);
         ByteArrayInputStream in = exportExcel.export();
 
         response.setContentType("application/octet-stream");

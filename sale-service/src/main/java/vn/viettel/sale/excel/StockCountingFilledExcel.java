@@ -26,13 +26,15 @@ public class StockCountingFilledExcel {
     private List<StockCountingExcelDTO> stockCountingExcels;
     private CellStyle headerStyle;
     private ShopDTO shop;
+    private ShopDTO parentShop;
     private LocalDateTime date;
 
-    public StockCountingFilledExcel(List<StockCountingExcelDTO> exchangeTransExcelList, ShopDTO shop, LocalDateTime date) {
+    public StockCountingFilledExcel(List<StockCountingExcelDTO> exchangeTransExcelList, ShopDTO shop, ShopDTO parentShop, LocalDateTime date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new SXSSFWorkbook();
         this.shop = shop;
         this.date = date;
+        this.parentShop = parentShop;
     }
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Stock_Counting_Filled");
@@ -61,11 +63,15 @@ public class StockCountingFilledExcel {
         Row customerPhoneRow = sheet.createRow(2);// phone
 
         ExcelPoiUtils.createCell(customerRow, 0, shop.getShopName(),customerStyle);
-        ExcelPoiUtils.createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM",customerStyle);
         ExcelPoiUtils.createCell(customerAddressRow, 0, shop.getAddress(),customerAddressStyle);
-        ExcelPoiUtils.createCell(customerAddressRow, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",customerAddressStyle);
-        ExcelPoiUtils.createCell(customerPhoneRow, 0, "Tel: " + shop.getMobiPhone() + " Fax: " + shop.getFax(),customerAddressStyle);
-        ExcelPoiUtils.createCell(customerPhoneRow, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",customerAddressStyle);
+        ExcelPoiUtils.createCell(customerPhoneRow, 0,   (shop.getMobiPhone()!=null? ("Tel: " + shop.getMobiPhone()):"") +  (shop.getFax()!=null?(" Fax: " + shop.getFax()):""),customerAddressStyle);
+
+        if(parentShop!=null) {
+            ExcelPoiUtils.createCell(customerRow, 9, parentShop.getShopName(),customerStyle);
+            ExcelPoiUtils.createCell(customerAddressRow, 9, parentShop.getAddress(),customerAddressStyle);
+            ExcelPoiUtils.createCell(customerPhoneRow, 9, (parentShop.getMobiPhone()!=null?("Tel: " + parentShop.getMobiPhone()):"") + (parentShop.getFax()!=null?(" Fax: " +parentShop.getFax()):""),customerAddressStyle);
+        }
+
         ////////// COMPANY HEADER /////////////////////////////
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:P6"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A7:P7"));
@@ -165,7 +171,7 @@ public class StockCountingFilledExcel {
         ExcelPoiUtils.createCell(row, 12, "ĐVT PACKET", headerStyle);
         ExcelPoiUtils.createCell(row, 13, "SL QUY ĐỔI", headerStyle);
         ExcelPoiUtils.createCell(row, 14, "ĐVT LẺ", headerStyle);
-
+        ExcelPoiUtils.autoSizeAllColumns(sheet, 14);
         Row totalRowUp = sheet.createRow(9);
         ExcelPoiUtils.createCell(totalRowUp,4, "Tổng cộng", totalRowStyleRGB);
         ExcelPoiUtils.createCell(totalRowUp,5, totalQuantityStock, totalRowStyleRGB);

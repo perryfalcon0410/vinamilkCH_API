@@ -128,9 +128,11 @@ public class InventoryController extends BaseController {
     public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
         List<StockCountingExcelDTO> export = inventoryService.getByStockCountingId(id).getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        ShopDTO parentShop = null;
+        if(shop.getParentShopId()!=null) parentShop = shopClient.getByIdV1(shop.getParentShopId()).getData();
         LocalDateTime countingDate = inventoryService.getStockCountingById(id).getCountingDate();
         StockCountingFilledExcel stockCountingFilledExcel =
-                new StockCountingFilledExcel(export, shop, countingDate);
+                new StockCountingFilledExcel(export, shop, parentShop, countingDate);
         ByteArrayInputStream in = stockCountingFilledExcel.export();
 
         response.setContentType("application/octet-stream");
@@ -149,10 +151,9 @@ public class InventoryController extends BaseController {
                                                   @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
                                                   @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId,
                                                   @PageableDefault(value = 2000)Pageable pageable, HttpServletResponse response) throws IOException {
-        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords,wareHouseTypeId);
         StockCountingFailExcel stockCountingFailExcel =
-                new StockCountingFailExcel(data.getResponse().getImportFails(), shop, LocalDateTime.now());
+                new StockCountingFailExcel(data.getResponse().getImportFails(), LocalDateTime.now());
         ByteArrayInputStream in = stockCountingFailExcel.export();
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=stock_counting_fail_" + StringUtils.createExcelFileName());
@@ -168,10 +169,12 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExportAll( HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
+        ShopDTO parentShop = null;
+        if(shop.getParentShopId()!=null) parentShop = shopClient.getByIdV1(shop.getParentShopId()).getData();
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(),null,null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll =
-                new StockCountingAllExcel(listAll, shop, LocalDateTime.now());
+                new StockCountingAllExcel(listAll, shop, parentShop, LocalDateTime.now());
         ByteArrayInputStream in = stockCountingAll.export();
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=stock_counting_all_" + StringUtils.createExcelFileName());
@@ -185,8 +188,6 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public void ExportSampleExcel(HttpServletResponse response) throws IOException {
-      /*  ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        ShopDTO shop_ = shopClient.getByIdV1(shop.getParentShopId()).getData();*/
         SampleExcel sampleExcel =
                 new SampleExcel(LocalDateTime.now());
         ByteArrayInputStream in = sampleExcel.export();
