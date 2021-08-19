@@ -60,8 +60,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " FROM Customer c WHERE c.status = 1 " +
             " AND ( c.nameText like %:searchKeywords% OR upper(c.customerCode) like %:searchKeywords%) " +
             "   AND (c.phone like %:mobiphone OR c.mobiPhone like %:mobiphone) " +
-            "   AND c.workingOffice like %:workingOffice%  " +
-            "   AND c.officeAddress like %:officeAddress%  " +
+            "   AND c.workingOfficeText like %:workingOffice%  " +
+            "   AND c.officeAddressText like %:officeAddress%  " +
             "   AND upper(c.taxCode) like %:taxCode%  " +
             " ORDER BY c.customerCode, c.nameText")
     Page<CustomerDTO> searchForRedInvoice(String searchKeywords, String mobiphone, String workingOffice, String officeAddress, String taxCode, Pageable pageable);
@@ -74,5 +74,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Modifying()
     @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0, monthOrderNumber = 0 , monthOrderAmount = 0 ")
     int schedulerUpdateStartMonth();
+
+    @Query(value = "SELECT c from Customer c where c.officeAddress is not null or c.workingOffice is not null")
+    List<Customer> findCuss();
 
 }

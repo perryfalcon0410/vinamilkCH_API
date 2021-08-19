@@ -279,7 +279,7 @@ public class CustomerController extends BaseController {
                                                            @RequestParam(value = "officeAddress", required = false, defaultValue = "") String officeAddress,
                                                            @RequestParam(value = "taxCode", required = false, defaultValue = "") String taxCode, Pageable pageable ) {
         CusRedInvoiceFilter filter = new CusRedInvoiceFilter(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase(),
-                mobiphone.trim(), workingOffice.trim(), officeAddress.trim(), taxCode.trim().toUpperCase());
+                mobiphone.trim(), VNCharacterUtils.removeAccent(workingOffice.trim()).toUpperCase(), VNCharacterUtils.removeAccent(officeAddress.trim()).toUpperCase(), taxCode.trim().toUpperCase());
 
         return new Response<Page<CustomerDTO>>().withData(service.findCustomerForRedInvoice(filter, pageable));
     }

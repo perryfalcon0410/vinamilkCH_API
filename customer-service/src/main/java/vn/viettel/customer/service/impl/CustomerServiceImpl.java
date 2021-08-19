@@ -220,6 +220,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
 
+
+        if(request.getWorkingOffice()!=null && !request.getWorkingOffice().isEmpty()) {
+            customerRecord.setWorkingOfficeText(VNCharacterUtils.removeAccent(request.getWorkingOffice().trim()).toUpperCase());
+        }
+
+        if(request.getOfficeAddress()!=null && !request.getOfficeAddress().isEmpty()) {
+            customerRecord.setOfficeAddressText(VNCharacterUtils.removeAccent(request.getOfficeAddress().trim()).toUpperCase());
+        }
+
         //address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
 
@@ -419,6 +428,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         Customer newCustomer = this.mapCustomerUpdate(customerDb, request);
+
+        if(request.getWorkingOffice()!=null && !request.getWorkingOffice().isEmpty()) {
+            newCustomer.setWorkingOfficeText(VNCharacterUtils.removeAccent(request.getWorkingOffice().trim()).toUpperCase());
+        }
+        if(request.getOfficeAddress()!=null && !request.getOfficeAddress().isEmpty()) {
+            newCustomer.setOfficeAddressText(VNCharacterUtils.removeAccent(request.getOfficeAddress().trim()).toUpperCase());
+        }
+
         repository.save(newCustomer);
 
         return this.mapCustomerToCustomerResponse(newCustomer, null);
