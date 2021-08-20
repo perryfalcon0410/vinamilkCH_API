@@ -72,4 +72,16 @@ public class VoucherController extends BaseController {
         List<VoucherDTO> list = voucherService.getVoucherBySaleOrderId(id);
         return new Response< List<VoucherDTO>>().withData(list);
     }
+
+
+    @ApiOperation(value = "Update voucher cho đơn trả")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @PutMapping(value = { V1 + root + "/return"})
+    public Response<Boolean> returnVoucher(@RequestParam Long saleOrderId) {
+       Boolean response = voucherService.returnVoucher(saleOrderId);
+        return new Response<Boolean>().withData(response);
+    }
 }

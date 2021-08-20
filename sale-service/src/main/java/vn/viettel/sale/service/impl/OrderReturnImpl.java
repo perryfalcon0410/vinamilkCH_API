@@ -344,6 +344,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
         }
         //new orderReturn promotion
+        Map<String, Integer> programFreeItems = new HashMap<>();
         for (SaleOrderDetail promotionDetail : saleOrderPromotions) {
             NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
             SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
@@ -421,6 +422,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateReturn(newOrderReturn.getId(), newOrderReturn.getWareHouseTypeId(), shopId);
         CustomerDTO customer = customerClient.getCustomerByIdV1(saleOrder.getCustomerId()).getData();
         if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+
+        //Update voucher
+        if(saleOrder.getTotalVoucher() != null) promotionClient.returnVoucher(saleOrder.getId());
+
+        //update MGG
+        if(saleOrder.getDiscountCodeAmount() != null) promotionClient.returnMGG(saleOrder.getOrderNumber());
 
         this.updateZV23(customer, saleOrder, saleOrderDetails, orderReturnDiscount);
         if (saleOrder.getCustomerPurchase() != null)

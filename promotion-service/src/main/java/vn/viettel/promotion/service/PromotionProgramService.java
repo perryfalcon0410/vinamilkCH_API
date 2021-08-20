@@ -35,4 +35,10 @@ public interface PromotionProgramService {
     List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId);
     PromotionProgramDiscountDTO updatePromotionProgramDiscount(PromotionProgramDiscountDTO discount);
     List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId);
+
+    /*
+     Update MGG cho đơn trả
+    */
+    Boolean returnMGG(String orderCode);
+
 }
