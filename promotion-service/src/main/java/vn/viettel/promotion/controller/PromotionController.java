@@ -251,4 +251,16 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionSaleProductDTO>>().withData(response);
     }
 
+
+    @ApiOperation(value = "Update MGG cho đơn trả")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @PutMapping(value = { V1 + root + "/mgg/return"})
+    public Response<Boolean> returnMGG(@RequestParam String orderNumber) {
+        Boolean result = promotionProgramService.returnMGG(orderNumber);
+        return new Response<Boolean>().withData(result);
+    }
+
 }

@@ -3,6 +3,7 @@ package vn.viettel.promotion.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.exception.ValidateException;
@@ -216,5 +217,23 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             return dto;
         }).collect(Collectors.toList());
         return detailDTOS;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean returnMGG(String orderCode) {
+        List<PromotionProgramDiscount> discounts = promotionDiscountRepository.getPromotionProgramDiscountByOrderNumber(orderCode);
+        for(PromotionProgramDiscount discount: discounts) {
+            discount.setIsUsed(0);
+            discount.setOrderDate(null);
+            discount.setOrderCustomerCode(null);
+            discount.setActualDiscountAmount(null);
+            discount.setOrderShopCode(null);
+            discount.setOrderAmount(null);
+            discount.setOrderNumber(null);
+            promotionDiscountRepository.save(discount);
+        }
+
+        return true;
     }
 }

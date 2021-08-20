@@ -95,4 +95,10 @@ public interface PromotionClient {
     @GetMapping("api/v1/promotions/ids")
     Response<List<PromotionProgramDTO>> getByIdsV1(@RequestParam List<Long> programIds);
 
+    @PutMapping("api/v1/promotions/vouchers/return")
+    Response<Boolean> returnVoucher(@RequestParam Long saleOrderId);
+
+    @PutMapping("api/v1/promotions/mgg/return")
+    Response<Boolean> returnMGG(@RequestParam String orderNumber);
+
 }

@@ -29,4 +29,10 @@ public interface VoucherService extends BaseService {
     VoucherDTO getFeignVoucher(Long id);
 
 
+    /*
+     * Update voucher cho đơn trả
+     */
+    Boolean returnVoucher(Long saleOrderId);
+
+
 }
