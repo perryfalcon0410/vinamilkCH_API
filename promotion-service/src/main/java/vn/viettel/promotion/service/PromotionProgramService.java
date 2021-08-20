@@ -3,6 +3,7 @@ package vn.viettel.promotion.service;
 import vn.viettel.core.dto.promotion.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PromotionProgramService {
     List<PromotionProgramDiscountDTO> listPromotionProgramDiscountByOrderNumber(String orderNumber);
@@ -39,6 +40,10 @@ public interface PromotionProgramService {
     /*
      Update MGG cho đơn trả
     */
-    Boolean returnMGG(String orderCode);
+    Boolean returnMGG(String orderCode, Long shopId);
 
+    /*
+        Update số xuất cho đơn trả
+     */
+    Boolean returnPromotionShopmap(Map<String, Double> shopMaps, Long shopId);
 }

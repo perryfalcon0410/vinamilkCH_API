@@ -18,4 +18,12 @@ public class WareHouseTypeDTO extends BaseDTO {
     private Integer status;
     @ApiModelProperty(notes = "Trường mặc định")
     private Integer isDefault;
+
+    public WareHouseTypeDTO(Long id, String wareHouseTypeCode, String wareHouseTypeName, Integer isDefault) {
+        this.setId(id);
+        this.wareHouseTypeCode = wareHouseTypeCode;
+        this.wareHouseTypeName = wareHouseTypeName;
+        this.isDefault = isDefault;
+    }
+
 }

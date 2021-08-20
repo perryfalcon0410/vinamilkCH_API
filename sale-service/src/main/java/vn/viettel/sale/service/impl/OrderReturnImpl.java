@@ -311,7 +311,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         repository.save(newOrderReturn); //save new orderReturn
         saleOrder.setIsReturn(false);
         repository.save(saleOrder);
-
+        Map<String, Double> shopMapNeedUpdates = new HashMap<>();
         //new orderReturn detail
         List<SaleOrderDetail> saleOrderDetails = saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), false);
         if (saleOrderDetails != null) {
@@ -344,8 +344,15 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
         }
         //new orderReturn promotion
-        Map<String, Integer> programFreeItems = new HashMap<>();
+
         for (SaleOrderDetail promotionDetail : saleOrderPromotions) {
+            if(!shopMapNeedUpdates.containsKey(promotionDetail.getPromotionCode())) {
+                shopMapNeedUpdates.put(promotionDetail.getPromotionCode(), promotionDetail.getQuantity().doubleValue());
+            }else {
+                double qty = shopMapNeedUpdates.get(promotionDetail.getPromotionCode()) + promotionDetail.getQuantity().doubleValue();
+                shopMapNeedUpdates.put(promotionDetail.getPromotionCode(), qty);
+            }
+
             NewOrderReturnDetailDTO promotionReturnDTO = modelMapper.map(promotionDetail, NewOrderReturnDetailDTO.class);
             SaleOrderDetail promotionReturn = modelMapper.map(promotionReturnDTO, SaleOrderDetail.class);
             promotionReturn.setOrderDate(returnDate);
@@ -362,6 +369,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDiscount> orderReturnDiscount = saleDiscount.findAllBySaleOrderId(saleOrder.getId());
         if (orderReturnDiscount.size() > 0) {
             for (SaleOrderDiscount discount : orderReturnDiscount) {
+                if(!shopMapNeedUpdates.containsKey(discount.getPromotionCode())) {
+                    shopMapNeedUpdates.put(discount.getPromotionCode(), discount.getDiscountAmountVat());
+                }else {
+                    double qty = shopMapNeedUpdates.get(discount.getPromotionCode()) + discount.getDiscountAmountVat();
+                    shopMapNeedUpdates.put(discount.getPromotionCode(), qty);
+                }
                 OrderDiscountReturnDTO returnDiscountDTO = modelMapper.map(discount, OrderDiscountReturnDTO.class);
                 SaleOrderDiscount returnDiscount = modelMapper.map(returnDiscountDTO, SaleOrderDiscount.class);
                 returnDiscount.setDiscountAmount(discount.getDiscountAmount() * -1);
@@ -424,10 +437,31 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         //Update voucher
-        if(saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher()> 0) promotionClient.returnVoucher(saleOrder.getId());
+        if(saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher()> 0){
+            try{
+                promotionClient.returnVoucher(saleOrder.getId());
+            }catch (Exception e) {
+                throw new ValidateException(ResponseMessage.UPDATE_VOUCHER_FAILED);
+            }
+        }
 
-        //update MGG
-        if(saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) promotionClient.returnMGG(saleOrder.getOrderNumber());
+        //update MGG + update số xuất
+        if(saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
+            try {
+                promotionClient.returnMGG(saleOrder.getOrderNumber());
+            }catch (Exception e){
+                throw new ValidateException(ResponseMessage.UPDATE_PROMOTION_DISCOUNT_CODE_FAILED);
+            }
+        }
+
+        //update shopmap
+        if(!shopMapNeedUpdates.isEmpty()){
+            try {
+                promotionClient.returnPromotionShopmap(shopMapNeedUpdates);
+            }catch (Exception e) {
+                throw new ValidateException(ResponseMessage.UPDATE_PROMOTION_SHOP_MAP_FAILED);
+            }
+        }
 
         this.updateZV23(customer, saleOrder, saleOrderDetails, orderReturnDiscount);
         if (saleOrder.getCustomerPurchase() != null)

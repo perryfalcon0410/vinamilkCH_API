@@ -19,8 +19,6 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
                     "WHERE pp.promotionProgramCode = :code")
     PromotionProgram findByCode(String code);
 
-    PromotionProgram findByPromotionProgramCode(String code);
-
     /*
     Lấy km cho đơn hàng
     - 1. Kiểm tra các CTKM đang hoạt động
