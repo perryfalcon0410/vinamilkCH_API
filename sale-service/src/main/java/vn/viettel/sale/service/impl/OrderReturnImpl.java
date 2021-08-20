@@ -117,9 +117,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 }
             }
         }
-        if (orderReturn.getTotalPromotion() >= 0) {
-            dto.setTotalPromotion(orderReturn.getTotalPromotion());
-        } else dto.setTotalPromotion(orderReturn.getTotalPromotion() * -1);
+        if (orderReturn.getTotalPromotionVat() >= 0) {
+            dto.setTotalPromotion(orderReturn.getTotalPromotionVat());
+        } else dto.setTotalPromotion(orderReturn.getTotalPromotionVat() * -1);
 
         dto.setAmount(orderReturn.getAmount() * -1);
         dto.setTotal(orderReturn.getTotal() * -1);
