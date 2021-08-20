@@ -40,7 +40,7 @@ public interface PromotionProgramService {
     /*
      Update MGG cho đơn trả
     */
-    Boolean returnMGG(String orderCode);
+    Boolean returnMGG(String orderCode, Long shopId);
 
     /*
         Update số xuất cho đơn trả

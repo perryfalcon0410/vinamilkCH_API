@@ -260,7 +260,7 @@ public class PromotionController extends BaseController {
     )
     @PutMapping(value = { V1 + root + "/mgg/return"})
     public Response<Boolean> returnMGG(@RequestParam String orderNumber) {
-        Boolean result = promotionProgramService.returnMGG(orderNumber);
+        Boolean result = promotionProgramService.returnMGG(orderNumber, this.getShopId());
         return new Response<Boolean>().withData(result);
     }
 

@@ -437,13 +437,31 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         //Update voucher
-        if(saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher()> 0) promotionClient.returnVoucher(saleOrder.getId());
+        if(saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher()> 0){
+            try{
+                promotionClient.returnVoucher(saleOrder.getId());
+            }catch (Exception e) {
+                throw new ValidateException(ResponseMessage.UPDATE_VOUCHER_FAILED);
+            }
+        }
 
-        //update MGG
-        if(saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) promotionClient.returnMGG(saleOrder.getOrderNumber());
+        //update MGG + update số xuất
+        if(saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
+            try {
+                promotionClient.returnMGG(saleOrder.getOrderNumber());
+            }catch (Exception e){
+                throw new ValidateException(ResponseMessage.UPDATE_PROMOTION_DISCOUNT_CODE_FAILED);
+            }
+        }
 
         //update shopmap
-        if(!shopMapNeedUpdates.isEmpty()) promotionClient.returnPromotionShopmap(shopMapNeedUpdates);
+        if(!shopMapNeedUpdates.isEmpty()){
+            try {
+                promotionClient.returnPromotionShopmap(shopMapNeedUpdates);
+            }catch (Exception e) {
+                throw new ValidateException(ResponseMessage.UPDATE_PROMOTION_SHOP_MAP_FAILED);
+            }
+        }
 
         this.updateZV23(customer, saleOrder, saleOrderDetails, orderReturnDiscount);
         if (saleOrder.getCustomerPurchase() != null)

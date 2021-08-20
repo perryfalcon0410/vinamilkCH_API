@@ -221,9 +221,20 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean returnMGG(String orderCode) {
+    public Boolean returnMGG(String orderCode, Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
         List<PromotionProgramDiscount> discounts = promotionDiscountRepository.getPromotionProgramDiscountByOrderNumber(orderCode);
         for(PromotionProgramDiscount discount: discounts) {
+            List<PromotionShopMap> shopMapDB = promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getId());
+            if(shopMapDB.isEmpty() && shopDTO.getParentShop() !=null)
+                shopMapDB = promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getParentShopId());
+            if(!shopMapDB.isEmpty()) {
+                PromotionShopMap shopMap = shopMapDB.get(0);
+                Long qtyRecived = shopMap.getQuantityReceived()!=null?shopMap.getQuantityReceived():0;
+                shopMap.setQuantityReceived(qtyRecived - discount.getActualDiscountAmount().longValue());
+                promotionShopMapRepository.save(shopMap);
+            }
+
             discount.setIsUsed(0);
             discount.setOrderDate(null);
             discount.setOrderCustomerCode(null);
@@ -232,6 +243,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             discount.setOrderAmount(null);
             discount.setOrderNumber(null);
             promotionDiscountRepository.save(discount);
+
         }
 
         return true;
@@ -241,7 +253,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     @Transactional(rollbackFor = Exception.class)
     public Boolean returnPromotionShopmap(Map<String, Double> shopMaps, Long shopId) {
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-        ShopDTO parentShop = shopDTO.getParentShop();
 
         for (Map.Entry<String, Double> entry : shopMaps.entrySet()) {
             PromotionShopMap shopMapDB = promotionShopMapRepository.findByPromotionProgramCode(entry.getKey(), shopDTO.getId());
