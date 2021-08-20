@@ -236,4 +236,24 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
         return true;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean returnPromotionShopmap(Map<String, Double> shopMaps, Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        ShopDTO parentShop = shopDTO.getParentShop();
+
+        for (Map.Entry<String, Double> entry : shopMaps.entrySet()) {
+            PromotionShopMap shopMapDB = promotionShopMapRepository.findByPromotionProgramCode(entry.getKey(), shopDTO.getId());
+            if(shopMapDB == null && shopDTO.getParentShop() !=null)
+                shopMapDB = promotionShopMapRepository.findByPromotionProgramCode(entry.getKey(), shopDTO.getParentShop().getId());
+            if(shopMapDB!=null) {
+                Long qtyRecived = shopMapDB.getQuantityReceived()!=null?shopMapDB.getQuantityReceived():0;
+                shopMapDB.setQuantityReceived(qtyRecived - entry.getValue().longValue());
+                promotionShopMapRepository.save(shopMapDB);
+            }
+        }
+
+        return true;
+    }
 }
