@@ -114,6 +114,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         List<Price> prices = priceRepository.findProductPriceWithTypes(countingDetails.stream().map(item -> item.getProductId())
                 .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()));
+
+        Map<Long, Double> priceMaps = new HashMap<>();
+        if (prices != null) {
+            for (Price price : prices) {
+                if (!priceMaps.containsKey(price.getProductId())) priceMaps.put(price.getProductId(), price.getPrice());
+            }
+        }
+
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -127,14 +135,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         for (StockCountingDetailDTO stockCounting : countingDetails) {
             stockCounting.setWarehouseTypeId(wareHouseTypeId);
             stockCounting.setShopId(shopId);
-            if (prices != null) {
-                for (Price price : prices) {
-                    if (price.getProductId().equals(stockCounting.getProductId())) {
-                        stockCounting.setPrice(price.getPrice());
-                        break;
-                    }
-                }
-            }
+           stockCounting.setPrice(priceMaps.get(stockCounting.getProductId()));
             if (stockCounting.getPrice() != null) {
                 stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
                 stockCounting.setPacketQuantity(0);
@@ -293,20 +294,23 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId(),
                 stockCountingDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
         if(stockTotals.size()==0) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS_IN_WAREHOUSE);
-        for (int i = 0; i < details.size(); i++) {
+
+       Map<Long, Integer> stockTotalMaps = new HashMap<>();
+        for (StockTotal stock: stockTotals) {
+            if(!stockTotalMaps.containsKey(stock.getProductId())) stockTotalMaps.put(stock.getProductId(), stock.getQuantity());
+        }
+
+        for (StockCountingUpdateDTO update: details) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
-                if (stockCountingDetail.getProductId().equals(details.get(i).getProductId())) {
-                    stockCountingDetail.setQuantity(details.get(i).getPacketQuantity() * details.get(i).getConvfact() + details.get(i).getUnitQuantity());
-                    for (StockTotal stockTotal : stockTotals) {
-                        if (stockTotal.getProductId().equals(stockCountingDetail.getProductId())) {
-                            stockCountingDetail.setStockQuantity(stockTotal.getQuantity());
-                            break;
-                        }
-                    }
+                if (stockCountingDetail.getProductId().equals(update.getProductId())) {
+                    stockCountingDetail.setQuantity(update.getPacketQuantity() * update.getConvfact() + update.getUnitQuantity());
+                    stockCountingDetail.setStockQuantity(stockTotalMaps.get(stockCountingDetail.getProductId()));
+                    countingDetailRepository.save(stockCountingDetail);
+                    break;
                 }
-                countingDetailRepository.save(stockCountingDetail);
             }
         }
+
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
 

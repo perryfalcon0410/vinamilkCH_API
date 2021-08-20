@@ -997,10 +997,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     private LimitDto getPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
         if(salePromotion != null && salePromotion.getProgramId() != null && shopId != null) {
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(salePromotion.getProgramId(), shopId).getData();
+            salePromotion.setMaxShopQty(promotionShopMap.getQuantityMax());
+            salePromotion.setReceiveShopQty(promotionShopMap.getQuantityReceived());
             double receiving = 0;
             if(salePromotion.getTotalQty() != null) receiving = salePromotion.getTotalQty();
             else if(salePromotion.getAmount() != null && salePromotion.getAmount().getAmount() != null) receiving = salePromotion.getAmount().getAmount();
-
             if (promotionShopMap.getQuantityMax() == null) return new LimitDto(true, null);
             else{
                 double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;

@@ -103,6 +103,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
         dto.setCustomerPurchase(saleOrder.getMemberCardAmount());
+        dto.setTotalPromotion(saleOrder.getTotalPromotionVat());
         if(customers != null){
             for(CustomerDTO customer : customers){
                 if(customer.getId().equals(saleOrder.getCustomerId())){
