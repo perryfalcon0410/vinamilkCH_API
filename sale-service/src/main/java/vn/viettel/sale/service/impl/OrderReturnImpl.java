@@ -437,10 +437,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
         //Update voucher
-        if(saleOrder.getTotalVoucher() != null) promotionClient.returnVoucher(saleOrder.getId());
+        if(saleOrder.getTotalVoucher() != null && saleOrder.getTotalVoucher()> 0) promotionClient.returnVoucher(saleOrder.getId());
 
         //update MGG
-        if(saleOrder.getDiscountCodeAmount() != null) promotionClient.returnMGG(saleOrder.getOrderNumber());
+        if(saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) promotionClient.returnMGG(saleOrder.getOrderNumber());
 
         //update shopmap
         if(!shopMapNeedUpdates.isEmpty()) promotionClient.returnPromotionShopmap(shopMapNeedUpdates);
