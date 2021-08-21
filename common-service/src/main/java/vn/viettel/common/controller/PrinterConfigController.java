@@ -61,6 +61,7 @@ public class PrinterConfigController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/{clientId}"})
     public Response<PrinterConfigDTO> update(HttpServletRequest httpRequest, @PathVariable String clientId) {
+        getClientIp(httpRequest);
         PrinterConfigDTO config = service.getPrinter(clientId);
         if(config == null) config = service.getPrinter(this.getClientIp(httpRequest));
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_PRINTER_CONFIG_SUCCESS);
@@ -72,6 +73,7 @@ public class PrinterConfigController extends BaseController {
     private final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
     public String getClientIp(HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");
+        String pcName = request.getRemoteHost();
         if(StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader("Proxy-Client-IP");
         }
@@ -86,6 +88,7 @@ public class PrinterConfigController extends BaseController {
                 try {
                     InetAddress inetAddress = InetAddress.getLocalHost();
                     ipAddress = inetAddress.getHostAddress();
+                    pcName = inetAddress.getHostName();
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
@@ -98,7 +101,7 @@ public class PrinterConfigController extends BaseController {
             ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
         }
 
-        return ipAddress;
+        return pcName + "." + ipAddress;
     }
 
 
