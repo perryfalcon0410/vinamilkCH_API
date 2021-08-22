@@ -11,8 +11,9 @@ import java.util.Optional;
 public interface CustomerTypeRepository extends BaseRepository<CustomerType> {
     Optional<CustomerType> findById(Long id);
 
-    @Query(value = "SELECT DISTINCT ct FROM CustomerType ct JOIN Customer c ON c.customerTypeId = ct.id " +
-            " WHERE  c.shopId =:shopId AND c.isDefault = true AND ct.status = 1 AND c.status = 1 " +
+
+    @Query(value = "SELECT DISTINCT ct FROM CustomerType ct JOIN Customer c ON c.customerTypeId = ct.id AND c.shopId =:shopId AND c.isDefault = true AND c.status = 1  " +
+            " WHERE ct.status = 1 " +
             " ORDER BY ct.updatedAt DESC ")
     List<CustomerType> getWareHouseTypeIdByShopId(Long shopId);
 
