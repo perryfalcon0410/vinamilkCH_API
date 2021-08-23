@@ -2,6 +2,7 @@ package vn.viettel.customer.service;
 
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.service.BaseService;
+import vn.viettel.customer.entities.Customer;
 
 import java.util.List;
 
@@ -29,4 +30,9 @@ public interface CustomerTypeService extends BaseService {
     CustomerTypeDTO getCusTypeByCustomerId(long customerId);
 
     List<CustomerTypeDTO> findByWarehouse(Long warehouseId);
+
+    /*
+    Lấy loại KH cho bán hàng, đơn trả, đổi hàng hỏng -> lấy theo KH -> lấy theo KH mặc định
+     */
+    CustomerTypeDTO getCustomerType(Long customerId, Long shopId);
 }

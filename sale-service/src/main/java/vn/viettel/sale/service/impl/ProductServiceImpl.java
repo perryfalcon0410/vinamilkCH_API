@@ -85,7 +85,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         LocalDateTime toDate = DateUtils.convertToDate(localDateTime);
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         boolean hasQty = false;
-        CustomerTypeDTO customerType = getCustomerType(shopId, customerId);
+        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
 
         if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
         return repository.findOrderProductTopSale(shopId, customerType.getId(), customerType.getWareHouseTypeId(), customerId,
@@ -161,7 +161,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public List<OrderProductDTO> findProductsByKeyWord(Long shopId, Long customerId, String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
-        CustomerTypeDTO customerType = getCustomerType(shopId, customerId);
+        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
         List<OrderProductDTO> rp = new ArrayList<>();
 
         if(products!=null && !products.isEmpty()){
@@ -244,21 +244,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return dto;
     }
 
-    private CustomerTypeDTO getCustomerType(Long shopId, Long customerId){
+  /*  private CustomerTypeDTO getCustomerType(Long shopId, Long customerId){
         CustomerTypeDTO customerType = null;
         if(customerId != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(customerId);
         if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
         if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
 
         return customerType;
-    }
+    }*/
 
     @Override
     public OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId) {
-        CustomerTypeDTO customerType = getCustomerType(shopId, customerId);
+        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
 
         List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
-        if(products == null || products.isEmpty()) return null;
+        if(products.isEmpty() || customerType == null) return null;
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), products.get(0).getId());
 
         List<Price> prices = productPriceRepo.findProductPriceWithType(Arrays.asList(products.get(0).getId()), customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));

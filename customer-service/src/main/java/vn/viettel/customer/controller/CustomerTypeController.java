@@ -112,4 +112,17 @@ public class CustomerTypeController extends BaseController {
 
         return customerTypes;
     }
+
+    @ApiOperation(value = "Tìm kiếm Customer type bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/sale-order/{customerId}"})
+    public CustomerTypeDTO getCustomerTypeForSale(@PathVariable Long customerId, @RequestParam Long shopId) {
+        CustomerTypeDTO customerType = customerTypeService.getCustomerType(customerId, shopId);
+        return customerType;
+    }
+
+
 }

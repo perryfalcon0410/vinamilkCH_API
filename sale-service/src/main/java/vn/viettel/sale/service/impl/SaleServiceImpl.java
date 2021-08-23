@@ -107,10 +107,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if(apParamDTO == null) throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
 
         //check warehouse
-        CustomerTypeDTO customerType = null;
+        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(request.getCustomerId(), shopId);
 
-        if(request.getCustomerId() != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
-        if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
+      /*  if(request.getCustomerId() != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
+        if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);*/
         if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         // information need to be save

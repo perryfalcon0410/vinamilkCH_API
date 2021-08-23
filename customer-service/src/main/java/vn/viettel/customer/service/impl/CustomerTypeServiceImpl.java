@@ -76,4 +76,12 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
         if(customerTypes == null || customerTypes.isEmpty()) return new ArrayList<>();
         return customerTypes.stream().map(item -> modelMapper.map(item, CustomerTypeDTO.class)).collect(Collectors.toList());
     }
+
+    @Override
+    public CustomerTypeDTO getCustomerType(Long customerId, Long shopId) {
+        List<CustomerType> customerTypes = repository.getByCustomerId(customerId);
+        if(customerTypes.isEmpty()) customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
+        if(customerTypes.isEmpty()) return null;
+        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
+    }
 }

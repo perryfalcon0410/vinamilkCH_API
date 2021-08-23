@@ -74,9 +74,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         // get default warehouse
-        CustomerTypeDTO customerType = null;
-        if(request.getCustomerId() != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(request.getCustomerId());
-        if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
+        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(request.getCustomerId(), shopId);
         if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
         // Danh sách chương trình khuyến mãi thỏa các điều kiện cửa hàng, khách hàng
