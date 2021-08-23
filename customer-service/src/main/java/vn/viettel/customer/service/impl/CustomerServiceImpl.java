@@ -565,6 +565,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
+        String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
         //hạn chế request vào db
         if((searchKeywords.length() == 4 || (searchKey == null && searchKeywords.length() > 4)) && !searchKeywords.equals(searchKey)) {
             //tránh tấn công server: 3 request liên tục trong 2 giây xong phải nghỉ 10 giây được request tiếp
@@ -578,15 +579,14 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 count++;
                 lastRequest = System.currentTimeMillis();
                 searchKey = searchKeywords;
-                customers = repository.searchForAutoComplete(VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(),
-                        searchKeywords.toUpperCase(), searchKeywords, searchKeywords);
+                customers = repository.searchForAutoComplete(name, searchKeywords.toUpperCase(), searchKeywords, searchKeywords);
             }
         }
         List<CustomerDTO> results = new ArrayList<>();
         if(customers != null){
             for(CustomerDTO cus : customers){
                 if((cus.getCustomerCode() != null && cus.getCustomerCode().contains(searchKeywords.toUpperCase()))
-                        || (cus.getNameText() != null && cus.getNameText().contains(searchKeywords.toUpperCase()))
+                        || (cus.getNameText() != null && cus.getNameText().contains(name))
                         || (cus.getAddress() != null && cus.getAddress().contains(searchKeywords))
                         || (cus.getPhone() != null && cus.getPhone().contains(searchKeywords))
                         || (cus.getMobiPhone() != null && cus.getMobiPhone().contains(searchKeywords)) ){
