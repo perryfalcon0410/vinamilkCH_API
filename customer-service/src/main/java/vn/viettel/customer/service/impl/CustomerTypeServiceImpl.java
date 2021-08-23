@@ -64,13 +64,6 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
     }
 
     @Override
-    public CustomerTypeDTO getCusTypeByCustomerId(long customerId) {
-        List<CustomerType> customerTypes = repository.getByCustomerId(customerId);
-        if(customerTypes == null || customerTypes.isEmpty()) return null;
-        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
-    }
-
-    @Override
     public List<CustomerTypeDTO> findByWarehouse(Long warehouseId) {
         List<CustomerType> customerTypes = repository.getByWarehouse(warehouseId);
         if(customerTypes == null || customerTypes.isEmpty()) return new ArrayList<>();
