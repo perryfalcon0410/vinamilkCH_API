@@ -486,20 +486,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         }
         print.setProducts(printProductSaleOrderDTO);
 
-  /*      if(!details.isEmpty()){
-            List<PrintProductSaleOrderDTO> printProductSaleOrderDTO = new ArrayList<>(details.values());
-            if(!freeItems.isEmpty()) {
-                for(Map.Entry<String, List<PrintFreeItemDTO>> entry : freeItems.entrySet()){
-                    PrintProductSaleOrderDTO km = new PrintProductSaleOrderDTO();
-                    km.setDisplayType(1);
-                    km.setGroupName(entry.getKey());
-                    km.setListFreeItems(entry.getValue());
-                    printProductSaleOrderDTO.add(km);
-                }
-            }
-            print.setProducts(printProductSaleOrderDTO);
-        }
-        */
 
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
         //Xắp xếp ZM trước sau đó ts các ZV19->23

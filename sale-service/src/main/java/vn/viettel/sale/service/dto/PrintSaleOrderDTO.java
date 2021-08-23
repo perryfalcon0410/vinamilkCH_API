@@ -73,16 +73,16 @@ public class PrintSaleOrderDTO {
     private Double promotionAmountNotVat;
 
     @ApiModelProperty(notes = "Khuyến mãi gồm thuế")
-    private Double promotionAmount;
+    private Double promotionAmount = 0.0;
 
     @ApiModelProperty(notes = "Giảm giá (dùng mã giảm giá)")
-    private Double discountAmount;
+    private Double discountAmount = 0.0;
 
     @ApiModelProperty(notes = "Tiền tích lũy sử dụng")
-    private Double accumulatedAmount;
+    private Double accumulatedAmount = 0.0;
 
     @ApiModelProperty(notes = "Tiền tích lũy sử dụng")
-    private Double voucherAmount;
+    private Double voucherAmount = 0.0;
 
     @ApiModelProperty(notes = "Thanh toán chưa vat")
     private Double totalNotVat;
