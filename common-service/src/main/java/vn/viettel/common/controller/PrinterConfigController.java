@@ -109,6 +109,4 @@ public class PrinterConfigController extends BaseController {
 
         return ipAddress;
     }
-
-
 }

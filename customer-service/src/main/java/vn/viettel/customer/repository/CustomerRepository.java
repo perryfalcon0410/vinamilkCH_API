@@ -41,8 +41,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.address, c.shopId, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 AND ( :shopId IS NULL OR c.shopId =:shopId )" +
-            " AND ( c.nameText like %:nameCodeAddress% OR upper(c.customerCode) like %:nameCodeAddress% " +
-            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR c.addressText like %:nameCodeAddress% ) " +
+            " AND ( c.nameText like %:nameCodeAddress% OR c.customerCode like %:nameCodeAddress% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR upper(c.addressText) like %:nameCodeAddress% ) " +
             " ORDER BY c.customerCode, c.nameText")
     Page<CustomerDTO> searchForSale(Long shopId, String nameCodeAddress, String phone, Pageable pageable);
 
@@ -53,19 +53,16 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " ORDER BY c.customerCode, c.nameText")
     Page<CustomerDTO> searchForSaleFone(Long shopId, String phone, Pageable pageable);
 
-
-
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id,  c.customerCode, c.firstName, c.lastName, c.mobiPhone," +
             " c.customerTypeId, c.workingOffice, c.officeAddress, c.taxCode ) " +
             " FROM Customer c WHERE c.status = 1 " +
-            " AND ( c.nameText like %:searchKeywords% OR upper(c.customerCode) like %:searchKeywords%) " +
+            " AND ( c.nameText like %:searchKeywords% OR c.customerCode like %:searchKeywords% ) " +
             "   AND (c.phone like %:mobiphone OR c.mobiPhone like %:mobiphone) " +
             "   AND c.workingOfficeText like %:workingOffice%  " +
             "   AND c.officeAddressText like %:officeAddress%  " +
             "   AND upper(c.taxCode) like %:taxCode%  " +
             " ORDER BY c.customerCode, c.nameText")
     Page<CustomerDTO> searchForRedInvoice(String searchKeywords, String mobiphone, String workingOffice, String officeAddress, String taxCode, Pageable pageable);
-
 
     @Modifying()
     @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0 ")
@@ -75,7 +72,13 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0, monthOrderNumber = 0 , monthOrderAmount = 0 ")
     int schedulerUpdateStartMonth();
 
-    @Query(value = "SELECT c from Customer c where c.officeAddress is not null or c.workingOffice is not null")
-    List<Customer> findCuss();
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone) " +
+            " FROM Customer c WHERE c.status = 1 " +
+            " AND ( c.nameText like %:nameCodeAddress% OR c.customerCode like %:nameCodeAddress% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR upper(c.addressText) like %:nameCodeAddress% ) " +
+            " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
+    )
+    List<CustomerDTO> searchForAutoComplete(String nameCodeAddress, String phone);
 
 }

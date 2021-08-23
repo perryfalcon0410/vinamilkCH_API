@@ -23,6 +23,7 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.CustomerType;
+import vn.viettel.customer.entities.Customer_;
 import vn.viettel.customer.entities.MemberCustomer;
 import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
@@ -87,6 +88,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     MemBerCustomerRepository memBerCustomerRepos;
 
+    private List<CustomerDTO> customers;
+
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer, List<MemberCustomer> memberCustomers) {
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
@@ -147,12 +150,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
             response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
-        else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+        else {
+            response = repository.searchForSale(shop, customerFilter.getSearchKeywords().toUpperCase(), customerFilter.getSearchKeywords(), pageable);
+        }
         return response;
     }
 
     @Override
     public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
+        if(filter.getSearchKeywords() != null) filter.setSearchKeywords(filter.getSearchKeywords().toUpperCase());
         Page<CustomerDTO> response = repository.searchForRedInvoice(
                 filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
         return response;
@@ -552,13 +558,36 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
      */
     @Override
     public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
+        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+        if(searchKeywords.length() == 4) {
+            customers = repository.searchForAutoComplete(searchKeywords.toUpperCase(), searchKeywords);
+        }
+        List<CustomerDTO> results = new ArrayList<>();
+        if(customers != null){
+            for(CustomerDTO cus : customers){
+                if((cus.getCustomerCode() != null && cus.getCustomerCode().contains(searchKeywords.toUpperCase()))
+                        || (cus.getNameText() != null && cus.getNameText().contains(searchKeywords.toUpperCase()))
+                        || (cus.getAddress() != null && cus.getAddress().contains(searchKeywords))
+                        || (cus.getPhone() != null && cus.getPhone().contains(searchKeywords))
+                        || (cus.getMobiPhone() != null && cus.getMobiPhone().contains(searchKeywords)) ){
+                    results.add(cus);
+                    if(results.size() == pageable.getPageSize()) break;
+                }
+            }
+        }
+        return new PageImpl<>(results);
+    }
+
+    /*@Override
+    public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
         Page<CustomerDTO> response = customers.map(item -> modelMapper.map(item, CustomerDTO.class));
         return response;
-    }
+    }*/
 
     @Override
     public CustomerDTO getCustomerDefault(Long shopId) {
