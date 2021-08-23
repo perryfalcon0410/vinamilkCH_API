@@ -73,7 +73,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     int schedulerUpdateStartMonth();
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
-            " c.customerTypeId, c.street, c.address, c.shopId, c.phone) " +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode) " +
             " FROM Customer c WHERE c.status = 1 " +
             " AND ( c.nameText like %:nameCodeAddress% OR c.customerCode like %:nameCodeAddress% " +
             "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR upper(c.addressText) like %:nameCodeAddress% ) " +

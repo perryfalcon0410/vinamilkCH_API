@@ -89,6 +89,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     MemBerCustomerRepository memBerCustomerRepos;
 
     private List<CustomerDTO> customers;
+    private String searchKey;
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer, List<MemberCustomer> memberCustomers) {
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
@@ -560,7 +561,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        if(searchKeywords.length() == 4) {
+        if(searchKeywords.length() == 4 && !searchKeywords.equals(searchKey)) {
+            searchKey = searchKeywords;
             customers = repository.searchForAutoComplete(searchKeywords.toUpperCase(), searchKeywords);
         }
         List<CustomerDTO> results = new ArrayList<>();
