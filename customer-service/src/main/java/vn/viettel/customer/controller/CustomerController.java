@@ -81,7 +81,7 @@ public class CustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request")}
     )
     @GetMapping(value = { V1 + root +"/customers-to-sale"})
-    public Response<Page<CustomerDTO>> getAllCustomerForChangeProducts(HttpServletRequest httpRequest,
+    public Response<Page<CustomerDTO>> getCustomerForAutoComplete(HttpServletRequest httpRequest,
                                                       @ApiParam(value = "Tìm theo tên, Mã khách hàng, Sdt")
                                                       @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                       @SortDefault.SortDefaults({
@@ -89,7 +89,7 @@ public class CustomerController extends BaseController {
                                                               @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
                                                               @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
                                                       }) Pageable pageable) {
-        Page<CustomerDTO> customerDTOS = service.getAllCustomerForChangeProducts(searchKeywords, pageable);
+        Page<CustomerDTO> customerDTOS = service.getCustomerForAutoComplete(searchKeywords, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }

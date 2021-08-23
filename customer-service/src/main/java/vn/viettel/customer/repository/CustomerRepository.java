@@ -38,23 +38,23 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             "and c.mobiPhone like %:customerPhone ")
     List<Long> getCustomerIds(String nameOrCode, String customerPhone);
 
-    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone," +
-            " c.customerTypeId, c.street, c.address, c.shopId, c.totalBill) " +
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO (c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 AND ( :shopId IS NULL OR c.shopId =:shopId )" +
-            " AND ( c.nameText like %:nameCodeAddress% OR c.customerCode like %:nameCodeAddress% " +
-            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR upper(c.addressText) like %:nameCodeAddress% ) " +
+            " AND ( c.nameText like %:nameCode% OR c.customerCode like %:nameCode% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR c.addressText like %:address% ) " +
             " ORDER BY c.customerCode, c.nameText")
-    Page<CustomerDTO> searchForSale(Long shopId, String nameCodeAddress, String phone, Pageable pageable);
+    Page<CustomerDTO> searchForSale(Long shopId, String nameCode, String address, String phone, Pageable pageable);
 
-    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone," +
-            " c.customerTypeId, c.street, c.address, c.shopId, c.totalBill) " +
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO (c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 AND ( :shopId IS NULL OR c.shopId =:shopId )" +
             " AND ( c.phone like %:phone OR c.mobiPhone like %:phone ) " +
             " ORDER BY c.customerCode, c.nameText")
     Page<CustomerDTO> searchForSaleFone(Long shopId, String phone, Pageable pageable);
 
-    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id,  c.customerCode, c.firstName, c.lastName, c.mobiPhone," +
-            " c.customerTypeId, c.workingOffice, c.officeAddress, c.taxCode ) " +
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO (c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 " +
             " AND ( c.nameText like %:searchKeywords% OR c.customerCode like %:searchKeywords% ) " +
             "   AND (c.phone like %:mobiphone OR c.mobiPhone like %:mobiphone) " +
@@ -73,12 +73,12 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     int schedulerUpdateStartMonth();
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
-            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode) " +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 " +
-            " AND ( c.nameText like %:nameCodeAddress% OR c.customerCode like %:nameCodeAddress% " +
-            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR upper(c.addressText) like %:nameCodeAddress% ) " +
+            " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR c.addressText like %:address% ) " +
             " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
     )
-    List<CustomerDTO> searchForAutoComplete(String nameCodeAddress, String phone);
+    List<CustomerDTO> searchForAutoComplete(String name, String code, String address, String phone);
 
 }

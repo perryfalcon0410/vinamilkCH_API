@@ -90,6 +90,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     private List<CustomerDTO> customers;
     private String searchKey;
+    private Long lastRequest = 0L;
+    private int count = 0;
+    private Long waitTime = 0L;
 
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer, List<MemberCustomer> memberCustomers) {
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
@@ -152,14 +155,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isSearchPhoneOnly())
             response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
         else {
-            response = repository.searchForSale(shop, customerFilter.getSearchKeywords().toUpperCase(), customerFilter.getSearchKeywords(), pageable);
+            response = repository.searchForSale(shop, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
+                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
         }
         return response;
     }
 
     @Override
     public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
-        if(filter.getSearchKeywords() != null) filter.setSearchKeywords(filter.getSearchKeywords().toUpperCase());
+        if(filter.getSearchKeywords() != null && !filter.getSearchKeywords().isEmpty())
+            filter.setSearchKeywords(VNCharacterUtils.removeAccent(filter.getSearchKeywords()).toUpperCase());
         Page<CustomerDTO> response = repository.searchForRedInvoice(
                 filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
         return response;
@@ -558,12 +563,24 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Đổi hàng hỏng  - hàng trả lại
      */
     @Override
-    public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
-        searchKeywords = VNCharacterUtils.removeAccent(StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY));
-        if(searchKeywords.length() == 4 && !searchKeywords.equals(searchKey)) {
-            searchKey = searchKeywords;
-            customers = repository.searchForAutoComplete(searchKeywords.toUpperCase(), searchKeywords);
+        //hạn chế request vào db
+        if((searchKeywords.length() == 4 || (searchKey == null && searchKeywords.length() > 4)) && !searchKeywords.equals(searchKey)) {
+            //tránh tấn công server: 3 request liên tục trong 2 giây xong phải nghỉ 10 giây được request tiếp
+            if(lastRequest > 0 && count >= 3 && (System.currentTimeMillis() - lastRequest) < 1500){
+                // không request và cài thời gian đợi 6 giây
+                waitTime = (1000 * 6) + System.currentTimeMillis();
+            }
+            //clear thời gian đợi
+            if(System.currentTimeMillis() > waitTime) waitTime = 0L;
+            if(waitTime < 1) {
+                count++;
+                lastRequest = System.currentTimeMillis();
+                searchKey = searchKeywords;
+                customers = repository.searchForAutoComplete(VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(),
+                        searchKeywords.toUpperCase(), searchKeywords, searchKeywords);
+            }
         }
         List<CustomerDTO> results = new ArrayList<>();
         if(customers != null){
@@ -582,7 +599,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     /*@Override
-    public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
