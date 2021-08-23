@@ -83,9 +83,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         List<PromotionProgramDTO> programs = this.validPromotionProgram(request, shopId, customer);
         if(programs == null || programs.isEmpty()) return null;
 
-        ProductOrderDataDTO orderData = this.getProductOrderData(request, customer);
-        if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
-            return null;
+
+        ProductOrderDataDTO orderData = null;
+        if(request.getProducts()!=null && !request.getProducts().isEmpty()) {
+            orderData = this.getProductOrderData(request, customer);
+            if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
+                return null;
+        }
+
 
         //key PromotionProgramDTO, value tính trước zv23 = true, sau zv23 = false
         HashMap<PromotionProgramDTO,Boolean> mapZV192021 = new HashMap<>();
@@ -229,7 +234,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
 
         promotionAmount = (double) Math.round(promotionAmount);
-        paymentAmount = orderData.getTotalPrice() - promotionAmount;
+        if(orderData !=null)
+            paymentAmount = orderData.getTotalPrice() - promotionAmount;
 
         SalePromotionCalculationDTO calculationDTO = new SalePromotionCalculationDTO();
         calculationDTO.setLstSalePromotions(this.sortPromotions(results));
@@ -263,6 +269,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
      */
     private SalePromotionDTO getAutoItemPromotionZV01ToZV21(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId,
                                                             double totalBeforeZV23InTax, double totalBeforeZV23ExTax, double totalZV23InTax, double totalZV23ExTax, boolean forSaving){
+       if(orderData == null) return  null;
+
         SalePromotionDTO auto = null;
         switch (PromotionProgramType.valueOf(program.getType())) {
             case ZV01:
@@ -329,31 +337,33 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     private SalePromotionDTO getItemPromotionZM(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId,  Long warehouseId,
                                                 Double inputAmount, String customerCode, double amountProInTax, double amountProExTax, boolean forSaving){
 
-        if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
+        if ((program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty()) && (program.getGivenType() != null && program.getGivenType() != 1))
             return null;
 
-        List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
 
-        double totalAmountInTax = orderData.getTotalPrice();
-        double totalAmountExtax = orderData.getTotalPriceNotVAT();
         boolean flag = false;
         boolean isInclusiveTax = isInclusiveTax(program.getDiscountPriceType());
 
         //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM/còn ko có SP thì hiểu là không quy định SP mua
-        List<Long> lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-        if(details.isEmpty()){
-            flag = true;
-        }else {
-            for (PromotionSaleProductDTO productPromotion : details) {
-                if (productPromotion.getProductId() == null ||
-                        (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
-                    flag = true;
-                    break;
+        List<Long> lstProductIds = new ArrayList<>();
+        if(orderData !=null) {
+            List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
+            lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+            if(details.isEmpty()){
+                flag = true;
+            }else {
+                for (PromotionSaleProductDTO productPromotion : details) {
+                    if (productPromotion.getProductId() == null ||
+                            (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
+                        flag = true;
+                        break;
+                    }
                 }
             }
         }
 
-        if (flag){
+
+        if (flag || ( orderData == null && program.getGivenType() != null && program.getGivenType() == 1)){
             SalePromotionDTO salePromotion = null;
 
             if (program.getGivenType() != null && program.getGivenType() == 1){// tặng sản phẩm

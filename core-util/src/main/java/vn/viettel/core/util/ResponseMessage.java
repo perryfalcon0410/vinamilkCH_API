@@ -326,7 +326,8 @@ public enum ResponseMessage {
     PRODUCT_ORDER_NOT_EMPTY(9095, "Danh sách sản phẩm mua không được rỗng"),
     PRODUCT_VAT_RED_INVOICE_NOT_FOUND(9096, "Sản phẩm %s chưa có thông tin VAT"),
     TOTAL_FREE_PRODUCT_GREATER_THAN_ZERO(9097, "Phải nhập số lượng tặng cho khuyến mãi %s"),
-    ONLINE_ORDER_PRODUCT_IS_EMPTY(2004, "Không có sản phẩm mua"),
+    ONLINE_ORDER_PRODUCT_IS_EMPTY(9098, "Không có sản phẩm mua"),
+    PROMOTION_NOT_FOUND(9099,"Không tìm thấy khuyến mãi cho đơn hàng"),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999

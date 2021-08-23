@@ -89,6 +89,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Object createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, boolean printTemp) {
+        if ((request.getPromotionInfo() == null || request.getPromotionInfo().isEmpty()) && (request.getProducts() == null || request.getProducts().isEmpty()))
+            throw new ValidateException(ResponseMessage.PROMOTION_NOT_FOUND);
+
         // check existing customer
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if (customer == null)
@@ -125,70 +128,76 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderComboDetail> listOrderComboDetails = new ArrayList<>();
         List<SaleOrderComboDiscount> listOrderComboDiscounts = new ArrayList<>();
         // gộp sản phẩm nếu có mua sản phẩm trùng
+        List<ProductOrderRequest> lstProductOrder = new ArrayList<>();
         HashMap<Long, ProductOrderRequest> mapProductOrder = new HashMap<>();
-        for (ProductOrderRequest dto : request.getProducts()){
-            if (dto.getQuantity() == null || dto.getQuantity() == 0)
-                throw new ValidateException(ResponseMessage.NUMBER_GREATER_THAN_ZERO);
-            if (mapProductOrder.containsKey(dto.getProductId())){
-                ProductOrderRequest exited = mapProductOrder.get(dto.getProductId());
-                exited.setQuantity(exited.getQuantity() + dto.getQuantity());
-                mapProductOrder.put(dto.getProductId(), exited);
-            }else{
-                mapProductOrder.put(dto.getProductId(), dto);
+        if(request.getProducts() != null && !request.getProducts().isEmpty()) {
+            for (ProductOrderRequest dto : request.getProducts()){
+                if (dto.getQuantity() == null || dto.getQuantity() == 0)
+                    throw new ValidateException(ResponseMessage.NUMBER_GREATER_THAN_ZERO);
+                if (mapProductOrder.containsKey(dto.getProductId())){
+                    ProductOrderRequest exited = mapProductOrder.get(dto.getProductId());
+                    exited.setQuantity(exited.getQuantity() + dto.getQuantity());
+                    mapProductOrder.put(dto.getProductId(), exited);
+                }else{
+                    mapProductOrder.put(dto.getProductId(), dto);
+                }
             }
+            lstProductOrder = new ArrayList<>(mapProductOrder.values());
+            request.setProducts(lstProductOrder);
         }
-        List<ProductOrderRequest> lstProductOrder = new ArrayList<>(mapProductOrder.values());
-        request.setProducts(lstProductOrder);
 
         //danh sách id sản phẩm theo số lượng mua và km
         HashMap<Long, Integer> mapProductWithQty = new HashMap<>();
         boolean isReturn = true;
         double customerPurchase = 0;
-        List<Long> productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
-        List<Price> productPrices = priceRepository.findProductPriceWithType(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
-                customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+        List<Long> productNotAccumulated = new ArrayList<>();
         List<PromotionProgramDiscountDTO> discountDTOs = new ArrayList<>();
 
-        // gán sản phẩm mua vào trước
-        for (ProductOrderRequest item : lstProductOrder){
-            if (item.getQuantity() != null && item.getQuantity() > 0) {
+        if(!lstProductOrder.isEmpty()) {
+            productNotAccumulated = promotionClient.getProductsNotAccumulatedV1(new ArrayList<>(mapProductOrder.keySet())).getData();
+            List<Price> productPrices = priceRepository.findProductPriceWithType(lstProductOrder.stream().map(i -> i.getProductId()).collect(Collectors.toList()),
+                    customer.getCustomerTypeId(), DateUtils.convertToDate(LocalDateTime.now()));
+            // gán sản phẩm mua vào
+            for (ProductOrderRequest item : lstProductOrder){
+                if (item.getQuantity() != null && item.getQuantity() > 0) {
 
-                if (!mapProductWithQty.containsKey(item.getProductId())) {
-                    mapProductWithQty.put(item.getProductId(), item.getQuantity());
-                }else{
-                    Integer qty = mapProductWithQty.get(item.getProductId()) + item.getQuantity();
-                    mapProductWithQty.put(item.getProductId(), qty);
+                    if (!mapProductWithQty.containsKey(item.getProductId())) {
+                        mapProductWithQty.put(item.getProductId(), item.getQuantity());
+                    }else{
+                        Integer qty = mapProductWithQty.get(item.getProductId()) + item.getQuantity();
+                        mapProductWithQty.put(item.getProductId(), qty);
+                    }
+
+                    //tạo order detail
+                    Price productPrice = getPrice(productPrices, item.getProductId(), false);
+
+                    SaleOrderDetail saleOrderDetail = new SaleOrderDetail();
+                    saleOrderDetail.setIsFreeItem(false);
+                    saleOrderDetail.setQuantity(item.getQuantity());
+                    saleOrderDetail.setPrice(productPrice.getPrice());
+                    saleOrderDetail.setPriceNotVat(productPrice.getPriceNotVat());
+                    saleOrderDetail.setProductId(item.getProductId());
+                    saleOrderDetail.setShopId(shopId);
+                    saleOrderDetail.setAmount(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity());
+                    saleOrderDetail.setTotal(saleOrderDetail.getAmount());
+                    saleOrderDetail.setProductCode(item.getProductCode());
+                    saleOrderDetail.setProductName(item.getProductName());
+
+                    saleOrderDetails.add(saleOrderDetail);
                 }
-
-                //tạo order detail
-                Price productPrice = getPrice(productPrices, item.getProductId(), false);
-
-                SaleOrderDetail saleOrderDetail = new SaleOrderDetail();
-                saleOrderDetail.setIsFreeItem(false);
-                saleOrderDetail.setQuantity(item.getQuantity());
-                saleOrderDetail.setPrice(productPrice.getPrice());
-                saleOrderDetail.setPriceNotVat(productPrice.getPriceNotVat());
-                saleOrderDetail.setProductId(item.getProductId());
-                saleOrderDetail.setShopId(shopId);
-                saleOrderDetail.setAmount(saleOrderDetail.getPrice() * saleOrderDetail.getQuantity());
-                saleOrderDetail.setTotal(saleOrderDetail.getAmount());
-                saleOrderDetail.setProductCode(item.getProductCode());
-                saleOrderDetail.setProductName(item.getProductName());
-
-                saleOrderDetails.add(saleOrderDetail);
             }
-        }
+
 
         //kiểm tra xem tổng sản phẩm mua có vượt quá tôn kho
-        List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(),
-                new ArrayList<>(mapProductWithQty.keySet()));
-        for (FreeProductDTO freeProductDTO : freeProductDTOs){
-            if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null &&
-                    freeProductDTO.getStockQuantity() < mapProductWithQty.get(freeProductDTO.getProductId())))
-                throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " +
-                        freeProductDTO.getProductName(), this.withLargeIntegers(freeProductDTO.getStockQuantity()) + "");
+            List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(),
+                    new ArrayList<>(mapProductWithQty.keySet()));
+            for (FreeProductDTO freeProductDTO : freeProductDTOs){
+                if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null &&
+                        freeProductDTO.getStockQuantity() < mapProductWithQty.get(freeProductDTO.getProductId())))
+                    throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " +
+                            freeProductDTO.getProductName(), this.withLargeIntegers(freeProductDTO.getStockQuantity()) + "");
+            }
         }
-
         // 4. voucher
         double voucherAmount = 0;
         double autoPromtion = 0;
@@ -341,7 +350,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
             //Nếu tiền giảm giá > tiền đơn hàng : thì thông báo không thể tạo đơn hàng có doanh số <0
-            if(request.getTotalOrderAmount() < promotionInVat)
+            if(request.getProducts()!=null && !request.getProducts().isEmpty() && request.getTotalOrderAmount() < promotionInVat)
                 throw new ValidateException(ResponseMessage.PROMOTION_OVER_BILL);
 
             //3. kiểm tra số tiền km có đúng
@@ -659,7 +668,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setSalemanId(userId);
         saleOrder.setCustomerId(customer.getId());
         saleOrder.setWareHouseTypeId(customerType.getWareHouseTypeId());
-        saleOrder.setAmount(request.getTotalOrderAmount());
+        saleOrder.setAmount(request.getTotalOrderAmount()!=null?request.getTotalOrderAmount():0);
         saleOrder.setTotalPromotion(roundValue(promotion));
         saleOrder.setTotalPromotionVat(roundValue(promotionInVat));
         saleOrder.setTotalPromotionNotVat(roundValue(promotionExVat));
@@ -685,7 +694,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         saleOrder.setType(1);
         saleOrder.setTotalCustomerPurchase(customer.getTotalBill());
         saleOrder.setIsReturn(isReturn);
-        if(saleOrder.getTotalPaid() < 1) {
+        if(saleOrder.getTotalPaid() < 1 && request.getProducts()!= null && !request.getProducts().isEmpty()) {
             double amountDisTotal = 0;
             // trừ tiền giảm giá
             if (saleOrder.getTotalPromotion() != null) {

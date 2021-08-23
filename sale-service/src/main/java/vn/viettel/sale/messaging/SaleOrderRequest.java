@@ -47,8 +47,7 @@ public class SaleOrderRequest {
     private String onlineNumber;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm trong đơn hàng")
-    @NotNull(responseMessage = ResponseMessage.EMPTY_LIST)
-    private List<@Valid ProductOrderRequest> products;
+    private List<ProductOrderRequest> products;
 
     @ApiModelProperty(notes = "Danh sách khuyến mãi")
     private List<SalePromotionDTO> promotionInfo;
