@@ -405,7 +405,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         List<SaleOrderComboDetail> comboDetails = SaleComboDetail.findAllBySaleOrderId(saleOrder.getId());
-        if (comboDiscounts.size() > 0) {
+        if (comboDetails.size() > 0) {
             for (SaleOrderComboDetail comboDetail : comboDetails) {
                 SaleComboDetailDTO returnComboDetailDTO = modelMapper.map(comboDetail, SaleComboDetailDTO.class);
                 SaleOrderComboDetail returnComboDetail = modelMapper.map(returnComboDetailDTO, SaleOrderComboDetail.class);
@@ -560,11 +560,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Transactional(rollbackFor = Exception.class)
     public void updateReturn(long id, long wareHouse, long shopId) {
         List<SaleOrderDetail> odReturns = saleOrderDetailRepository.findSaleOrderDetail(id, false);
-
-        List<StockTotal> stockTotals1 = stockTotalRepository.getStockTotal(shopId, wareHouse,
-                odReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
-        for (SaleOrderDetail sad : odReturns) {
-            stockTotalService.validateStockTotal(stockTotals1, sad.getProductId(), -sad.getQuantity());
+        if(!odReturns.isEmpty()) {
+            List<StockTotal> stockTotals1 = stockTotalRepository.getStockTotal(shopId, wareHouse,
+                    odReturns.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
+            for (SaleOrderDetail sad : odReturns) {
+                stockTotalService.validateStockTotal(stockTotals1, sad.getProductId(), -sad.getQuantity());
+            }
         }
 
         List<SaleOrderDetail> promotionReturns = saleOrderDetailRepository.findSaleOrderDetail(id, true);
@@ -575,7 +576,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 stockTotalService.validateStockTotal(stockTotals, sad.getProductId(), -sad.getQuantity());
             }
         }
-
 
         for (SaleOrderDetail sod : odReturns) {
             if (sod.getQuantity() == null) sod.setQuantity(0);

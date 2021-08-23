@@ -32,6 +32,6 @@ public class OrderPromotionRequest {
     private Double promotionAmountExTax = 0.0;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm mua")
-    private List<@Valid ProductOrderRequest> products;
+    private List<ProductOrderRequest> products;
 
 }
