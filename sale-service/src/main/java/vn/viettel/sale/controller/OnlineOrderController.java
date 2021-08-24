@@ -11,12 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
@@ -27,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +39,9 @@ public class OnlineOrderController extends BaseController {
 
     @Autowired
     OnlineOrderService onlineOrderService;
+    
+    @Autowired
+    JMSSender jmsSender;
 
     private final String root = "/sales/online-orders";
 
@@ -67,6 +73,9 @@ public class OnlineOrderController extends BaseController {
     )
     public Response<OnlineOrderDTO> getOnlineOrder(HttpServletRequest request, @PathVariable Long id) {
         OnlineOrderDTO response = onlineOrderService.getOnlineOrder(id, this.getShopId(), this.getUserId());
+        if(response.getCustomers() != null && !response.getCustomers().isEmpty()) {
+        	sendSynRequest(Arrays.asList(response.getCustomers().get(0).getId()));
+        }
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_ONLINE_ORDER_SUCCESS);
         return new Response<OnlineOrderDTO>().withData(response);
     }
@@ -82,5 +91,15 @@ public class OnlineOrderController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.ONLINE_ORDER_NUMBER_SUCCESS);
         return new Response<String>().withData(response);
     }
+    
+	private void sendSynRequest(List<Long> lstIds) {
+		try {
+			if(!lstIds.isEmpty()) {
+				jmsSender.sendMessage(JMSType.customers, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("OnlineOrderController.sendSynRequest", JMSType.customers, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 
 }
