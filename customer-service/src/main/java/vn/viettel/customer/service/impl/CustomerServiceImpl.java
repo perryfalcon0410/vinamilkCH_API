@@ -163,8 +163,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
-        if(filter.getSearchKeywords() != null && !filter.getSearchKeywords().isEmpty())
-            filter.setSearchKeywords(VNCharacterUtils.removeAccent(filter.getSearchKeywords()).toUpperCase());
         Page<CustomerDTO> response = repository.searchForRedInvoice(
                 filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
         return response;

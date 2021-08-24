@@ -64,9 +64,9 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " FROM Customer c WHERE c.status = 1 " +
             " AND ( c.nameText like %:searchKeywords% OR c.customerCode like %:searchKeywords% ) " +
             "   AND (c.phone like %:mobiphone OR c.mobiPhone like %:mobiphone) " +
-            "   AND c.workingOfficeText like %:workingOffice%  " +
-            "   AND c.officeAddressText like %:officeAddress%  " +
-            "   AND upper(c.taxCode) like %:taxCode%  " +
+            "   AND (:workingOffice is null OR c.workingOfficeText like %:workingOffice%) " +
+            "   AND (:officeAddress is null OR c.officeAddressText like %:officeAddress%)  " +
+            "   AND (:taxCode is null OR upper(c.taxCode) like %:taxCode%)  " +
             " ORDER BY c.customerCode, c.nameText")
     Page<CustomerDTO> searchForRedInvoice(String searchKeywords, String mobiphone, String workingOffice, String officeAddress, String taxCode, Pageable pageable);
 

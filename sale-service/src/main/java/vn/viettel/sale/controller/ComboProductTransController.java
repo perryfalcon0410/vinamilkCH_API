@@ -49,7 +49,7 @@ public class ComboProductTransController extends BaseController {
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                       @RequestParam(value = "toDate", required = false) Date toDate,
                                       @SortDefault.SortDefaults({
-                                          @SortDefault(sort = "transDate", direction = Sort.Direction.ASC),
+                                          @SortDefault(sort = "transDate", direction = Sort.Direction.DESC),
                                       })
                                       Pageable pageable) {
 

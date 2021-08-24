@@ -66,8 +66,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
         if (transCode != null) transCode = transCode.trim().toUpperCase();
-        Optional<Sort.Order> order = pageable.getSort().stream().findFirst();
-        if (!order.isPresent()) pageable.getSort().and(Sort.by("transDate").descending());
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
                         .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
                         .and(ExchangeTransSpecification.hasStatus())

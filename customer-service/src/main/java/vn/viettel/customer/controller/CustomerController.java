@@ -275,11 +275,15 @@ public class CustomerController extends BaseController {
     public Response<Page<CustomerDTO>> findCustomerForRedInvoice(HttpServletRequest httpRequest,
                                                            @RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
                                                            @RequestParam(value = "mobiphone", required = false, defaultValue = "") String mobiphone,
-                                                           @RequestParam(value = "workingOffice", required = false, defaultValue = "") String workingOffice,
-                                                           @RequestParam(value = "officeAddress", required = false, defaultValue = "") String officeAddress,
-                                                           @RequestParam(value = "taxCode", required = false, defaultValue = "") String taxCode, Pageable pageable ) {
-        CusRedInvoiceFilter filter = new CusRedInvoiceFilter(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase(),
-                mobiphone.trim(), VNCharacterUtils.removeAccent(workingOffice.trim()).toUpperCase(), VNCharacterUtils.removeAccent(officeAddress.trim()).toUpperCase(), taxCode.trim().toUpperCase());
+                                                           @RequestParam(value = "workingOffice", required = false) String workingOffice,
+                                                           @RequestParam(value = "officeAddress", required = false) String officeAddress,
+                                                           @RequestParam(value = "taxCode", required = false) String taxCode, Pageable pageable ) {
+
+        if(workingOffice != null) workingOffice = VNCharacterUtils.removeAccent(workingOffice.trim()).toUpperCase();
+        if(officeAddress != null) officeAddress = VNCharacterUtils.removeAccent(officeAddress.trim()).toUpperCase();
+        if(taxCode != null) taxCode = VNCharacterUtils.removeAccent(taxCode.trim()).toUpperCase();
+
+        CusRedInvoiceFilter filter = new CusRedInvoiceFilter(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase(), mobiphone.trim(), workingOffice, officeAddress, taxCode);
 
         return new Response<Page<CustomerDTO>>().withData(service.findCustomerForRedInvoice(filter, pageable));
     }
