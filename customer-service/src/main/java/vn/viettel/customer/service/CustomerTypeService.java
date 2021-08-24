@@ -25,6 +25,7 @@ public interface CustomerTypeService extends BaseService {
 
     CustomerTypeDTO getCusTypeByShopId(long shopId);
 
+    /*bên ui bán hàng*/
     CustomerTypeDTO getCustomerTypeDefaut();
 
     List<CustomerTypeDTO> findByWarehouse(Long warehouseId);

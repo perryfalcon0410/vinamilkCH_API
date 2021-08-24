@@ -42,7 +42,7 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
 
     @Override
     public Long getWarehouseTypeByShopId(Long shopId) {
-        List<CustomerType> customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
+        List<CustomerTypeDTO> customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
         if(customerTypes == null || customerTypes.isEmpty()) customerTypes = repository.getCustomerTypeDefault();
         if(customerTypes!=null || !customerTypes.isEmpty()) return customerTypes.get(0).getWareHouseTypeId();
         return null;
@@ -50,17 +50,17 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
 
     @Override
     public CustomerTypeDTO getCusTypeByShopId(long shopId) {
-        List<CustomerType> customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
+        List<CustomerTypeDTO> customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
         if(customerTypes == null || customerTypes.isEmpty()) return null;
-        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
+        return customerTypes.get(0);
     }
 
     @Override
     public CustomerTypeDTO getCustomerTypeDefaut() {
-        List<CustomerType> customerTypes = repository.getCustomerTypeDefault();
+        List<CustomerTypeDTO> customerTypes = repository.getCustomerTypeDefault();
         if(customerTypes == null || customerTypes.isEmpty())
             throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
+        return customerTypes.get(0);
     }
 
     @Override
@@ -72,9 +72,9 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
 
     @Override
     public CustomerTypeDTO getCustomerType(Long customerId, Long shopId) {
-        List<CustomerType> customerTypes = repository.getByCustomerId(customerId);
+        List<CustomerTypeDTO> customerTypes = repository.getByCustomerId(customerId);
         if(customerTypes.isEmpty()) customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
-        if(customerTypes.isEmpty()) return null;
-        return modelMapper.map(customerTypes.get(0), CustomerTypeDTO.class);
+        if(!customerTypes.isEmpty()) return customerTypes.get(0);
+        return null;
     }
 }
