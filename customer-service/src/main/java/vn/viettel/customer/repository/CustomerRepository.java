@@ -30,9 +30,15 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.customerCode NOT LIKE '%.KA___' ORDER BY c.customerCode desc ")
     Page<Customer> getLastCustomerNumber(@Param("shopId") Long shopId,  Pageable pageable);
 
-    @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = true "
+   /* @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = true "
             + " AND c.status = 1 ORDER BY c.updatedAt DESC")
-    List<Customer> getCustomerDefault(Long shopId);
+    List<Customer> getCustomerDefault(Long shopId);*/
+
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO (c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
+            " FROM Customer c WHERE c.shopId =:shopId AND c.isDefault = true " +
+            " AND c.status = 1 ORDER BY c.updatedAt DESC")
+    List<CustomerDTO> getCustomerDefault(Long shopId);
 
     @Query(value = "SELECT c.id FROM Customer c where ( c.customerCode like %:nameOrCode% OR c.nameText like %:nameOrCode% ) " +
             "and c.mobiPhone like %:customerPhone ")

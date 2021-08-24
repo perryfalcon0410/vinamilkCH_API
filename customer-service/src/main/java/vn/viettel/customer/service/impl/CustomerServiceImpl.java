@@ -610,23 +610,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public CustomerDTO getCustomerDefault(Long shopId) {
-        List<Customer> customers = repository.getCustomerDefault(shopId);
+        List<CustomerDTO> customers = repository.getCustomerDefault(shopId);
         if(customers.isEmpty()) throw new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST);
-        CustomerDTO dto = modelMapper.map(customers.get(0), CustomerDTO.class);
-        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customers.get(0).getId()).orElse(null);
-        if(memberCustomer != null){
-            dto.setAmountCumulated(memberCustomer.getScoreCumulated());
-        }
-        return dto;
+        Double scoreCumulated = memBerCustomerRepos.getScoreCumulated(customers.get(0).getId());
+        customers.get(0).setAmountCumulated(scoreCumulated);
+        return customers.get(0);
     }
 
     @Override
     public CustomerDTO getCustomerDefaultByShop(Long shopId) {
-        List<Customer> customers = repository.getCustomerDefault(shopId);
+        List<CustomerDTO> customers = repository.getCustomerDefault(shopId);
         if(customers.isEmpty()) return null;
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        CustomerDTO cusDTO = modelMapper.map(customers.get(0), CustomerDTO.class);
-        return  cusDTO;
+        return customers.get(0);
     }
 
     @Override
