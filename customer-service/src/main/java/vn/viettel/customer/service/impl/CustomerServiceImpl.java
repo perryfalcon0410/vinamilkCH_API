@@ -567,11 +567,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
         String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
         //hạn chế request vào db
-        if((searchKeywords.length() == 4 || (searchKey == null && searchKeywords.length() > 4)) && !searchKeywords.equals(searchKey)) {
-            //tránh tấn công server: 3 request liên tục trong 2 giây xong phải nghỉ 10 giây được request tiếp
-            if(lastRequest > 0 && count >= 3 && (System.currentTimeMillis() - lastRequest) < 1500){
-                // không request và cài thời gian đợi 6 giây
-                waitTime = (1000 * 6) + System.currentTimeMillis();
+        if(searchKeywords.length() >= 4 && (searchKey == null || !searchKeywords.substring(0,4).equals(searchKey.substring(0,4)) )) {
+            //chánh tấn công server: 3 request liên tục trong 1 giây xong phải nghỉ 10 giây được request tiếp
+            if(lastRequest > 0 && count >= 3 && (System.currentTimeMillis() - lastRequest) < 1000){
+                // không request và cài thời gian đợi 3 giây
+                waitTime = (1000 * 3) + System.currentTimeMillis();
             }
             //clear thời gian đợi
             if(System.currentTimeMillis() > waitTime) waitTime = 0L;
