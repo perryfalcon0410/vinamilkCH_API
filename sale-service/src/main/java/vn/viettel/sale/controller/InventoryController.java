@@ -126,13 +126,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
-        List<StockCountingExcelDTO> export = inventoryService.getByStockCountingId(id).getResponse();
-        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        LocalDateTime countingDate = inventoryService.getStockCountingById(id).getCountingDate();
-        StockCountingFilledExcel stockCountingFilledExcel =
-                new StockCountingFilledExcel(export, shop, shop.getParentShop(), countingDate);
-        ByteArrayInputStream in = stockCountingFilledExcel.export();
-
+        ByteArrayInputStream in = inventoryService.exportExcel(id, this.getShopId());
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=Kiem_ke_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());

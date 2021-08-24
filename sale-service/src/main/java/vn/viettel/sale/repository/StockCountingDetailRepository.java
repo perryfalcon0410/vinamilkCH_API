@@ -23,4 +23,14 @@ public interface StockCountingDetailRepository extends BaseRepository<StockCount
             " WHERE dtl.stockCountingId = :stockCountingId " +
             " ORDER BY cat.productInfoCode asc, p.productCode asc ")
     List<StockCountingExcel> getStockCountingExcel(Long stockCountingId);
+
+    /* ko lấy những detail ko có kiểm kê */
+    @Query(value = "SELECT new vn.viettel.sale.service.dto.StockCountingExcel(p.id, p.productCode, p.productName, gcat.productInfoName, " +
+            " cat.productInfoName, cat.productInfoCode, dtl.price, dtl.stockQuantity, p.uom1, p.uom2, coalesce(p.convFact, 1), dtl.quantity) " +
+            " FROM StockCountingDetail dtl JOIN Product p ON p.id = dtl.productId " +
+            " LEFT JOIN ProductInfo gcat ON p.groupCatId = gcat.id and gcat.type = 6 " +
+            " LEFT JOIN ProductInfo cat ON p.catId = cat.id and cat.type = 1 " +
+            " WHERE dtl.stockCountingId = :stockCountingId AND dtl.quantity > 0" +
+            " ORDER BY cat.productInfoCode asc, p.productCode asc ")
+    List<StockCountingExcel> getStockCountingExportExcel(Long stockCountingId);
 }
