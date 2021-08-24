@@ -82,6 +82,15 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
             " FROM Customer c WHERE c.status = 1 " +
             " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone ) " +
+            " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
+    )
+    List<CustomerDTO> searchForAutoComplete(String name, String code, String phone);
+
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
+            " FROM Customer c WHERE c.status = 1 " +
+            " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
             "   OR c.phone like %:phone OR c.mobiPhone like %:phone OR c.addressText like %:address% ) " +
             " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
     )
