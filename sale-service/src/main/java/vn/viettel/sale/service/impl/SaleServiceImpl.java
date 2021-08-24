@@ -998,7 +998,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 percentZVExTax = calPercent(amountExTax, item.getAutoPromotionNotVat());
             }
 
-            double amountTotal = 0;
+          //  double amountTotal = 0;
             double zmAmtTotal = 0;
             double zmAmtVatTotal = 0;
             double zmAmtNotVatTotal = 0;
@@ -1039,7 +1039,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         double proAmtVat = roundValue(amount * percentZVInTax / 100);
                         double proAmtNotVat = roundValue((orderComboDetail.getPriceNotVat() * orderComboDetail.getQuantity()) * percentZVExTax / 100);
                         if(cnt == totalComboDtl){
-                            amount = (item.getAmount() == null ? 0 : item.getAmount()) - amountTotal;
+                         /*   amount = (item.getAmount() == null ? 0 : item.getAmount()) - amountTotal;*/
                             zmAmt = (item.getZmPromotion() == null ? 0 : item.getZmPromotion()) - zmAmtTotal;
                             zmAmtVat = (item.getZmPromotionVat() == null ? 0 : item.getZmPromotionVat()) - zmAmtVatTotal;
                             zmAmtNotVat = (item.getZmPromotionNotVat() == null ? 0 : item.getZmPromotionNotVat()) - zmAmtNotVatTotal;
@@ -1047,7 +1047,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             proAmtVat = (item.getAutoPromotionVat() == null ? 0 : item.getAutoPromotionVat()) - proAmtVatTotal;
                             proAmtNotVat = (item.getAutoPromotionNotVat() == null ? 0 : item.getAutoPromotionNotVat()) - proAmtNotVatTotal;
                         }
-                        amountTotal += amount;
+                   //     amountTotal += amount;
                         zmAmtTotal += zmAmt;
                         zmAmtVatTotal += zmAmtVat;
                         zmAmtNotVatTotal += zmAmtNotVat;
