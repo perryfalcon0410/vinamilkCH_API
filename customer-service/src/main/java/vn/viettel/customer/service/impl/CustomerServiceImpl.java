@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.*;
+import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.AgeCalculator;
@@ -566,7 +567,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
         //hạn chế request vào db
         if(searchKeywords.length() >= 4 && (searchKey == null || !searchKeywords.substring(0,4).equals(searchKey.substring(0,4)) )) {
-            //chánh tấn công server: 3 request liên tục trong 1 giây xong phải nghỉ 10 giây được request tiếp
+            //chánh tấn công server: 3 request liên tục trong 1 giây xong phải nghỉ 3 giây được request tiếp
             if(lastRequest > 0 && count >= 3 && (System.currentTimeMillis() - lastRequest) < 1000){
                 // không request và cài thời gian đợi 3 giây
                 waitTime = (1000 * 3) + System.currentTimeMillis();
@@ -577,7 +578,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 count++;
                 lastRequest = System.currentTimeMillis();
                 searchKey = searchKeywords;
-                customers = repository.searchForAutoComplete(name, searchKeywords.toUpperCase(), searchKeywords, searchKeywords);
+                customers = repository.searchForAutoComplete(name.substring(0,4), searchKeywords.substring(0,4).toUpperCase(), searchKeywords.substring(0,4));
             }
         }
         List<CustomerDTO> results = new ArrayList<>();
@@ -585,7 +586,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             for(CustomerDTO cus : customers){
                 if((cus.getCustomerCode() != null && cus.getCustomerCode().contains(searchKeywords.toUpperCase()))
                         || (cus.getNameText() != null && cus.getNameText().contains(name))
-                        || (cus.getAddress() != null && cus.getAddress().contains(searchKeywords))
+//                        || (cus.getAddress() != null && cus.getAddress().contains(searchKeywords))
                         || (cus.getPhone() != null && cus.getPhone().contains(searchKeywords))
                         || (cus.getMobiPhone() != null && cus.getMobiPhone().contains(searchKeywords)) ){
                     results.add(cus);
@@ -593,6 +594,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                 }
             }
         }
+        Collections.sort(results, Comparator.comparing(CustomerDTO::getNameText));
         return new PageImpl<>(results);
     }
 
