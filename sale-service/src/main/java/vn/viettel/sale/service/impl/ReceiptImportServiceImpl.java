@@ -735,7 +735,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     public ResponseMessage createAdjustmentTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
         UserDTO user = userClient.getUserByIdV1(userId);
         CustomerDTO cus = customerClient.getCusDefault(shopId);
-        if(cus.getId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
+        if(cus == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         LocalDateTime transDate = LocalDateTime.now();
 
         if (request.getImportType() == 1) {
