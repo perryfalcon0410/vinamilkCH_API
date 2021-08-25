@@ -370,7 +370,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Override
     public ByteArrayInputStream exportExcel(Long id, Long shopId) throws IOException{
-        List<StockCountingExcelDTO> export = this.getDataExportExcel(id).getResponse();
+        List<StockCountingExcelDTO> export = this.getByStockCountingId(id).getResponse();
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         LocalDateTime countingDate = this.getStockCountingById(id).getCountingDate();
         StockCountingFilledExcel stockCountingFilledExcel =
