@@ -50,6 +50,12 @@ public class SalePromotionDTO {
     @ApiModelProperty(notes = "Giới hạn số suất")
     private Double numberLimited;
 
+    @ApiModelProperty(notes = "Số xuất phân bổ cho shop")
+    private Double maxShopQty;
+
+    @ApiModelProperty(notes = "Số xuất shop đã sử dụng")
+    private Double receiveShopQty;
+
     @ApiModelProperty(notes = "Mhuyến mãi tiền hoặc phần trăm")
     SalePromotionDiscountDTO amount;
 

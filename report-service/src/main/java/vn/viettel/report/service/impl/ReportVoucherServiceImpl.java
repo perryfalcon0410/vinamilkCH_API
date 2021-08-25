@@ -55,7 +55,7 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
     public ByteArrayInputStream exportExcel(ReportVoucherFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         List<ReportVoucherDTO> lst = this.callReportVoucherDTO(filter);
-        ReportVoucherExcel reportVoucherExcel = new ReportVoucherExcel(shopDTO, lst);
+        ReportVoucherExcel reportVoucherExcel = new ReportVoucherExcel(shopDTO, shopDTO.getParentShop(), lst);
         reportVoucherExcel.setFromDate(filter.getFromProgramDate());
         reportVoucherExcel.setToDate(filter.getToProgramDate());
 

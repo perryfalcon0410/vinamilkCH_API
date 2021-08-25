@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.service.BaseService;
+import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
@@ -29,7 +30,7 @@ public interface CustomerService extends BaseService {
 
     Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 
-   Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable);
+   Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable);
 
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 
@@ -69,5 +70,12 @@ public interface CustomerService extends BaseService {
     Lấy thông tin khách hàng khi auto search
      */
     Page<CustomerDTO> findCustomerForSale(Long shopId, CustomerSaleFilter customerFilter, Pageable pageable);
+
+    /*
+   Lấy thông tin khách hàng cho màn hình tạo mới hóa đơn đỏ
+    */
+    Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable);
+
+
 }
 

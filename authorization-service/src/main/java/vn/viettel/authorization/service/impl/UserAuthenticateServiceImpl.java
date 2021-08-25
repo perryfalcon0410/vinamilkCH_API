@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepository> implements UserAuthenticateService {
-    @Autowired
-    private UserRoleRepository userRoleRepository;
 
     @Autowired
     private RoleRepository roleRepository;

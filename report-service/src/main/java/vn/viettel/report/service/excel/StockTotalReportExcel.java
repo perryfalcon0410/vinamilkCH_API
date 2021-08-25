@@ -23,13 +23,15 @@ public class StockTotalReportExcel {
     private SXSSFSheet sheet;
     private StockTotalExcelRequest stockTotalExcelRequest;
     private ShopDTO shop;
+    private ShopDTO parentShop;
     private LocalDate toDate;
 
     private int rowNum = 1;
 
-    public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, LocalDate toDate) {
+    public StockTotalReportExcel(StockTotalExcelRequest stockTotalExcelRequest, ShopDTO shop, ShopDTO parentShop, LocalDate toDate) {
         this.stockTotalExcelRequest = stockTotalExcelRequest;
         this.shop = shop;
+        this.parentShop = parentShop;
         workbook = new SXSSFWorkbook();
         this.toDate = toDate;
     }
@@ -43,12 +45,14 @@ public class StockTotalReportExcel {
         //header left
         ExcelPoiUtils.addCellsAndMerged(sheet, col, row, colm, rowm, shop.getShopName(), style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet, col, ++row, colm, ++rowm, shop.getAddress(), style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet, col, ++row, colm, ++rowm, "Tel:" + " " + shop.getPhone() + "  " + "Fax:" + " " + shop.getFax(), style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet, col, ++row, colm, ++rowm, "Tel: " + (shop.getMobiPhone()!=null? shop.getMobiPhone():"") + " Fax: " + (shop.getFax()!=null?shop.getFax():""), style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
-        ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row - 2, colm + 9, rowm - 2, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row - 1, colm + 9, rowm - 1, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row, colm + 9, rowm, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style.get(ExcelPoiUtils.HEADER_LEFT));
-        //
+        if(parentShop != null) {
+            ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row - 2, colm + 9, rowm - 2, parentShop.getShopName(), style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row - 1, colm + 9, rowm - 1, parentShop.getAddress(), style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row, colm + 9, rowm, "Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), style.get(ExcelPoiUtils.HEADER_LEFT));
+        }
+
         ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 3, colm + 15, rowm + 3, "BÁO CÁO TỒN KHO CỬA HÀNG", style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 5, colm + 15, rowm + 5, "ĐẾN NGÀY: " + stringDate, style.get(ExcelPoiUtils.ITALIC_12));
         //

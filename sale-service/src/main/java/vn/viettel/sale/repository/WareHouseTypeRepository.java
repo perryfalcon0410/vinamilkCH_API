@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.entities.WareHouseType;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.service.dto.WareHouseTypeDTO;
 
 import java.util.List;
 
@@ -15,4 +16,8 @@ public interface WareHouseTypeRepository extends BaseRepository<WareHouseType> {
          */
     @Query(value = "SELECT w FROM WareHouseType w WHERE w.status = 1 ORDER BY w.wareHouseTypeCode asc ")
     List<WareHouseType> findDefault();
+
+    @Query(value = "SELECT new vn.viettel.sale.service.dto.WareHouseTypeDTO( w.id, w.wareHouseTypeCode, w.wareHouseTypeName, Case when w.id =:defaultId then 1 else 0 end )" +
+            " FROM WareHouseType w WHERE w.status = 1 ORDER BY w.wareHouseTypeCode asc ")
+    List<WareHouseTypeDTO> findWithDefault(Long defaultId);
 }

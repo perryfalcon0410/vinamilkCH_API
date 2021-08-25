@@ -41,7 +41,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
     public ByteArrayInputStream exportExcel(SaleDeliveryTypeFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         List<SaleByDeliveryTypeDTO> salesDeli = this.callStoreProcedure(filter);
-        SaleDeliveryTypeExcel excel = new SaleDeliveryTypeExcel(shopDTO, salesDeli);
+        SaleDeliveryTypeExcel excel = new SaleDeliveryTypeExcel(shopDTO, shopDTO.getParentShop(), salesDeli);
         excel.setFromDate(filter.getFromDate());
         excel.setToDate(filter.getToDate());
         return excel.export();

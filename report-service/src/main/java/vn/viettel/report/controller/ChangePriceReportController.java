@@ -89,13 +89,12 @@ public class ChangePriceReportController extends BaseController {
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(
                 licenseNumber, this.getShopId(), DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), ids, pageable, false);
         ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getData().getInfo(), listData.getData().getResponse());
-        ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate));
+        ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, shop.getParentShop(), DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate));
         ByteArrayInputStream in = exportExcel.export();
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=BC_chenh_lech_gia_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
-        System.gc();
         response.getOutputStream().flush();
 
     }

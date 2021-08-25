@@ -59,7 +59,6 @@ public class SaleController extends BaseController {
     })
     @PostMapping(value = { V1 + root })
     public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
-        if (request.getProducts().isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
         Long id = (Long) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
@@ -71,10 +70,6 @@ public class SaleController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/order-promotions"})
     public Response<SalePromotionCalculationDTO> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
-        if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
-            throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
-        }
-
         SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), null, false);
         return new Response<SalePromotionCalculationDTO>().withData(list);
     }

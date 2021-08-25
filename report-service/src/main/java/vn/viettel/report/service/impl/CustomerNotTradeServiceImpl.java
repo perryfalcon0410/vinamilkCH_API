@@ -122,10 +122,9 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     @Override
     public ByteArrayInputStream customerTradesExportExcel(CustomerTradeFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         List<CustomerTradeDTO> customers = this.callProcedure(filter);
         this.removeDataList(customers);
-        CustomerTradeExcel excel = new CustomerTradeExcel(shopDTO, parentShopDTO, customers);
+        CustomerTradeExcel excel = new CustomerTradeExcel(shopDTO, shopDTO.getParentShop(), customers);
         return excel.export();
     }
 

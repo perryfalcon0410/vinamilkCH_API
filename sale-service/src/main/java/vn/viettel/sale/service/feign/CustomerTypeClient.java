@@ -17,18 +17,16 @@ public interface CustomerTypeClient {
     @GetMapping("/api/v1/customers/customer-types/shop-id/{shopId}")
     CustomerTypeDTO getCusTypeByShopIdV1(@PathVariable("shopId") Long shopId);
 
-    @GetMapping("/api/v1/customers/customer-types/default")
-    Response<CustomerTypeDTO> getCustomerTypeDefaultV1();
-
     @GetMapping("/api/v1/customers/customer-types/warehouse-type/shop/{shopId}")
     Long getWarehouseTypeByShopId( @PathVariable Long shopId);
-
-    @GetMapping("/api/v1/customers/customer-types/warehouse-type/customer/{customerId}")
-    CustomerTypeDTO getCusTypeByCustomerIdV1(@PathVariable Long customerId);
 
     @GetMapping("/api/v1/customers/customer-types/{id}")
     CustomerTypeDTO getCusTypeById(@PathVariable Long id);
 
     @GetMapping("/api/v1/customers/customer-types/getbywarehouse")
     List<CustomerTypeDTO> getCusTypeByWarehouse(@RequestParam Long warehouseId);
+
+    @GetMapping("/api/v1/customers/customer-types/sale-order/{customerId}")
+    CustomerTypeDTO getCustomerTypeForSale(@PathVariable Long customerId, @RequestParam Long shopId);
+
 }

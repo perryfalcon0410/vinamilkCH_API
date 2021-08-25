@@ -15,4 +15,5 @@
     <include file="src/main/resources/database/changelog/changelog-03-08-2021-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-05-08-2021-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-13-08-2021-thaitt.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-19-08-2021-thaitt.xml"/>
 </databaseChangeLog>

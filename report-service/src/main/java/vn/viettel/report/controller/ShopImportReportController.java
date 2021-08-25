@@ -58,15 +58,14 @@ public class ShopImportReportController extends BaseController {
                                         ,HttpServletResponse response) throws IOException, ParseException {
         ShopImportFilter shopImportFilter = new ShopImportFilter( DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
-        ShopDTO shop_ = shopClient.getShopByIdV1(shop.getParentShopId()).getData();
         CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(shopImportFilter).getData();
-        ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop_,shopImportFilter);
+        ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop.getParentShop(),shopImportFilter);
         ByteArrayInputStream in = shopImportReport.export();
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=report_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
-        System.gc();
+
         response.getOutputStream().flush();
     }
 

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
-import javax.persistence.Column;
 
 @Getter
 @Setter
@@ -24,4 +23,23 @@ public class CustomerTypeDTO extends BaseDTO {
     private Long wareHouseTypeId;
     @ApiModelProperty(notes = "Trạng thái: 1-Hoạt động, 0-Ngưng hoạt động")
     private Integer status;
+
+    public CustomerTypeDTO(Long id, String code, String name, Integer kaCustomerType, Integer posModifyCustomer, Long wareHouseTypeId, Integer status) {
+        setId(id);
+        this.code = code;
+        this.name = name;
+        this.kaCustomerType = kaCustomerType;
+        this.posModifyCustomer = posModifyCustomer;
+        this.wareHouseTypeId = wareHouseTypeId;
+        this.status = status;
+    }
+
+    /*
+        Dùng cho lấy giá và loại kho
+     */
+    public CustomerTypeDTO(Long id,  Long wareHouseTypeId) {
+        setId(id);
+        this.wareHouseTypeId = wareHouseTypeId;
+    }
+
 }

@@ -225,6 +225,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoTrans poRecord = modelMapper.map(request, PoTrans.class);
         PoTrans poTrans = repository.findById(request.getReceiptImportId()).get();
+        poRecord.setId(null);
         poRecord.setTransDate(transDate);
         poRecord.setWareHouseTypeId(poTrans.getWareHouseTypeId());
         poRecord.setTransCode(createPoTransExportCode(shopId));
@@ -364,6 +365,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if (shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
         LocalDateTime ldt = LocalDateTime.now();
+        poAdjustTrans.setId(null);
         poAdjustTrans.setTransDate(ldt);
         poAdjustTrans.setShopId(shopId);
         poAdjustTrans.setTransCode(stockAdjustment.getAdjustmentCode());
@@ -381,7 +383,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         order.setOrderDate(ldt);
         order.setShopId(shopId);
         order.setSalemanId(userId);
-        order.setCustomerId(cus.getId());
+        if(cus != null) {
+            order.setCustomerId(cus.getId());
+            order.setTotalCustomerPurchase(cus.getTotalBill());
+        }
         order.setWareHouseTypeId(stockAdjustment.getWareHouseTypeId());
         order.setBalance(0D);
         order.setNote(reason.getData().getApParamName());
@@ -389,7 +394,6 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         order.setTotalVoucher(0D);
         order.setPaymentType(1);
         order.setDeliveryType(0);
-        order.setTotalCustomerPurchase(cus.getTotalBill());
         order.setAutoPromotionNotVat(0D);
         order.setAutoPromotion(0D);
         order.setZmPromotion(0D);
@@ -474,6 +478,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         StockBorrowing stockBorrowing = stockBorrowingRepository.findById(request.getReceiptImportId()).get();
         if (stockBorrowing.getStatusExport() == 2)
             throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_EXPORTED);
+        poBorrowTransRecord.setId(null);
         poBorrowTransRecord.setTransDate(transDate);
         poBorrowTransRecord.setFromShopId(shopId);
         poBorrowTransRecord.setToShopId(stockBorrowing.getToShopId());

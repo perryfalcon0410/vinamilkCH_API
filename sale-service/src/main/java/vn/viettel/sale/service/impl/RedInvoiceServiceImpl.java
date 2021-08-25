@@ -108,7 +108,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         else totalRedInvoice.setSumAmountGTGT(totalRedInvoice1.getSumTotalMoney());
 
         CoverResponse coverResponse = new CoverResponse(redInvoiceDTOS, totalRedInvoice);
-        System.gc();
         return coverResponse;
     }
 
@@ -221,7 +220,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                     , taxCode, null, null);
             List<RedInvoiceDataDTO> redInvoiceDataDTOS = new ArrayList<>(dtos);
             CoverResponse<List<RedInvoiceDataDTO>, TotalRedInvoiceResponse> response = new CoverResponse(redInvoiceDataDTOS, totalRedInvoiceResponse);
-           /* System.gc();*/
             return response;
         }
     }
@@ -494,12 +492,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             List<HDDTO> hddtos = this.getDataHdDvkh(ids);
             List<CTDTO> ctdtos = this.getDataCTDvkh(ids);
             HVKHExcel hvkhExcel = new HVKHExcel(hddtos, ctdtos);
-            System.gc();
             return hvkhExcel.export();
         } else {
             List<HDDTExcelDTO> hddtExcelDTOS = this.getDataHddtExcel(ids);
             HDDTExcel hddtExcel = new HDDTExcel(hddtExcelDTOS);
-            System.gc();
+
             return hddtExcel.export();
         }
     }

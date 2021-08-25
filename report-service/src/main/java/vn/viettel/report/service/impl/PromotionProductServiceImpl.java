@@ -43,14 +43,13 @@ public class PromotionProductServiceImpl implements PromotionProductService {
     @Override
     public ByteArrayInputStream exportExcel(PromotionProductFilter filter) throws IOException, CloneNotSupportedException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-        ShopDTO parentShopDTO = shopClient.getShopByIdV1(shopDTO.getParentShopId()).getData();
         List<PromotionProductDTO> promotionDetails = this.callStoreProcedure(filter);
         PromotionProductDTO promotionTotal = new PromotionProductDTO();
         if(!promotionDetails.isEmpty()) {
             promotionTotal = promotionDetails.get(promotionDetails.size() -1);
             this.removeDataList(promotionDetails);
         }
-        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, parentShopDTO, promotionTotal, filter);
+        PromotionProductExcel excel = new PromotionProductExcel(shopDTO, shopDTO.getParentShop(), promotionTotal, filter);
         excel.setPromotionDetails(promotionDetails);
         excel.setPromotionIndays(this.promotionProductsDay(promotionDetails));
         excel.setPromotionproducts(this.promotionProducts(promotionDetails));

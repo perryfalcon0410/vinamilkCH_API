@@ -103,6 +103,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
         dto.setCustomerPurchase(saleOrder.getMemberCardAmount());
+        dto.setTotalPromotion(saleOrder.getTotalPromotionVat());
         if(customers != null){
             for(CustomerDTO customer : customers){
                 if(customer.getId().equals(saleOrder.getCustomerId())){
@@ -470,19 +471,22 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         }
 
 //        if(!zv21Products.isEmpty()) print.setZv21Products(zv21Products);
-        if(!details.isEmpty()){
-            List<PrintProductSaleOrderDTO> printProductSaleOrderDTO = new ArrayList<>(details.values());
-            if(!freeItems.isEmpty()) {
-                for(Map.Entry<String, List<PrintFreeItemDTO>> entry : freeItems.entrySet()){
-                    PrintProductSaleOrderDTO km = new PrintProductSaleOrderDTO();
-                    km.setDisplayType(1);
-                    km.setGroupName(entry.getKey());
-                    km.setListFreeItems(entry.getValue());
-                    printProductSaleOrderDTO.add(km);
-                }
+
+        List<PrintProductSaleOrderDTO> printProductSaleOrderDTO = null;
+        if(!details.isEmpty()) printProductSaleOrderDTO = new ArrayList<>(details.values());
+        if(!freeItems.isEmpty()) {
+            if(printProductSaleOrderDTO == null) printProductSaleOrderDTO = new ArrayList<>();
+            for(Map.Entry<String, List<PrintFreeItemDTO>> entry : freeItems.entrySet()){
+                PrintProductSaleOrderDTO km = new PrintProductSaleOrderDTO();
+                km.setDisplayType(1);
+                km.setGroupName(entry.getKey());
+                km.setListFreeItems(entry.getValue());
+                printProductSaleOrderDTO.add(km);
             }
-            print.setProducts(printProductSaleOrderDTO);
         }
+        print.setProducts(printProductSaleOrderDTO);
+
+
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
         //Xắp xếp ZM trước sau đó ts các ZV19->23
         Collections.sort(lstZMValue, Comparator.comparing(PrintZMZV19ZV20ZV23DTO::getPromotionType));
