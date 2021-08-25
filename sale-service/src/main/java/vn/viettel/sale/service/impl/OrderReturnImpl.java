@@ -82,7 +82,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
                 .filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, null, findAll.getContent().stream().map(item -> item.getCustomerId()).distinct()
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), null, findAll.getContent().stream().map(item -> item.getCustomerId()).distinct()
                 .filter(Objects::nonNull).collect(Collectors.toList()));
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
         Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item -> mapOrderReturnDTO(item, users, customers, saleOrders));
@@ -503,7 +503,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDTO> list = new ArrayList<>();
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
         List<UserDTO> users = userClient.getUserByIdsV1(saleOrders.stream().map(item -> item.getSalemanId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, 1, saleOrders.stream().map(item -> item.getCustomerId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), 1, saleOrders.stream().map(item -> item.getCustomerId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
         for (SaleOrder saleOrder : saleOrders) {
             SaleOrderDTO listForChoose = mapSaleOrderDTO(saleOrder, users, customers);
             list.add(listForChoose);

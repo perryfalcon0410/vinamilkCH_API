@@ -24,7 +24,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
    /* @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
     Page<Customer> getCustomerInfo(Integer status, List<Long> customerIds, Pageable pageable);*/
 
-    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode) " +
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone) " +
             " FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
     Page<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, Pageable pageable);
 
@@ -103,8 +103,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     @Query(value = "SELECT distinct c.id " +
             " FROM Customer c WHERE 1 = 1 " +
             " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
-            "   OR c.phone like %:phone OR c.mobiPhone like %:phone ) " +
-            " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone ) "
     )
     List<Long> getCustomersIds(String name, String code, String phone);
 }

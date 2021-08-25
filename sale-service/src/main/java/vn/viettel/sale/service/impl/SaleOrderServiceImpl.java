@@ -554,7 +554,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
         Page<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, pageable);
 
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, null, saleOrders.stream().map(item -> item.getCustomerId())
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
 
         return saleOrders.map(so->{
