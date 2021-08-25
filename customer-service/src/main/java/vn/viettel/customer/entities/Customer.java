@@ -26,8 +26,6 @@ public class Customer extends BaseEntity {
     @Column(name = "LAST_NAME")
     private String lastName;
     @Column(name = "DOB")
-//    @Temporal(TemporalType.DATE)
-//    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dob;
     @Column(name = "PLACE_OF_BIRTH")
     private String placeOfBirth;

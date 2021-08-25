@@ -633,9 +633,9 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
+    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, Pageable pageable) {
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
-        List<Long> ids = repository.getCustomerIds( keyUpper , customerPhone);
+        List<Long> ids = repository.getCustomerIds( keyUpper, customerPhone, pageable).getContent();
         return ids;
     }
 

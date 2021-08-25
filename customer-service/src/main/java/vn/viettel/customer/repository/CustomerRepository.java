@@ -40,9 +40,9 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " AND c.status = 1 ORDER BY c.updatedAt DESC")
     List<CustomerDTO> getCustomerDefault(Long shopId);
 
-    @Query(value = "SELECT c.id FROM Customer c where ( c.customerCode like %:nameOrCode% OR c.nameText like %:nameOrCode% ) " +
+    @Query(value = "SELECT DISTINCT c.id FROM Customer c where ( c.customerCode like %:nameOrCode% OR c.nameText like %:nameOrCode% ) " +
             "and c.mobiPhone like %:customerPhone ")
-    List<Long> getCustomerIds(String nameOrCode, String customerPhone);
+    Page<Long> getCustomerIds(String nameOrCode, String customerPhone, Pageable pageable);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO (c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +

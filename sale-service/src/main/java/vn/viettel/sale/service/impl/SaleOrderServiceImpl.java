@@ -4,10 +4,7 @@ import com.amazonaws.services.dynamodbv2.xspec.L;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
@@ -69,12 +66,38 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = null;
         int type = 1;
+        Sort customerSort = null;
+        Sort orderSort = null;
+
+        if(pageable.getSort() != null) {
+            for (Sort.Order order : pageable.getSort()) {
+                if(order.getProperty().equals("customerNumber")){
+                    Sort sorted = Sort.by("customerCode", order.getProperty());
+                    if(customerSort == null) customerSort = sorted;
+                    else customerSort.and(sorted);
+                }else if(order.getProperty().equals("customerName")){
+                    Sort sorted = Sort.by("nameText", order.getProperty());
+                    if(customerSort == null) customerSort = sorted;
+                    else customerSort.and(sorted);
+                }else{
+                    Sort sorted = Sort.by(order.getDirection(), order.getProperty());
+                    if(orderSort == null) orderSort = sorted;
+                    else orderSort.and(sorted);
+                }
+            }
+        }
+
         if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
-            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+            Pageable cusPage = PageRequest.of(0, 1000000);
+            if(customerSort != null) cusPage = PageRequest.of(0, 1000000, customerSort);
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone(), cusPage).getData();
             if (customerIds == null || customerIds.isEmpty()) {
                 customerIds = Arrays.asList(-1L);
             }
         }
+
+        Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
 
         String orderNumber = saleOrderFilter.getOrderNumber();
         if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
@@ -86,7 +109,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
                 .and(SaleOderSpecification.type(type))
                 .and(SaleOderSpecification.hasShopId(shopId))
-                .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable);
+                .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), orderPage);
         SaleOrderTotalResponse totalResponse = repository.getSaleOrderTotal(shopId, customerIds, orderNumber, type, saleOrderFilter.getUsedRedInvoice(),
                 fromDate, toDate);
 

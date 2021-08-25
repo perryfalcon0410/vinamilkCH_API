@@ -199,8 +199,9 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/ids-customer"})
     public Response<List<Long>> getIdCustomerBy(@RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
-                                                @RequestParam(value = "customerCode", required = false, defaultValue = "") String customerCode) {
-        return new Response<List<Long>>().withData(service.getIdCustomerBy(searchKeywords, customerCode));
+                                                @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
+                                                Pageable pageable) {
+        return new Response<List<Long>>().withData(service.getIdCustomerBy(searchKeywords, customerPhone, pageable));
     }
 
     @ApiOperation(value = "Tìm kiếm khách hàng mặc định của shop đang login")
