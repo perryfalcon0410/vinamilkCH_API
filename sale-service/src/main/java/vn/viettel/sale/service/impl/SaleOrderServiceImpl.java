@@ -8,6 +8,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -66,19 +67,15 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = null;
         int type = 1;
-        Sort customerSort = null;
+        List<SortDTO> customerSorts = new ArrayList<>();
         Sort orderSort = null;
-
+        List<Long> customerIdsSort = null;
         if(pageable.getSort() != null) {
             for (Sort.Order order : pageable.getSort()) {
                 if(order.getProperty().equals("customerNumber")){
-                    Sort sorted = Sort.by("customerCode", order.getProperty());
-                    if(customerSort == null) customerSort = sorted;
-                    else customerSort.and(sorted);
+                    customerSorts.add(new SortDTO("customerCode", order.getDirection().toString()));
                 }else if(order.getProperty().equals("customerName")){
-                    Sort sorted = Sort.by("nameText", order.getProperty());
-                    if(customerSort == null) customerSort = sorted;
-                    else customerSort.and(sorted);
+                    customerSorts.add(new SortDTO("nameText", order.getDirection().toString()));
                 }else{
                     Sort sorted = Sort.by(order.getDirection(), order.getProperty());
                     if(orderSort == null) orderSort = sorted;
@@ -88,9 +85,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         }
 
         if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
-            Pageable cusPage = PageRequest.of(0, 1000000);
-            if(customerSort != null) cusPage = PageRequest.of(0, 1000000, customerSort);
-            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone(), cusPage).getData();
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
             if (customerIds == null || customerIds.isEmpty()) {
                 customerIds = Arrays.asList(-1L);
             }
@@ -104,21 +99,31 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
         LocalDateTime toDate = DateUtils.convertToDate(saleOrderFilter.getToDate());
 
-        Page<SaleOrder> findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                .and(SaleOderSpecification.type(type))
-                .and(SaleOderSpecification.hasShopId(shopId))
-                .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), orderPage);
+        List<Long> saleCusIds = repository.getCustomerIds( fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice());
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
+
+        Page<SaleOrder> findAll = null;
+        if(customerSorts == null || customerSorts.isEmpty()) {
+            findAll = repository.findALlSales(customerIds, fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice(), orderPage);
+        }else{
+            customerIdsSort = new ArrayList<>();
+            long i =  0;
+            for(CustomerDTO customer : customers) {
+                customerIdsSort.add(customer.getId());
+                customerIdsSort.add(i);
+                i++;
+            }
+            findAll = repository.findALlSales(customerIds, fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice(), customerIdsSort, orderPage);
+        }
+
         SaleOrderTotalResponse totalResponse = repository.getSaleOrderTotal(shopId, customerIds, orderNumber, type, saleOrderFilter.getUsedRedInvoice(),
                 fromDate, toDate);
-
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
                 .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
         Page<SaleOrderDTO> saleOrderDTOS = findAll.map(item -> mapSaleOrderDTO(item, customers, users));
 
         CoverResponse coverResponse = new CoverResponse(saleOrderDTOS, totalResponse);
+
         return coverResponse;
     }
 
@@ -549,7 +554,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
         Page<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, pageable);
 
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
 
         return saleOrders.map(so->{

@@ -2,6 +2,8 @@ package vn.viettel.customer.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.service.BaseService;
@@ -34,7 +36,7 @@ public interface CustomerService extends BaseService {
 
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 
-    List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, Pageable pageable);
+    List<Long> getIdCustomerBy(String searchKeywords, String customerPhone);
 
     ByteArrayInputStream exportExcel(CustomerFilter filter) throws IOException;
 
@@ -45,7 +47,7 @@ public interface CustomerService extends BaseService {
     /*
     Lấy danh sách thông tin kh theo danh sách id
      */
-    List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds);
+    List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, List<SortDTO> sorts);
 
     /*
     Lấy danh sách khách hàng. Tối ưu ko gọi db sd trong export excel red invoice

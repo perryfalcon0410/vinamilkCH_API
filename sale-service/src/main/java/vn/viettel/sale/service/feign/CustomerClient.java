@@ -1,8 +1,11 @@
 package vn.viettel.sale.service.feign;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
 import vn.viettel.core.messaging.*;
@@ -19,15 +22,15 @@ public interface CustomerClient {
     @GetMapping("/api/v1/customers/{id}")
     Response<CustomerDTO> getCustomerByIdV1(@PathVariable(name = "id") Long id);
 
-    @GetMapping("/api/v1/customers/feign-cusinfo")
-    List<CustomerDTO> getCustomerInfoV1(@RequestParam(required = false) Integer status, @RequestParam(required = false) List<Long> customerIds);
+    @PostMapping("/api/v1/customers/feign-cusinfo")
+    List<CustomerDTO> getCustomerInfoV1(@RequestBody List<SortDTO> sorts, @RequestParam(required = false) Integer status, @RequestParam(required = false) List<Long> customerIds);
 
     @GetMapping("/api/v1/customers/ids-customer-by-keyword")
     Response<List<Long>> getIdCustomerBySearchKeyWordsV1(@RequestParam("searchKeywords") String searchKeywords);
 
     @GetMapping("/api/v1/customers/ids-customer")
-    Response<List<Long>> getIdCustomerByV1(@RequestParam("searchKeywords") String searchKeywords,
-                                           @RequestParam(value = "customerPhone", required = false) String customerPhone, Pageable pageable);
+    Response<List<Long>> getIdCustomerByV1(@RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
+                                           @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone);
 
     @GetMapping("/api/v1/customers/phone/{phone}")
     Response<List<CustomerDTO>> getCustomerByMobiPhoneV1(@PathVariable String phone);

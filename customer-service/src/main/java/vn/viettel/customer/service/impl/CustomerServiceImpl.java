@@ -7,6 +7,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.*;
@@ -633,20 +634,32 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, Pageable pageable) {
+    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
-        List<Long> ids = repository.getCustomerIds( keyUpper, customerPhone, pageable).getContent();
+        List<Long> ids = repository.getCustomerIds( keyUpper, customerPhone);
         return ids;
     }
 
     @Override
-    public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds){
+    public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, List<SortDTO> sorts){
         if (customerIds == null || customerIds.isEmpty()) return null;
-        List<Customer> customers = repository.getCustomerInfo(status, customerIds);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
+        Pageable pageable = PageRequest.of(0, 1000000);
+        if(sorts != null && ! sorts.isEmpty()) {
+                Sort customerSort = null;
+                for(SortDTO dto: sorts) {
+                    Sort sorted = Sort.by(Sort.Direction.valueOf(dto.getDirection()), dto.getSortName());
+                    if(customerSort == null) customerSort = sorted;
+                    else customerSort.and(sorted);
+                }
+            pageable = PageRequest.of(0, 1000000, customerSort);
+        }
+
+        List<CustomerDTO> customers = repository.getCustomerInfo(status, customerIds, pageable).getContent();
+        /*modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<MemberCustomer> memberCustomers = memBerCustomerRepos.getMemberCustomers(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
-        return customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());
+        List<CustomerDTO> customerDTOS = customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());*/
+        return customers;
     }
 
     @Override
