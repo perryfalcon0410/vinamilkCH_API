@@ -387,7 +387,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         List<CustomerDTO> customers = null;
         List<Long> customerIds = hddtExcels.stream().map(HddtExcel::getCustomerId).collect(Collectors.toList());
-        if(!customerIds.isEmpty()) customers = customerClient.getAllCustomerToRedInvocieV1(customerIds).getData();
+        if(!customerIds.isEmpty()) customers = customerClient.getCustomerInfoV1(null, null, customerIds);
         Map<Long, CustomerDTO> lstCustomer = new HashMap<>();
         if(customers!=null) {
             for(CustomerDTO customer: customers) {

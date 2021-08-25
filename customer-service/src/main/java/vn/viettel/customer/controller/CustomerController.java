@@ -228,10 +228,10 @@ public class CustomerController extends BaseController {
         return service.getCustomerInfo(status, customerIds, sorts);
     }
 
-    @GetMapping(value = { V1 + root + "/feign-customers"})
-    public Response<List<CustomerDTO>> getAllCustomerToRedInvocie(@RequestParam List<Long> customerIds) {
-        return new Response<List<CustomerDTO>>().withData(service.getAllCustomerToRedInvoice(customerIds));
-    }
+//    @GetMapping(value = { V1 + root + "/feign-customers"})
+//    public Response<List<CustomerDTO>> getAllCustomerToRedInvocie(@RequestParam List<Long> customerIds) {
+//        return new Response<List<CustomerDTO>>().withData(service.getAllCustomerToRedInvoice(customerIds));
+//    }
 
     @Override
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {

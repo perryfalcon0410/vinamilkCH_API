@@ -100,4 +100,11 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     )
     List<CustomerDTO> searchForAutoComplete(String name, String code, String address, String phone);
 
+    @Query(value = "SELECT distinct c.id " +
+            " FROM Customer c WHERE 1 = 1 " +
+            " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone ) " +
+            " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
+    )
+    List<Long> getCustomersIds(String name, String code, String phone);
 }

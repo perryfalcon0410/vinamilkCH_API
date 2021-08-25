@@ -627,17 +627,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public List<Long> getIdCustomerBySearchKeyWords(String searchKeywords) {
-        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
-        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
-        return ids;
+        if(searchKeywords == null || searchKeywords.isEmpty()) return new ArrayList<>();
+//        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+//        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
+//        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
+        String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
+        return repository.getCustomersIds(keyUpper, searchKeywords.toUpperCase(Locale.ROOT), searchKeywords);
     }
 
     @Override
     public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
-        List<Long> ids = repository.getCustomerIds( keyUpper, customerPhone);
-        return ids;
+        return repository.getCustomerIds( keyUpper, customerPhone);
     }
 
     @Override
@@ -662,12 +663,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return customers;
     }
 
-    @Override
-    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
-        List<Customer> customers = repository.getCustomersByIds(customerIds);
-        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-        return customerDTOS;
-    }
+//    @Override
+//    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
+//        List<Customer> customers = repository.getCustomersByIds(customerIds);
+//        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
+//        return customerDTOS;
+//    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

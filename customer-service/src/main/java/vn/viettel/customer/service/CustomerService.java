@@ -52,7 +52,7 @@ public interface CustomerService extends BaseService {
     /*
     Lấy danh sách khách hàng. Tối ưu ko gọi db sd trong export excel red invoice
      */
-    List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds);
+//    List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds);
 
     /*
     Update khách hàng trong bán hàng
