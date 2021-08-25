@@ -19,6 +19,19 @@ import java.util.List;
 
 public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpecificationExecutor<SaleOrder> {
 
+    @Query(value = "SELECT s FROM SaleOrder s " +
+            "  WHERE s.shopId =:shopId " +
+            "   AND ( COALESCE(:customerIds,NULL) IS NULL OR s.customerId IN (:customerIds)) " +
+            "   AND ( :fromDate IS NULL OR s.orderDate >= :fromDate) " +
+            "   AND ( :toDate IS NULL OR s.orderDate <= :toDate) " +
+            "   AND ( :orderNumber IS NULL OR upper(s.orderNumber) LIKE %:orderNumber% ) " +
+            "   AND ( :type IS NULL OR s.type =:type) " +
+            "   AND ( :usedRedInvoice IS NULL OR s.usedRedInvoice =:usedRedInvoice ) " +
+            " ORDER BY s.orderNumber desc ")
+    Page<SaleOrder> findALlSales(List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate,
+                                           String orderNumber, Integer type, Long shopId, Integer usedRedInvoice, Pageable pageable);
+
+
     @Query(value = "SELECT count(so) FROM SaleOrder so WHERE so.fromSaleOrderId = :id AND so.type = 2 ")
     Integer checkIsReturn(Long id);
 
