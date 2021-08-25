@@ -60,13 +60,13 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
     }
 
     @Override
-    public void syncXmlPo(InputStream input, WareHouseType wareHouseType) throws IOException {
+    public void syncXmlPo(InputStream input, WareHouseType wareHouseType, List<Long> poConfirmIds) throws IOException {
         Class<?>[] classes = new Class[] { Line.class, PODetail.class, POHeader.class, NewData.class, NewDataSet.class};
         xstream.processAnnotations(classes);
         xstream.allowTypes(classes);
         NewDataSet newDataSet = (NewDataSet) xstream.fromXML(input);
         List<NewData> lstNewData = newDataSet.getLstNewData();
-
+        
         for(NewData  data :lstNewData) {
             POHeader poHeader = data.getPoHeader();
             if(poHeader != null )
@@ -149,10 +149,10 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 String poCode = poHeader.getDistCode()+"_"+id+"_POS";
                 poConfirm.setPoCode(poCode);
                 repository.save(poConfirm);
+                poConfirmIds.add(poConfirm.getId());
             }
 
         }
-
     }
 
     @Override
@@ -173,14 +173,14 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
         if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
 
         HashMap<String, InputStream> newPos = connectFTP.getFiles(readPath, newPo, shopDTO.getShopCode());
-
+        List<Long> poConfirmIds = new ArrayList<Long>();
         if(newPos != null){
             List<WareHouseType> wareHouseTypes = wareHouseTypeRepo.findDefault();
-            if(wareHouseTypes.isEmpty()) return new PoConfirmXmlDTO(true, "Không tìm thấy loại kho");
+            if(wareHouseTypes.isEmpty()) return new PoConfirmXmlDTO(true, "Không tìm thấy loại kho", poConfirmIds);
             WareHouseType wareHouseType = wareHouseTypes.get(0);
             for (Map.Entry<String, InputStream> entry : newPos.entrySet()){
                 try {
-                    this.syncXmlPo(entry.getValue(), wareHouseType);
+                	this.syncXmlPo(entry.getValue(), wareHouseType, poConfirmIds);
                     entry.getValue().close();
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     stt++;
@@ -190,11 +190,11 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 }
             }
             connectFTP.disconnectFTPServer();
-            return new PoConfirmXmlDTO(true, "Đồng bộ thành công "+stt+" file");
+            return new PoConfirmXmlDTO(true, "Đồng bộ thành công "+stt+" file", poConfirmIds);
         }
 
         connectFTP.disconnectFTPServer();
-        return new PoConfirmXmlDTO(true, "Không có file đồng bộ");
+        return new PoConfirmXmlDTO(true, "Không có file đồng bộ", poConfirmIds);
     }
 
 

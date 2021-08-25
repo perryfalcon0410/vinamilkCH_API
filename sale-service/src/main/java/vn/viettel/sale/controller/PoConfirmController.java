@@ -7,12 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.service.PoConfirmService;
 import vn.viettel.sale.service.dto.PoConfirmXmlDTO;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,6 +26,8 @@ public class PoConfirmController extends BaseController {
 
     @Autowired
     PoConfirmService poConfirmService;
+    @Autowired
+    JMSSender jmsSender;
 
     @ApiOperation(value = "Api dùng để đồng bộ lại danh sách Po Confirm lên db của đơn bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -31,6 +37,7 @@ public class PoConfirmController extends BaseController {
     @GetMapping(value = { V1 + root + "/xml"})
     public Response<Boolean> updatePoCofirm(HttpServletRequest httpRequest){
         PoConfirmXmlDTO result = poConfirmService.updatePoCofirm(this.getShopId());
+        sendSynRequest(JMSType.po_confirm, result.getPoConfirmIds());
         Response<Boolean> response = new Response<>();
         response.setStatusValue(result.getStatus());
         if(result.getResult() == true)
@@ -43,5 +50,15 @@ public class PoConfirmController extends BaseController {
         }
         return response.withData(result.getResult());
     }
+    
+	private void sendSynRequest(String type, List<Long> lstIds) {
+		try {
+			if(lstIds != null && !lstIds.isEmpty()) {
+				jmsSender.sendMessage(type, lstIds);
+			}
+		} catch (Exception ex) {
+			LogFile.logToFile("PoConfirmController.sendSynRequest", type, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+		}
+	}
 
 }
