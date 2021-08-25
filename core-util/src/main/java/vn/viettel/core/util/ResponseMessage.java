@@ -325,8 +325,9 @@ public enum ResponseMessage {
     STOCK_TOTALS_NOT_FOUND_MESSAGE(9094, "không có thông tin tồn kho"),
     PRODUCT_ORDER_NOT_EMPTY(9095, "Danh sách sản phẩm mua không được rỗng"),
     PRODUCT_VAT_RED_INVOICE_NOT_FOUND(9096, "Sản phẩm %s chưa có thông tin VAT"),
-    TOTAL_FREE_PRODUCT_GREATER_THAN_ZERO(9097, "Phải nhập số lượng cho khuyến mãi %s"),
-    ONLINE_ORDER_PRODUCT_IS_EMPTY(2004, "Không có sản phẩm mua"),
+    TOTAL_FREE_PRODUCT_GREATER_THAN_ZERO(9097, "Phải nhập số lượng tặng cho khuyến mãi %s"),
+    ONLINE_ORDER_PRODUCT_IS_EMPTY(9098, "Không có sản phẩm mua"),
+    PROMOTION_NOT_FOUND(9099,"Không tìm thấy khuyến mãi cho đơn hàng"),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
@@ -335,7 +336,7 @@ public enum ResponseMessage {
     IDENTITY_CARD_CODE_HAVE_EXISTED(10001, "Chứng minh nhân dân đã tồn tại"),
 
     /**
-     * Voucher 11000-11999
+     * Voucher - promotion 11000-11999
      */
     VOUCHER_DOES_NOT_EXISTS(11000, "Voucher không tồn tại"),
     VOUCHER_CODE_MUST_BE_NOT_BLANK(11001, "Mã Voucher không được rỗng"),
@@ -351,6 +352,9 @@ public enum ResponseMessage {
     VOUCHER_PROGRAM_DATE_REJECT(11011, "Chương trình voucher đã hết hiệu lực hoặc chưa được kích hoạt"),
     VOUCHER_PROGRAM_IS_USED(11012, "Voucher đã sử dụng"),
     APPARAM_VOUCHER_NOT_EXITS(11013, "Bạn chưa được khai báo sử dụng chức năng. Vui lòng liên hệ bộ phận hỗ trợ để được tư vấn."),
+    UPDATE_VOUCHER_FAILED(11014, "Cập nhật voucher thất bại."),
+    UPDATE_PROMOTION_DISCOUNT_CODE_FAILED(11015, "Cập nhật mã giảm giá thất bại."),
+    UPDATE_PROMOTION_SHOP_MAP_FAILED(11016, "Cập nhật số xuất thất bại."),
     /**
      * Product 12000-12999
      */

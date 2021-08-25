@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.service.dto.StockCountingDTO;
 
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
@@ -26,4 +27,16 @@ public interface StockCountingRepository extends BaseRepository<StockCounting>, 
             " And s.createdAt>= :startDate " +
             " ORDER BY s.stockCountingCode desc ")
     Page<StockCounting> getLastStockCounting(Long shopId, LocalDateTime startDate, Pageable pageable);
+
+    /*WareHouseType w: w  ko đổi do sort FE  w.wareHouseTypeName*/
+    @Query(value = "SELECT NEW vn.viettel.sale.service.dto.StockCountingDTO(s.id," +
+            " s.stockCountingCode, s.countingDate, s.shopId, s.wareHouseTypeId, w.wareHouseTypeName, s.createdBy, s.updatedBy ) " +
+            " FROM StockCounting s LEFT JOIN WareHouseType w ON w.id = s.wareHouseTypeId " +
+            " WHERE s.shopId = :shopId  " +
+            " AND (:stockCountingCode IS NULL OR upper(s.stockCountingCode) LIKE %:stockCountingCode%) " +
+            " AND (:fromDate IS NULL OR s.countingDate >= :fromDate) " +
+            " AND (:toDate IS NULL OR s.countingDate <= :toDate) " +
+            " AND (:warehouseTypeId IS NULL OR s.wareHouseTypeId = :warehouseTypeId) ")
+    Page<StockCountingDTO> findStockCounting(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Long shopId, Pageable pageable);
+
 }

@@ -14,4 +14,11 @@ public interface PromotionShopMapRepository extends BaseRepository<PromotionShop
     @Query(value = "SELECT p FROM PromotionShopMap p " +
             "WHERE p.promotionProgramId =:programId AND p.shopId =:shopId AND p.status = 1 ")
     List<PromotionShopMap> findByPromotionProgramIdAndShopId(Long programId, Long shopId);
+
+
+    @Query(value = "SELECT p FROM PromotionShopMap p " +
+            " Join PromotionProgram  pp On pp.id = p.promotionProgramId " +
+            "WHERE pp.promotionProgramCode =:code AND p.shopId =:shopId AND p.status = 1 ")
+   PromotionShopMap findByPromotionProgramCode(String code, Long shopId);
+
 }

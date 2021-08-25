@@ -86,7 +86,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
 
         StockTotalExcelRequest input = new StockTotalExcelRequest(listResults,
                 new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount()));
-        StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, DateUtils.convert2Local(stockDate));
+        StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, shop.getParentShop(), DateUtils.convert2Local(stockDate));
 
        return exportExcel.export();
     }

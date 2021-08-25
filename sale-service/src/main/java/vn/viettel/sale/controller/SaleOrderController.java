@@ -48,8 +48,8 @@ public class SaleOrderController extends BaseController {
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                                @SortDefault.SortDefaults({
-                                                                                                   @SortDefault(sort = "orderDate", direction = Sort.Direction.ASC),
-                                                                                                   @SortDefault(sort = "orderNumber", direction = Sort.Direction.ASC)
+                                                                                                   @SortDefault(sort = "orderDate", direction = Sort.Direction.DESC),
+                                                                                                   @SortDefault(sort = "orderNumber", direction = Sort.Direction.DESC)
                                                                                                })
                                                                                                Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, orderNumber, usedRedInvoice, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));

@@ -3,6 +3,7 @@ package vn.viettel.promotion.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.exception.ValidateException;
@@ -160,7 +161,6 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
                 , cusCardTypeId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<PromotionProgramDTO> dtos  = programs.stream().map(program ->modelMapper.map(program, PromotionProgramDTO.class)).collect(Collectors.toList());
-       /* System.gc();*/
         return dtos;
     }
 
@@ -217,5 +217,54 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             return dto;
         }).collect(Collectors.toList());
         return detailDTOS;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean returnMGG(String orderCode, Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        List<PromotionProgramDiscount> discounts = promotionDiscountRepository.getPromotionProgramDiscountByOrderNumber(orderCode);
+        for(PromotionProgramDiscount discount: discounts) {
+            List<PromotionShopMap> shopMapDB = promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getId());
+            if(shopMapDB.isEmpty() && shopDTO.getParentShop() !=null)
+                shopMapDB = promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getParentShopId());
+            if(!shopMapDB.isEmpty()) {
+                PromotionShopMap shopMap = shopMapDB.get(0);
+                Long qtyRecived = shopMap.getQuantityReceived()!=null?shopMap.getQuantityReceived():0;
+                shopMap.setQuantityReceived(qtyRecived - discount.getActualDiscountAmount().longValue());
+                promotionShopMapRepository.save(shopMap);
+            }
+
+            discount.setIsUsed(0);
+            discount.setOrderDate(null);
+            discount.setOrderCustomerCode(null);
+            discount.setActualDiscountAmount(null);
+            discount.setOrderShopCode(null);
+            discount.setOrderAmount(null);
+            discount.setOrderNumber(null);
+            promotionDiscountRepository.save(discount);
+
+        }
+
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean returnPromotionShopmap(Map<String, Double> shopMaps, Long shopId) {
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+
+        for (Map.Entry<String, Double> entry : shopMaps.entrySet()) {
+            PromotionShopMap shopMapDB = promotionShopMapRepository.findByPromotionProgramCode(entry.getKey(), shopDTO.getId());
+            if(shopMapDB == null && shopDTO.getParentShop() !=null)
+                shopMapDB = promotionShopMapRepository.findByPromotionProgramCode(entry.getKey(), shopDTO.getParentShop().getId());
+            if(shopMapDB!=null) {
+                Long qtyRecived = shopMapDB.getQuantityReceived()!=null?shopMapDB.getQuantityReceived():0;
+                shopMapDB.setQuantityReceived(qtyRecived - entry.getValue().longValue());
+                promotionShopMapRepository.save(shopMapDB);
+            }
+        }
+
+        return true;
     }
 }

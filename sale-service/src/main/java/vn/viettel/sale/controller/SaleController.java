@@ -67,13 +67,13 @@ public class SaleController extends BaseController {
     })
     @PostMapping(value = { V1 + root })
     public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
-        if (request.getProducts().isEmpty()) throw new ValidateException(ResponseMessage.EMPTY_LIST);
         HashMap<String,List<Long>> syncmap = new HashMap<>();
         syncmap = (HashMap<String,List<Long>>) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
         List<Long> saleOrderIds = syncmap.get(JMSType.sale_order);
         sendSynRequest(JMSType.vouchers, syncmap.get(JMSType.vouchers));
         sendSynRequest(JMSType.promotion_program_discount, syncmap.get(JMSType.promotion_program_discount));
         sendSynRequest(JMSType.sale_order, saleOrderIds);
+        
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", saleOrderIds.get(0));
@@ -84,10 +84,6 @@ public class SaleController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/order-promotions"})
     public Response<SalePromotionCalculationDTO> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
-        if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
-            throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
-        }
-
         SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), null, false);
         return new Response<SalePromotionCalculationDTO>().withData(list);
     }

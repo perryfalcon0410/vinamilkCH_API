@@ -15,7 +15,6 @@ import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 @ApiModel(description = "Danh sách sản phẩm mua")
 public class ProductOrderRequest {
 
-    @NotNull(responseMessage = ResponseMessage.ID_MUST_NOT_BE_NULL)
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
     @ApiModelProperty(notes = "Sản phẩm combo")
@@ -25,7 +24,6 @@ public class ProductOrderRequest {
     @ApiModelProperty(notes = "Tên sản phẩm")
     private String productName;
     @ApiModelProperty(notes = "Số lượng")
-    @NumberGreaterThanZero(responseMessage = ResponseMessage.NUMBER_GREATER_THAN_ZERO)
     private Integer quantity;
 
 }

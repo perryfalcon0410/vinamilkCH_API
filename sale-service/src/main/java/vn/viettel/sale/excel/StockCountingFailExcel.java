@@ -23,13 +23,11 @@ public class StockCountingFailExcel {
     private SXSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
     private CellStyle headerStyle;
-    private ShopDTO shop;
     private LocalDateTime date;
 
-    public StockCountingFailExcel(List<StockCountingExcel> exchangeTransExcelList, ShopDTO shop, LocalDateTime date) {
+    public StockCountingFailExcel(List<StockCountingExcel> exchangeTransExcelList,  LocalDateTime date) {
         this.stockCountingExcels = exchangeTransExcelList;
         workbook = new SXSSFWorkbook();
-        this.shop = shop;
         this.date = date;
     }
     private void writeHeaderLine() {

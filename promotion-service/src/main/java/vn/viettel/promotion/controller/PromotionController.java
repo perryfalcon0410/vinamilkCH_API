@@ -20,6 +20,7 @@ import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -250,5 +251,29 @@ public class PromotionController extends BaseController {
         List<PromotionSaleProductDTO> response = promotionProgramService.findPromotionSaleProductByProgramId(programId);
         return new Response<List<PromotionSaleProductDTO>>().withData(response);
     }
+
+
+    @ApiOperation(value = "Update MGG cho đơn trả")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @PutMapping(value = { V1 + root + "/mgg/return"})
+    public Response<Boolean> returnMGG(@RequestParam String orderNumber) {
+        Boolean result = promotionProgramService.returnMGG(orderNumber, this.getShopId());
+        return new Response<Boolean>().withData(result);
+    }
+
+    @ApiOperation(value = "Update Shop Map cho đơn trả")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @PutMapping(value = { V1 + root + "/promotion-shop-map/return"})
+    public Response<Boolean> returnPromotionShopmap(@RequestBody Map<String, Double> shopMaps) {
+        Boolean result = promotionProgramService.returnPromotionShopmap(shopMaps, this.getShopId());
+        return new Response<Boolean>().withData(result);
+    }
+
 
 }

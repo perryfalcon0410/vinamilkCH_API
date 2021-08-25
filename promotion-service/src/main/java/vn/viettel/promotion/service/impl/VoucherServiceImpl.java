@@ -140,6 +140,24 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
         return voucherDTO;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean returnVoucher(Long saleOrderId) {
+        List<Voucher> vouchers = repository.getVoucherBySaleOrderId(saleOrderId);
+        for(Voucher voucher: vouchers) {
+            voucher.setIsUsed(false);
+            voucher.setSaleOrderId(null);
+            voucher.setOrderNumber(null);
+            voucher.setPriceUsed(null);
+            voucher.setOrderCustomerCode(null);
+            voucher.setOrderShopCode(null);
+            voucher.setOrderAmount(null);
+            voucher.setOrderDate(null);
+        }
+
+        return true;
+    }
+
     private VoucherDTO mapVoucherToVoucherDTO(Voucher voucher) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         VoucherDTO voucherDTO = modelMapper.map(voucher, VoucherDTO.class);

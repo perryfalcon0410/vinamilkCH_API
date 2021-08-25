@@ -18,4 +18,8 @@ public interface MemBerCustomerRepository extends BaseRepository<MemberCustomer>
     @Query("SELECT mem FROM MemberCustomer mem Join MemberCard card On mem.memberCardId = card.id " +
             " Where mem.customerId In :customerIds And card.status = 1")
     List<MemberCustomer> getMemberCustomers(List<Long> customerIds);
+
+    @Query("SELECT mem.scoreCumulated FROM MemberCustomer mem Join MemberCard card On mem.memberCardId = card.id " +
+            " Where mem.customerId = :customerId And card.status = 1")
+    Double getScoreCumulated(Long customerId);
 }

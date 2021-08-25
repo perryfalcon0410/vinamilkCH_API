@@ -29,6 +29,7 @@ public class ReportVoucherExcel {
     private SXSSFSheet sheet1;
 
     private ShopDTO shopDTO;
+    private ShopDTO parentShop;
     private List<ReportVoucherDTO> reportVoucherDTOS;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime fromDate;
@@ -40,8 +41,9 @@ public class ReportVoucherExcel {
     private XSSFCellStyle styleCellTotalTable;
 
     public  ReportVoucherExcel(
-            ShopDTO shopDTO, List<ReportVoucherDTO> reportVoucherDTOS) {
+            ShopDTO shopDTO, ShopDTO parentShop, List<ReportVoucherDTO> reportVoucherDTOS) {
         this.shopDTO = shopDTO;
+        this.parentShop = parentShop;
         this.reportVoucherDTOS = reportVoucherDTOS;
 
         workbook = new SXSSFWorkbook();
@@ -98,17 +100,18 @@ public class ReportVoucherExcel {
             sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("J1:S1"));
             ExcelPoiUtils.createCell(row, 0, shopDTO.getShopName(), style);
-            ExcelPoiUtils.createCell(row, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
-
             sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("J2:S2"));
             ExcelPoiUtils.createCell(row1, 0, shopDTO.getAddress(), style1);
-            ExcelPoiUtils.createCell(row1, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
-
             sheet.addMergedRegion(CellRangeAddress.valueOf("A3:I3"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("J3:S3"));
-            ExcelPoiUtils.createCell(row2, 0,"Tel: " + shopDTO.getMobiPhone() + " Fax: " + shopDTO.getFax(), style1);
-            ExcelPoiUtils.createCell(row2, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
+            ExcelPoiUtils.createCell(row2, 0,"Tel: " + (shopDTO.getMobiPhone()!=null? shopDTO.getMobiPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), style1);
+
+            if(parentShop != null) {
+                ExcelPoiUtils.createCell(row1, 9, parentShop.getShopName(), style1);
+                ExcelPoiUtils.createCell(row, 9, parentShop.getAddress(), style);
+                ExcelPoiUtils.createCell(row2, 9, "Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), style1);
+            }
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A6:W6"));
             ExcelPoiUtils.createCell(row5, 0, "BÁO CÁO DANH SÁCH VOUCHER", style2);

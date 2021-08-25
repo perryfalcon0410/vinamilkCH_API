@@ -53,17 +53,16 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
     }
     @Override
     public List<AreaSearch> getDistrictsToSearchCustomer(Long shopId) {
-        List<Area> areas = repository.getAllDistrict();
+
         ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
-        Area precinct = repository.findById(shopDTO.getAreaId()).orElse(null);
         Long districtId = null;
-        if(precinct != null)
-        {
-            districtId = precinct.getParentAreaId();
+       if(shopDTO.getAreaId() != null) {
+            Area precinct = repository.findById(shopDTO.getAreaId()).orElse(null);
+             if(precinct!=null) districtId = precinct.getParentAreaId();
         }
-        Long finalDistrictId = districtId;
-        List<AreaSearch> areaSearches = areas.stream().map(area -> this.mapAreaToAreaSearch(area, finalDistrictId)).collect(Collectors.toList());
-        return areaSearches;
+
+        List<AreaSearch> areas = repository.getAllDistrict(districtId);
+        return areas;
     }
 
     @Override
@@ -100,12 +99,4 @@ public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> imple
         return areaDefaultDTO;
     }
 
-    private AreaSearch mapAreaToAreaSearch(Area area, Long districtId)
-    {
-        String provinceAndDistrict = area.getProvinceName()+" - "+area.getDistrictName();
-        AreaSearch areaSearch = modelMapper.map(area,AreaSearch.class);
-        areaSearch.setProvinceAndDistrictName(provinceAndDistrict);
-        areaSearch.setDefault((areaSearch.getId().equals(districtId)) ? true : false);
-        return areaSearch;
-    }
 }

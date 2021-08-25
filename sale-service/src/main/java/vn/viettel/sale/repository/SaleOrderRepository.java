@@ -25,9 +25,6 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 1")
     SaleOrder getSaleOrderByNumber(String ON);
 
-    @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 2")
-    SaleOrder getOrderReturnByNumber(String ON);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE )
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "1000")})
     @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId And s.createdAt>= :startDate" +
@@ -49,7 +46,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT SUM(total) FROM SaleOrder WHERE customerId =:customerId AND orderDate BETWEEN :fromDate AND :toDate ")
     Double getTotalBillForTheMonthByCustomerId(Long customerId, LocalDate fromDate, LocalDate toDate);
 
-    @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum(-so.amount), sum(-so.total), sum(-so.totalPromotion) ) " +
+    @Query(value = "SELECT new vn.viettel.sale.messaging.SaleOrderTotalResponse(sum(-so.amount), sum(-so.total), sum(-so.totalPromotionVat) ) " +
             " FROM SaleOrder so" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 2 and so.shopId =:shopId " +
             " AND ( COALESCE(:customerIds,NULL) IS NULL OR so.customerId IN (:customerIds)) " +
@@ -83,18 +80,20 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     )
     List<SaleOrder> getSaleOrderForReturn(Long shopId, String orderNumber, List<Long> customerIds, String keyWord, LocalDateTime fromDate, LocalDateTime toDate,LocalDateTime newFromDate);
 
-    @Query(value = "SELECT so " +
-            " FROM SaleOrder so " +
+    /*Đơn có SP bán */
+    @Query(value = "SELECT distinct so " +
+            " FROM SaleOrder so join SaleOrderDetail de On de.saleOrderId = so.id" +
             " WHERE ( :orderNumber is null or upper(so.orderNumber) LIKE %:orderNumber% ) AND so.type = 1 and so.shopId =:shopId " +
             " AND (COALESCE(:customerIds, NULL) IS NULL OR so.customerId IN (:customerIds)) " +
             " AND (:fromDate IS NULL OR so.orderDate >= :fromDate) " +
             " AND (:toDate IS NULL OR so.orderDate <= :toDate) " +
-            " AND so.fromSaleOrderId is null and (so.usedRedInvoice is null or so.usedRedInvoice = false) "
+            " AND so.fromSaleOrderId is null and (so.usedRedInvoice is null or so.usedRedInvoice = false) " +
+            " AND de.isFreeItem = 0 "
     )
     Page<SaleOrder> getAllBillOfSaleList(Long shopId, String orderNumber, List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate, Pageable pageable);
 
     @Query(value = "" +
-            "SELECT NEW vn.viettel.sale.messaging.SaleOrderTotalResponse(SUM(sbt.amount), SUM(sbt.total), SUM(sbt.totalPromotion)) " +
+            "SELECT NEW vn.viettel.sale.messaging.SaleOrderTotalResponse(SUM(sbt.amount), SUM(sbt.total), SUM(sbt.totalPromotionVat)) " +
             "FROM   SaleOrder sbt " +
             "WHERE  sbt.type = :type " +
             "       AND (coalesce(:customerIds, null) IS NULL OR sbt.customerId in :customerIds ) " +

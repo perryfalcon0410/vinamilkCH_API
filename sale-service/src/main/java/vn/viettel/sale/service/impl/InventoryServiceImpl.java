@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
@@ -26,16 +27,19 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
+import vn.viettel.sale.excel.StockCountingFilledExcel;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.InventorySpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -78,28 +82,17 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Autowired
     CustomerClient customerClient;
 
+    @Autowired
+    ShopClient shopClient;
+
     @Override
     public Page<StockCountingDTO> index(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Long shopId, Pageable pageable) {
-        Page<StockCounting> stockCountings = repository.findAll(Specification
-                        .where(InventorySpecification.hasCountingCode(stockCountingCode))
-                        .and(InventorySpecification.hasFromDateToDate(fromDate, toDate)
-                                .and(InventorySpecification.hasWareHouse(warehouseTypeId))
-                                .and(InventorySpecification.hasShopId(shopId)))
-                , pageable);
-        List<Long> ids = stockCountings.stream().map(item -> item.getWareHouseTypeId()).distinct().collect(Collectors.toList());
-        List<WareHouseType> wareHouseTypes = wareHouseTypeRepository.findAllById((ids != null && !ids.isEmpty()) ? ids : Arrays.asList(0L));
-        return stockCountings.map(e -> {
-            StockCountingDTO dto = modelMapper.map(e, StockCountingDTO.class);
-            if (wareHouseTypes != null) {
-                for (WareHouseType wareHouseType : wareHouseTypes) {
-                    if (wareHouseType.getId().equals(e.getWareHouseTypeId())) {
-                        dto.setWareHouseTypeName(wareHouseType.getWareHouseTypeName());
-                        break;
-                    }
-                }
-            }
-            return dto;
-        });
+        if(stockCountingCode != null) stockCountingCode.trim().toUpperCase();
+        LocalDateTime tsFromDate = DateUtils.convertFromDate(fromDate);
+        LocalDateTime tsToDate = DateUtils.convertToDate(toDate);
+        Page<StockCountingDTO> stockCountings = repository.findStockCounting(stockCountingCode, warehouseTypeId, tsFromDate, tsToDate, shopId, pageable);
+
+        return stockCountings;
     }
 
     @Override
@@ -114,6 +107,14 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
         List<Price> prices = priceRepository.findProductPriceWithTypes(countingDetails.stream().map(item -> item.getProductId())
                 .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()));
+
+        Map<Long, Double> priceMaps = new HashMap<>();
+        if (prices != null) {
+            for (Price price : prices) {
+                if (!priceMaps.containsKey(price.getProductId())) priceMaps.put(price.getProductId(), price.getPrice());
+            }
+        }
+
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -127,14 +128,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         for (StockCountingDetailDTO stockCounting : countingDetails) {
             stockCounting.setWarehouseTypeId(wareHouseTypeId);
             stockCounting.setShopId(shopId);
-            if (prices != null) {
-                for (Price price : prices) {
-                    if (price.getProductId().equals(stockCounting.getProductId())) {
-                        stockCounting.setPrice(price.getPrice());
-                        break;
-                    }
-                }
-            }
+           stockCounting.setPrice(priceMaps.get(stockCounting.getProductId()));
             if (stockCounting.getPrice() != null) {
                 stockCounting.setTotalAmount(stockCounting.getStockQuantity() * stockCounting.getPrice());
                 stockCounting.setPacketQuantity(0);
@@ -186,6 +180,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                     totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (dto.getStockQuantity() * (dto.getPrice() == null ? 0D : dto.getPrice())));
                     totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + dto.getPacketQuantity()));
                     totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
+
+                    if(dto.getInventoryQuantity() == 0) dto.setInventoryQuantity(null);
+                    if(dto.getPacketQuantity() == 0) dto.setPacketQuantity(null);
+                    if(dto.getUnitQuantity() == 0) dto.setUnitQuantity(null);
+
                     dtos.add(dto);
                 }
             }
@@ -293,20 +292,23 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId(),
                 stockCountingDetails.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()));
         if(stockTotals.size()==0) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS_IN_WAREHOUSE);
-        for (int i = 0; i < details.size(); i++) {
+
+       Map<Long, Integer> stockTotalMaps = new HashMap<>();
+        for (StockTotal stock: stockTotals) {
+            if(!stockTotalMaps.containsKey(stock.getProductId())) stockTotalMaps.put(stock.getProductId(), stock.getQuantity());
+        }
+
+        for (StockCountingUpdateDTO update: details) {
             for (StockCountingDetail stockCountingDetail : stockCountingDetails) {
-                if (stockCountingDetail.getProductId().equals(details.get(i).getProductId())) {
-                    stockCountingDetail.setQuantity(details.get(i).getPacketQuantity() * details.get(i).getConvfact() + details.get(i).getUnitQuantity());
-                    for (StockTotal stockTotal : stockTotals) {
-                        if (stockTotal.getProductId().equals(stockCountingDetail.getProductId())) {
-                            stockCountingDetail.setStockQuantity(stockTotal.getQuantity());
-                            break;
-                        }
-                    }
+                if (stockCountingDetail.getProductId().equals(update.getProductId())) {
+                    stockCountingDetail.setQuantity(update.getPacketQuantity() * update.getConvfact() + update.getUnitQuantity());
+                    stockCountingDetail.setStockQuantity(stockTotalMaps.get(stockCountingDetail.getProductId()));
+                    countingDetailRepository.save(stockCountingDetail);
+                    break;
                 }
-                countingDetailRepository.save(stockCountingDetail);
             }
         }
+
         return ResponseMessage.UPDATE_SUCCESSFUL;
     }
 
@@ -365,6 +367,57 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         StockCounting stockCounting = repository.findById(id).get();
         return stockCounting;
     }
+
+    @Override
+    public ByteArrayInputStream exportExcel(Long id, Long shopId) throws IOException{
+        List<StockCountingExcelDTO> export = this.getByStockCountingId(id).getResponse();
+        ShopDTO shop = shopClient.getByIdV1(shopId).getData();
+        LocalDateTime countingDate = this.getStockCountingById(id).getCountingDate();
+        StockCountingFilledExcel stockCountingFilledExcel =
+                new StockCountingFilledExcel(export, shop, shop.getParentShop(), countingDate);
+        return stockCountingFilledExcel.export();
+    }
+
+    public CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> getDataExportExcel(Long id) {
+        StockCounting stockCounting = repository.findById(id).get();
+        if (stockCounting == null) throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
+        List<StockCountingExcel> result = countingDetailRepository.getStockCountingExportExcel(id);
+        List<StockTotal> listSt = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId()
+                , result.stream().map(e -> e.getProductId()).distinct().collect(Collectors.toList()));
+        TotalStockCounting totalStockCounting = new TotalStockCounting();
+        totalStockCounting.setStockTotal(0);
+        totalStockCounting.setInventoryTotal(0);
+        totalStockCounting.setTotalAmount(0.0);
+        totalStockCounting.setTotalPacket(0);
+        totalStockCounting.setTotalUnit(0);
+        totalStockCounting.setCountingCode(stockCounting.getStockCountingCode());
+        totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
+        totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
+        List<StockCountingExcelDTO> dtos = new ArrayList<>();
+        for (StockCountingExcel countingExcel : result) {
+            for (StockTotal st : listSt) {
+                if (st.getProductId().equals(countingExcel.getProductId())) {
+                    StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
+                    if (dto.getInventoryQuantity() == null) dto.setInventoryQuantity(0);
+                    if (dto.getStockQuantity() == null) dto.setStockQuantity(0);
+                    dto.setTotalAmount(dto.getPrice() == null ? 0D : dto.getPrice() * dto.getStockQuantity());
+                    dto.setPacketQuantity(dto.getInventoryQuantity() / dto.getConvfact());
+                    dto.setUnitQuantity(dto.getInventoryQuantity() % dto.getConvfact());
+                    dto.setChangeQuantity(dto.getInventoryQuantity() - dto.getStockQuantity());
+                    totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + dto.getStockQuantity());
+                    totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + dto.getInventoryQuantity());
+                    totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
+                    totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (dto.getStockQuantity() * (dto.getPrice() == null ? 0D : dto.getPrice())));
+                    totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + dto.getPacketQuantity()));
+                    totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
+                    dtos.add(dto);
+                }
+            }
+        }
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = new CoverResponse(dtos, totalStockCounting);
+        return response;
+    }
+
 
     public List<StockCountingExcel> readDataExcel(MultipartFile file) throws IOException {
         String path = file.getOriginalFilename();

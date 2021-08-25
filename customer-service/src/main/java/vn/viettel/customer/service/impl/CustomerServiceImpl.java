@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.*;
+import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.AgeCalculator;
@@ -27,7 +28,9 @@ import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.CustomerType;
+import vn.viettel.customer.entities.Customer_;
 import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
@@ -90,6 +93,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Autowired
     MemBerCustomerRepository memBerCustomerRepos;
 
+    private List<CustomerDTO> customers;
+    private String searchKey;
+    private Long lastRequest = 0L;
+    private int count = 0;
+    private Long waitTime = 0L;
+
     private CustomerDTO mapCustomerToCustomerResponse(Customer customer, List<MemberCustomer> memberCustomers) {
         CustomerDTO dto = modelMapper.map(customer, CustomerDTO.class);
 
@@ -137,7 +146,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
             return  dto;
         });
-        System.gc();
        return response;
     }
 
@@ -151,8 +159,17 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
             response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
-        else response = repository.searchForSale(shop, customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
-        System.gc();
+        else {
+            response = repository.searchForSale(shop, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
+                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+        }
+        return response;
+    }
+
+    @Override
+    public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
+        Page<CustomerDTO> response = repository.searchForRedInvoice(
+                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
         return response;
     }
 
@@ -214,6 +231,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Customer customerRecord = modelMapper.map(request, Customer.class);
+
+
+        if(request.getWorkingOffice()!=null && !request.getWorkingOffice().isEmpty()) {
+            customerRecord.setWorkingOfficeText(VNCharacterUtils.removeAccent(request.getWorkingOffice().trim()).toUpperCase());
+        }
+
+        if(request.getOfficeAddress()!=null && !request.getOfficeAddress().isEmpty()) {
+            customerRecord.setOfficeAddressText(VNCharacterUtils.removeAccent(request.getOfficeAddress().trim()).toUpperCase());
+        }
 
         //address and areaId
         setAddressAndAreaId(request.getStreet(), request.getAreaId(), customerRecord);
@@ -361,7 +387,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(memberCustomer != null) customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
             return customerDTO;
         }).collect(Collectors.toList());
-        System.gc();
         return customerDTOS;
     }
 
@@ -414,7 +439,16 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         Customer newCustomer = this.mapCustomerUpdate(customerDb, request);
-        newCustomer = repository.save(newCustomer);
+
+        if(request.getWorkingOffice()!=null && !request.getWorkingOffice().isEmpty()) {
+            newCustomer.setWorkingOfficeText(VNCharacterUtils.removeAccent(request.getWorkingOffice().trim()).toUpperCase());
+        }
+        if(request.getOfficeAddress()!=null && !request.getOfficeAddress().isEmpty()) {
+            newCustomer.setOfficeAddressText(VNCharacterUtils.removeAccent(request.getOfficeAddress().trim()).toUpperCase());
+        }
+
+        repository.save(newCustomer);
+
         return this.mapCustomerToCustomerResponse(newCustomer, null);
     }
 
@@ -525,7 +559,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         }
 
         CustomerExcelExporter excel = new CustomerExcelExporter(customers, customerTypeMaps, closelyTypeMaps, cardTypeMaps, genderMaps);
-        System.gc();
         return excel.export();
     }
 
@@ -533,35 +566,66 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Đổi hàng hỏng  - hàng trả lại
      */
     @Override
-    public Page<CustomerDTO> getAllCustomerForChangeProducts(String searchKeywords, Pageable pageable) {
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
+        String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
+        //hạn chế request vào db
+        if(searchKeywords.length() >= 4 && (searchKey == null || !searchKeywords.substring(0,4).equals(searchKey.substring(0,4)) )) {
+            //chánh tấn công server: 3 request liên tục trong 1 giây xong phải nghỉ 3 giây được request tiếp
+            if(lastRequest > 0 && count >= 3 && (System.currentTimeMillis() - lastRequest) < 1000){
+                // không request và cài thời gian đợi 3 giây
+                waitTime = (1000 * 3) + System.currentTimeMillis();
+            }
+            //clear thời gian đợi
+            if(System.currentTimeMillis() > waitTime) waitTime = 0L;
+            if(waitTime < 1) {
+                count++;
+                lastRequest = System.currentTimeMillis();
+                searchKey = searchKeywords;
+                customers = repository.searchForAutoComplete(name.substring(0,4), searchKeywords.substring(0,4).toUpperCase(), searchKeywords.substring(0,4));
+            }
+        }
+        List<CustomerDTO> results = new ArrayList<>();
+        if(customers != null){
+            for(CustomerDTO cus : customers){
+                if((cus.getCustomerCode() != null && cus.getCustomerCode().contains(searchKeywords.toUpperCase()))
+                        || (cus.getNameText() != null && cus.getNameText().contains(name))
+//                        || (cus.getAddress() != null && cus.getAddress().contains(searchKeywords))
+                        || (cus.getPhone() != null && cus.getPhone().contains(searchKeywords))
+                        || (cus.getMobiPhone() != null && cus.getMobiPhone().contains(searchKeywords)) ){
+                    results.add(cus);
+                    if(results.size() == pageable.getPageSize()) break;
+                }
+            }
+        }
+        Collections.sort(results, Comparator.comparing(CustomerDTO::getNameText));
+        return new PageImpl<>(results);
+    }
+
+    /*@Override
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
         Page<Customer> customers = repository.findAll( Specification
                 .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
         Page<CustomerDTO> response = customers.map(item -> modelMapper.map(item, CustomerDTO.class));
-        System.gc();
         return response;
-    }
+    }*/
 
     @Override
     public CustomerDTO getCustomerDefault(Long shopId) {
-        List<Customer> customers = repository.getCustomerDefault(shopId);
+        List<CustomerDTO> customers = repository.getCustomerDefault(shopId);
         if(customers.isEmpty()) throw new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST);
-        CustomerDTO customerDTO = this.mapCustomerToCustomerResponse(customers.get(0), null);
-        MemberCustomer memberCustomer = memBerCustomerRepos.getMemberCustomer(customers.get(0).getId()).orElse(null);
-        if(memberCustomer != null){
-            customerDTO.setAmountCumulated(memberCustomer.getScoreCumulated());
-        }
-        return customerDTO;
+        Double scoreCumulated = memBerCustomerRepos.getScoreCumulated(customers.get(0).getId());
+        customers.get(0).setAmountCumulated(scoreCumulated);
+        return customers.get(0);
     }
 
     @Override
     public CustomerDTO getCustomerDefaultByShop(Long shopId) {
-        List<Customer> customers = repository.getCustomerDefault(shopId);
-        if(customers.isEmpty()) throw new ValidateException(ResponseMessage.CUSTOMER_DEFAULT_DOES_NOT_EXIST);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        CustomerDTO cusDTO = modelMapper.map(customers.get(0), CustomerDTO.class);
-        return  cusDTO;
+        List<CustomerDTO> customers = repository.getCustomerDefault(shopId);
+        if(customers.isEmpty()) return null;
+        return customers.get(0);
     }
 
     @Override
@@ -593,7 +657,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
         List<Customer> customers = repository.getCustomersByIds(customerIds);
         List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-        System.gc();
         return customerDTOS;
     }
     
@@ -603,14 +666,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartDay() {
         repository.schedulerUpdateStartDay();
-       /* System.gc();*/
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
-       /* System.gc();*/
     }
 
 }

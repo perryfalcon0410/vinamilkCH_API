@@ -10,6 +10,7 @@ import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.dto.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,4 +35,6 @@ public interface InventoryService {
     Boolean checkInventoryInDay(Long wareHouseTypeId, Long shopId);
 
     StockCounting getStockCountingById(Long id);
+
+    ByteArrayInputStream exportExcel(Long id, Long shopId) throws IOException;
 }

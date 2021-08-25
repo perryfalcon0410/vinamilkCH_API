@@ -71,7 +71,7 @@ public class ExchangeTransController extends BaseController {
                                                                                                  @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                                  @RequestParam(value = "reasonId", required = false) Long reasonId,
                                                                                                  @SortDefault.SortDefaults({
-                                                                                                         @SortDefault(sort = "transDate", direction = Sort.Direction.ASC)
+                                                                                                         @SortDefault(sort = "transDate", direction = Sort.Direction.DESC)
                                                                                                  }) Pageable pageable) {
         CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> response =
                 service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);

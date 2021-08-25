@@ -21,13 +21,13 @@ public class ExportExcel {
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private SXSSFSheet sheet2;
-    private ShopDTO shops;
+    private ShopDTO shop;
     private List<PoDetailDTO> poDetails;
     private List<PoDetailDTO> poDetails2;
-    public ExportExcel(List<PoDetailDTO> poDetails, List<PoDetailDTO> poDetails2, ShopDTO shops) {
+    public ExportExcel(List<PoDetailDTO> poDetails, List<PoDetailDTO> poDetails2, ShopDTO shop) {
         this.poDetails = poDetails;
         this.poDetails2 = poDetails2;
-        this.shops = shops;
+        this.shop = shop;
         workbook = new SXSSFWorkbook();
     }
     private void writeHeaderLine()  {
@@ -104,11 +104,15 @@ public class ExportExcel {
             sheet.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
             ExcelPoiUtils.createCell(row, rowf, poDetails.get(0).getShopName(), style);
-            ExcelPoiUtils.createCell(row, 7, shops.getShopName(), style);
             ExcelPoiUtils.createCell(row1, 0, poDetails.get(0).getShopAddress(), style1);
-            ExcelPoiUtils.createCell(row1, 7, shops.getAddress(), style1);
             ExcelPoiUtils.createCell(row2, 0, poDetails.get(0).getShopContact(), style1);
-            ExcelPoiUtils.createCell(row2, 7, "Tel: " + shops.getPhone() + " Fax: " + shops.getFax(), style1);
+
+            if(shop!=null) {
+                ExcelPoiUtils.createCell(row, 7, shop.getShopName(), style);
+                ExcelPoiUtils.createCell(row1, 7, shop.getAddress(), style1);
+                ExcelPoiUtils.createCell(row2, 7, "Tel: " + (shop.getMobiPhone()!=null? shop.getMobiPhone():"") + " Fax: " + (shop.getFax()!=null?shop.getFax():""), style1);
+            }
+
             ExcelPoiUtils.createCell(row5, 0, "DANH SÁCH DỮ LIỆU", style2);
             ////////////////////////////////////////////////////////////////////////////////////////////
             ExcelPoiUtils.createCell(rowValues, 0, "STT", styleHeader);
@@ -140,11 +144,15 @@ public class ExportExcel {
             sheet2.addMergedRegion(CellRangeAddress.valueOf("H3:M3"));
             sheet2.addMergedRegion(CellRangeAddress.valueOf("A6:G6"));
             ExcelPoiUtils.createCell(row_, 0, poDetails2.get(0).getShopName(), style);
-            ExcelPoiUtils.createCell(row_, 7, shops.getShopName(), style);
             ExcelPoiUtils.createCell(row_1, 0, poDetails2.get(0).getShopAddress(), style1);
-            ExcelPoiUtils.createCell(row_1, 7, shops.getAddress(), style1);
             ExcelPoiUtils.createCell(row_2, 0, poDetails2.get(0).getShopContact(), style1);
-            ExcelPoiUtils.createCell(row_2, 7, "Tel: "+shops.getPhone()+ " Fax: "+shops.getFax(), style1);
+
+            if(shop!=null) {
+                ExcelPoiUtils.createCell(row_, 7, shop.getShopName(), style);
+                ExcelPoiUtils.createCell(row_1, 7, shop.getAddress(), style1);
+                ExcelPoiUtils.createCell(row_2, 7, (shop.getPhone()!=null?("Tel: " + shop.getPhone()):"") + (shop.getFax()!=null?(" Fax: " +shop.getFax()):""), style1);
+            }
+
             ExcelPoiUtils.createCell(row_5, 0, "DANH SÁCH DỮ LIỆU", style2);
             ////////////////////////////////////////////////////////////////////////////////////////////
             ExcelPoiUtils.createCell(row_Values, 0, "STT", styleHeader);

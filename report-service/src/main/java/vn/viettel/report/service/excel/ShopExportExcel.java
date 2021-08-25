@@ -31,6 +31,7 @@ public class ShopExportExcel {
     private SXSSFSheet sheet1;
 
     private ShopDTO shopDTO;
+    private ShopDTO parentShop;
     private List<ShopExportDTO> exportGoodsDTOS;
     private TotalReport totalReport;
     private LocalDateTime fromDate;
@@ -41,8 +42,9 @@ public class ShopExportExcel {
     private XSSFCellStyle styleCellTotalTable;
 
     public  ShopExportExcel(
-            ShopDTO shopDTO, List<ShopExportDTO> exportGoodsDTOS, TotalReport totalReport) {
+            ShopDTO shopDTO, ShopDTO parentShop, List<ShopExportDTO> exportGoodsDTOS, TotalReport totalReport) {
         this.shopDTO = shopDTO;
+        this.parentShop = parentShop;
         this.exportGoodsDTOS = exportGoodsDTOS;
         this.totalReport = totalReport;
 
@@ -100,21 +102,21 @@ public class ShopExportExcel {
             sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("J1:S1"));
             ExcelPoiUtils.createCell(row, 0, shopDTO.getShopName(), style);
-            ExcelPoiUtils.createCell(row, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", style);
-
             sheet.addMergedRegion(CellRangeAddress.valueOf("A2:I2"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("J2:S2"));
             ExcelPoiUtils.createCell(row1, 0, shopDTO.getAddress(), style1);
-            ExcelPoiUtils.createCell(row1, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", style1);
-
             sheet.addMergedRegion(CellRangeAddress.valueOf("A3:I3"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("J3:S3"));
-            ExcelPoiUtils.createCell(row2, 0,"Tel: " + shopDTO.getMobiPhone() + " Fax: " + shopDTO.getFax(), style1);
-            ExcelPoiUtils.createCell(row2, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", style1);
+            ExcelPoiUtils.createCell(row2, 0,"Tel: " + (shopDTO.getMobiPhone()!=null? shopDTO.getMobiPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), style1);
+
+            if(parentShop !=null) {
+                ExcelPoiUtils.createCell(row, 9, parentShop.getShopName(), style);
+                ExcelPoiUtils.createCell(row1, 9, parentShop.getAddress(), style1);
+                ExcelPoiUtils.createCell(row2, 9, "Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), style1);
+            }
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A6:W6"));
             ExcelPoiUtils.createCell(row5, 0, "BÁO CÁO XUẤT HÀNG CHI TIẾT", style2);
-
             sheet.addMergedRegion(CellRangeAddress.valueOf("A8:W8"));
             ExcelPoiUtils.createCell(row7, 0, "TỪ NGÀY: " +
                     DateUtils.formatDate2StringDate(fromDate) + " ĐẾN NGÀY: " + DateUtils.formatDate2StringDate(toDate), style1);

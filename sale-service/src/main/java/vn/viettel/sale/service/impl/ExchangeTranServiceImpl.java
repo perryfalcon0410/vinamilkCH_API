@@ -66,8 +66,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
         if (transCode != null) transCode = transCode.trim().toUpperCase();
-        Optional<Sort.Order> order = pageable.getSort().stream().findFirst();
-        if (!order.isPresent()) pageable.getSort().and(Sort.by("transDate").descending());
         Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
                         .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
                         .and(ExchangeTransSpecification.hasStatus())
@@ -81,15 +79,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         return new CoverResponse<>(pageResult, exchangeTotalDTO);
     }
 
-    private CustomerTypeDTO getCustomerType(Long shopId, Long customerId){
-        CustomerTypeDTO customerType = null;
-        if(customerId != null) customerType = customerTypeClient.getCusTypeByCustomerIdV1(customerId);
-        if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
-        if(customerType == null) throw new ValidateException(ResponseMessage.CUSTOMER_TYPE_NOT_EXISTS);
-
-        return customerType;
-    }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ExchangeTransDTO create(ExchangeTransRequest request, Long userId, Long shopId) {
@@ -101,12 +90,12 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         if (!catIds.contains(request.getReasonId())) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         if (request.getCustomerId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
-        CustomerTypeDTO cusType = getCustomerType(shopId, request.getCustomerId());
+        CustomerTypeDTO cusType = customerTypeClient.getCustomerTypeForSale(request.getCustomerId(), shopId);
+        if(cusType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
         LocalDateTime date = LocalDateTime.now();
         List<Long> productIds = request.getLstExchangeDetail().stream().map(
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
         List<Price> prices = priceRepository.findProductPriceWithType(productIds, cusType.getId(), DateUtils.convertToDate(date));
-
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, cusType.getWareHouseTypeId(), productIds);
         validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, null);
 
@@ -237,8 +226,10 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             if (listTransCode == null) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
             List<Long> productIds = request.getLstExchangeDetail().stream().map(
                     item -> item.getProductId()).distinct().collect(Collectors.toList());
-            CustomerTypeDTO customerDTO = getCustomerType(shopId,request.getCustomerId());
-            List<Price> prices = priceRepository.findProductPriceWithType(productIds, customerDTO.getId(), DateUtils.convertToDate(date));
+            CustomerTypeDTO customerDTO = customerTypeClient.getCustomerTypeForSale(request.getCustomerId(), shopId);
+            List<Price> prices = null;
+            if(customerDTO.getId() !=null)
+                prices = priceRepository.findProductPriceWithType(productIds, customerDTO.getId(), DateUtils.convertToDate(date));
 
             List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, exchange.getWareHouseTypeId(), productIds);
             List<ExchangeTransDetail> dbExchangeTransDetails = transDetailRepository.findByTransId(exchangeTranId);

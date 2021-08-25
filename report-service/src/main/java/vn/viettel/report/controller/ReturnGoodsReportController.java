@@ -90,7 +90,6 @@ public class ReturnGoodsReportController extends BaseController {
         response.addHeader("Content-Disposition", "attachment; filename=DB_Hang_tra_lai_Filled_" + StringUtils.createExcelFileName());
         FileCopyUtils.copy(in, response.getOutputStream());
         IOUtils.closeQuietly(in);
-        System.gc();
         response.getOutputStream().flush();
     }
 

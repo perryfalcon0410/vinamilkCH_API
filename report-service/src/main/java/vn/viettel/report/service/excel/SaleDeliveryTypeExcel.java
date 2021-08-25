@@ -21,6 +21,7 @@ import java.util.Map;
 
 public class SaleDeliveryTypeExcel {
     private ShopDTO shopDTO;
+    private ShopDTO parentShop;
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private List<SaleByDeliveryTypeDTO> saleDeli;
@@ -28,10 +29,11 @@ public class SaleDeliveryTypeExcel {
     private LocalDateTime toDate;
     private Map<String, CellStyle> style;
 
-    public SaleDeliveryTypeExcel(ShopDTO shopDTO, List<SaleByDeliveryTypeDTO> saleDeli) {
+    public SaleDeliveryTypeExcel(ShopDTO shopDTO, ShopDTO parentShop, List<SaleByDeliveryTypeDTO> saleDeli) {
         workbook = new SXSSFWorkbook();
         {
             this.shopDTO = shopDTO;
+            this.parentShop = parentShop;
             this.saleDeli = saleDeli;
             this.style = ExcelPoiUtils.createStyles(workbook);
         }
@@ -64,11 +66,14 @@ public class SaleDeliveryTypeExcel {
         Row customerPhoneRow = sheet.createRow(2);// phone
 
         ExcelPoiUtils.createCell(customerRow, 0, shopDTO.getShopName(), headerStyle);
-        ExcelPoiUtils.createCell(customerRow, 9, "CÔNG TY CỔ PHẦN SỮA VIỆT NAM", headerStyle);
         ExcelPoiUtils.createCell(customerAddressRow, 0, shopDTO.getAddress(), addressStyle);
-        ExcelPoiUtils.createCell(customerAddressRow, 9, "Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM", addressStyle);
-        ExcelPoiUtils.createCell(customerPhoneRow, 0, "Tel: " + shopDTO.getMobiPhone(), addressStyle);
-        ExcelPoiUtils.createCell(customerPhoneRow, 9, "Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226", addressStyle);
+        ExcelPoiUtils.createCell(customerPhoneRow, 0, "Tel: " + (shopDTO.getMobiPhone()!=null? shopDTO.getMobiPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), addressStyle);
+
+        if(parentShop != null) {
+            ExcelPoiUtils.createCell(customerRow, 9, parentShop.getShopName(), headerStyle);
+            ExcelPoiUtils.createCell(customerAddressRow, 9, parentShop.getAddress(), addressStyle);
+            ExcelPoiUtils.createCell(customerPhoneRow, 9, "Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), addressStyle);
+        }
 
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:M6"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("A8:M8"));

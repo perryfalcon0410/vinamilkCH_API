@@ -37,4 +37,7 @@ public class ShopDTO {
     private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    //export excel
+    private ShopDTO parentShop;
 }

@@ -96,7 +96,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
             this.removeDataList(reportDTOS);
         }
         ChangeReturnGoodsReportRequest reportRequest = new ChangeReturnGoodsReportRequest(totalDTO, reportDTOS);
-        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, reportRequest, filter);
+        ReturnGoodsExcel excel = new ReturnGoodsExcel(shopDTO, shopDTO.getParentShop(), reportRequest, filter);
         return excel.export();
     }
 

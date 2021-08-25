@@ -87,7 +87,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
             this.removeDataList(reportDTOS);
         }
 
-        EntryMenuDetailsExcel excel = new EntryMenuDetailsExcel(shopDTO, reportDTOS, entryMenuDetailsDTO,filter);
+        EntryMenuDetailsExcel excel = new EntryMenuDetailsExcel(shopDTO, shopDTO.getParentShop(), reportDTOS, entryMenuDetailsDTO,filter);
         return excel.export();
     }
 

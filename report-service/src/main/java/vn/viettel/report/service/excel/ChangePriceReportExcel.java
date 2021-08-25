@@ -27,6 +27,7 @@ public class ChangePriceReportExcel {
     private SXSSFSheet sheet;
     private ChangePriceReportRequest changePriceReport;
     private ShopDTO shop;
+    private ShopDTO parentShop;
     private LocalDate fromDate;
     private LocalDate toDate;
 
@@ -35,9 +36,10 @@ public class ChangePriceReportExcel {
     private List<List<ChangePriceDTO>> listChildByParent = new ArrayList<>();
     private List<ChangePriceTotalDTO> listParent = new ArrayList<>();
 
-    public ChangePriceReportExcel(ChangePriceReportRequest changePriceReport, ShopDTO shop, LocalDate fromDate, LocalDate toDate) {
+    public ChangePriceReportExcel(ChangePriceReportRequest changePriceReport, ShopDTO shop, ShopDTO parentShop, LocalDate fromDate, LocalDate toDate) {
         this.changePriceReport = changePriceReport;
         this.shop = shop;
+        this.parentShop = parentShop;
         workbook = new SXSSFWorkbook();
         this.fromDate = fromDate;
         this.toDate = toDate;
@@ -79,11 +81,13 @@ public class ChangePriceReportExcel {
         //header left
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress() ,style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel:"+" "+(shop.getPhone()==null?"":shop.getPhone())+"  "+"Fax:"+" "+(shop.getFax()==null?"":shop.getFax()) ,style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel: " + (shop.getMobiPhone()!=null? shop.getMobiPhone():"") + " Fax: " + (shop.getFax()!=null?shop.getFax():"") ,style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,"CÔNG TY CỔ PHẦN SỮA VIỆT NAM",style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,"Số 10 Tân Trào, Phường Tân Phú, Q7, Tp.HCM",style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: (84.8) 54 155 555  Fax: (84.8) 54 161 226",style.get(ExcelPoiUtils.HEADER_LEFT));
+        if(parentShop !=null) {
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,parentShop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
+        }
         //
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO CHÊNH LỆCH GIÁ",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+5,colm+15,rowm+5,"TỪ NGÀY: "+ DateUtils.formatDate2StringDate(fromDate) +"  ĐẾN NGÀY: "+ DateUtils.formatDate2StringDate(toDate), style.get(ExcelPoiUtils.ITALIC_12));
