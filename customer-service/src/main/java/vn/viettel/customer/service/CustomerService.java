@@ -34,7 +34,7 @@ public interface CustomerService extends BaseService {
 
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 
-    List<Long> getIdCustomerBy(String searchKeywords, String customerPhone);
+    List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, Pageable pageable);
 
     ByteArrayInputStream exportExcel(CustomerFilter filter) throws IOException;
 

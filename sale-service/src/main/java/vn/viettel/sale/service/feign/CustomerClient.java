@@ -1,5 +1,6 @@
 package vn.viettel.sale.service.feign;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -25,7 +26,8 @@ public interface CustomerClient {
     Response<List<Long>> getIdCustomerBySearchKeyWordsV1(@RequestParam("searchKeywords") String searchKeywords);
 
     @GetMapping("/api/v1/customers/ids-customer")
-    Response<List<Long>> getIdCustomerByV1(@RequestParam("searchKeywords") String searchKeywords, @RequestParam(value = "customerCode", required = false) String customerCode);
+    Response<List<Long>> getIdCustomerByV1(@RequestParam("searchKeywords") String searchKeywords,
+                                           @RequestParam(value = "customerPhone", required = false) String customerPhone, Pageable pageable);
 
     @GetMapping("/api/v1/customers/phone/{phone}")
     Response<List<CustomerDTO>> getCustomerByMobiPhoneV1(@PathVariable String phone);
