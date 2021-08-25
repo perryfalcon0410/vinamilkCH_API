@@ -370,7 +370,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
 
     @Override
     public ByteArrayInputStream exportExcel(Long id, Long shopId) throws IOException{
-        List<StockCountingExcelDTO> export = this.getByStockCountingId(id).getResponse();
+        List<StockCountingExcelDTO> export = this.getDataExportExcel(id).getResponse();
         ShopDTO shop = shopClient.getByIdV1(shopId).getData();
         LocalDateTime countingDate = this.getStockCountingById(id).getCountingDate();
         StockCountingFilledExcel stockCountingFilledExcel =
@@ -382,8 +382,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         StockCounting stockCounting = repository.findById(id).get();
         if (stockCounting == null) throw new ValidateException(ResponseMessage.EXCHANGE_TRANS_DETAIL_NOT_FOUND);
         List<StockCountingExcel> result = countingDetailRepository.getStockCountingExportExcel(id);
-        List<StockTotal> listSt = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId()
-                , result.stream().map(e -> e.getProductId()).distinct().collect(Collectors.toList()));
         TotalStockCounting totalStockCounting = new TotalStockCounting();
         totalStockCounting.setStockTotal(0);
         totalStockCounting.setInventoryTotal(0);
@@ -395,24 +393,20 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
         List<StockCountingExcelDTO> dtos = new ArrayList<>();
         for (StockCountingExcel countingExcel : result) {
-            for (StockTotal st : listSt) {
-                if (st.getProductId().equals(countingExcel.getProductId())) {
-                    StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
-                    if (dto.getInventoryQuantity() == null) dto.setInventoryQuantity(0);
-                    if (dto.getStockQuantity() == null) dto.setStockQuantity(0);
-                    dto.setTotalAmount(dto.getPrice() == null ? 0D : dto.getPrice() * dto.getStockQuantity());
-                    dto.setPacketQuantity(dto.getInventoryQuantity() / dto.getConvfact());
-                    dto.setUnitQuantity(dto.getInventoryQuantity() % dto.getConvfact());
-                    dto.setChangeQuantity(dto.getInventoryQuantity() - dto.getStockQuantity());
-                    totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + dto.getStockQuantity());
-                    totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + dto.getInventoryQuantity());
-                    totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
-                    totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (dto.getStockQuantity() * (dto.getPrice() == null ? 0D : dto.getPrice())));
-                    totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + dto.getPacketQuantity()));
-                    totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
-                    dtos.add(dto);
-                }
-            }
+            StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
+            if (dto.getInventoryQuantity() == null) dto.setInventoryQuantity(0);
+            if (dto.getStockQuantity() == null) dto.setStockQuantity(0);
+            dto.setTotalAmount(dto.getPrice() == null ? 0D : dto.getPrice() * dto.getStockQuantity());
+            dto.setPacketQuantity(dto.getInventoryQuantity() / dto.getConvfact());
+            dto.setUnitQuantity(dto.getInventoryQuantity() % dto.getConvfact());
+            dto.setChangeQuantity(dto.getInventoryQuantity() - dto.getStockQuantity());
+            totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + dto.getStockQuantity());
+            totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + dto.getInventoryQuantity());
+            totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
+            totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (dto.getStockQuantity() * (dto.getPrice() == null ? 0D : dto.getPrice())));
+            totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + dto.getPacketQuantity()));
+            totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
+            dtos.add(dto);
         }
         CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = new CoverResponse(dtos, totalStockCounting);
         return response;
