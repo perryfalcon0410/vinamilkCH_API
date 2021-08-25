@@ -108,7 +108,7 @@ public class CustomerTypeController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(value = { V1 + root + "/sale-order"})
-    public CustomerTypeDTO getCustomerTypeForSale(@RequestParam Long customerId, @RequestParam Long shopId) {
+    public CustomerTypeDTO getCustomerTypeForSale(@RequestParam(required = false) Long customerId, @RequestParam(required = false) Long shopId) {
         CustomerTypeDTO customerType = customerTypeService.getCustomerType(customerId, shopId);
         return customerType;
     }
