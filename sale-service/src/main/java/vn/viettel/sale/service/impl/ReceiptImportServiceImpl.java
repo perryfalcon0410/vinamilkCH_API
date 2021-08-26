@@ -6,9 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -101,7 +103,48 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         fromDate = DateUtils.convertFromDate(fromDate);
         toDate = DateUtils.convertToDate(toDate);
         if (type == null) {
-            Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, pageable);
+            Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+            List<Integer> sorts = new ArrayList<>();
+            if(pageable.getSort() != null) {
+                for (Sort.Order order : pageable.getSort()) {
+                    if(order.getProperty().equals("transDate")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(1);
+                        else sorts.add(2);
+                    }else if(order.getProperty().equals("transCode")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(3);
+                        else sorts.add(4);
+                    }else if(order.getProperty().equals("redInvoiceNo")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(5);
+                        else sorts.add(6);
+                    }else if(order.getProperty().equals("internalNumber")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(7);
+                        else sorts.add(8);
+                    }else if(order.getProperty().equals("totalQuantity")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(9);
+                        else sorts.add(10);
+                    }else if(order.getProperty().equals("totalAmount")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(11);
+                        else sorts.add(12);
+                    }else if(order.getProperty().equals("receiptType")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(13);
+                        else sorts.add(14);
+                    }else if(order.getProperty().equals("note")){
+                        if(order.getDirection().toString().equalsIgnoreCase("DESC"))
+                            sorts.add(15);
+                        else sorts.add(16);
+                    }
+                }
+            }
+
+            Page<ReceiptImportDTO> pageResponse = repository.getReceipt(shopId, 1, transCode, redInvoiceNo, fromDate, toDate, sorts, page);
             TotalResponse totalResponse = repository.getTotalResponsePo(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
             TotalResponse totalResponse2 = repository.getTotalResponseAdjustment(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);
             TotalResponse totalResponse3 = repository.getTotalResponseBorrowing(shopId, 1, transCode, redInvoiceNo, fromDate, toDate);

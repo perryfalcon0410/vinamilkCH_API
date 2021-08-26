@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +60,12 @@ public class ReceiptImportController extends BaseController {
                                 @ApiParam("Số hóa đơn") @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
                                 @ApiParam("Từ ngày nhập")@RequestParam(value ="fromDate",required = false) Date fromDate,
                                 @ApiParam("Đến ngày nhập")@RequestParam(value ="toDate",required = false) Date toDate,
-                                @ApiParam("Loại nhập")@RequestParam(value ="type", required = false ) Integer type, Pageable pageable) {
+                                @ApiParam("Loại nhập")@RequestParam(value ="type", required = false ) Integer type,
+                                @SortDefault.SortDefaults({
+                                        @SortDefault(sort = "transDate", direction = Sort.Direction.DESC),
+                                        @SortDefault(sort = "transCode", direction = Sort.Direction.DESC)
+                                })
+                                Pageable pageable) {
         CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(transCode, redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_IMPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
