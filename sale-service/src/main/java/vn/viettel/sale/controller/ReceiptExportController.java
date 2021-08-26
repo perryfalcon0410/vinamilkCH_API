@@ -47,6 +47,10 @@ public class ReceiptExportController extends BaseController {
              @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate",required = false) Date fromDate,
              @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate",required = false) Date toDate,
              @ApiParam("Loại xuất")@RequestParam(value = "type",required = false) Integer type,
+             @SortDefault.SortDefaults({
+                     @SortDefault(sort = "transDate", direction = Sort.Direction.DESC),
+                     @SortDefault(sort = "transCode", direction = Sort.Direction.DESC)
+             })
              Pageable pageable) {
         CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptExportService.find(transCode, redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(),pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_EXPORT_SUCCESS);
