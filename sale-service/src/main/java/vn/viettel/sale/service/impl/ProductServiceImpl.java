@@ -285,7 +285,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO dto = modelMapper.map(product, OrderProductOnlineDTO.class);
         dto.setProductId(product.getId());
-        dto.setQuantity(productRequest.getQuantity());
+        if(productRequest.getQuantity() != null) {
+            dto.setQuantity(productRequest.getQuantity());
+            orderProductsDTO.addQuantity(productRequest.getQuantity());
+        }
 
         Price price = null;
         for (Price p : prices){
@@ -304,7 +307,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         }
         if(stockTotal == null) throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, product.getProductCode());
         dto.setStockTotal(stockTotal.getQuantity());
-        orderProductsDTO.addQuantity(productRequest.getQuantity());
         orderProductsDTO.addTotalPrice(dto.getTotalPrice());
 
         return dto;
