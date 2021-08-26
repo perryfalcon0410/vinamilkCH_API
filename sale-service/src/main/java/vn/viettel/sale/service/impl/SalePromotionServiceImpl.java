@@ -338,18 +338,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if ((program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty()) && (program.getGivenType() != null && program.getGivenType() != 1))
             return null;
 
-
         boolean flag = false;
         boolean isInclusiveTax = isInclusiveTax(program.getDiscountPriceType());
 
         //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM/còn ko có SP thì hiểu là không quy định SP mua
         List<Long> lstProductIds = new ArrayList<>();
-        if(orderData !=null) {
-            List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
-            lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-            if(details.isEmpty()){
-                flag = true;
-            }else {
+        List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
+        if(details.isEmpty()){
+            flag = true;
+        }else {
+            if(orderData !=null) {
+                lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
                 for (PromotionSaleProductDTO productPromotion : details) {
                     if (productPromotion.getProductId() == null ||
                             (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
@@ -360,8 +359,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
         }
 
-
-        if (flag || ( orderData == null && program.getGivenType() != null && program.getGivenType() == 1)){
+        if (flag/* || ( orderData == null && program.getGivenType() != null && program.getGivenType() == 1)*/){
             SalePromotionDTO salePromotion = null;
 
             if (program.getGivenType() != null && program.getGivenType() == 1){// tặng sản phẩm
