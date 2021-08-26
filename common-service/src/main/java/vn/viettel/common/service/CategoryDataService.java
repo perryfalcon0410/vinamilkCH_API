@@ -12,4 +12,6 @@ public interface CategoryDataService extends BaseService {
     List<CategoryDataDTO> getByCategoryGroupCode();
     CategoryDataDTO getReasonById(Long id);
     List<CategoryDataDTO> getListReasonExchange();
+
+    List<CategoryDataDTO> getListReasonExchangeFeign(List<Long> ids, String sortName, String direction);
 }

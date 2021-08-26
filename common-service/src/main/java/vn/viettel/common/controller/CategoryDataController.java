@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.common.service.CategoryDataService;
 import vn.viettel.core.controller.BaseController;
@@ -82,4 +83,19 @@ public class CategoryDataController extends BaseController {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
         return new Response<List<CategoryDataDTO>>().withData(dtoList);
     }
+
+    @ApiOperation(value = "")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = { V1 + root + "/feign/get-reason-exchange"})
+    public Response<List<CategoryDataDTO>> getReasonExchangeFeign(HttpServletRequest httpRequest, @RequestParam(required = false) List<Long> customerIds,
+                                                             @RequestParam(required = false) String sortName, @RequestParam(required = false) String direction) {
+        List<CategoryDataDTO> dtoList = categoryDataService.getListReasonExchangeFeign(customerIds, sortName, direction);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_CATEGORY_SUCCESS);
+        return new Response<List<CategoryDataDTO>>().withData(dtoList);
+    }
+
+
 }
