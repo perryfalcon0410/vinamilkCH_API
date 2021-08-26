@@ -72,7 +72,8 @@ public class CustomerTypeServiceImpl extends BaseServiceImpl<CustomerType, Custo
 
     @Override
     public CustomerTypeDTO getCustomerType(Long customerId, Long shopId) {
-        List<CustomerTypeDTO> customerTypes = repository.getByCustomerId(customerId);
+        List<CustomerTypeDTO> customerTypes = new ArrayList<>();
+        if(customerId!=null) customerTypes = repository.getByCustomerId(customerId);
         if(customerTypes.isEmpty()) customerTypes = repository.getWareHouseTypeIdByShopId(shopId);
         if(!customerTypes.isEmpty()) return customerTypes.get(0);
         return null;

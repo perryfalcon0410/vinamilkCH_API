@@ -140,4 +140,13 @@ public class CustomerDTO extends BaseDTO {
         this.totalBill = totalBill;
     }
 
+
+    public CustomerDTO(Long id, String firstName, String lastName, String customerCode, String mobiPhone){
+        setId(id);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.customerCode = customerCode;
+        this.mobiPhone = mobiPhone;
+    }
+
 }

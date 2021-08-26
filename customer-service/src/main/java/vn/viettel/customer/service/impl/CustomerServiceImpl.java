@@ -7,6 +7,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.*;
@@ -626,35 +627,48 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public List<Long> getIdCustomerBySearchKeyWords(String searchKeywords) {
-        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
-        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
-        return ids;
-    }
-
-    @Override
-    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty()) return new ArrayList<>();
+//        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+//        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
+//        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
-        List<Long> ids = repository.getCustomerIds( keyUpper, customerPhone, pageable).getContent();
-        return ids;
+        return repository.getCustomersIds(keyUpper, searchKeywords.toUpperCase(Locale.ROOT), searchKeywords);
     }
 
     @Override
-    public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds){
+    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
+        String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
+        return repository.getCustomerIds( keyUpper, customerPhone);
+    }
+
+    @Override
+    public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, List<SortDTO> sorts){
         if (customerIds == null || customerIds.isEmpty()) return null;
-        List<Customer> customers = repository.getCustomerInfo(status, customerIds);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
+        Pageable pageable = PageRequest.of(0, 1000000);
+        if(sorts != null && ! sorts.isEmpty()) {
+                Sort customerSort = null;
+                for(SortDTO dto: sorts) {
+                    Sort sorted = Sort.by(Sort.Direction.valueOf(dto.getDirection()), dto.getSortName());
+                    if(customerSort == null) customerSort = sorted;
+                    else customerSort.and(sorted);
+                }
+            pageable = PageRequest.of(0, 1000000, customerSort);
+        }
+
+        List<CustomerDTO> customers = repository.getCustomerInfo(status, customerIds, pageable).getContent();
+        /*modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<MemberCustomer> memberCustomers = memBerCustomerRepos.getMemberCustomers(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
-        return customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());
+        List<CustomerDTO> customerDTOS = customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());*/
+        return customers;
     }
 
-    @Override
-    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
-        List<Customer> customers = repository.getCustomersByIds(customerIds);
-        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-        return customerDTOS;
-    }
+//    @Override
+//    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
+//        List<Customer> customers = repository.getCustomersByIds(customerIds);
+//        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
+//        return customerDTOS;
+//    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

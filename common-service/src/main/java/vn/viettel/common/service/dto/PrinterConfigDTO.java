@@ -20,4 +20,7 @@ public class PrinterConfigDTO extends BaseDTO {
     private String reportPrinterName;
 
     private String defaultPrinterName;
+
+    private Boolean removeAccent;
+
 }

@@ -1,6 +1,7 @@
 package vn.viettel.core.dto.common;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import vn.viettel.core.service.dto.BaseDTO;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class CategoryDataDTO extends BaseDTO {
     @ApiModelProperty(notes = "Mã danh mục")
     private String categoryCode;
@@ -26,4 +28,15 @@ public class CategoryDataDTO extends BaseDTO {
     private String freeField2;
     @ApiModelProperty(notes = "Trạng thái")
     private Integer status;
+
+
+    public CategoryDataDTO(Long id, String categoryCode, String categoryName, String categoryGroupCode, String remarks, String parentCode) {
+        this.setId(id);
+        this.categoryCode = categoryCode;
+        this.categoryName = categoryName;
+        this.categoryGroupCode = categoryGroupCode;
+        this.remarks = remarks;
+        this.parentCode = parentCode;
+    }
+
 }

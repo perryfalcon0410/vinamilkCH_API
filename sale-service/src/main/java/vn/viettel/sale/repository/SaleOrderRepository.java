@@ -26,11 +26,33 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "   AND ( :toDate IS NULL OR s.orderDate <= :toDate) " +
             "   AND ( :orderNumber IS NULL OR upper(s.orderNumber) LIKE %:orderNumber% ) " +
             "   AND ( :type IS NULL OR s.type =:type) " +
-            "   AND ( :usedRedInvoice IS NULL OR s.usedRedInvoice =:usedRedInvoice ) " +
-            " ORDER BY s.orderNumber desc ")
+            "   AND ( :usedRedInvoice IS NULL OR s.usedRedInvoice =:usedRedInvoice ) "
+            )
     Page<SaleOrder> findALlSales(List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate,
-                                           String orderNumber, Integer type, Long shopId, Integer usedRedInvoice, Pageable pageable);
+                                           String orderNumber, Integer type, Long shopId, Boolean usedRedInvoice, Pageable pageable);
 
+
+    @Query(value = "SELECT distinct s.customerId FROM SaleOrder s " +
+            "  WHERE s.shopId =:shopId " +
+            "   AND ( :fromDate IS NULL OR s.orderDate >= :fromDate) " +
+            "   AND ( :toDate IS NULL OR s.orderDate <= :toDate) " +
+            "   AND ( :orderNumber IS NULL OR upper(s.orderNumber) LIKE %:orderNumber% ) " +
+            "   AND ( :type IS NULL OR s.type =:type) " +
+            "   AND ( :usedRedInvoice IS NULL OR s.usedRedInvoice =:usedRedInvoice ) ")
+    List<Long> getCustomerIds( LocalDateTime fromDate, LocalDateTime toDate, String orderNumber, Integer type, Long shopId, Boolean usedRedInvoice);
+
+
+    @Query(value = "SELECT s FROM SaleOrder s " +
+            "  WHERE s.shopId =:shopId " +
+            "   AND ( COALESCE(:customerIds,NULL) IS NULL OR s.customerId IN (:customerIds)) " +
+            "   AND ( :fromDate IS NULL OR s.orderDate >= :fromDate) " +
+            "   AND ( :toDate IS NULL OR s.orderDate <= :toDate) " +
+            "   AND ( :orderNumber IS NULL OR upper(s.orderNumber) LIKE %:orderNumber% ) " +
+            "   AND ( :type IS NULL OR s.type =:type) " +
+            "   AND ( :usedRedInvoice IS NULL OR s.usedRedInvoice =:usedRedInvoice ) " +
+            " ORDER BY decode(s.customerId, :customerIdsSort)")
+    Page<SaleOrder> findALlSales(List<Long> customerIds, LocalDateTime fromDate, LocalDateTime toDate,
+                                 String orderNumber, Integer type, Long shopId, Boolean usedRedInvoice, List<Long> customerIdsSort, Pageable pageable);
 
     @Query(value = "SELECT count(so) FROM SaleOrder so WHERE so.fromSaleOrderId = :id AND so.type = 2 ")
     Integer checkIsReturn(Long id);
@@ -110,7 +132,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "FROM   SaleOrder sbt " +
             "WHERE  sbt.type = :type " +
             "       AND (coalesce(:customerIds, null) IS NULL OR sbt.customerId in :customerIds ) " +
-            "       AND (:usedRedInv IS NULL OR (:usedRedInv = 1 and sbt.usedRedInvoice = true ) OR (:usedRedInv = 0 and (sbt.usedRedInvoice is null or sbt.usedRedInvoice = false) ) ) " +
+            "       AND ( :usedRedInv IS NULL OR sbt.usedRedInvoice =:usedRedInv )" +
+/*            "       AND (:usedRedInv IS NULL OR (:usedRedInv = 1 and sbt.usedRedInvoice = true ) OR (:usedRedInv = 0 and (sbt.usedRedInvoice is null or sbt.usedRedInvoice = false) ) ) " +*/
             "       AND (:orderNumber IS NULL OR upper(sbt.orderNumber) LIKE %:orderNumber% ) " +
             "       AND (:shopId IS NULL OR sbt.shopId = :shopId ) " +
             /*"       AND ( (:fromDate is null AND :toDate is null) OR (:fromDate is null AND sbt.orderDate <= :toDate ) " +
@@ -119,7 +142,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
             "       AND (:toDate is null  OR sbt.orderDate <= :toDate ) " +
             "")
     SaleOrderTotalResponse getSaleOrderTotal(Long shopId, List<Long> customerIds, String orderNumber, int type,
-                                             Integer usedRedInv, LocalDateTime fromDate, LocalDateTime toDate);
+                                             Boolean usedRedInv, LocalDateTime fromDate, LocalDateTime toDate);
     @Query(value = "" +
             "        SELECT pro.productName " +
             "        FROM SaleOrder sale " +

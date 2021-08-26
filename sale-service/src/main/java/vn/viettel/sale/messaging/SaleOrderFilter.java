@@ -25,7 +25,7 @@ public class SaleOrderFilter {
     @ApiModelProperty(value = "Số hóa đơn")
     private String orderNumber;
     @ApiModelProperty(value = "Có sử dụng hóa đơn đỏ")
-    private Integer usedRedInvoice;
+    private Boolean usedRedInvoice;
     @ApiModelProperty(value = "Từ ngày")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime fromDate;

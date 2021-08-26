@@ -44,7 +44,7 @@ public class SaleOrderController extends BaseController {
     public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                @RequestParam(value = "customerPhone", required = false) String customerPhone,
                                                                                                @RequestParam(value = "orderNumber", required = false) String orderNumber,
-                                                                                               @RequestParam(value = "usedRedInvoice", required = false) Integer usedRedInvoice,
+                                                                                               @RequestParam(value = "usedRedInvoice", required = false) Boolean usedRedInvoice,
                                                                                                @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                                @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                                @SortDefault.SortDefaults({
