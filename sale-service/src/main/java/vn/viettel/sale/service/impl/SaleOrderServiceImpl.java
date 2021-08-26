@@ -100,6 +100,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         LocalDateTime toDate = DateUtils.convertToDate(saleOrderFilter.getToDate());
 
         List<Long> saleCusIds = repository.getCustomerIds( fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice());
+        if(saleCusIds.isEmpty()) return null;
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
 
         Page<SaleOrder> findAll = null;

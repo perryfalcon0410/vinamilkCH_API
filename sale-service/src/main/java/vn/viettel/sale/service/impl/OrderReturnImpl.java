@@ -3,12 +3,10 @@ package vn.viettel.sale.service.impl;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramProductDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
@@ -70,41 +68,94 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = null;
+        int type = 2;
+        List<SortDTO> customerSorts = new ArrayList<>();
+        Sort orderSort = null;
+        List<Long> customerIdsSort = null;
+        if(pageable.getSort() != null) {
+            for (Sort.Order order : pageable.getSort()) {
+                if(order.getProperty().equals("customerNumber")){
+                    customerSorts.add(new SortDTO("customerCode", order.getDirection().toString()));
+                }else if(order.getProperty().equals("customerName")){
+                    customerSorts.add(new SortDTO("nameText", order.getDirection().toString()));
+                }else{
+                    Sort sorted = Sort.by(order.getDirection(), order.getProperty());
+                    if(orderSort == null) orderSort = sorted;
+                    else orderSort.and(sorted);
+                }
+            }
+        }
+
+        if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+            if (customerIds == null || customerIds.isEmpty()) {
+                customerIds = Arrays.asList(-1L);
+            }
+        }
+
+        Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
+
+        if (saleOrderFilter.getOrderNumber() != null)
+            saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
+
+        List<Long> saleCusIds = repository.getCustomerIds(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null);
+        if(saleCusIds.isEmpty()) return null;
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
+
+        Page<SaleOrder> findAll = null;
+        if(customerSorts == null || customerSorts.isEmpty()) {
+            findAll = repository.findALlSales(customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null, orderPage);
+        }else{
+            customerIdsSort = new ArrayList<>();
+            long i =  0;
+            for(CustomerDTO customer : customers) {
+                customerIdsSort.add(customer.getId());
+                customerIdsSort.add(i);
+                i++;
+            }
+            findAll = repository.findALlSales(customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null, customerIdsSort, orderPage);
+        }
+
+        SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId, saleOrderFilter.getOrderNumber(),
+                customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
+
+        List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
+        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item -> mapOrderReturnDTO(item, customers, saleOrders));
+        CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
+        return coverResponse;
+
+
+/*        List<Long> customerIds = null;
         if (saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null) {
             customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
             if (customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
         }
         if (saleOrderFilter.getOrderNumber() != null)
             saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
+
         Page<SaleOrder> findAll = repository.getSaleOrderReturn(shopId, saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), pageable);
+
         SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId, saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
-        List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
-                .filter(Objects::nonNull).collect(Collectors.toList()));
+
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), null, findAll.getContent().stream().map(item -> item.getCustomerId()).distinct()
                 .filter(Objects::nonNull).collect(Collectors.toList()));
+
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
-        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item -> mapOrderReturnDTO(item, users, customers, saleOrders));
+        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item -> mapOrderReturnDTO(item, customers, saleOrders));
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
-        return coverResponse;
+        return coverResponse;*/
     }
 
-    private OrderReturnDTO mapOrderReturnDTO(SaleOrder orderReturn, List<UserDTO> users, List<CustomerDTO> customers, List<SaleOrder> saleOrders) {
+    private OrderReturnDTO mapOrderReturnDTO(SaleOrder orderReturn, List<CustomerDTO> customers, List<SaleOrder> saleOrders) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderReturnDTO dto = modelMapper.map(orderReturn, OrderReturnDTO.class);
         if (saleOrders != null) {
             for (SaleOrder saleOrder : saleOrders) {
                 if (saleOrder.getId().equals(orderReturn.getFromSaleOrderId())) {
                     dto.setOrderNumberRef(saleOrder.getOrderNumber());
-                    break;
-                }
-            }
-        }
-        if (users != null) {
-            for (UserDTO user : users) {
-                if (user.getId().equals(orderReturn.getSalemanId())) {
-                    dto.setUserName(user.getFullName());
                     break;
                 }
             }
