@@ -22,8 +22,6 @@ import java.util.List;
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
 
-   @Lock(LockModeType.PESSIMISTIC_WRITE )
-   @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "500")})
    @Query(value = "SELECT p FROM PoTrans p " +
            " WHERE p.createdAt>= :startDate And p.type =:type AND p.transCode like :startWith% " +
            " ORDER BY p.transCode desc ")
