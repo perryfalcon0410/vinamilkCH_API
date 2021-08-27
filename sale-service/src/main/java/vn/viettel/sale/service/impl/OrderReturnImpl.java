@@ -126,27 +126,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return coverResponse;
 
 
-/*        List<Long> customerIds = null;
-        if (saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null) {
-            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
-            if (customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
-        }
-        if (saleOrderFilter.getOrderNumber() != null)
-            saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
-
-        Page<SaleOrder> findAll = repository.getSaleOrderReturn(shopId, saleOrderFilter.getOrderNumber(),
-                customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), pageable);
-
-        SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId, saleOrderFilter.getOrderNumber(),
-                customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
-
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), null, findAll.getContent().stream().map(item -> item.getCustomerId()).distinct()
-                .filter(Objects::nonNull).collect(Collectors.toList()));
-
-        List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
-        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item -> mapOrderReturnDTO(item, customers, saleOrders));
-        CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
-        return coverResponse;*/
     }
 
     private OrderReturnDTO mapOrderReturnDTO(SaleOrder orderReturn, List<CustomerDTO> customers, List<SaleOrder> saleOrders) {
