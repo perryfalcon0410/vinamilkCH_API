@@ -258,16 +258,18 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<PromotionProgramDiscountDTO> promotionProgramDiscounts =
                 promotionClient.listPromotionProgramDiscountByOrderNumberV1(orderNumber).getData();
         if (promotionProgramDiscounts != null) {
-            count = 0;
-            total = 0;
+        /*    count = 0;
+            total = 0;*/
             for (PromotionProgramDiscountDTO promotionProgramDiscount : promotionProgramDiscounts) {
                 DiscountDTO discountDTO = new DiscountDTO();
-                discountDTO.setDiscountPrice(promotionProgramDiscount.getDiscountAmount());
-                if(count == promotionProgramDiscounts.size())
+                if(promotionProgramDiscount.getActualDiscountAmount() == null) promotionProgramDiscount.setActualDiscountAmount(0.0);
+                discountDTO.setDiscountPrice(promotionProgramDiscount.getActualDiscountAmount());
+                discountDTO.setDiscountPercent(promotionProgramDiscount.getDiscountPercent());
+             /*   if(count == promotionProgramDiscounts.size())
                     discountDTO.setDiscountPrice(saleOrder.getDiscountCodeAmount() - total);
-                total += promotionProgramDiscount.getDiscountAmount();
+                total += promotionProgramDiscount.getActualDiscountAmount();*/
                 discountDTO.setPromotionType("Mã giảm giá");
-                PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionProgramDiscount.getId()).getData();
+                PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionProgramDiscount.getPromotionProgramId()).getData();
                 if(promotionProgram!=null) {
                     discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
                     discountDTO.setVoucherType(promotionProgram.getPromotionProgramCode());
