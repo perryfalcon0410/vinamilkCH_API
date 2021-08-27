@@ -6,8 +6,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.*;
@@ -81,6 +83,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
         List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
                 filter.getShopId(), filter.getFromDate(), filter.getToDate());
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         EntryMenuDetailsDTO entryMenuDetailsDTO = new EntryMenuDetailsDTO();
         if (!reportDTOS.isEmpty()){
             entryMenuDetailsDTO = reportDTOS.get(reportDTOS.size() -1);
@@ -103,6 +106,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
             dateDTO.setToDate(filter.getToDate());
             dateDTO.setDateOfPrinting(DateUtils.formatDate2StringDate(LocalDate.now()));
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+            if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             dateDTO.setShopName(shopDTO.getShopName());
             dateDTO.setAddress(shopDTO.getAddress());
             dateDTO.setTotalAmount(entryMenuDetailsDTO.getTotalAmount());

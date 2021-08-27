@@ -132,6 +132,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         if (reportDTOS.size() == 0)
             throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         SellDTO sellDTO = new SellDTO();
         if (!reportDTOS.isEmpty()) {
             sellDTO = reportDTOS.get(reportDTOS.size() - 1);
@@ -157,6 +158,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         if (!reportDTOS.isEmpty()) {
             SellDTO sellDTO = reportDTOS.get(reportDTOS.size() - 1);
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+            if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             dto.setFromDate(filter.getFromDate());
             dto.setToDate(filter.getToDate());
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss Z");

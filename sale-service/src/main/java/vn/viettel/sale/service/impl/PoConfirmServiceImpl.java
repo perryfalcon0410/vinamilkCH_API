@@ -185,7 +185,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     stt++;
                 }catch (Exception ex) {
-                    System.out.println(ex);
+                 //   ex.printStackTrace();
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }

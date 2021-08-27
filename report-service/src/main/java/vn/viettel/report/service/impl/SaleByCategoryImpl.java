@@ -44,6 +44,7 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
     public ByteArrayInputStream exportExcel(SaleCategoryFilter filter) throws IOException {
         this.validMonth(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         SalesByCategoryReportDTO tableDynamicDTO = this.callProcedure(filter);
         SalesByCategoryExcel excel = new SalesByCategoryExcel(filter, shopDTO, tableDynamicDTO, shopDTO.getParentShop());
         return excel.export();
@@ -142,6 +143,7 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
         if(procedure.getResponse() == null) return null;
         List<Object[]> allDatas = (List<Object[]>) procedure.getResponse();
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         SaleByCategoryPrintDTO printDTO = new SaleByCategoryPrintDTO();
         printDTO.setShopName(shopDTO.getShopName());
         printDTO.setShopAddress(shopDTO.getAddress());

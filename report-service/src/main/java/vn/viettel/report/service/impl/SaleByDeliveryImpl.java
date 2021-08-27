@@ -7,8 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
@@ -40,6 +42,7 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
     @Override
     public ByteArrayInputStream exportExcel(SaleDeliveryTypeFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         List<SaleByDeliveryTypeDTO> salesDeli = this.callStoreProcedure(filter);
         SaleDeliveryTypeExcel excel = new SaleDeliveryTypeExcel(shopDTO, shopDTO.getParentShop(), salesDeli);
         excel.setFromDate(filter.getFromDate());

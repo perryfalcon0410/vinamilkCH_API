@@ -281,10 +281,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             List<Long> lstDelete = new ArrayList<>();
             List<StockTotal> newStockTotals = new ArrayList<>();
 
+             /* Delete -> update -> create */
+            Collections.sort(request.getLstExchangeDetail(), Comparator.comparing(ExchangeTransDetailRequest::getType));
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
                 StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
                 if(stockTotal == null) stockTotalService.showMessage(req.getProductId(), true);
-
                 /** create record*/
                 if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
                     ExchangeTransDetail exchangeDetail = modelMapper.map(req, ExchangeTransDetail.class);
@@ -323,8 +324,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                     idAndValues.put(stockTotal.getId(), value);
                                 }
                             } else {/** update record*/
-                                item.setQuantity(req.getQuantity());
-                                exchangeDetails.add(item);
                                 int qty = -1;
                                 if(stockTotal != null){
                                     int value = (-1) * (req.getQuantity() - item.getQuantity());
@@ -337,6 +336,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                 if(qty < 0) {
                                     stockTotalService.showMessage(req.getProductId(), false);
                                 }
+                                item.setQuantity(req.getQuantity());
+                                exchangeDetails.add(item);
                             }
                             break;
                         }

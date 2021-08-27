@@ -45,6 +45,7 @@ public class QuantitySalesReceiptServiceImpl implements QuantitySalesReceiptServ
     public ByteArrayInputStream exportExcel(QuantitySalesReceiptFilter filter) throws IOException {
         this.validMonth(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         TableDynamicDTO  tableDynamicDTO = this.callProcedure(filter);
         QuantitySalesReceiptExcel excel = new QuantitySalesReceiptExcel(filter, tableDynamicDTO, shopDTO, shopDTO.getParentShop());
         return excel.export();

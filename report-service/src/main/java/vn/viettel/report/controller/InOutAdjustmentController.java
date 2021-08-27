@@ -11,9 +11,11 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.InOutAdjustmentFilter;
 import vn.viettel.report.service.InOutAdjustmentService;
@@ -54,6 +56,7 @@ public class InOutAdjustmentController extends BaseController {
     )
     public void exportToExcel(@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable, HttpServletResponse response) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+        if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId());
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
         InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop, shop.getParentShop(), filter);
