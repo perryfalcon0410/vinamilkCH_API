@@ -746,18 +746,33 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             repository.save(poRecord);
             List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
             Set<Long> countNumSKU = new HashSet<>();
+            Map<String, PoTransDetail> poTransDetails = new HashMap<>();
             for (PoDetail pod : poDetails) {
-                if(pod.getPrice()==null) pod.setPrice(0D);
-                countNumSKU.add(pod.getProductId());
-                PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
-                poTransDetail.setId(null);
-                poTransDetail.setTransId(poRecord.getId());
-                poTransDetail.setAmount(pod.getQuantity() * pod.getPrice());
-                poTransDetail.setReturnAmount(0);
-                poTransDetail.setTransDate(transDate);
-                poTransDetailRepository.save(poTransDetail);
-                stockTotalService.updateWithLock(shopId, poConfirm.getWareHouseTypeId(), pod.getProductId(),pod.getQuantity());
+                String key = pod.getProductId() + "-" + (pod.getPrice()!=null?pod.getPrice():0);
+                if(!poTransDetails.containsKey(key)) {
+                    if(pod.getPrice()==null) pod.setPrice(0D);
+                    countNumSKU.add(pod.getProductId());
+                    PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
+                    poTransDetail.setId(null);
+                    poTransDetail.setTransId(poRecord.getId());
+                    poTransDetail.setAmount(pod.getQuantity() * pod.getPrice());
+                    poTransDetail.setReturnAmount(0);
+                    poTransDetail.setTransDate(transDate);
+                    poTransDetails.put(key, poTransDetail);
+                }else{
+                    PoTransDetail poTransDetail = poTransDetails.get(key);
+                    poTransDetail.setQuantity(poTransDetail.getQuantity() + pod.getQuantity());
+                    poTransDetails.put(key, poTransDetail);
+                }
+
             }
+
+            List<PoTransDetail> detailNeedSaves = new ArrayList<>(poTransDetails.values());
+            for(PoTransDetail detail: detailNeedSaves) {
+                poTransDetailRepository.save(detail);
+                stockTotalService.updateWithLock(shopId, poConfirm.getWareHouseTypeId(), detail.getProductId(),detail.getQuantity());
+            }
+
             poRecord.setNumSku(countNumSKU.size());
             poRecord.setNote(request.getNote());
             repository.save(poRecord);
