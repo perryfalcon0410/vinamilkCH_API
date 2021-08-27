@@ -76,7 +76,7 @@ public class ReceiptExportController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<String> updateReceiptExport(HttpServletRequest request,@RequestBody ReceiptExportUpdateRequest rq,
+    public Response<String> updateReceiptExport(HttpServletRequest request, @Valid @RequestBody ReceiptExportUpdateRequest rq,
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_EXPORT_SUCCESS);
         ResponseMessage message = receiptExportService.updateReceiptExport(rq, Id,this.getShopId());
