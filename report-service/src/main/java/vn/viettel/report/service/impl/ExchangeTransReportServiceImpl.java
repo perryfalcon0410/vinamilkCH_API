@@ -50,6 +50,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     public ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException {
         this.validMonth(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         ExchangeTransReportDTO tableDynamicDTO = this.callProcedure(filter);
         ExchangeTransExcel excel = new ExchangeTransExcel(filter,shopDTO, tableDynamicDTO,shopDTO.getParentShop());
         return excel.export();

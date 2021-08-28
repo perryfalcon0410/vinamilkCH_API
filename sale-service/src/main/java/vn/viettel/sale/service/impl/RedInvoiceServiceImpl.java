@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -387,7 +388,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         List<CustomerDTO> customers = null;
         List<Long> customerIds = hddtExcels.stream().map(HddtExcel::getCustomerId).collect(Collectors.toList());
-        if(!customerIds.isEmpty()) customers = customerClient.getAllCustomerToRedInvocieV1(customerIds).getData();
+        if(!customerIds.isEmpty()) customers = customerClient.getCustomerInfoV1( new ArrayList<>(), null, customerIds);
         Map<Long, CustomerDTO> lstCustomer = new HashMap<>();
         if(customers!=null) {
             for(CustomerDTO customer: customers) {

@@ -65,7 +65,7 @@ public class ChangePriceReportExcel {
             for (ChangePriceDTO changePrice : changePriceReport.getChangePriceReport()) {
                 if (changePrice.getPoNumber().equals(poNum.getPoNumber())) {
                     subParent.add(changePrice);
-                    totalQuantity += changePrice.getQuantity();
+                    totalQuantity += (changePrice.getQuantity()!=null?changePrice.getQuantity():0);
                     rowNum ++;
                 }
             }

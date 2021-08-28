@@ -21,8 +21,12 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     List<Customer> getAllByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
-    @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
-    List<Customer> getCustomerInfo(Integer status, List<Long> customerIds);
+   /* @Query(value = "SELECT c FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
+    Page<Customer> getCustomerInfo(Integer status, List<Long> customerIds, Pageable pageable);*/
+
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone) " +
+            " FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
+    Page<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, Pageable pageable);
 
     @Query(value = "SELECT c FROM Customer c WHERE c.id IN (:customerIds)")
     List<Customer> getCustomersByIds(List<Long> customerIds);
@@ -40,7 +44,7 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " AND c.status = 1 ORDER BY c.updatedAt DESC")
     List<CustomerDTO> getCustomerDefault(Long shopId);
 
-    @Query(value = "SELECT c.id FROM Customer c where ( c.customerCode like %:nameOrCode% OR c.nameText like %:nameOrCode% ) " +
+    @Query(value = "SELECT DISTINCT c.id FROM Customer c where ( c.customerCode like %:nameOrCode% OR c.nameText like %:nameOrCode% ) " +
             "and c.mobiPhone like %:customerPhone ")
     List<Long> getCustomerIds(String nameOrCode, String customerPhone);
 
@@ -96,4 +100,10 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     )
     List<CustomerDTO> searchForAutoComplete(String name, String code, String address, String phone);
 
+    @Query(value = "SELECT distinct c.id " +
+            " FROM Customer c WHERE 1 = 1 " +
+            " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone ) "
+    )
+    List<Long> getCustomersIds(String name, String code, String phone);
 }

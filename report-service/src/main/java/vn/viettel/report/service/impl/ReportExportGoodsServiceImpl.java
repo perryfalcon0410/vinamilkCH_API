@@ -64,6 +64,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     @Override
     public ByteArrayInputStream exportExcel(ShopExportFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         List<ShopExportDTO> shopExports = this.callProcedure(filter);
         TotalReport totalReport = new TotalReport();
 

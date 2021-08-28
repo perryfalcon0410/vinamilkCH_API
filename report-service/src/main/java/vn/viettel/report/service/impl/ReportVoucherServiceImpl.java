@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.ReportVoucherService;
@@ -54,6 +56,7 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
     @Override
     public ByteArrayInputStream exportExcel(ReportVoucherFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         List<ReportVoucherDTO> lst = this.callReportVoucherDTO(filter);
         ReportVoucherExcel reportVoucherExcel = new ReportVoucherExcel(shopDTO, shopDTO.getParentShop(), lst);
         reportVoucherExcel.setFromDate(filter.getFromProgramDate());

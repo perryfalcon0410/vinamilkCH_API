@@ -10,9 +10,11 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.service.dto.PrintShopImportDTO;
 import vn.viettel.report.service.excel.ShopImportExcel;
@@ -58,6 +60,7 @@ public class ShopImportReportController extends BaseController {
                                         ,HttpServletResponse response) throws IOException, ParseException {
         ShopImportFilter shopImportFilter = new ShopImportFilter( DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+        if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(shopImportFilter).getData();
         ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop.getParentShop(),shopImportFilter);
         ByteArrayInputStream in = shopImportReport.export();

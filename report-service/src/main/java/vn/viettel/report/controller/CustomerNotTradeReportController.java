@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
@@ -57,6 +59,7 @@ public class    CustomerNotTradeReportController extends BaseController {
                                         @RequestParam(required = false) Date toDate,
             HttpServletResponse response, Pageable pageable) throws IOException{
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+        if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable, this.getShopId());
 
         CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, shop.getParentShop(), fromDate, toDate);

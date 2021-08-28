@@ -31,4 +31,7 @@ public class PrinterConfig extends BaseEntity {
     @Column(name = "DEFAULT_PRINTER_NAME")
     private String defaultPrinterName;
 
+    @Column(name = "REMOVE_ACCENT", columnDefinition = "boolean default false")
+    private Boolean removeAccent;
+
 }

@@ -79,7 +79,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                 String poCoNum = poHeader.getPoCoNumber().substring(0,i);
                 String internalNum = poHeader.getPoCoNumber().substring(i+1);
 
-                PoConfirm poConfirmDB = repository.getPoConfirm(shopDTO.getId(), poCoNum);
+                PoConfirm poConfirmDB = repository.getPoConfirm(shopDTO.getId(), poCoNum, internalNum);
                 if(poConfirmDB != null && poConfirmDB.getStatus() != 0) continue;
                 if(poConfirmDB != null && poConfirmDB.getStatus() == 0) {
                     poDetailRepository.deleteByPoId(poConfirmDB.getId());
@@ -185,7 +185,7 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
                     connectFTP.moveFile(readPath, backupPath, entry.getKey());
                     stt++;
                 }catch (Exception ex) {
-                    System.out.println(ex);
+                 //   ex.printStackTrace();
                     LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
                 }
             }

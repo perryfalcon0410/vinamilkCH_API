@@ -6,9 +6,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.ChangePriceDTO;
 import vn.viettel.report.service.dto.ChangePricePrintDTO;
@@ -137,6 +139,7 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
         }
 
         ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         response.setShop(shopDTO);
         response.setFromDate(DateUtils.convertFromDate(fromTransDate));
         response.setToDate(DateUtils.convertFromDate(toTransDate));

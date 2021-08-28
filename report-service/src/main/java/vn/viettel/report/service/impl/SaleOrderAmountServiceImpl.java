@@ -48,6 +48,7 @@ public class SaleOrderAmountServiceImpl implements SaleOrderAmountService {
         this.validMonth(filter);
 
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         TableDynamicDTO  tableDynamicDTO = this.callProcedure(filter);
         SaleOrderAmountExcel excel = new SaleOrderAmountExcel(filter, tableDynamicDTO, shopDTO, shopDTO.getParentShop());
         return excel.export();

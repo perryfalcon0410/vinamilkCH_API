@@ -22,7 +22,7 @@ public interface SaleOrderService {
     /*
     Lấy danh sách hóa đơn bán hàng
      */
-    CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);
+    CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId);
     SaleOrderDetailDTO getSaleOrderDetail(long saleOrderId, String orderNumber);
     Page<SaleOrderDTO> getAllBillOfSaleList(RedInvoiceFilter redInvoiceFilter,Long shopId, Pageable pageable);
     SaleOrderDTO getLastSaleOrderByCustomerId(Long customerId);

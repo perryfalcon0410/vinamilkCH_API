@@ -16,6 +16,7 @@ import vn.viettel.promotion.service.VoucherService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Api(tags = "API voucher sử dụng cho bán hàng")
@@ -35,6 +36,20 @@ public class VoucherController extends BaseController {
                                            @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                                            @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
         VoucherDTO response = voucherService.getVoucherBySerial(serial, this.getShopId(), customerId, productIds);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
+        return new Response<VoucherDTO>().withData(response);
+    }
+
+    @PostMapping(value = { V1 + root + "/code"})
+    @ApiOperation(value = "Tìm voucher theo serial trong bán hàng")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<VoucherDTO> getVoucherBySerial(HttpServletRequest request, @RequestBody Map<String, String> voucher,
+                                                 @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
+                                                 @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
+        VoucherDTO response = voucherService.getVoucherBySerial(voucher.get("serial"), this.getShopId(), customerId, productIds);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return new Response<VoucherDTO>().withData(response);
     }

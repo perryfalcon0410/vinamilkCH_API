@@ -21,7 +21,7 @@ public class NumberGreaterThanZeroValidator implements ConstraintValidator<Numbe
 
     @Override
     public boolean isValid(Number number, ConstraintValidatorContext context) {
-        if (number == null || (number != null && number.intValue() == 0)) {
+        if (number == null || (number != null && number.intValue() <= 0)) {
             throw new ValidateException(message);
         }
         return true;

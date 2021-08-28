@@ -110,7 +110,7 @@ public class ExchangeTransController extends BaseController {
             @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
     })
     @PutMapping(value = { V1 + root + "/update/{id}"})
-    public Response<String> update(@PathVariable Long id,@RequestBody  ExchangeTransRequest request, HttpServletRequest httpRequest) {
+    public Response<String> update(@PathVariable Long id,@RequestBody @Valid ExchangeTransRequest request, HttpServletRequest httpRequest) {
         ResponseMessage message = service.update(id,request,this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
