@@ -4,14 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.ExchangeTransDetail_;
-import vn.viettel.sale.entities.SaleOrder_;
 import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrder_;
 
 import javax.persistence.criteria.Predicate;
-import java.sql.Timestamp;
-import java.time.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 

@@ -4,12 +4,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.tomcat.jni.Local;
-import vn.viettel.sale.messaging.RedInvoicePrint;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter

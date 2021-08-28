@@ -8,7 +8,6 @@ import vn.viettel.core.util.Constants;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter

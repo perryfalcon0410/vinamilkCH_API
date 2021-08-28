@@ -20,10 +20,7 @@ import vn.viettel.core.util.ValidationUtils;
 import vn.viettel.sale.entities.Price;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.messaging.OrderPromotionRequest;
-import vn.viettel.sale.messaging.ProductOrderRequest;
-import vn.viettel.sale.messaging.SalePromotionCalItemRequest;
-import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
+import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.dto.*;
@@ -1889,12 +1886,30 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     /*
     cập nhật lại số lượng nếu đơn vị uom khác nhau và set về 0 nếu sp km không còn hoạt động
      */
+    //fix ora-01795 maximum number of expressions in a list: 1000
+    public List<Product> getProducts(List<Long> ids) {
+        List<Product> products = new ArrayList<>();
+        double count = Math.ceil(ids.size()/1000.0) - 1;
+        int max = 0;
+        for(int i = 0; i <= count; i++) {
+            if ((i + 1)*1000 > ids.size()) {
+                max = ids.size();
+            } else {
+                max = (i + 1)*1000;
+            }
+            List<Long> subIds = ids.subList(i*1000, max);
+           products.addAll(productRepository.getProducts(subIds, 1));
+        }
+        return products;
+    }
+
     private void updateUomProduct(List<PromotionProgramDetailDTO> details){
-        if(details == null) return;
+        if(details == null || details.isEmpty()) return;
         List<Long> productIds = details.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
         details.stream().map(item -> item.getFreeProductId()).distinct().filter(Objects::nonNull).forEachOrdered(productIds::add);
         productIds.stream().distinct();
-        List<Product> products = productRepository.getProducts(productIds, 1);
+
+        List<Product> products = this.getProducts(productIds);
         List<Long> productActive = products.stream().map(item -> item.getId()).collect(Collectors.toList());
         for(PromotionProgramDetailDTO promotion : details){
             for(Product product : products){
