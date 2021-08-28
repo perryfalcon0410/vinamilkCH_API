@@ -1,7 +1,7 @@
 package vn.viettel.customer.controller;
 
-import org.springframework.web.bind.annotation.*;
-import vn.viettel.core.controller.BaseController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.util.Constants;
 
 import javax.servlet.http.HttpServletRequest;

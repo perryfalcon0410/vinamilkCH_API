@@ -5,9 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.validation.annotation.NotNull;
-import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 
 @Getter
 @Setter

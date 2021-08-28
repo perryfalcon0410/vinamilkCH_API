@@ -12,7 +12,6 @@ import vn.viettel.core.util.Constants;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter

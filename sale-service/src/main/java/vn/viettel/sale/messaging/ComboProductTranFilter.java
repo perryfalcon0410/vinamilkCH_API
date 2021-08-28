@@ -1,7 +1,6 @@
 package vn.viettel.sale.messaging;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +9,6 @@ import lombok.Setter;
 import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter

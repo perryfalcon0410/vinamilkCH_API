@@ -1,12 +1,10 @@
 package vn.viettel.core.repository;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import vn.viettel.core.db.entity.BaseEntity;
+import java.util.List;
 
 public interface ReadOnlyRepository<T/* extends BaseEntity*/> extends JpaRepository<T, Long> {
 

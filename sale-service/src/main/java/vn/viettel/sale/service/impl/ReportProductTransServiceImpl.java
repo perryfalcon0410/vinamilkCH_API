@@ -10,7 +10,10 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReportProductTransService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.ReportProductCatDTO;
+import vn.viettel.sale.service.dto.ReportProductDTO;
+import vn.viettel.sale.service.dto.ReportProductTransDTO;
+import vn.viettel.sale.service.dto.ReportProductTransDetailDTO;
 import vn.viettel.sale.service.feign.ShopClient;
 
 import java.util.*;

@@ -1,7 +1,7 @@
 package vn.viettel.core.validation.validator;
 
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MinTextLength;
 
 import javax.validation.ConstraintValidator;

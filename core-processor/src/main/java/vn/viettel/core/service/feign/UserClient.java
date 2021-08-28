@@ -1,10 +1,9 @@
 package vn.viettel.core.service.feign;
 
-import vn.viettel.core.dto.UserDTO;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 import io.jsonwebtoken.Claims;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.core.dto.UserDTO;
+import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 import java.util.List;
 

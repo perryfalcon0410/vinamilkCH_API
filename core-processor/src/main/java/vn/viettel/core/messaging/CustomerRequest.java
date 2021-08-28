@@ -12,7 +12,6 @@ import vn.viettel.core.validation.annotation.MaxTextLength;
 import vn.viettel.core.validation.annotation.NotBlank;
 import vn.viettel.core.validation.annotation.NotNull;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @Getter

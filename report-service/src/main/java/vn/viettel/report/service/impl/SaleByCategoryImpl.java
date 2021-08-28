@@ -28,9 +28,9 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Date;
 
 @Service
 public class SaleByCategoryImpl implements SaleByCategoryReportService {

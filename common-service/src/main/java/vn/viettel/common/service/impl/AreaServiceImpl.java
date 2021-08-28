@@ -17,7 +17,6 @@ import vn.viettel.core.util.ResponseMessage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AreaServiceImpl extends BaseServiceImpl<Area, AreaRepository> implements AreaService {

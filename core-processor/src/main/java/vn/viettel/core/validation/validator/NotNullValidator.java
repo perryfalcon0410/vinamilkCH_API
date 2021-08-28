@@ -1,12 +1,12 @@
 package vn.viettel.core.validation.validator;
 
-import vn.viettel.core.db.entity.role.UserRole;
-import vn.viettel.core.security.context.SecurityContexHolder;
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.validation.annotation.NotNull;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import vn.viettel.core.db.entity.role.UserRole;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.security.context.SecurityContexHolder;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.NotNull;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

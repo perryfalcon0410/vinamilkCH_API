@@ -1,6 +1,5 @@
 package vn.viettel.common.repository;
 
-import vn.viettel.common.entities.CategoryData;
 import vn.viettel.common.entities.PrinterConfig;
 import vn.viettel.core.repository.BaseRepository;
 

@@ -15,7 +15,10 @@ import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.messaging.UserDataResponse;
 import vn.viettel.report.service.SellsReportService;
-import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.dto.ReportDateDTO;
+import vn.viettel.report.service.dto.ReportSellDTO;
+import vn.viettel.report.service.dto.SellDTO;
+import vn.viettel.report.service.dto.SellTotalDTO;
 import vn.viettel.report.service.excel.SellExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -25,12 +28,10 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 

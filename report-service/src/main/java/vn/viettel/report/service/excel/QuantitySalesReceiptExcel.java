@@ -8,13 +8,11 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
-import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.dto.TableDynamicDTO;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 

@@ -6,10 +6,11 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.customer.entities.Customer;
-import vn.viettel.customer.service.dto.ExportCustomerDTO;
 
 import java.awt.Color;
 import java.io.ByteArrayInputStream;

@@ -9,24 +9,24 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.report.service.dto.*;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
 import vn.viettel.report.service.SaleDeliveryTypeService;
+import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
+import vn.viettel.report.service.dto.SaleDeliTypeTotalDTO;
 import vn.viettel.report.service.excel.SaleDeliveryTypeExcel;
 import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
+
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 

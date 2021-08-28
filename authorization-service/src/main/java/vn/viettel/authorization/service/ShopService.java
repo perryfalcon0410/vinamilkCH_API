@@ -5,7 +5,6 @@ import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.messaging.ShopParamRequest;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ShopService {
     ShopDTO getById(Long id);

@@ -14,7 +14,8 @@ import vn.viettel.customer.entities.MemberCard;
 import vn.viettel.customer.service.MemberCardService;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 

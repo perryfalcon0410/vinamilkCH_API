@@ -1,9 +1,5 @@
 package vn.viettel.core.security.config;
 
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import vn.viettel.core.security.interceptor.Base64Decode;
-import vn.viettel.core.util.AuthorizationType;
 import feign.Request;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -19,6 +15,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import vn.viettel.core.security.interceptor.Base64Decode;
 
 @Configuration
 public class FeignClientAuthenticateConfig {

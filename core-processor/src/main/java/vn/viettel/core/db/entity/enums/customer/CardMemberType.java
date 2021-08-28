@@ -1,7 +1,6 @@
 package vn.viettel.core.db.entity.enums.customer;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 public enum CardMemberType {
     BRONZE_CUSTOMER(0, "KHACH HANG DONG"),

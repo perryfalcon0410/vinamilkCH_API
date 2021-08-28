@@ -2,21 +2,18 @@ package vn.viettel.customer.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CustomerOnlRequest;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
-import vn.viettel.customer.service.dto.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public interface CustomerService extends BaseService {
 

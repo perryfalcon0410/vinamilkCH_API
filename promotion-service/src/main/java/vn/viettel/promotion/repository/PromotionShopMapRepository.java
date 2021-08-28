@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.PromotionShopMap;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PromotionShopMapRepository extends BaseRepository<PromotionShopMap> {

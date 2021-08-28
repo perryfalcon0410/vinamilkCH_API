@@ -8,7 +8,6 @@ import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Entity

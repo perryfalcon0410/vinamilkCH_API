@@ -5,8 +5,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import vn.viettel.authorization.BaseTest;
 import vn.viettel.authorization.service.TokenGenerateService;
 
-import static org.junit.Assert.*;
-
 public class TokenControllerTest extends BaseTest {
 
     @MockBean

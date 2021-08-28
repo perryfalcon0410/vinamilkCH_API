@@ -1,7 +1,6 @@
 package vn.viettel.sale.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.core.convert.XStreamTranslator;
@@ -17,7 +16,10 @@ import vn.viettel.sale.entities.PoConfirm;
 import vn.viettel.sale.entities.PoDetail;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.WareHouseType;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.repository.PoConfirmRepository;
+import vn.viettel.sale.repository.PoDetailRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.WareHouseTypeRepository;
 import vn.viettel.sale.service.PoConfirmService;
 import vn.viettel.sale.service.dto.PoConfirmXmlDTO;
 import vn.viettel.sale.service.feign.ApparamClient;

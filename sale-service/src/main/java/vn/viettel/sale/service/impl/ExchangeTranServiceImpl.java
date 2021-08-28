@@ -6,10 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
@@ -31,7 +29,6 @@ import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
-import vn.viettel.sale.specification.ExchangeTransSpecification;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -87,14 +84,20 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
         if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
 
-        List<Long> reasonIds = repository.getReasonIds(shopId, transCode, 1, reasonId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
-        List<CategoryDataDTO> reasonExchanges = categoryDataClient.getReasonExchangeFeign(reasonIds, sortName, direction).getData();
+        List<Long> reasonIds = null;
 
         if (transCode != null) transCode = transCode.trim().toUpperCase();
         Page<ExchangeTrans> exchangeTransList = null;
         if(sortName == null) {
             exchangeTransList = repository.getExchangeTrans(shopId, transCode, 1, reasonId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), orderPage);
-        }else {
+            reasonIds = exchangeTransList.stream().map(item -> item.getReasonId()).distinct().filter(Objects::nonNull).collect(Collectors.toList());
+        }else{
+            reasonIds = repository.getReasonIds(shopId, transCode, 1, reasonId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        }
+        if(reasonIds == null || reasonIds.isEmpty()) reasonIds = Arrays.asList(-1L);
+        List<CategoryDataDTO> reasonExchanges = categoryDataClient.getReasonExchangeFeign(reasonIds, sortName, direction).getData();
+
+        if(sortName != null) {
             if(reasonIds.isEmpty()) return null;
             reasonSortIds = new ArrayList<>();
             long i =  0;
@@ -104,7 +107,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                 i++;
             }
             exchangeTransList = repository.getExchangeTrans(shopId, transCode, 1, reasonId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), reasonSortIds, orderPage);
-
         }
 
         Page<ExchangeTransDTO> pageResult = exchangeTransList.map(item -> mapExchangeToDTO(item, reasonExchanges));

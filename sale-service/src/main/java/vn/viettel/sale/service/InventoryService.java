@@ -4,10 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.StockCounting;
-import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.service.dto.*;
 
 import java.io.ByteArrayInputStream;

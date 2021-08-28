@@ -11,7 +11,6 @@ import lombok.Setter;
 import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

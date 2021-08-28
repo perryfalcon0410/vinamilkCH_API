@@ -1,20 +1,17 @@
 package vn.viettel.sale.service.feign;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.dto.customer.RptCusMemAmountDTO;
-import vn.viettel.core.messaging.*;
+import vn.viettel.core.messaging.CustomerOnlRequest;
+import vn.viettel.core.messaging.CustomerRequest;
+import vn.viettel.core.messaging.MemberCustomerRequest;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
-import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @FeignClientAuthenticate(name = "customer-service")

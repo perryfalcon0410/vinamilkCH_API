@@ -10,8 +10,6 @@ import vn.viettel.report.messaging.InOutAdjustmentFilter;
 import vn.viettel.report.service.InOutAdjustmentService;
 import vn.viettel.report.service.dto.InOutAdjusmentDTO;
 import vn.viettel.report.service.dto.InOutAdjustmentTotalDTO;
-import vn.viettel.report.service.dto.ShopImportDTO;
-import vn.viettel.report.service.dto.ShopImportTotalDTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -19,7 +17,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service

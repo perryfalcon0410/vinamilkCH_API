@@ -8,7 +8,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import vn.viettel.core.dto.customer.MemberCardDTO;
 import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.customer.BaseTest;
 import vn.viettel.customer.entities.MemberCustomer;

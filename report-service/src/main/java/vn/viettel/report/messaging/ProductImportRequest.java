@@ -1,7 +1,6 @@
 package vn.viettel.report.messaging;
 
 import com.poiji.annotation.ExcelCell;
-import com.poiji.annotation.ExcelCellName;
 import com.poiji.annotation.ExcelRow;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -2,16 +2,11 @@ package vn.viettel.sale.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 import vn.viettel.core.service.BaseService;
 import vn.viettel.sale.entities.OnlineOrder;
-import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
-import vn.viettel.sale.xml.DataSet;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 

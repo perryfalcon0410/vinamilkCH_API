@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.PromotionCustATTRDetail;
 
-import java.util.List;
 import java.util.Set;
 
 
