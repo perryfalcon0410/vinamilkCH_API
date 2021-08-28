@@ -282,7 +282,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             List<StockTotal> newStockTotals = new ArrayList<>();
 
              /* Delete -> update -> create */
-            Collections.sort(request.getLstExchangeDetail(), Comparator.comparing(ExchangeTransDetailRequest::getType));
+            Collections.sort(request.getLstExchangeDetail(), Comparator.comparing(ExchangeTransDetailRequest::getType).reversed());
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
                 StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
                 if(stockTotal == null) stockTotalService.showMessage(req.getProductId(), true);
