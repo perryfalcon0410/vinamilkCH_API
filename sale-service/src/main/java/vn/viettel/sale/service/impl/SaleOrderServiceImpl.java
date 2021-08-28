@@ -99,14 +99,18 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
         LocalDateTime toDate = DateUtils.convertToDate(saleOrderFilter.getToDate());
 
-        List<Long> saleCusIds = repository.getCustomerIds( fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice());
-        if(saleCusIds.isEmpty()) return null;
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
-
+        List<Long> saleCusIds = null;
         Page<SaleOrder> findAll = null;
         if(customerSorts == null || customerSorts.isEmpty()) {
             findAll = repository.findALlSales(customerIds, fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice(), orderPage);
+            saleCusIds = findAll.stream().map(item -> item.getCustomerId()).distinct().collect(Collectors.toList());
         }else{
+            saleCusIds = repository.getCustomerIds( fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice());
+        }
+
+        if(saleCusIds.isEmpty()) return null;
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
+        if(customerSorts != null && !customerSorts.isEmpty()) {
             customerIdsSort = new ArrayList<>();
             long i =  0;
             for(CustomerDTO customer : customers) {

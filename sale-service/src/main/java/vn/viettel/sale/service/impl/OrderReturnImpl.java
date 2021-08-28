@@ -99,14 +99,18 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (saleOrderFilter.getOrderNumber() != null)
             saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
 
-        List<Long> saleCusIds = repository.getCustomerIds(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null);
-        if(saleCusIds.isEmpty()) return null;
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
-
         Page<SaleOrder> findAll = null;
+        List<Long> saleCusIds = null;
         if(customerSorts == null || customerSorts.isEmpty()) {
             findAll = repository.findALlSales(customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null, orderPage);
+            saleCusIds = findAll.stream().map(item -> item.getCustomerId()).distinct().collect(Collectors.toList());
         }else{
+            saleCusIds = repository.getCustomerIds(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null);
+        }
+
+        if(saleCusIds.isEmpty()) return null;
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
+        if(customerSorts != null && !customerSorts.isEmpty()) {
             customerIdsSort = new ArrayList<>();
             long i =  0;
             for(CustomerDTO customer : customers) {
