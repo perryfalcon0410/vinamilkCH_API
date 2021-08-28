@@ -752,6 +752,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 String key = pod.getProductId() + "-" + (pod.getPrice()!=null?pod.getPrice():0);
                 if(!poTransDetails.containsKey(key)) {
                     if(pod.getPrice()==null) pod.setPrice(0D);
+                    if(pod.getPriceNotVat()==null) pod.setPriceNotVat(0D);
                     countNumSKU.add(pod.getProductId());
                     PoTransDetail poTransDetail = modelMapper.map(pod, PoTransDetail.class);
                     poTransDetail.setId(null);
@@ -763,9 +764,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 }else{
                     PoTransDetail poTransDetail = poTransDetails.get(key);
                     poTransDetail.setQuantity(poTransDetail.getQuantity() + pod.getQuantity());
+                    poTransDetail.setAmount(poTransDetail.getQuantity()*poTransDetail.getPrice());
+                    poTransDetail.setAmountNotVat(poTransDetail.getQuantity()*poTransDetail.getPriceNotVat());
                     poTransDetails.put(key, poTransDetail);
                 }
-
             }
 
             List<PoTransDetail> detailNeedSaves = new ArrayList<>(poTransDetails.values());
