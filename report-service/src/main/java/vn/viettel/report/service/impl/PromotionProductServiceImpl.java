@@ -1,6 +1,5 @@
 package vn.viettel.report.service.impl;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -9,13 +8,15 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
-import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.dto.PromotionProductCatDTO;
+import vn.viettel.report.service.dto.PromotionProductDTO;
+import vn.viettel.report.service.dto.PromotionProductReportDTO;
+import vn.viettel.report.service.dto.PromotionProductTotalDTO;
 import vn.viettel.report.service.excel.PromotionProductExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -25,11 +26,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.RuleBasedCollator;
-import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 

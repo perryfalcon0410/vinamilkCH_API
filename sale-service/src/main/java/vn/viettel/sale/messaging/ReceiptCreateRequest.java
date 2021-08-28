@@ -11,7 +11,6 @@ import vn.viettel.core.validation.annotation.MaxTextLength;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter

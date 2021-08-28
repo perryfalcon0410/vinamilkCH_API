@@ -39,7 +39,6 @@ import javax.persistence.OptimisticLockException;
 import javax.security.sasl.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.AccessDeniedException;
 
 @RestControllerAdvice

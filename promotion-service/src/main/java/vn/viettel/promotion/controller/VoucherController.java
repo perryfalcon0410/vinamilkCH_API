@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.voucher.VoucherDTO;
-import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.promotion.service.VoucherService;
 
 import javax.servlet.http.HttpServletRequest;

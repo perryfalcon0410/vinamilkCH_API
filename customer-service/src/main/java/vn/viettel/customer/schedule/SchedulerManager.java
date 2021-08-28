@@ -3,12 +3,9 @@ package vn.viettel.customer.schedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.service.CustomerService;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Component
 public class SchedulerManager {

@@ -2,7 +2,6 @@ package vn.viettel.customer.service;
 
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.service.BaseService;
-import vn.viettel.customer.entities.Customer;
 
 import java.util.List;
 

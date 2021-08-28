@@ -9,7 +9,6 @@ import vn.viettel.common.repository.CategoryDataRepository;
 import vn.viettel.common.service.CategoryDataService;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 

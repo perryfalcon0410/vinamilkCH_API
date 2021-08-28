@@ -1,11 +1,11 @@
 package vn.viettel.core.validation.validator;
 
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.NotEmpty;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.validation.annotation.NotEmpty;
 
 public class NotEmptyValidatorForArray implements ConstraintValidator<NotEmpty, Object[]> {
 

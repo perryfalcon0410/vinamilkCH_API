@@ -14,7 +14,6 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.service.CustomerTypeService;
 
 import javax.servlet.http.HttpServletRequest;

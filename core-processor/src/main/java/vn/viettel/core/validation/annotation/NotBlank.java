@@ -1,15 +1,14 @@
 package vn.viettel.core.validation.annotation;
 
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.validator.NotBlankValidator;
+
+import javax.validation.Constraint;
+import javax.validation.Payload;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import javax.validation.Constraint;
-import javax.validation.Payload;
-
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.validation.validator.NotBlankValidator;
 
 @Constraint(validatedBy = NotBlankValidator.class)
 @Target({ElementType.FIELD, ElementType.TYPE_USE})

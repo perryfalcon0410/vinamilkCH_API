@@ -2,7 +2,6 @@ package vn.viettel.report.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
 

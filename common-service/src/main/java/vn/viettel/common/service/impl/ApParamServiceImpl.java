@@ -1,6 +1,5 @@
 package vn.viettel.common.service.impl;
 
-import com.google.common.base.Splitter;
 import org.springframework.stereotype.Service;
 import vn.viettel.common.entities.ApParam;
 import vn.viettel.common.repository.ApParamRepository;

@@ -15,7 +15,6 @@ import vn.viettel.promotion.service.PromotionCustAttrService;
 import vn.viettel.promotion.service.PromotionItemProductService;
 import vn.viettel.promotion.service.PromotionProgramService;
 import vn.viettel.promotion.service.RPT_ZV23Service;
-import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;

@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.messaging.ShopExportFilter;
-import vn.viettel.report.messaging.PrintGoodFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.dto.PrintShopExportDTO;
 import vn.viettel.report.service.dto.ShopExportDTO;

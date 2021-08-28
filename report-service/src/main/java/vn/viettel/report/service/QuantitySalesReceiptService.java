@@ -2,7 +2,6 @@ package vn.viettel.report.service;
 
 import org.springframework.data.domain.Pageable;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
-import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import java.io.ByteArrayInputStream;

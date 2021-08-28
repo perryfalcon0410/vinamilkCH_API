@@ -8,7 +8,6 @@ import lombok.Setter;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.NotNull;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Getter

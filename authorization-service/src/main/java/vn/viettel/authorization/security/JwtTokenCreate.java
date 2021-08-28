@@ -1,8 +1,5 @@
 package vn.viettel.authorization.security;
 
-import vn.viettel.core.util.AuthorizationType;
-import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StreamUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,6 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import vn.viettel.core.util.AuthorizationType;
+import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

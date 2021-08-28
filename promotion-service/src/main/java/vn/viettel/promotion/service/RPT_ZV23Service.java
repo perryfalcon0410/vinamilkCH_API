@@ -2,7 +2,6 @@ package vn.viettel.promotion.service;
 
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.messaging.RPT_ZV23Request;
-import vn.viettel.promotion.service.dto.TotalPriceZV23DTO;
 
 import java.util.List;
 import java.util.Set;

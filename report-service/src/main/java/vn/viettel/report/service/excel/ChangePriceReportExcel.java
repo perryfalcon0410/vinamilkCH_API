@@ -11,7 +11,6 @@ import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
 import vn.viettel.report.service.dto.ChangePriceDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
-import vn.viettel.report.service.dto.PromotionProductDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

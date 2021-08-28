@@ -2,7 +2,6 @@ package vn.viettel.core.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.viettel.core.db.entity.BaseEntity;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import java.util.List;

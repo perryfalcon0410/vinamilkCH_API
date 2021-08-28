@@ -1,11 +1,12 @@
 package vn.viettel.core.dto.promotion;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
-import java.sql.Timestamp;
+
 import java.time.LocalDateTime;
 
 @Getter

@@ -1,12 +1,12 @@
 package vn.viettel.gateway.config;
 
-import vn.viettel.gateway.filter.EncodeExceptionResponseFilter;
-import vn.viettel.gateway.filter.PreFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import vn.viettel.gateway.filter.EncodeExceptionResponseFilter;
+import vn.viettel.gateway.filter.PreFilter;
 
 import java.util.Collections;
 

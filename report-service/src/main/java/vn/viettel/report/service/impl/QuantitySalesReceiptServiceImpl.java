@@ -13,12 +13,11 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
-import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.QuantitySalesReceiptService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 import vn.viettel.report.service.excel.QuantitySalesReceiptExcel;
-import vn.viettel.report.service.excel.SaleOrderAmountExcel;
 import vn.viettel.report.service.feign.ShopClient;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.ByteArrayInputStream;

@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 
-import java.util.Date;
-
 @Getter
 @Setter
 @NoArgsConstructor

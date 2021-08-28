@@ -1,26 +1,26 @@
 package vn.viettel.sale.service.impl;
 
-import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.SortDTO;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.dto.promotion.PromotionProgramProductDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.RPT_ZV23Request;
+import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.UserDTO;
-import vn.viettel.core.dto.customer.CustomerDTO;
-import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.entities.*;
-import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
@@ -29,8 +29,7 @@ import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
-import java.time.*;
-import java.time.temporal.ChronoField;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -4,19 +4,16 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.viettel.core.messaging.MemberCustomerRequest;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.customer.MemberCustomerDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.messaging.Response;
+import vn.viettel.core.messaging.MemberCustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.customer.entities.MemberCustomer;
 import vn.viettel.customer.repository.MemBerCustomerRepository;
 import vn.viettel.customer.service.MemberCustomerService;
 import vn.viettel.customer.service.feign.UserClient;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service

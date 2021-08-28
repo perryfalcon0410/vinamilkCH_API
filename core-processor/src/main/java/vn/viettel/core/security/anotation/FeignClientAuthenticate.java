@@ -1,8 +1,8 @@
 package vn.viettel.core.security.anotation;
 
-import vn.viettel.core.security.config.FeignClientAuthenticateConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.core.annotation.AliasFor;
+import vn.viettel.core.security.config.FeignClientAuthenticateConfig;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

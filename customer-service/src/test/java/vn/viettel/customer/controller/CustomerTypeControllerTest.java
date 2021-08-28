@@ -2,7 +2,6 @@ package vn.viettel.customer.controller;
 
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -11,14 +10,9 @@ import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.customer.BaseTest;
 import vn.viettel.customer.service.CustomerTypeService;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class CustomerTypeControllerTest extends BaseTest{
     private final String root = "/customers/customer-types";

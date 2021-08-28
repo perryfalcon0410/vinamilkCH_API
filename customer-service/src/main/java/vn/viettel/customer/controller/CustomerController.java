@@ -18,18 +18,15 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CustomerOnlRequest;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.MemoryStats;
 import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.dto.ExportCustomerDTO;
-import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,8 +34,6 @@ import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @RestController
 @Api(value = "API thông tin khách hàng")

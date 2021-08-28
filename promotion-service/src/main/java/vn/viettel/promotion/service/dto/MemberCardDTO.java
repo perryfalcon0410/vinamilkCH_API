@@ -11,7 +11,6 @@ import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 @Setter
 @Getter
 @NoArgsConstructor

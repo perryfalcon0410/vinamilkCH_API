@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.util.Constants;
 
-import javax.persistence.Column;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter

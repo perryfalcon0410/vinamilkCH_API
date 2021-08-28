@@ -5,7 +5,6 @@ import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
@@ -16,9 +15,7 @@ import vn.viettel.report.service.dto.ReturnGoodsReportTotalDTO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.Collator;
 import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.*;
 
 public class ReturnGoodsExcel {

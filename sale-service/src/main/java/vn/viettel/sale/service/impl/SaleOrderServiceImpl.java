@@ -1,11 +1,12 @@
 package vn.viettel.sale.service.impl;
 
-import com.amazonaws.services.dynamodbv2.xspec.L;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.SortDTO;
@@ -20,7 +21,10 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.SaleOrderDiscount;
 import vn.viettel.sale.messaging.OrderDetailTotalResponse;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
@@ -29,7 +33,6 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
-import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

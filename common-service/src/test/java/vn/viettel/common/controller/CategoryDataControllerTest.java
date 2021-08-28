@@ -1,7 +1,6 @@
 package vn.viettel.common.controller;
 
 import org.junit.Test;
-import org.mockito.BDDMockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -11,7 +10,9 @@ import vn.viettel.common.BaseTest;
 import vn.viettel.common.service.CategoryDataService;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 
-import static org.mockito.BDDMockito.given;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -19,11 +20,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.*;
 public class CategoryDataControllerTest extends BaseTest {
     private final String root = "/commons/categorydata";
 

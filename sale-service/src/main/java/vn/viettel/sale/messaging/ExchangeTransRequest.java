@@ -10,7 +10,6 @@ import vn.viettel.core.util.Constants;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter
