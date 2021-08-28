@@ -6,8 +6,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.StockTotalReportExcel;
@@ -33,6 +35,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     @Override
     public StockTotalReportPrintDTO print(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) {
         ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         StockTotalReportPrintDTO printDTO = new StockTotalReportPrintDTO();
         List<StockTotalReportDTO> lists =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
         StockTotalReportDTO totalInfo = lists.get(lists.size() - 1);
@@ -75,7 +78,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     @Override
     public ByteArrayInputStream exportExcel(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) throws IOException {
         ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
-
+        if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
         StockTotalReportDTO totalInfo = new StockTotalReportDTO();
         List<StockTotalReportDTO> listResults = new ArrayList<>();

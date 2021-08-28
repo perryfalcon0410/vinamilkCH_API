@@ -122,8 +122,8 @@ public class ExchangeTransController extends BaseController {
             @ApiResponse(code = 9023, message = "Không tìm thấy id lý do")
     })
     @PutMapping(value = { V1 + root + "/update/{id}"})
-    public Response<String> update(@PathVariable Long id,@RequestBody  ExchangeTransRequest request, HttpServletRequest httpRequest) {
-    	ExchangeTransDTO dto = service.update(id,request,this.getShopId());
+    public Response<String> update(@PathVariable Long id,@RequestBody @Valid ExchangeTransRequest request, HttpServletRequest httpRequest) {
+        ExchangeTransDTO dto = service.update(id,request,this.getShopId());
     	if(dto != null && dto.getId() != null) {
     		sendSynRequest(JMSType.exchange_trans, Arrays.asList(dto.getId()));
     	}

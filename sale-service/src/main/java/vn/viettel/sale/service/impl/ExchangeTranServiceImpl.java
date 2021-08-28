@@ -3,9 +3,9 @@ package vn.viettel.sale.service.impl;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +30,6 @@ import vn.viettel.sale.service.feign.CategoryDataClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.UserClient;
-import vn.viettel.sale.specification.ExchangeTransSpecification;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -65,17 +64,55 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     @Override
     public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
+        String sortName = null;
+        String direction = null;
+        Sort orderSort = null;
+        List<Long> reasonSortIds = null;
+        if(pageable.getSort() != null) {
+            for (Sort.Order order : pageable.getSort()) {
+                if(order.getProperty().equals("reason")){
+                    sortName = "categoryName";
+                    direction = order.getDirection().toString();
+                }else{
+                    Sort sorted = Sort.by(order.getDirection(), order.getProperty());
+                    if(orderSort == null) orderSort = sorted;
+                    else orderSort.and(sorted);
+                }
+            }
+        }
+
+        Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
+
+        List<Long> reasonIds = null;
+
         if (transCode != null) transCode = transCode.trim().toUpperCase();
-        Page<ExchangeTrans> exchangeTransList = repository.findAll(Specification.where(ExchangeTransSpecification.hasTranCode(transCode))
-                        .and(ExchangeTransSpecification.hasFromDateToDate(fromDate, toDate))
-                        .and(ExchangeTransSpecification.hasStatus())
-                        .and(ExchangeTransSpecification.hasShopId(shopId))
-                        .and(ExchangeTransSpecification.hasReasonId(reasonId))
-                , pageable);
-        List<CategoryDataDTO> reasonExchanges = categoryDataClient.getReasonExchangeV1().getData();
+        Page<ExchangeTrans> exchangeTransList = null;
+        if(sortName == null) {
+            exchangeTransList = repository.getExchangeTrans(shopId, transCode, 1, reasonId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), orderPage);
+            reasonIds = exchangeTransList.stream().map(item -> item.getReasonId()).distinct().filter(Objects::nonNull).collect(Collectors.toList());
+        }else{
+            reasonIds = repository.getReasonIds(shopId, transCode, 1, reasonId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        }
+        if(reasonIds == null || reasonIds.isEmpty()) reasonIds = Arrays.asList(-1L);
+        List<CategoryDataDTO> reasonExchanges = categoryDataClient.getReasonExchangeFeign(reasonIds, sortName, direction).getData();
+
+        if(sortName != null) {
+            if(reasonIds.isEmpty()) return null;
+            reasonSortIds = new ArrayList<>();
+            long i =  0;
+            for(CategoryDataDTO reason : reasonExchanges) {
+                reasonSortIds.add(reason.getId());
+                reasonSortIds.add(i);
+                i++;
+            }
+            exchangeTransList = repository.getExchangeTrans(shopId, transCode, 1, reasonId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), reasonSortIds, orderPage);
+        }
+
         Page<ExchangeTransDTO> pageResult = exchangeTransList.map(item -> mapExchangeToDTO(item, reasonExchanges));
         ExchangeTotalDTO exchangeTotalDTO = repository.getExchangeTotal(shopId, transCode, 1, reasonId,
                 DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+
         return new CoverResponse<>(pageResult, exchangeTotalDTO);
     }
 
@@ -245,10 +282,11 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             List<Long> lstDelete = new ArrayList<>();
             List<StockTotal> newStockTotals = new ArrayList<>();
 
+             /* Delete -> update -> create */
+            Collections.sort(request.getLstExchangeDetail(), Comparator.comparing(ExchangeTransDetailRequest::getType).reversed());
             for (ExchangeTransDetailRequest req : request.getLstExchangeDetail()) {
                 StockTotal stockTotal = getStockTotal(stockTotals, req.getProductId());
                 if(stockTotal == null) stockTotalService.showMessage(req.getProductId(), true);
-
                 /** create record*/
                 if (req.getType() == 0 || req.getId() == null || req.getId() == 0) {
                     ExchangeTransDetail exchangeDetail = modelMapper.map(req, ExchangeTransDetail.class);
@@ -287,8 +325,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                     idAndValues.put(stockTotal.getId(), value);
                                 }
                             } else {/** update record*/
-                                item.setQuantity(req.getQuantity());
-                                exchangeDetails.add(item);
                                 int qty = -1;
                                 if(stockTotal != null){
                                     int value = (-1) * (req.getQuantity() - item.getQuantity());
@@ -301,6 +337,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
                                 if(qty < 0) {
                                     stockTotalService.showMessage(req.getProductId(), false);
                                 }
+                                item.setQuantity(req.getQuantity());
+                                exchangeDetails.add(item);
                             }
                             break;
                         }

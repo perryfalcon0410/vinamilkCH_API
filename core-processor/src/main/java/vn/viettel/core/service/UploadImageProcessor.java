@@ -6,9 +6,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.Base64;
-import vn.viettel.core.util.ImageUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import vn.viettel.core.util.ImageUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;

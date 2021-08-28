@@ -7,11 +7,7 @@ import lombok.Setter;
 import vn.viettel.core.dto.ShopDTO;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter

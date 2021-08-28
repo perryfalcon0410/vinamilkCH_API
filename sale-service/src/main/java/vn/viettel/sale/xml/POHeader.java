@@ -5,7 +5,6 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.viettel.core.convert.DTZConverter;
 import vn.viettel.core.convert.DTZConverterV2;
 
 import java.time.LocalDateTime;

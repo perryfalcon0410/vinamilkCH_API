@@ -1,11 +1,5 @@
 package vn.viettel.core.security.config;
 
-import vn.viettel.core.security.FeignTokenValidate;
-import vn.viettel.core.security.JwtTokenValidate;
-import vn.viettel.core.security.context.SecurityContexHolder;
-import vn.viettel.core.security.interceptor.CheckRoleInterceptor;
-import vn.viettel.core.security.interceptor.FeatureOnOffInterceptor;
-import vn.viettel.core.security.interceptor.TokenExpiredInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +8,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import vn.viettel.core.security.FeignTokenValidate;
+import vn.viettel.core.security.JwtTokenValidate;
+import vn.viettel.core.security.context.SecurityContexHolder;
+import vn.viettel.core.security.interceptor.CheckRoleInterceptor;
+import vn.viettel.core.security.interceptor.FeatureOnOffInterceptor;
+import vn.viettel.core.security.interceptor.TokenExpiredInterceptor;
 
 @Configuration
 @EnableFeignClients(basePackages = {"vn.viettel.core.service.feign"})

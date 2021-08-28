@@ -1,9 +1,9 @@
 package vn.viettel.core.validation.validator;
 
-import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.validation.annotation.Slug;
 import org.apache.commons.lang3.StringUtils;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.validation.annotation.Slug;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

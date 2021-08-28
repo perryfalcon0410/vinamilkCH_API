@@ -8,7 +8,6 @@ import vn.viettel.core.db.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.util.Date;
 
 @Getter
 @Setter

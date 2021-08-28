@@ -11,7 +11,6 @@ import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -138,6 +137,15 @@ public class CustomerDTO extends BaseDTO {
         this.officeAddress = officeAddress;
         this.taxCode = taxCode;
         this.totalBill = totalBill;
+    }
+
+
+    public CustomerDTO(Long id, String firstName, String lastName, String customerCode, String mobiPhone){
+        setId(id);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.customerCode = customerCode;
+        this.mobiPhone = mobiPhone;
     }
 
 }

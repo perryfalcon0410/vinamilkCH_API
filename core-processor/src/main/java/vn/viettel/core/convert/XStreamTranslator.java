@@ -1,10 +1,11 @@
 package vn.viettel.core.convert;
 
+import com.thoughtworks.xstream.XStream;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.*;
 import java.util.Iterator;
 import java.util.List;
-import com.thoughtworks.xstream.XStream;
-import org.springframework.web.multipart.MultipartFile;
 
 public final class XStreamTranslator extends XStream {
     private XStream xstream = null;

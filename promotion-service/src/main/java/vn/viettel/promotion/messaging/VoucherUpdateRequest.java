@@ -1,13 +1,12 @@
 package vn.viettel.promotion.messaging;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.validation.annotation.NotBlank;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class VoucherUpdateRequest extends BaseRequest {
 

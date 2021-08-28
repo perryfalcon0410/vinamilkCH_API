@@ -1,16 +1,15 @@
 package vn.viettel.sale.service.impl;
 
-import com.amazonaws.services.dynamodbv2.xspec.L;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -22,7 +21,10 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.SaleOrderDiscount;
 import vn.viettel.sale.messaging.OrderDetailTotalResponse;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
@@ -31,7 +33,6 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
-import vn.viettel.sale.specification.SaleOderSpecification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,6 +70,23 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = null;
         int type = 1;
+        List<SortDTO> customerSorts = new ArrayList<>();
+        Sort orderSort = null;
+        List<Long> customerIdsSort = null;
+        if(pageable.getSort() != null) {
+            for (Sort.Order order : pageable.getSort()) {
+                if(order.getProperty().equals("customerNumber")){
+                    customerSorts.add(new SortDTO("customerCode", order.getDirection().toString()));
+                }else if(order.getProperty().equals("customerName")){
+                    customerSorts.add(new SortDTO("nameText", order.getDirection().toString()));
+                }else{
+                    Sort sorted = Sort.by(order.getDirection(), order.getProperty());
+                    if(orderSort == null) orderSort = sorted;
+                    else orderSort.and(sorted);
+                }
+            }
+        }
+
         if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
             customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
             if (customerIds == null || customerIds.isEmpty()) {
@@ -76,26 +94,44 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
         }
 
+        Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
+
         String orderNumber = saleOrderFilter.getOrderNumber();
         if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
         LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
         LocalDateTime toDate = DateUtils.convertToDate(saleOrderFilter.getToDate());
 
-        Page<SaleOrder> findAll = repository.findAll(Specification.where(SaleOderSpecification.hasNameOrPhone(customerIds))
-                .and(SaleOderSpecification.hasFromDateToDate(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate()))
-                .and(SaleOderSpecification.hasOrderNumber(saleOrderFilter.getOrderNumber()))
-                .and(SaleOderSpecification.type(type))
-                .and(SaleOderSpecification.hasShopId(shopId))
-                .and(SaleOderSpecification.hasUseRedInvoice(saleOrderFilter.getUsedRedInvoice())), pageable);
+        List<Long> saleCusIds = null;
+        Page<SaleOrder> findAll = null;
+        if(customerSorts == null || customerSorts.isEmpty()) {
+            findAll = repository.findALlSales(customerIds, fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice(), orderPage);
+            saleCusIds = findAll.stream().map(item -> item.getCustomerId()).distinct().collect(Collectors.toList());
+        }else{
+            saleCusIds = repository.getCustomerIds( fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice());
+        }
+
+        if(saleCusIds.isEmpty()) return null;
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
+        if(customerSorts != null && !customerSorts.isEmpty()) {
+            customerIdsSort = new ArrayList<>();
+            long i =  0;
+            for(CustomerDTO customer : customers) {
+                customerIdsSort.add(customer.getId());
+                customerIdsSort.add(i);
+                i++;
+            }
+            findAll = repository.findALlSales(customerIds, fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice(), customerIdsSort, orderPage);
+        }
+
         SaleOrderTotalResponse totalResponse = repository.getSaleOrderTotal(shopId, customerIds, orderNumber, type, saleOrderFilter.getUsedRedInvoice(),
                 fromDate, toDate);
-
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).collect(Collectors.toList()));
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
                 .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
         Page<SaleOrderDTO> saleOrderDTOS = findAll.map(item -> mapSaleOrderDTO(item, customers, users));
 
         CoverResponse coverResponse = new CoverResponse(saleOrderDTOS, totalResponse);
+
         return coverResponse;
     }
 
@@ -229,16 +265,18 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         List<PromotionProgramDiscountDTO> promotionProgramDiscounts =
                 promotionClient.listPromotionProgramDiscountByOrderNumberV1(orderNumber).getData();
         if (promotionProgramDiscounts != null) {
-            count = 0;
-            total = 0;
+        /*    count = 0;
+            total = 0;*/
             for (PromotionProgramDiscountDTO promotionProgramDiscount : promotionProgramDiscounts) {
                 DiscountDTO discountDTO = new DiscountDTO();
-                discountDTO.setDiscountPrice(promotionProgramDiscount.getDiscountAmount());
-                if(count == promotionProgramDiscounts.size())
+                if(promotionProgramDiscount.getActualDiscountAmount() == null) promotionProgramDiscount.setActualDiscountAmount(0.0);
+                discountDTO.setDiscountPrice(promotionProgramDiscount.getActualDiscountAmount());
+                discountDTO.setDiscountPercent(promotionProgramDiscount.getDiscountPercent());
+             /*   if(count == promotionProgramDiscounts.size())
                     discountDTO.setDiscountPrice(saleOrder.getDiscountCodeAmount() - total);
-                total += promotionProgramDiscount.getDiscountAmount();
+                total += promotionProgramDiscount.getActualDiscountAmount();*/
                 discountDTO.setPromotionType("Mã giảm giá");
-                PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionProgramDiscount.getId()).getData();
+                PromotionProgramDTO promotionProgram = promotionClient.getByIdV1(promotionProgramDiscount.getPromotionProgramId()).getData();
                 if(promotionProgram!=null) {
                     discountDTO.setPromotionName(promotionProgram.getPromotionProgramName());
                     discountDTO.setVoucherType(promotionProgram.getPromotionProgramCode());
@@ -526,7 +564,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
         Page<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, pageable);
 
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, saleOrders.stream().map(item -> item.getCustomerId())
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));
 
         return saleOrders.map(so->{

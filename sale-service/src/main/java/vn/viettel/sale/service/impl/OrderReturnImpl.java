@@ -1,73 +1,35 @@
 package vn.viettel.sale.service.impl;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang.StringUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.dto.promotion.PromotionProgramProductDTO;
-import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
-import vn.viettel.core.messaging.RPT_ZV23Request;
-import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.entities.SaleOrderComboDetail;
-import vn.viettel.sale.entities.SaleOrderComboDiscount;
-import vn.viettel.sale.entities.SaleOrderDetail;
-import vn.viettel.sale.entities.SaleOrderDiscount;
-import vn.viettel.sale.entities.StockTotal;
-import vn.viettel.sale.messaging.OrderReturnRequest;
-import vn.viettel.sale.messaging.SaleOrderChosenFilter;
-import vn.viettel.sale.messaging.SaleOrderFilter;
-import vn.viettel.sale.messaging.SaleOrderTotalResponse;
-import vn.viettel.sale.messaging.TotalOrderChoose;
-import vn.viettel.sale.messaging.TotalOrderReturnDetail;
-import vn.viettel.sale.repository.ComboProductDetailRepository;
-import vn.viettel.sale.repository.ProductRepository;
-import vn.viettel.sale.repository.SaleOrderComboDetailRepository;
-import vn.viettel.sale.repository.SaleOrderComboDiscountRepository;
-import vn.viettel.sale.repository.SaleOrderDetailRepository;
-import vn.viettel.sale.repository.SaleOrderDiscountRepository;
-import vn.viettel.sale.repository.SaleOrderRepository;
-import vn.viettel.sale.repository.StockTotalRepository;
+import vn.viettel.sale.entities.*;
+import vn.viettel.sale.messaging.*;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
-import java.time.*;
-import java.time.temporal.ChronoField;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,41 +67,77 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Override
     public CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = null;
-        if (saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null) {
-            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
-            if (customerIds == null || customerIds.isEmpty()) customerIds = Arrays.asList(-1L);
+        int type = 2;
+        List<SortDTO> customerSorts = new ArrayList<>();
+        Sort orderSort = null;
+        List<Long> customerIdsSort = null;
+        if(pageable.getSort() != null) {
+            for (Sort.Order order : pageable.getSort()) {
+                if(order.getProperty().equals("customerNumber")){
+                    customerSorts.add(new SortDTO("customerCode", order.getDirection().toString()));
+                }else if(order.getProperty().equals("customerName")){
+                    customerSorts.add(new SortDTO("nameText", order.getDirection().toString()));
+                }else{
+                    Sort sorted = Sort.by(order.getDirection(), order.getProperty());
+                    if(orderSort == null) orderSort = sorted;
+                    else orderSort.and(sorted);
+                }
+            }
         }
+
+        if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+            if (customerIds == null || customerIds.isEmpty()) {
+                customerIds = Arrays.asList(-1L);
+            }
+        }
+
+        Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
+
         if (saleOrderFilter.getOrderNumber() != null)
             saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
-        Page<SaleOrder> findAll = repository.getSaleOrderReturn(shopId, saleOrderFilter.getOrderNumber(),
-                customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), pageable);
+
+        Page<SaleOrder> findAll = null;
+        List<Long> saleCusIds = null;
+        if(customerSorts == null || customerSorts.isEmpty()) {
+            findAll = repository.findALlSales(customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null, orderPage);
+            saleCusIds = findAll.stream().map(item -> item.getCustomerId()).distinct().collect(Collectors.toList());
+        }else{
+            saleCusIds = repository.getCustomerIds(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null);
+        }
+
+        if(saleCusIds.isEmpty()) return null;
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(customerSorts,null,saleCusIds);
+        if(customerSorts != null && !customerSorts.isEmpty()) {
+            customerIdsSort = new ArrayList<>();
+            long i =  0;
+            for(CustomerDTO customer : customers) {
+                customerIdsSort.add(customer.getId());
+                customerIdsSort.add(i);
+                i++;
+            }
+            findAll = repository.findALlSales(customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null, customerIdsSort, orderPage);
+        }
+
         SaleOrderTotalResponse totalResponse = repository.getSumSaleOrderReturn(shopId, saleOrderFilter.getOrderNumber(),
                 customerIds, saleOrderFilter.getFromDate(), saleOrderFilter.getToDate());
-        List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId()).distinct()
-                .filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(null, findAll.getContent().stream().map(item -> item.getCustomerId()).distinct()
-                .filter(Objects::nonNull).collect(Collectors.toList()));
+
         List<SaleOrder> saleOrders = repository.findAllById(findAll.getContent().stream().map(item -> item.getFromSaleOrderId()).collect(Collectors.toList()));
-        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item -> mapOrderReturnDTO(item, users, customers, saleOrders));
+        Page<OrderReturnDTO> orderReturnDTOS = findAll.map(item -> mapOrderReturnDTO(item, customers, saleOrders));
         CoverResponse coverResponse = new CoverResponse(orderReturnDTOS, totalResponse);
         return coverResponse;
+
+
     }
 
-    private OrderReturnDTO mapOrderReturnDTO(SaleOrder orderReturn, List<UserDTO> users, List<CustomerDTO> customers, List<SaleOrder> saleOrders) {
+    private OrderReturnDTO mapOrderReturnDTO(SaleOrder orderReturn, List<CustomerDTO> customers, List<SaleOrder> saleOrders) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderReturnDTO dto = modelMapper.map(orderReturn, OrderReturnDTO.class);
         if (saleOrders != null) {
             for (SaleOrder saleOrder : saleOrders) {
                 if (saleOrder.getId().equals(orderReturn.getFromSaleOrderId())) {
                     dto.setOrderNumberRef(saleOrder.getOrderNumber());
-                    break;
-                }
-            }
-        }
-        if (users != null) {
-            for (UserDTO user : users) {
-                if (user.getId().equals(orderReturn.getSalemanId())) {
-                    dto.setUserName(user.getFullName());
                     break;
                 }
             }
@@ -538,7 +536,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDTO> list = new ArrayList<>();
         SaleOrderTotalResponse totalResponse = new SaleOrderTotalResponse();
         List<UserDTO> users = userClient.getUserByIdsV1(saleOrders.stream().map(item -> item.getSalemanId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
-        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(1, saleOrders.stream().map(item -> item.getCustomerId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
+        List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), 1, saleOrders.stream().map(item -> item.getCustomerId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
         for (SaleOrder saleOrder : saleOrders) {
             SaleOrderDTO listForChoose = mapSaleOrderDTO(saleOrder, users, customers);
             list.add(listForChoose);

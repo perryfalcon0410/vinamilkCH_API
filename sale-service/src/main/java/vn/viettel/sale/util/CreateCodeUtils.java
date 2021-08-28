@@ -1,13 +1,10 @@
 package vn.viettel.sale.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.repository.PoTransRepository;
+import vn.viettel.sale.repository.StockAdjustmentTransRepository;
+import vn.viettel.sale.repository.StockBorrowingTransRepository;
 import vn.viettel.sale.service.feign.ShopClient;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Calendar;
 
 public class CreateCodeUtils {
     @Autowired

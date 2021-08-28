@@ -8,11 +8,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.Constants;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
-import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.dto.ImportExportInventoryDTO;
+import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
+import vn.viettel.report.service.dto.PrintInventoryCatDTO;
+import vn.viettel.report.service.dto.PrintInventoryDTO;
 import vn.viettel.report.service.excel.ImportExportInventoryExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -23,7 +27,6 @@ import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,6 +76,7 @@ public class InventoryServiceImpl implements InventoryService {
     public PrintInventoryDTO getDataPrint(InventoryImportExportFilter filter) throws ParseException {
 
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         PrintInventoryDTO printInventoryDTO = new PrintInventoryDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
         List<ImportExportInventoryDTO> inventoryDTOS = this.callStoreProcedure(filter);
         if (inventoryDTOS.isEmpty()) return printInventoryDTO;
@@ -147,8 +151,8 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     public PrintInventoryDTO getDataExcel(InventoryImportExportFilter filter) {
-
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         PrintInventoryDTO printInventoryDTO = new PrintInventoryDTO(filter.getFromDate(), filter.getToDate(), shopDTO);
         List<ImportExportInventoryDTO> inventoryDTOS = this.callStoreProcedure(filter);
         if (!inventoryDTOS.isEmpty()) {

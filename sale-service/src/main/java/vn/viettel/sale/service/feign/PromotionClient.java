@@ -1,20 +1,15 @@
 package vn.viettel.sale.service.feign;
 
 
-import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.dto.voucher.VoucherDTO;
-import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
-import vn.viettel.core.messaging.PromotionProductRequest;
 import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

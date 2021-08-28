@@ -1,7 +1,6 @@
 package vn.viettel.common.service;
 
 import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseService;
 
 import java.util.List;

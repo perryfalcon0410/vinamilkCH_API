@@ -1,6 +1,5 @@
 package vn.viettel.sale.service;
 
-import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.dto.SalePromotionCalculationDTO;

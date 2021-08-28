@@ -1,9 +1,7 @@
 package vn.viettel.core.validation.validator;
 
-import org.apache.commons.lang3.StringUtils;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.validation.annotation.IsNumberOnly;
 import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 
 import javax.validation.ConstraintValidator;
@@ -21,7 +19,7 @@ public class NumberGreaterThanZeroValidator implements ConstraintValidator<Numbe
 
     @Override
     public boolean isValid(Number number, ConstraintValidatorContext context) {
-        if (number == null || (number != null && number.intValue() == 0)) {
+        if (number == null || (number != null && number.intValue() <= 0)) {
             throw new ValidateException(message);
         }
         return true;

@@ -5,7 +5,6 @@ import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.service.dto.PermissionDTO;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package vn.viettel.promotion.messaging;
+package vn.viettel.core.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VoucherFilter {
-    private Long shopId;
-    private String keyWord;
+public class SortDTO {
+    private String sortName;
+    private String direction;
 }

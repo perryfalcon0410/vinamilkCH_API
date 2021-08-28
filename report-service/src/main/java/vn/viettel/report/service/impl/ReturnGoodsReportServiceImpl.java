@@ -6,14 +6,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
 import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.ReturnGoodsReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.ReturnGoodsExcel;
 import vn.viettel.report.service.feign.ShopClient;
+
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.PersistenceContext;
@@ -86,6 +89,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     public ByteArrayInputStream exportExcel(ReturnGoodsReportsRequest filter) throws IOException, ParseException {
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         ReturnGoodsDTO goodsReportDTO = new ReturnGoodsDTO();
         ReturnGoodsReportTotalDTO totalDTO = new ReturnGoodsReportTotalDTO();
         if (!reportDTOS.isEmpty()) {
@@ -104,6 +108,7 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
     @Override
     public ReportPrintIndustryTotalDTO getDataPrint(ReturnGoodsReportsRequest filter) {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         ReportPrintIndustryTotalDTO printDTO = new ReportPrintIndustryTotalDTO();
         List<ReturnGoodsDTO> reportDTOS = this.callStoreProcedure(filter);
         ReturnGoodsDTO totalInfo = reportDTOS.get(reportDTOS.size() - 1);

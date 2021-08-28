@@ -6,7 +6,6 @@ import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.VoucherCustomerMap;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface VoucherCustomerMapRepository extends BaseRepository<VoucherCustomerMap>, JpaSpecificationExecutor<VoucherCustomerMap> {
 

@@ -1,14 +1,15 @@
 package vn.viettel.sale.specification;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import vn.viettel.core.util.VNCharacterUtils;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.Product_;
+import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.entities.StockTotal_;
 
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-import java.util.List;
 import java.util.Locale;
 
 public class ProductSpecification {

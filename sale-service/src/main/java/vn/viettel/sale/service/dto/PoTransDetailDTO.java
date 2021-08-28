@@ -6,7 +6,6 @@ import lombok.Setter;
 import vn.viettel.core.service.dto.BaseDTO;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter

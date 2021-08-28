@@ -10,7 +10,6 @@ import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter

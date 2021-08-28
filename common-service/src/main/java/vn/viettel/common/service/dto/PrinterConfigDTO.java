@@ -1,6 +1,5 @@
 package vn.viettel.common.service.dto;
 
-import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +19,7 @@ public class PrinterConfigDTO extends BaseDTO {
     private String reportPrinterName;
 
     private String defaultPrinterName;
+
+    private Boolean removeAccent;
+
 }

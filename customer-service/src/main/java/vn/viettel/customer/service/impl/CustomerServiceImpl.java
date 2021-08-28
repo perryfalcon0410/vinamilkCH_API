@@ -7,32 +7,29 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.SortDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.common.AreaDetailDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
-import vn.viettel.core.dto.customer.*;
-import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CustomerOnlRequest;
+import vn.viettel.core.messaging.CustomerRequest;
+import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.service.dto.BaseDTO;
 import vn.viettel.core.util.AgeCalculator;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.dto.common.AreaDTO;
-import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.jms.JMSSender;
-import vn.viettel.core.logging.LogFile;
-import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.CustomerType;
-import vn.viettel.customer.entities.Customer_;
 import vn.viettel.customer.entities.MemberCustomer;
 import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
@@ -42,13 +39,13 @@ import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.CustomerTypeService;
 import vn.viettel.customer.service.MemberCardService;
 import vn.viettel.customer.service.MemberCustomerService;
-import vn.viettel.customer.service.dto.ExportCustomerDTO;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -570,7 +567,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
         String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
         //hạn chế request vào db
-        if(searchKeywords.length() >= 4 && (searchKey == null || !searchKeywords.substring(0,4).equals(searchKey.substring(0,4)) )) {
+        if(searchKeywords.length() >= 4 && (customers == null || customers.isEmpty() || !searchKeywords.substring(0,4).equals(searchKey.substring(0,4)) )) {
             //chánh tấn công server: 3 request liên tục trong 1 giây xong phải nghỉ 3 giây được request tiếp
             if(lastRequest > 0 && count >= 3 && (System.currentTimeMillis() - lastRequest) < 1000){
                 // không request và cài thời gian đợi 3 giây
@@ -630,37 +627,48 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public List<Long> getIdCustomerBySearchKeyWords(String searchKeywords) {
-        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
-        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
-        return ids;
+        if(searchKeywords == null || searchKeywords.isEmpty()) return new ArrayList<>();
+//        String key = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
+//        List<Customer> customers = repository.findAll(Specification.where(CustomerSpecification.hasFullNameOrCodeOrPhone(key.trim())));
+//        List<Long> ids = customers.stream().map(cus -> cus.getId()).collect(Collectors.toList());
+        String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
+        return repository.getCustomersIds(keyUpper, searchKeywords.toUpperCase(Locale.ROOT), searchKeywords);
     }
 
     @Override
     public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
-        List<Long> ids = repository.getCustomerIds( keyUpper , customerPhone);
-        return ids;
+        return repository.getCustomerIds( keyUpper, customerPhone);
     }
 
     @Override
-    public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds){
+    public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, List<SortDTO> sorts){
         if (customerIds == null || customerIds.isEmpty()) return null;
-        List<Customer> customers = repository.getCustomerInfo(status, customerIds);
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
+        Pageable pageable = PageRequest.of(0, 1000000);
+        if(sorts != null && ! sorts.isEmpty()) {
+                Sort customerSort = null;
+                for(SortDTO dto: sorts) {
+                    Sort sorted = Sort.by(Sort.Direction.valueOf(dto.getDirection()), dto.getSortName());
+                    if(customerSort == null) customerSort = sorted;
+                    else customerSort.and(sorted);
+                }
+            pageable = PageRequest.of(0, 1000000, customerSort);
+        }
+
+        List<CustomerDTO> customers = repository.getCustomerInfo(status, customerIds, pageable).getContent();
+        /*modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<MemberCustomer> memberCustomers = memBerCustomerRepos.getMemberCustomers(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
-        return customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());
+        List<CustomerDTO> customerDTOS = customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());*/
+        return customers;
     }
 
-    @Override
-    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
-        List<Customer> customers = repository.getCustomersByIds(customerIds);
-        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-        return customerDTOS;
-    }
-    
-
+//    @Override
+//    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
+//        List<Customer> customers = repository.getCustomersByIds(customerIds);
+//        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
+//        return customerDTOS;
+//    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

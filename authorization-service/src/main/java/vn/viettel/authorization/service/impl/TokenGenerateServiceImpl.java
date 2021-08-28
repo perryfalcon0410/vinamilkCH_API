@@ -3,10 +3,10 @@ package vn.viettel.authorization.service.impl;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.viettel.authorization.entities.Token;
 import vn.viettel.authorization.repository.TokenRepository;
 import vn.viettel.authorization.security.JwtTokenCreate;
 import vn.viettel.authorization.service.TokenGenerateService;
-import vn.viettel.authorization.entities.Token;
 
 import javax.transaction.Transactional;
 

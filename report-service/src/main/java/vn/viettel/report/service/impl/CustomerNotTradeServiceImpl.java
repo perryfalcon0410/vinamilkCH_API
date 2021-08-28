@@ -6,13 +6,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
-import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
+import vn.viettel.report.service.dto.CustomerReportDTO;
+import vn.viettel.report.service.dto.CustomerTradeDTO;
+import vn.viettel.report.service.dto.CustomerTradeTotalDTO;
 import vn.viettel.report.service.excel.CustomerTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -22,7 +27,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,6 +63,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         CustomerNotTradePrintDTO printDTO = new CustomerNotTradePrintDTO();
         if(!result.isEmpty()) {
             ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+            if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             printDTO.setShopName(shopDTO.getShopName());
             printDTO.setAddress(shopDTO.getAddress());
             printDTO.setShopTel(shopDTO.getMobiPhone());
@@ -122,6 +127,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
     @Override
     public ByteArrayInputStream customerTradesExportExcel(CustomerTradeFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         List<CustomerTradeDTO> customers = this.callProcedure(filter);
         this.removeDataList(customers);
         CustomerTradeExcel excel = new CustomerTradeExcel(shopDTO, shopDTO.getParentShop(), customers);

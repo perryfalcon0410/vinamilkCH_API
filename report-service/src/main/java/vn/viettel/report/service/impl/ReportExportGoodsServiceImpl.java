@@ -8,11 +8,8 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.ShopExportFilter;
-import vn.viettel.report.messaging.PrintGoodFilter;
-import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
 import vn.viettel.report.service.dto.*;
@@ -64,6 +61,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
     @Override
     public ByteArrayInputStream exportExcel(ShopExportFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         List<ShopExportDTO> shopExports = this.callProcedure(filter);
         TotalReport totalReport = new TotalReport();
 

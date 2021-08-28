@@ -7,17 +7,13 @@ import org.apache.commons.lang.StringUtils;
 import org.mapstruct.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import vn.viettel.common.entities.PrinterConfig;
 import vn.viettel.common.messaging.PrinterConfigRequest;
-import vn.viettel.common.service.ApParamService;
 import vn.viettel.common.service.PrinterConfigService;
 import vn.viettel.common.service.dto.PrinterConfigDTO;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 
 import javax.servlet.http.HttpServletRequest;

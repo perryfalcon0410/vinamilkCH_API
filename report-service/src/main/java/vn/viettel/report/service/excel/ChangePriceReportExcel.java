@@ -11,7 +11,6 @@ import vn.viettel.core.utils.NameHeader;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
 import vn.viettel.report.service.dto.ChangePriceDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
-import vn.viettel.report.service.dto.PromotionProductDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -65,7 +64,7 @@ public class ChangePriceReportExcel {
             for (ChangePriceDTO changePrice : changePriceReport.getChangePriceReport()) {
                 if (changePrice.getPoNumber().equals(poNum.getPoNumber())) {
                     subParent.add(changePrice);
-                    totalQuantity += changePrice.getQuantity();
+                    totalQuantity += (changePrice.getQuantity()!=null?changePrice.getQuantity():0);
                     rowNum ++;
                 }
             }

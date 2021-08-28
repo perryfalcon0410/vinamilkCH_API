@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.BadRequestException;
 import vn.viettel.core.jms.JMSSender;
@@ -18,19 +19,16 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CustomerOnlRequest;
+import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.MemoryStats;
 import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
-import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.dto.ExportCustomerDTO;
-import vn.viettel.customer.service.impl.CustomerExcelExporter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,8 +37,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @RestController
 @Api(value = "API thông tin khách hàng")
@@ -212,8 +208,8 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/ids-customer"})
     public Response<List<Long>> getIdCustomerBy(@RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
-                                                @RequestParam(value = "customerCode", required = false, defaultValue = "") String customerCode) {
-        return new Response<List<Long>>().withData(service.getIdCustomerBy(searchKeywords, customerCode));
+                                                @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone) {
+        return new Response<List<Long>>().withData(service.getIdCustomerBy(searchKeywords, customerPhone));
     }
 
     @ApiOperation(value = "Tìm kiếm khách hàng mặc định của shop đang login")
@@ -234,15 +230,16 @@ public class CustomerController extends BaseController {
     }
 
     //Lấy danh sách customer theo danh sách id
-    @GetMapping(value = { V1 + root + "/feign-cusinfo"})
-    public List<CustomerDTO> getCustomerInfo(@RequestParam(required = false) Integer status, @RequestParam(required = false) List<Long> customerIds) {
-        return service.getCustomerInfo(status, customerIds);
+    @PostMapping(value = { V1 + root + "/feign-cusinfo"})
+    public List<CustomerDTO> getCustomerInfo(@RequestBody List<SortDTO> sorts, @RequestParam(required = false) Integer status,
+                                             @RequestParam(required = false) List<Long> customerIds ) {
+        return service.getCustomerInfo(status, customerIds, sorts);
     }
 
-    @GetMapping(value = { V1 + root + "/feign-customers"})
-    public Response<List<CustomerDTO>> getAllCustomerToRedInvocie(@RequestParam List<Long> customerIds) {
-        return new Response<List<CustomerDTO>>().withData(service.getAllCustomerToRedInvoice(customerIds));
-    }
+//    @GetMapping(value = { V1 + root + "/feign-customers"})
+//    public Response<List<CustomerDTO>> getAllCustomerToRedInvocie(@RequestParam List<Long> customerIds) {
+//        return new Response<List<CustomerDTO>>().withData(service.getAllCustomerToRedInvoice(customerIds));
+//    }
 
     @Override
     public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {

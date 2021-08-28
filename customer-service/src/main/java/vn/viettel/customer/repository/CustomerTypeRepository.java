@@ -1,10 +1,9 @@
 package vn.viettel.customer.repository;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
-import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.customer.entities.CustomerType;
 
 import java.util.List;
 import java.util.Optional;

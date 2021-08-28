@@ -6,10 +6,8 @@ import org.junit.Test;
 import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.customer.entities.MemberCard;
 
-import java.io.File;
-import java.io.IOException;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class XStreamTranslatorTest{
     XStreamTranslator xStreamTranslatorInst;

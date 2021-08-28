@@ -1,4 +1,5 @@
 package vn.viettel.report.service.impl;
+
 import oracle.jdbc.OracleTypes;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
@@ -14,20 +15,17 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
-import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.ExchangeTransReportService;
+import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 import vn.viettel.report.service.excel.ExchangeTransExcel;
 import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -50,6 +48,7 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     public ByteArrayInputStream exportExcel(ExchangeTransFilter filter) throws IOException {
         this.validMonth(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         ExchangeTransReportDTO tableDynamicDTO = this.callProcedure(filter);
         ExchangeTransExcel excel = new ExchangeTransExcel(filter,shopDTO, tableDynamicDTO,shopDTO.getParentShop());
         return excel.export();

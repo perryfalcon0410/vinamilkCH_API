@@ -11,12 +11,10 @@ import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.MaxTextLength;
-import vn.viettel.core.validation.annotation.NotEmpty;
 import vn.viettel.core.validation.annotation.NotNull;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter

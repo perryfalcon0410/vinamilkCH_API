@@ -8,10 +8,8 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
-import vn.viettel.core.security.anotation.RoleFeign;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @FeignClientAuthenticate(name = "authorization-service")

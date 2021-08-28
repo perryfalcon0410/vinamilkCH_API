@@ -5,7 +5,6 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.RedInvoice;
 import vn.viettel.sale.entities.RedInvoice_;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;

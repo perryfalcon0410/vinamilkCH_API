@@ -15,7 +15,10 @@ import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.messaging.UserDataResponse;
 import vn.viettel.report.service.SellsReportService;
-import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.dto.ReportDateDTO;
+import vn.viettel.report.service.dto.ReportSellDTO;
+import vn.viettel.report.service.dto.SellDTO;
+import vn.viettel.report.service.dto.SellTotalDTO;
 import vn.viettel.report.service.excel.SellExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
@@ -25,12 +28,10 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -132,6 +133,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         if (reportDTOS.size() == 0)
             throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         SellDTO sellDTO = new SellDTO();
         if (!reportDTOS.isEmpty()) {
             sellDTO = reportDTOS.get(reportDTOS.size() - 1);
@@ -157,6 +159,7 @@ public class SellsReportServiceImpl implements SellsReportService {
         if (!reportDTOS.isEmpty()) {
             SellDTO sellDTO = reportDTOS.get(reportDTOS.size() - 1);
             ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+            if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             dto.setFromDate(filter.getFromDate());
             dto.setToDate(filter.getToDate());
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss Z");

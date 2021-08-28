@@ -2,17 +2,13 @@ package vn.viettel.promotion.controller;
 
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.dto.voucher.VoucherDTO;
-import vn.viettel.core.dto.voucher.VoucherSaleProductDTO;
 import vn.viettel.promotion.BaseTest;
-import vn.viettel.promotion.entities.Voucher;
 import vn.viettel.promotion.service.VoucherService;
 
 import java.util.ArrayList;

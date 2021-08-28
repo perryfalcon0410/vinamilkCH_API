@@ -15,14 +15,11 @@ import vn.viettel.authorization.service.dto.LoginRequest;
 import vn.viettel.authorization.service.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.service.dto.PermissionDTO;
-
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;

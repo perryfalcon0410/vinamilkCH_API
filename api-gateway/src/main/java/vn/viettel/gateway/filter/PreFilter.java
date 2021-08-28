@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.JwtTokenBody;
 import vn.viettel.core.service.dto.ControlDTO;
-import vn.viettel.core.service.dto.DataPermissionDTO;
 import vn.viettel.core.service.dto.PermissionDTO;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.gateway.security.JwtTokenValidate;

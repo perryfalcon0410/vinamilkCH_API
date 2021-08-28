@@ -5,7 +5,6 @@ import vn.viettel.core.util.Constants;
 import vn.viettel.core.util.ResponseMessage;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public abstract class BaseResponse<T> {
 
