@@ -256,9 +256,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             for (SalePromotionDTO inputPro : request.getPromotionInfo()){
                 if (dbPromotionIds.contains(inputPro.getProgramId()) && inputPro.getIsUse()){ // kiểm tra ctkm còn được sử dụng
-                    //kiểm tra đã đủ số xuất
-                    if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
-                        throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
 
                     SalePromotionDTO dbPro = new SalePromotionDTO();
                     for (SalePromotionDTO dbP : lstSalePromotions){
@@ -266,6 +263,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             dbPro = dbP;
                             break;
                         }
+                    }
+
+                    if(inputPro.getProgramType().equalsIgnoreCase("ZM") && inputPro.getAmount()!=null && inputPro.getAmount().getAmount()!=null
+                            && inputPro.getAmount().getAmount() > inputPro.getAmount().getMaxAmount())
+                        throw new ValidateException(ResponseMessage.PROMOTION_NOT_AMOUNT_VALUE, inputPro.getPromotionProgramName());
+
+                    //kiểm tra đã đủ số xuất
+                    if(inputPro.getAmount()!=null) {
+                        if (!salePromotionService.checkPromotionLimit(dbPro, shopId))
+                            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
+                    }else {
+                        if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
+                            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
                     }
 
                     if (dbPro.getIsReturn() != null && !dbPro.getIsReturn()) isReturn = false;
@@ -751,13 +761,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     private void updateVoucher(SaleOrder saleOrder, List<VoucherDTO> lstVoucherNeedSave){
-        if(lstVoucherNeedSave != null){
+        if(lstVoucherNeedSave != null && saleOrder.getTotalVoucher() > 0){
+            double priceUse = saleOrder.getTotalVoucher();
             for(VoucherDTO voucher : lstVoucherNeedSave){
                 voucher.setOrderAmount(saleOrder.getAmount());
                 voucher.setOrderDate(saleOrder.getOrderDate());
                 voucher.setSaleOrderId(saleOrder.getId());
                 voucher.setOrderNumber(saleOrder.getOrderNumber());
+                if(priceUse >= voucher.getPriceUsed())
+                    priceUse -= voucher.getPriceUsed();
+                else if(priceUse > 0 && priceUse < voucher.getPriceUsed()) {
+                    voucher.setPriceUsed(priceUse);
+                    priceUse -= priceUse;
+                }
                 promotionClient.updateVoucherV1(voucher);
+                if(saleOrder.getTotalVoucher() - priceUse == saleOrder.getTotalVoucher()) break;
             }
         }
     }

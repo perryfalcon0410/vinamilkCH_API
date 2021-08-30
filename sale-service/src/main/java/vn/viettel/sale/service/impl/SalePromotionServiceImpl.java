@@ -371,6 +371,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 if(freeProducts != null) {
                     List<Long> productFreeIds = freeProducts.stream().map(i -> i.getProductId()).collect(Collectors.toList());
                     List<FreeProductDTO> products = productRepository.findFreeProductDTONoOrders(shopId, warehouseId, productFreeIds);
+                    if(products == null || products.isEmpty()) return null;
                     int totalQty = 0;
                     if (products != null) {
                         for (FreeProductDTO freeProductDTO : products) {
@@ -549,25 +550,38 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion = new SalePromotionDTO();
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
+            SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+           if(isInclusiveTax){
+               amtExTax = 0D;
+           }else {
+               amtInTax = 0D;
+           }
+            if (forSaving) {
+                double percentInTax = calPercent(orderData.getTotalPrice(), amtInTax);
+                double percentExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
+                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentInTax, percentExTax,
+                        isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
+                for(SaleDiscountSaveDTO info: saveInfo) {
+                    if(amtInTax <= 0) amtInTax += info.getAmountInTax();
+                    if(amtExTax <= 0) amtExTax += info.getAmountExTax();
+                }
+                spDto.setDiscountInfo(saveInfo);
+                salePromotion.setDiscountDTOs(discountNeedUpdate);
+            }
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
-            SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
+
             spDto.setAmount(salePromotion.getTotalAmtInTax());
             if (!isInclusiveTax && forDiscountCode == false) {
                 spDto.setAmount(salePromotion.getTotalAmtExTax());
             }
-            if (forSaving) {
-                if(amtInTax < 1) spDto.setPercentage(0D);
-                else  spDto.setPercentage((amtInTax - amtExTax )/ amtExTax * 100);
-                spDto.setMaxAmount(spDto.getAmount());
 
-                double percentInTax = calPercent(orderData.getTotalPrice(), salePromotion.getTotalAmtInTax());
-                double percentExTax = calPercent(orderData.getTotalPriceNotVAT(), salePromotion.getTotalAmtExTax());
-                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentInTax, percentExTax,
-                        isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
-                spDto.setDiscountInfo(saveInfo);
-                salePromotion.setDiscountDTOs(discountNeedUpdate);
+            if (forSaving) {
+                if (amtInTax < 1) spDto.setPercentage(0D);
+                else spDto.setPercentage((amtInTax - amtExTax) / amtExTax * 100);
+                spDto.setMaxAmount(spDto.getAmount());
             }
+
             salePromotion.setAmount(spDto);
             LimitDto value = getPromotionLimit(salePromotion, shopId);
             salePromotion.setNumberLimited(value.getLimited());
@@ -712,21 +726,44 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         Double saveAmountInTax = amountInTax;
         Double saveAmountExTax = amountExTax;
-        double p = (amountInTax-amountExTax)/amountExTax*100;
+//        double p = (amountInTax-amountExTax)/amountExTax*100;
         if(amountRemain < amountInTax - totalBeforeZV23InTax) {
-            amountInTax = amountRemain;
-            amountExTax = amountInTax / (( 100 + p ) / 100);
+            if (isInclusiveTax(program.getDiscountPriceType())){
+                amountInTax = amountRemain;
+                amountExTax = 0;   //amountInTax / (( 100 + p ) / 100);
+            }else {
+                amountInTax = 0;
+                amountExTax = amountRemain;
+            }
         }else {
             //trừ đi km chiết khấu zv01 - zv18 và zm
-            amountInTax = amountInTax - totalBeforeZV23InTax;
-            amountExTax = amountExTax - totalBeforeZV23ExTax;
+            if (isInclusiveTax(program.getDiscountPriceType())){
+                amountInTax = amountInTax - totalBeforeZV23InTax;
+                amountExTax = 0;
+            }else {
+                amountInTax = 0;
+                amountExTax = amountExTax - totalBeforeZV23ExTax;
+            }
         }
 
-        if (percent > 0 && amountInTax > 0){
+        if (percent > 0 &&( amountInTax > 0 || amountExTax > 0)){
             SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
             SalePromotionDTO salePromotion = new SalePromotionDTO();
             double amtInTax = amountInTax * percent / 100;
             double amtExTax = amountExTax * percent / 100;
+
+            if(forSaving) {
+                double ppInTax = calPercent(saveAmountInTax, amtInTax);
+                double ppExTax = calPercent(saveAmountExTax, amtExTax);
+                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(new ArrayList<>(lstProductHasPromotion.values()), 1,
+                        ppInTax, ppExTax, isInclusiveTax(program.getDiscountPriceType()), amtInTax, amtExTax);
+                for(SaleDiscountSaveDTO save: saveInfo) {
+                    if(amtInTax <= 0) amtInTax += save.getAmountInTax();
+                    if(amtExTax <= 0) amtExTax += save.getAmountExTax();
+                }
+
+                discountDTO.setDiscountInfo(saveInfo);
+            }
             salePromotion.setTotalAmtInTax(amtInTax);
             salePromotion.setTotalAmtExTax(amtExTax);
             discountDTO.setAmount(salePromotion.getTotalAmtExTax());
@@ -736,13 +773,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setAmount(discountDTO);
 
             if(forSaving) {
-                discountDTO.setPercentage(percent );
+                discountDTO.setPercentage(percent);
                 discountDTO.setMaxAmount(discountDTO.getAmount());
-                double ppInTax = calPercent(saveAmountInTax, amtInTax);
-                double ppExTax = calPercent(saveAmountExTax, amtExTax);
-                List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(new ArrayList<>(lstProductHasPromotion.values()), 1,
-                        ppInTax, ppExTax, isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
-                discountDTO.setDiscountInfo(saveInfo);
             }
             salePromotion.setLstProductHasPromtion(new ArrayList<>(lstProductHasPromotion.keySet()));
             salePromotion.setAffected(true);
@@ -992,6 +1024,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     @Override
     public boolean checkPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
+        int qty = 0;
+        if(salePromotion.getProducts()!= null) {
+            for(FreeProductDTO free: salePromotion.getProducts()) {
+                qty += free.getQuantity()!=null?free.getQuantity():0;
+            }
+            salePromotion.setTotalQty(qty);
+        }
+
         LimitDto value = getPromotionLimit(salePromotion, shopId);
 
         return value.isUsed();
@@ -1007,7 +1047,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setReceiveShopQty(promotionShopMap.getQuantityReceived());
             double receiving = 0;
             if(salePromotion.getTotalQty() != null) receiving = salePromotion.getTotalQty();
-            else if(salePromotion.getAmount() != null && salePromotion.getAmount().getAmount() != null) receiving = salePromotion.getAmount().getAmount();
+            else if(salePromotion.getAmount()!=null && salePromotion.getTotalAmtInTax() != null) receiving = salePromotion.getTotalAmtInTax();
             if (promotionShopMap.getQuantityMax() == null) return new LimitDto(true, null);
             else{
                 double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
@@ -2020,9 +2060,24 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
                 SalePromotionDTO salePromotion = new SalePromotionDTO();
 
-                double amtInTax = totalAmountInTax * percent / 100;
+                double amtInTax = 0;
                 double amtExTax = totalAmountExTax * percent / 100;
+                if(isInclusiveTax){
+                     amtInTax = totalAmountInTax * percent / 100;
+                     amtExTax = 0;
+                }
 
+                if (forSaving) {
+                    double pcInTax = calPercent(orderData.getTotalPrice(), amtInTax);
+                    double pcExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
+                    List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), level, pcInTax, pcExTax, isInclusiveTax,
+                            amtInTax, amtExTax);
+                    for(SaleDiscountSaveDTO info : saveInfo) {
+                        if(amtInTax <= 0) amtInTax += info.getAmountInTax();
+                        if(amtExTax <= 0) amtExTax += info.getAmountExTax();
+                    }
+                    discountDTO.setDiscountInfo(saveInfo);
+                }
                 salePromotion.setTotalAmtInTax(amtInTax);
                 salePromotion.setTotalAmtExTax(amtExTax);
                 discountDTO.setAmount(salePromotion.getTotalAmtExTax());
@@ -2033,11 +2088,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 if (forSaving) {
                     discountDTO.setPercentage(percent);
                     discountDTO.setMaxAmount(discountDTO.getAmount());
-                    double pcInTax = calPercent(orderData.getTotalPrice(), amtInTax);
-                    double pcExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
-                    List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), level, pcInTax, pcExTax, isInclusiveTax,
-                            amtInTax, amtExTax);
-                    discountDTO.setDiscountInfo(saveInfo);
                 }
                 salePromotion.setLstProductHasPromtion(orderData.getProducts().stream().map(i -> i.getProductId()).collect(Collectors.toList()));
                 salePromotion.setAffected(true);

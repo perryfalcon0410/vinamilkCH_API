@@ -66,11 +66,11 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     Page<CustomerDTO> searchForRedInvoice(String searchKeywords, String mobiphone, String workingOffice, String officeAddress, String taxCode, Pageable pageable);
 
     @Modifying()
-    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0 , updatedAt = sysdate ")
+    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0 , updatedAt = sysdate, updatedBy= 'schedule' ")
     int schedulerUpdateStartDay();
 
     @Modifying()
-    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0, monthOrderNumber = 0 , monthOrderAmount = 0 , updatedAt = sysdate ")
+    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0, monthOrderNumber = 0 , monthOrderAmount = 0 , updatedAt = sysdate, updatedBy= 'schedule' ")
     int schedulerUpdateStartMonth();
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
