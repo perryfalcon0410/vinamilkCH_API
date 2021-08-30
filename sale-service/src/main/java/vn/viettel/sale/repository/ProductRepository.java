@@ -13,7 +13,6 @@ import vn.viettel.sale.service.dto.ProductDetailDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends BaseRepository<Product>, JpaSpecificationExecutor<Product> {
@@ -134,5 +133,23 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query("SELECT p FROM Product p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
     List<Product> getProducts(List<Long> productIds, Integer status);
 
-    List<Product> getByBarCodeAndStatus(String barCode, Integer status);
+
+    @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
+            " p.uom1, p.isCombo, p.comboProductId, '' ) " +
+            " FROM Product p " +
+            " JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
+            "   AND (" +
+            "           ( price.customerTypeId = :customerTypeId AND (price.fromDate <= :toDate AND price.toDate IS NULL AND " +
+            "               price.fromDate = (SELECT MAX(pd.fromDate) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId AND pd.fromDate <= :toDate AND pd.customerTypeId = :customerTypeId )" +
+            "            ) ) " +
+            "       OR  (" +
+            "               ( price.fromDate = (SELECT MAX(pd.fromDate) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId AND pd.fromDate <= :toDate ) ) " +
+            "           AND ( price.customerTypeId = (SELECT MIN(pd.customerTypeId) FROM Price pd WHERE pd.priceType = -1 AND pd.status = 1 AND pd.productId = price.productId " +
+            "                                 AND pd.fromDate = (SELECT MAX(pr.fromDate) FROM Price pr WHERE pr.priceType = -1 AND pr.status = 1 AND pr.productId = price.productId AND pd.fromDate <= :toDate )  ) ) " +
+            "           AND :customerTypeId IS NULL " +
+            "           ) " +
+            "   ) " +
+            " JOIN StockTotal st ON st.productId = p.id AND st.shopId =:shopId AND st.wareHouseTypeId = :warehouseId AND st.quantity > 0 AND st.status = 1 " +
+            " WHERE p.barCode = :barCode AND p.status = 1 ")
+    List<OrderProductDTO> getByBarCodeAndStatus(String barCode, Long shopId, Long customerTypeId, Long warehouseId, LocalDateTime toDate);
 }

@@ -35,5 +35,5 @@ public interface ProductService extends BaseService {
 
     PriceDTO getProductPriceById(Long shopId, Long productId);
 
-    OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId);
+    List<OrderProductDTO> getByBarcode(Long shopId, String barcode, Long customerId);
 }

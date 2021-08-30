@@ -175,9 +175,9 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<OrderProductDTO> getByBarcode(HttpServletRequest request, @RequestParam String barcode, @RequestParam Long customerId) {
-        OrderProductDTO response = productService.getByBarcode(this.getShopId(), barcode, customerId);
+    public Response<List<OrderProductDTO>> getByBarcode(HttpServletRequest request, @RequestParam String barcode, @RequestParam Long customerId) {
+        List<OrderProductDTO> response = productService.getByBarcode(this.getShopId(), barcode, customerId);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
-        return new Response<OrderProductDTO>().withData(response);
+        return new Response<List<OrderProductDTO>>().withData(response);
     }
 }

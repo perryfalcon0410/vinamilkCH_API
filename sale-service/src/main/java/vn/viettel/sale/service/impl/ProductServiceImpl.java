@@ -264,11 +264,13 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }*/
 
     @Override
-    public OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId) {
+    public List<OrderProductDTO> getByBarcode(Long shopId, String barcode, Long customerId) {
         CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
+        List<OrderProductDTO> productDTOS = repository.getByBarCodeAndStatus(barcode, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
 
-        List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
+       /* List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
         if(products.isEmpty() || customerType == null) return null;
+
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), products.get(0).getId());
 
         List<Price> prices = productPriceRepo.findProductPriceWithType(Arrays.asList(products.get(0).getId()), customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));
@@ -276,10 +278,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
         OrderProductDTO orderProductDTO = modelMapper.map(products.get(0), OrderProductDTO.class);
         orderProductDTO.setPrice(prices.get(0).getPrice());
-        if(stockTotals == null || stockTotals.isEmpty())
-            orderProductDTO.setStockTotal(stockTotals.get(0).getQuantity());
+        if(stockTotals != null && !stockTotals.isEmpty())
+            orderProductDTO.setStockTotal(stockTotals.get(0).getQuantity());*/
 
-        return orderProductDTO;
+        return productDTOS;
     }
 
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest, List<Product> products, List<Price> prices,
