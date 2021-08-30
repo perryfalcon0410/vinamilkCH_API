@@ -57,8 +57,8 @@ public class RedInvoiceController extends BaseController {
                                                                                             @RequestParam(value = "toDate", required = false) Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             @SortDefault.SortDefaults({
-                                                                                                    @SortDefault(sort = "printDate", direction = Sort.Direction.ASC),
-                                                                                                    @SortDefault(sort = "invoiceNumber", direction = Sort.Direction.ASC)
+                                                                                                    @SortDefault(sort = "printDate", direction = Sort.Direction.DESC),
+                                                                                                    @SortDefault(sort = "invoiceNumber", direction = Sort.Direction.DESC)
                                                                                             })
                                                                                                     Pageable pageable) {
         CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> response = redInvoiceService.getAll(this.getShopId(), searchKeywords, fromDate, toDate, invoiceNumber, pageable);

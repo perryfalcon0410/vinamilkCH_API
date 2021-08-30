@@ -265,8 +265,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         }
                     }
 
-                    if(inputPro.getProgramType().equalsIgnoreCase("ZM") && inputPro.getAmount()!=null && inputPro.getAmount().getAmount()!=null
-                            && inputPro.getAmount().getAmount() > inputPro.getAmount().getMaxAmount())
+                    if(inputPro.getProgramType().equalsIgnoreCase("ZM") && inputPro.getAmount()!=null && inputPro.getAmount().getAmount()!=null &&
+                    inputPro.getAmount().getMaxAmount() !=null && inputPro.getAmount().getMaxAmount() >0 && inputPro.getAmount().getAmount() > inputPro.getAmount().getMaxAmount() && dbPro.getIsUse() == false )
                         throw new ValidateException(ResponseMessage.PROMOTION_NOT_AMOUNT_VALUE, inputPro.getPromotionProgramName());
 
                     //kiểm tra đã đủ số xuất
@@ -732,7 +732,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     remain = 0;
                 }
                 else {
-                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getMemberCardAmount());
+                    amountDisTotal = amountDisTotal - saleOrder.getMemberCardAmount();
+                    remain = saleOrder.getAmount() - amountDisTotal;
                     saleOrder.setMemberCardAmount(0D);
                 }
             }
@@ -743,7 +744,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     remain = 0;
                 }
                 else {
-                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getDiscountCodeAmount());
+                    amountDisTotal = amountDisTotal - saleOrder.getDiscountCodeAmount();
+                    remain = saleOrder.getAmount() - amountDisTotal;
                     saleOrder.setDiscountCodeAmount(0D);
                 }
             }
