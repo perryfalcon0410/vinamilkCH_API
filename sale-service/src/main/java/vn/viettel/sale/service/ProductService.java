@@ -15,7 +15,7 @@ public interface ProductService extends BaseService {
 
     Page<OrderProductDTO> findProducts(ProductFilter productFilter, Pageable pageable);
 
-    Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWork, Long customerId, Integer checkStocktotal, Pageable pageable);
+    Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWork, Long customerId, Integer checkStocktotal, Boolean barcode, Pageable pageable);
 
     Page<OrderProductDTO> findProductsMonth(Long shopId, Long customerId, Pageable pageable);
 

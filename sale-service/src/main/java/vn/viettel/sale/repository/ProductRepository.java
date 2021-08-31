@@ -150,6 +150,6 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "           ) " +
             "   ) " +
             " JOIN StockTotal st ON st.productId = p.id AND st.shopId =:shopId AND st.wareHouseTypeId = :warehouseId AND st.quantity > 0 AND st.status = 1 " +
-            " WHERE p.barCode = :barCode AND p.status = 1 ")
+            " WHERE upper(p.barCode) = :barCode AND p.status = 1 ")
     List<OrderProductDTO> getByBarCodeAndStatus(String barCode, Long shopId, Long customerTypeId, Long warehouseId, LocalDateTime toDate);
 }
