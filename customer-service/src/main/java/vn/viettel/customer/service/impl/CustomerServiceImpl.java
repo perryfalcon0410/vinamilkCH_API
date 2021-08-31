@@ -563,6 +563,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     /*
         Đổi hàng hỏng  - hàng trả lại
      */
+/*
     @Override
     public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
@@ -599,8 +600,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Collections.sort(results, Comparator.comparing(CustomerDTO::getNameText));
         return new PageImpl<>(results);
     }
+*/
 
-    /*@Override
+    @Override
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
+        String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
+        //hạn chế request vào db
+        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, pageable);
+    }
+
+
+/*    @Override
     public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
@@ -681,12 +692,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return customerDB.stream().map(e -> modelMapper.map(e, CustomerDTO.class)).collect(Collectors.toList());
     }
 
-//    @Override
-//    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
-//        List<Customer> customers = repository.getCustomersByIds(customerIds);
-//        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-//        return customerDTOS;
-//    }
+/*    @Override
+    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
+        List<Customer> customers = repository.getCustomersByIds(customerIds);
+       List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
+       return customerDTOS;
+    }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
