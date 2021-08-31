@@ -345,13 +345,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             }
                         }
 
-                        if(dbPro.getTotalAmtInTax() != null){
-//                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
-//                            promotionShopMaps.add(promotionShopMap);
-                            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-                            promotionShopMap.setQuantityReceived(received + dbPro.getTotalAmtInTax());
-                            promotionShopMaps.add(promotionShopMap);
-                        }
+                        Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                        promotionShopMap.setQuantityReceived(received + (dbPro.getAmount().getAmount() == null ? 0.0 : dbPro.getAmount().getAmount()));
+                        promotionShopMaps.add(promotionShopMap);
                     }
                     if(dbPro.getDiscountDTOs() != null && !dbPro.getDiscountDTOs().isEmpty()) discountDTOs.addAll(dbPro.getDiscountDTOs());
                 }
