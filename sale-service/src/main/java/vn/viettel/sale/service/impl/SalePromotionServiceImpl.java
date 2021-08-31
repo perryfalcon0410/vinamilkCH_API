@@ -1935,45 +1935,80 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     cập nhật lại số lượng nếu đơn vị uom khác nhau và set về 0 nếu sp km không còn hoạt động
      */
     //fix ora-01795 maximum number of expressions in a list: 1000
-    public List<Product> getProducts(List<Long> ids) {
+    private List<Product> getProducts(List<String> productIds) {
         List<Product> products = new ArrayList<>();
-        double count = Math.ceil(ids.size()/1000.0) - 1;
+        double count = Math.ceil(productIds.size()/1000.0) - 1;
         int max = 0;
         for(int i = 0; i <= count; i++) {
-            if ((i + 1)*1000 > ids.size()) {
-                max = ids.size();
+            if ((i + 1)*1000 > productIds.size()) {
+                max = productIds.size();
             } else {
                 max = (i + 1)*1000;
             }
-            List<Long> subIds = ids.subList(i*1000, max);
-           products.addAll(productRepository.getProducts(subIds, 1));
+            List<String> subIds = productIds.subList(i*1000, max);
+           products.addAll(productRepository.getProducts(subIds));
+        }
+        return products;
+    }
+
+    private List<Long> getProductsNotActice(List<Long> productIds) {
+        List<Long> products = new ArrayList<>();
+        double count = Math.ceil(productIds.size()/1000.0) - 1;
+        int max = 0;
+        for(int i = 0; i <= count; i++) {
+            if ((i + 1)*1000 > productIds.size()) {
+                max = productIds.size();
+            } else {
+                max = (i + 1)*1000;
+            }
+            List<Long> subIds = productIds.subList(i*1000, max);
+            products.addAll(productRepository.getProductFrees(subIds, -1));
         }
         return products;
     }
 
     private void updateUomProduct(List<PromotionProgramDetailDTO> details){
         if(details == null || details.isEmpty()) return;
-        List<Long> productIds = details.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-        details.stream().map(item -> item.getFreeProductId()).distinct().filter(Objects::nonNull).forEachOrdered(productIds::add);
-        productIds.stream().distinct();
+        List<String> products = new ArrayList<>();
+        List<String> freeProducts = new ArrayList<>();
+        List<Long> freeIds = new ArrayList<>();
+        for(PromotionProgramDetailDTO detail: details) {
+            if(detail.getProductId() !=null && detail.getSaleUom() !=null && !products.contains(detail.getProductId() + detail.getSaleUom())) {
+                products.add(detail.getProductId() + detail.getSaleUom());
+            }
 
-        List<Product> products = this.getProducts(productIds);
-        List<Long> productActive = products.stream().map(item -> item.getId()).collect(Collectors.toList());
+            if(detail.getFreeProductId()!=null && detail.getFreeUom()!=null && !freeProducts.contains(detail.getFreeProductId()+ detail.getFreeUom())) {
+                freeProducts.add(detail.getFreeProductId() + detail.getFreeUom());
+            }
+
+            if(detail.getFreeProductId()!=null && !freeIds.contains(detail.getFreeProductId())) {
+                freeIds.add(detail.getFreeProductId());
+            }
+        }
+
+        List<Product> productSales = this.getProducts(products);
+        List<Product> productFrees = this.getProducts(freeProducts);
+
+        List<Long> productActive =  this.getProductsNotActice(freeIds);   //products.stream().map(item -> item.getId()).collect(Collectors.toList());
         for(PromotionProgramDetailDTO promotion : details){
-            for(Product product : products){
+            for(Product product : productSales){
                 //set lại số lượng cần mua
                 if(product.getId().equals(promotion.getProductId()) && product.getUom2() != null && promotion.getSaleUom() != null
                         && product.getUom2().trim().equalsIgnoreCase(promotion.getSaleUom().trim()) && promotion.getSaleQty() != null && product.getConvFact() != null){
                     promotion.setSaleQty(promotion.getSaleQty() * product.getConvFact());
                 }
+            }
+
+            for(Product product : productFrees){
                 //set lại số lượng km
                 if(product.getId().equals(promotion.getFreeProductId()) && product.getUom2() != null && promotion.getFreeUom() != null
                         && product.getUom2().trim().equalsIgnoreCase(promotion.getFreeUom().trim()) && promotion.getFreeQty() != null && product.getConvFact() != null){
                     promotion.setFreeQty(promotion.getFreeQty() * product.getConvFact());
                 }
             }
+
             //nếu sp km ko tồn tại
-            if(!productActive.contains(promotion.getFreeProductId())) promotion.setFreeQty(0);
+            if(productActive.contains(promotion.getFreeProductId())) promotion.setFreeQty(0);
         }
     }
 

@@ -133,6 +133,11 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query("SELECT p FROM Product p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
     List<Product> getProducts(List<Long> productIds, Integer status);
 
+    @Query("SELECT p FROM Product p WHERE concat(p.id, p.uom2) IN (:productStrings) AND p.status = 1 ")
+    List<Product> getProducts(List<String> productStrings);
+
+    @Query("SELECT p.id FROM Product p WHERE p.id IN (:productIds) AND (:status IS null or p.status = :status )")
+    List<Long> getProductFrees(List<Long> productIds, Integer status);
 
     @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
             " p.uom1, p.isCombo, p.comboProductId, '' ) " +
