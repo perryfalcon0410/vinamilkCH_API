@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
@@ -16,13 +15,17 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.messaging.*;
+import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
+import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
+import vn.viettel.sale.messaging.TotalResponse;
 import vn.viettel.sale.service.ReceiptExportService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.PoTransDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
+import vn.viettel.sale.service.dto.StockAdjustmentDTO;
+import vn.viettel.sale.service.dto.StockBorrowingDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -44,8 +47,8 @@ public class ReceiptExportController extends BaseController {
              HttpServletRequest request,
              @ApiParam("Mã phiếu xuất")@RequestParam(value = "transCode",required = false) String transCode,
              @ApiParam("Số hóa đơn, Mã giao dịch") @RequestParam(value = "redInvoiceNo",required = false) String redInvoiceNo,
-             @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate",required = false) Date fromDate,
-             @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate",required = false) Date toDate,
+             @ApiParam("Từ ngày xuất")@RequestParam(value = "fromDate") Date fromDate,
+             @ApiParam("Đến ngày xuất")@RequestParam(value = "toDate") Date toDate,
              @ApiParam("Loại xuất")@RequestParam(value = "type",required = false) Integer type,
              @SortDefault.SortDefaults({
                      @SortDefault(sort = "transDate", direction = Sort.Direction.DESC),

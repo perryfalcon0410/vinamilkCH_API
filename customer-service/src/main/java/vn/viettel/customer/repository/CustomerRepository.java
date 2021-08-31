@@ -36,8 +36,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     List<CustomerDTO> getCustomerDefault(Long shopId);
 
     @Query(value = "SELECT DISTINCT c.id FROM Customer c where ( c.customerCode like %:nameOrCode% OR c.nameText like %:nameOrCode% ) " +
-            "and c.mobiPhone like %:customerPhone ")
-    List<Long> getCustomerIds(String nameOrCode, String customerPhone);
+            "and c.mobiPhone like %:customerPhone and c.id in (:ids)")
+    List<Long> getCustomerIds(String nameOrCode, String customerPhone, List<Long> ids);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO (c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +

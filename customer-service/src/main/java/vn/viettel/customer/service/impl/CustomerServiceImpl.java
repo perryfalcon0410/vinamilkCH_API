@@ -635,9 +635,21 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
+    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, List<Long> ids) {
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
-        return repository.getCustomerIds( keyUpper, customerPhone);
+            List<Long> customers = new ArrayList<>();
+            double count = Math.ceil(ids.size()/1000.0) - 1;
+            int max = 0;
+            for(int i = 0; i <= count; i++) {
+                if ((i + 1)*1000 > ids.size()) {
+                    max = ids.size();
+                } else {
+                    max = (i + 1)*1000;
+                }
+                List<Long> subIds = ids.subList(i*1000, max);
+                customers.addAll(repository.getCustomerIds( keyUpper, customerPhone, subIds));
+            }
+            return customers;
     }
 
     @Override

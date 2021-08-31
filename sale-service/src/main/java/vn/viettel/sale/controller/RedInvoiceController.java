@@ -53,8 +53,8 @@ public class RedInvoiceController extends BaseController {
     @GetMapping(value = {V1 + root + "/red-invoices"})
     public Response<CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice>> findALlProductInfo(HttpServletRequest httpRequest,
                                                                                             @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
-                                                                                            @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                            @RequestParam(value = "toDate", required = false) Date toDate,
+                                                                                            @RequestParam(value = "fromDate") Date fromDate,
+                                                                                            @RequestParam(value = "toDate") Date toDate,
                                                                                             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
                                                                                             @SortDefault.SortDefaults({
                                                                                                     @SortDefault(sort = "printDate", direction = Sort.Direction.DESC),

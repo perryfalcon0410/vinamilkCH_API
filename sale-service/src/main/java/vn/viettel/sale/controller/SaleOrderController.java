@@ -25,7 +25,6 @@ import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -45,8 +44,8 @@ public class SaleOrderController extends BaseController {
                                                                                                @RequestParam(value = "customerPhone", required = false) String customerPhone,
                                                                                                @RequestParam(value = "orderNumber", required = false) String orderNumber,
                                                                                                @RequestParam(value = "usedRedInvoice", required = false) Boolean usedRedInvoice,
-                                                                                               @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                               @RequestParam(value = "toDate", required = false) Date toDate,
+                                                                                               @RequestParam(value = "fromDate") Date fromDate,
+                                                                                               @RequestParam(value = "toDate") Date toDate,
                                                                                                @SortDefault.SortDefaults({
                                                                                                    @SortDefault(sort = "orderDate", direction = Sort.Direction.DESC),
                                                                                                    @SortDefault(sort = "orderNumber", direction = Sort.Direction.DESC)
