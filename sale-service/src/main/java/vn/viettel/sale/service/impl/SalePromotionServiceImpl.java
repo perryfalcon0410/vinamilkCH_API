@@ -595,6 +595,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 salePromotion.setIsEditable(true);
                 salePromotion.setIsUse(false);
             }
+
+            if(forSaving && inputAmount!=null && inputAmount > 0) {
+                salePromotion.setIsUse(true);
+            }
         }
 
         return salePromotion;
