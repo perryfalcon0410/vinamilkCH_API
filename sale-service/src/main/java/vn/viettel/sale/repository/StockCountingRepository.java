@@ -30,7 +30,7 @@ public interface StockCountingRepository extends BaseRepository<StockCounting>, 
 
     /*WareHouseType w: w  ko đổi do sort FE  w.wareHouseTypeName*/
     @Query(value = "SELECT NEW vn.viettel.sale.service.dto.StockCountingDTO(s.id," +
-            " s.stockCountingCode, s.countingDate, s.shopId, s.wareHouseTypeId, w.wareHouseTypeName, s.createdBy, s.updatedBy ) " +
+            " s.stockCountingCode, s.countingDate, s.shopId, s.wareHouseTypeId, w.wareHouseTypeName, s.createdBy, s.updatedBy, s.createdAt, s.updatedAt) " +
             " FROM StockCounting s LEFT JOIN WareHouseType w ON w.id = s.wareHouseTypeId " +
             " WHERE s.shopId = :shopId  " +
             " AND (:stockCountingCode IS NULL OR upper(s.stockCountingCode) LIKE %:stockCountingCode%) " +

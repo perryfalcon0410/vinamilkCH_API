@@ -28,10 +28,12 @@ public class StockCountingDTO extends BaseDTO {
 
 
     public StockCountingDTO(Long id, String stockCountingCode, LocalDateTime countingDate,
-                            Long shopId, Long wareHouseTypeId, String wareHouseTypeName, String createdBy, String updatedBy) {
+                            Long shopId, Long wareHouseTypeId, String wareHouseTypeName, String createdBy, String updatedBy, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.setId(id);
         this.setCreatedBy(createdBy);
         this.setUpdatedBy(updatedBy);
+        this.setCreatedAt(createdAt);
+        this.setUpdatedAt(updatedAt);
         this.stockCountingCode = stockCountingCode;
         this.countingDate = countingDate;
         this.shopId = shopId;

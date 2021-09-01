@@ -402,6 +402,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
             dtos.add(dto);
         }
+
+
+
         CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = new CoverResponse(dtos, totalStockCounting);
         return response;
     }

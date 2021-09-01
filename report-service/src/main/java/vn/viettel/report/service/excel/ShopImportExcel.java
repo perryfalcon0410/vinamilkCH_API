@@ -112,7 +112,7 @@
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getPoNumber(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getInternalNumber(),format);
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getOrderDate(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,DateUtils.formatDate2StringDate(s.getOrderDate()),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductName(),format);

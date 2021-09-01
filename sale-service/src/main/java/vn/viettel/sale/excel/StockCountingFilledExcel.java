@@ -215,7 +215,7 @@ public class StockCountingFilledExcel {
             int columnCount = 0;
 
             ExcelPoiUtils.createCell(row, columnCount++, stt, style);
-            ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductCategory(), style);
+            ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductCategoryCode(), style);
             ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductGroup(), style);
             ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductCode(), style);
             ExcelPoiUtils.createCell(row, columnCount++, exchange.getProductName(), style);

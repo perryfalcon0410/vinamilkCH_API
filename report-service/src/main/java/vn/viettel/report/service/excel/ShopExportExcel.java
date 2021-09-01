@@ -187,7 +187,7 @@ public class ShopExportExcel {
                 ShopExportDTO record = exportGoodsDTOS.get(i);
 
                 ExcelPoiUtils.createCell(rowValue, column++, i + 1, styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getTransDate()), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDateTime(record.getTransDate()), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getImportType(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTransCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getRedInvoiceNo(), styleTableValue);
