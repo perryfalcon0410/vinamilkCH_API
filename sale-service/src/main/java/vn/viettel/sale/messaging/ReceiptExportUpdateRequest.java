@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 
-import javax.validation.Valid;
-import java.lang.reflect.Type;
 import java.util.List;
 
 @Getter
@@ -20,5 +18,5 @@ public class ReceiptExportUpdateRequest extends BaseRequest {
     private Integer type;
     @ApiModelProperty("Ghi chú")
     private String note;
-    private List<@Valid ReceiptCreateDetailRequest> listProductRemain;
+    private List<ReceiptCreateDetailRequest> listProductRemain;
 }
