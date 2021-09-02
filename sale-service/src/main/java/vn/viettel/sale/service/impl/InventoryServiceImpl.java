@@ -262,13 +262,6 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         return true;
     }
 
-    public static boolean isInteger(Object object) {
-        if (object instanceof Integer) {
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public ResponseMessage updateStockCounting(Long stockCountingId, String userAccount,
                                                List<StockCountingUpdateDTO> details) {
