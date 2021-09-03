@@ -12,7 +12,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.MemberCustomerRequest;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 import vn.viettel.customer.entities.MemberCustomer;
 import vn.viettel.customer.service.MemberCustomerService;
 
@@ -68,14 +67,13 @@ public class MemberCustomerController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleFeign
+
     @GetMapping(value = { V1 + root + "/findCustomer/feign/{id}"})
     public MemberCustomerDTO getMemberCustomerByIdCustomer( @PathVariable long id) {
         MemberCustomerDTO memberCustomerDTO = memberCustomerService.getMemberCustomerByIdCustomer(id);
         return memberCustomerDTO;
     }
 
-//    @RoleFeign
     @ApiOperation(value = "Cập nhật điểm thẻ thành viên")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

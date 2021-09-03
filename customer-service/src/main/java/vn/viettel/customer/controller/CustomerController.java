@@ -108,7 +108,6 @@ public class CustomerController extends BaseController {
         return new Response<CustomerDTO>().withData(service.createForOnlOrder(request, shopId));
     }
 
-    //    @RoleFeign
     @ApiOperation(value = "Tìm kiếm khách hàng theo id")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}

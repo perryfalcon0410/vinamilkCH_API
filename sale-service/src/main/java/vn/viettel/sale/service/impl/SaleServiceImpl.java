@@ -461,7 +461,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             item.setOrderShopCode(shop.getShopCode());
             item.setOrderCustomerCode(customer.getCustomerCode());
             item.setOrderAmount(saleOrder.getTotal());
-            promotionClient.updatePromotionProgramDiscountV1(item);
+            try{
+                promotionClient.updatePromotionProgramDiscountV1(item);
+            }catch (Exception ex) {
+                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_PROMOTION_DISCOUNT_TYPE3_FAIL);
+            }
         }
 
         this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );
@@ -772,7 +776,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     voucher.setPriceUsed(priceUse);
                     priceUse -= priceUse;
                 }
-                promotionClient.updateVoucherV1(voucher);
+                try {
+                    promotionClient.updateVoucherV1(voucher);
+                }catch (Exception ex) {
+                    throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_VOUCHER_FAIL);
+                }
                 if(saleOrder.getTotalVoucher() - priceUse == saleOrder.getTotalVoucher()) break;
             }
         }
@@ -783,7 +791,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             discountNeedSave.setOrderAmount(saleOrder.getAmount());
             discountNeedSave.setOrderNumber(saleOrder.getOrderNumber());
             discountNeedSave.setOrderDate(saleOrder.getOrderDate());
-            promotionClient.updatePromotionProgramDiscountV1(discountNeedSave).getData();
+            try {
+                promotionClient.updatePromotionProgramDiscountV1(discountNeedSave);
+            }catch (Exception e) {
+                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_PROMOTION_DISCOUNT_CODE_FAIL);
+            }
         }
     }
 
@@ -891,7 +903,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId) {
         if (accumulatedAmount == null) return;
         MemberCustomerRequest request = new MemberCustomerRequest(accumulatedAmount);
-        customerClient.updateMemberCustomerV1(customerId, request);
+        try{
+            customerClient.updateMemberCustomerV1(customerId, request);
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_MEMBER_CUSTOMER_FAIL);
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -1259,7 +1276,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             customerRequest.setDayOrderAmount(dayOrderAmount + saleOrder.getAmount());
             customerRequest.setMonthOrderNumber(monthOrderNumber + quantity);
             customerRequest.setMonthOrderAmount(monthOrderAmount + saleOrder.getAmount());
-        customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
+        try {
+            customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_CUSTOMER_FAIL);
+        }
     }
 
 
