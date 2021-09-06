@@ -152,7 +152,7 @@ public class ExportExcel {
             if(shop!=null) {
                 ExcelPoiUtils.createCell(row_, 7, shop.getShopName(), style);
                 ExcelPoiUtils.createCell(row_1, 7, shop.getAddress(), style1);
-                ExcelPoiUtils.createCell(row_2, 7, (shop.getPhone()!=null?("Tel: " + shop.getPhone()):"") + (shop.getFax()!=null?(" Fax: " +shop.getFax()):""), style1);
+                ExcelPoiUtils.createCell(row_2, 7, (shop.getMobiPhone()!=null?("Tel: " + shop.getMobiPhone()):"") + (shop.getFax()!=null?(" Fax: " +shop.getFax()):""), style1);
             }
 
             ExcelPoiUtils.createCell(row_5, 0, "DANH SÁCH DỮ LIỆU", style2);

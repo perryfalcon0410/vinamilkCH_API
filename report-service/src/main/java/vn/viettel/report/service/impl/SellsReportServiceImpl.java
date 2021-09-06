@@ -167,7 +167,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             dto.setDateOfPrinting(time);
             dto.setShopName(shopDTO.getShopName());
             dto.setAddress(shopDTO.getAddress());
-            dto.setTel(shopDTO.getPhone());
+            dto.setTel(shopDTO.getMobiPhone());
             dto.setSomeBills(sellDTO.getSomeBills());
             dto.setTotalQuantity(sellDTO.getTotalQuantity());
             dto.setTotalTotal(sellDTO.getTotalTotal());
