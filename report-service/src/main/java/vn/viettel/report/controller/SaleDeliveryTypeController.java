@@ -45,8 +45,8 @@ public class SaleDeliveryTypeController extends BaseController {
     @GetMapping(V1 + root + "/excel")
     public void exportToExcel(
             HttpServletRequest request,
-            @RequestParam(value = "fromDate", required = false) Date fromDate,
-            @RequestParam(value = "toDate", required = false) Date toDate,
+            @RequestParam(value = "fromDate") Date fromDate,
+            @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "orderNumber", required = false, defaultValue = "") String orderNumber,
             @RequestParam(value = "apValue", required = false) String apValue,
             @RequestParam(value = "customerKW", required = false, defaultValue = "") String customerKW,

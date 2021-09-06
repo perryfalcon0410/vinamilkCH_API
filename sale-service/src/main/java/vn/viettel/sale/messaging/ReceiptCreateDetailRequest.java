@@ -6,11 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.messaging.BaseRequest;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 import vn.viettel.core.validation.annotation.NotNull;
+import vn.viettel.core.validation.annotation.NumberGreaterThanZero;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,7 +23,6 @@ public class ReceiptCreateDetailRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id cửa hàng")
     private Long shopId;
     @ApiModelProperty(notes = "Id sản phẩm")
-    @NotNull(responseMessage = ResponseMessage.PLEASE_IMPORT_PRODUCTS)
     private Long productId;
     @ApiModelProperty(notes = "Mã sản phẩm")
     private String productCode;

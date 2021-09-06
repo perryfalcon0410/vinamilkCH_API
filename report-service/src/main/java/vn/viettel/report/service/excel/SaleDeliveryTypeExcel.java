@@ -66,12 +66,12 @@ public class SaleDeliveryTypeExcel {
 
         ExcelPoiUtils.createCell(customerRow, 0, shopDTO.getShopName(), headerStyle);
         ExcelPoiUtils.createCell(customerAddressRow, 0, shopDTO.getAddress(), addressStyle);
-        ExcelPoiUtils.createCell(customerPhoneRow, 0, "Tel: " + (shopDTO.getMobiPhone()!=null? shopDTO.getMobiPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), addressStyle);
+        ExcelPoiUtils.createCell(customerPhoneRow, 0, "Tel: " + (shopDTO.getPhone()!=null? shopDTO.getPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), addressStyle);
 
         if(parentShop != null) {
             ExcelPoiUtils.createCell(customerRow, 9, parentShop.getShopName(), headerStyle);
             ExcelPoiUtils.createCell(customerAddressRow, 9, parentShop.getAddress(), addressStyle);
-            ExcelPoiUtils.createCell(customerPhoneRow, 9, "Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), addressStyle);
+            ExcelPoiUtils.createCell(customerPhoneRow, 9, "Tel: " + (parentShop.getPhone()!=null?parentShop.getPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), addressStyle);
         }
 
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:M6"));

@@ -20,7 +20,7 @@ public class SaleByCategoryPrintDTO {
     private String shopTel;
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
-    private String printDate;
+    private LocalDateTime printDate;
     private Object[] total;
     private List<String> category;
     private List<Object[]> reportData;

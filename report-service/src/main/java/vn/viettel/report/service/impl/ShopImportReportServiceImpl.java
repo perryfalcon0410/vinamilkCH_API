@@ -106,7 +106,7 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         List<ShopImportDTO> shopImports =  this.callProcedure(filter).getData();
         this.removeDataList(shopImports);
 
-        PrintShopImportDTO response = new PrintShopImportDTO(shop.getShopName(), shop.getAddress(), shop.getMobiPhone());
+        PrintShopImportDTO response = new PrintShopImportDTO(shop.getShopName(), shop.getAddress(), shop.getPhone());
             response.setFromDate(filter.getFromDate());
             response.setToDate(filter.getToDate());
 

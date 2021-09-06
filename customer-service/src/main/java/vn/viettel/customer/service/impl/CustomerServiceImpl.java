@@ -26,6 +26,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.CustomerType;
+import vn.viettel.customer.entities.Customer_;
 import vn.viettel.customer.entities.MemberCustomer;
 import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
@@ -41,6 +42,7 @@ import vn.viettel.customer.service.MemberCustomerService;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
+import javax.persistence.criteria.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -561,6 +563,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     /*
         Đổi hàng hỏng  - hàng trả lại
      */
+/*
     @Override
     public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
@@ -597,8 +600,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Collections.sort(results, Comparator.comparing(CustomerDTO::getNameText));
         return new PageImpl<>(results);
     }
+*/
 
-    /*@Override
+    @Override
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
+        if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
+        String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
+        //hạn chế request vào db
+        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, pageable);
+    }
+
+
+/*    @Override
     public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
         searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
@@ -635,39 +648,56 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     }
 
     @Override
-    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone) {
+    public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, List<Long> ids) {
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
-        return repository.getCustomerIds( keyUpper, customerPhone);
+            List<Long> customers = new ArrayList<>();
+            double count = Math.ceil(ids.size()/1000.0) - 1;
+            int max = 0;
+            for(int i = 0; i <= count; i++) {
+                if ((i + 1)*1000 > ids.size()) {
+                    max = ids.size();
+                } else {
+                    max = (i + 1)*1000;
+                }
+                List<Long> subIds = ids.subList(i*1000, max);
+                customers.addAll(repository.getCustomerIds( keyUpper, customerPhone, subIds));
+            }
+            return customers;
     }
 
     @Override
     public List<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, List<SortDTO> sorts){
         if (customerIds == null || customerIds.isEmpty()) return null;
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Customer> query = cb.createQuery(Customer.class);
+        Root<Customer> customer = query.from(Customer.class);
 
-        Pageable pageable = PageRequest.of(0, 1000000);
+        query.where(createInStatement(cb, customer.get("id"), customerIds), cb.equal(customer.get(Customer_.status), 1));
+        query.multiselect(customer.get(Customer_.id), customer.get(Customer_.firstName), customer.get(Customer_.lastName),
+                customer.get(Customer_.customerCode), customer.get(Customer_.mobiPhone));
+
         if(sorts != null && ! sorts.isEmpty()) {
-                Sort customerSort = null;
-                for(SortDTO dto: sorts) {
-                    Sort sorted = Sort.by(Sort.Direction.valueOf(dto.getDirection()), dto.getSortName());
-                    if(customerSort == null) customerSort = sorted;
-                    else customerSort.and(sorted);
+            List<Order> orderList = new ArrayList();
+            for(SortDTO dto: sorts) {
+                if(dto.getDirection().equalsIgnoreCase("DESC")) {
+                    orderList.add(cb.desc(customer.get(dto.getSortName())));
+                }else{
+                    orderList.add(cb.asc(customer.get(dto.getSortName())));
                 }
-            pageable = PageRequest.of(0, 1000000, customerSort);
+            }
+            query.orderBy(orderList);
         }
 
-        List<CustomerDTO> customers = repository.getCustomerInfo(status, customerIds, pageable).getContent();
-        /*modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        List<MemberCustomer> memberCustomers = memBerCustomerRepos.getMemberCustomers(customers.stream().map(i -> i.getId()).collect(Collectors.toList()));
-        List<CustomerDTO> customerDTOS = customers.stream().map(item -> mapCustomerToCustomerResponse(item, memberCustomers)).collect(Collectors.toList());*/
-        return customers;
+        List<Customer> customerDB = entityManager.createQuery(query).getResultList();
+        return customerDB.stream().map(e -> modelMapper.map(e, CustomerDTO.class)).collect(Collectors.toList());
     }
 
-//    @Override
-//    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
-//        List<Customer> customers = repository.getCustomersByIds(customerIds);
-//        List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-//        return customerDTOS;
-//    }
+/*    @Override
+    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
+        List<Customer> customers = repository.getCustomersByIds(customerIds);
+       List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
+       return customerDTOS;
+    }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)

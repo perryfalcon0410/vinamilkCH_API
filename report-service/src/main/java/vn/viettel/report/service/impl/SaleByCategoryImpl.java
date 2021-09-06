@@ -26,9 +26,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -147,10 +147,10 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
         SaleByCategoryPrintDTO printDTO = new SaleByCategoryPrintDTO();
         printDTO.setShopName(shopDTO.getShopName());
         printDTO.setShopAddress(shopDTO.getAddress());
-        printDTO.setShopTel(shopDTO.getMobiPhone());
+        printDTO.setShopTel(shopDTO.getPhone());
         printDTO.setFromDate(DateUtils.convertToDate(filter.getFromDate()));
         printDTO.setToDate(DateUtils.convertToDate(filter.getToDate()));
-        printDTO.setPrintDate(DateUtils.formatDate2StringDateTime(DateUtils.convertDateToLocalDateTime(new Date())));
+        printDTO.setPrintDate(LocalDateTime.now());
         printDTO.setCategory(procedure.getCategory());
         printDTO.setTotal(procedure.getTotals());
         printDTO.setReportData(allDatas);

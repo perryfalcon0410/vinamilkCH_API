@@ -91,7 +91,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
         this.reportDetailDTOMapping(info, poTrans);
         reportDTO.setInfo(info);
-        List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetail(poTrans.getId());
+        List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailPrint(poTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsPoTrans(poTransDetails,  reportDTO);
         reportDTO.setSaleProducts(reportProductCatDTOS);
         reportDTO.getInfo().setTotalPriceVat(reportDTO.getInfo().getTotalPrice() - reportDTO.getInfo().getTotalPriceNotVat());

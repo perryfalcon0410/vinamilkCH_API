@@ -47,12 +47,12 @@ public class ExchangeTransExcel {
         //header left
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,6,rowm,shopDTO.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,6,++rowm, shopDTO.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,6,++rowm,"Tel: " + (shopDTO.getMobiPhone()!=null? shopDTO.getMobiPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,6,++rowm,"Tel: " + (shopDTO.getPhone()!=null? shopDTO.getPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
         if(parentShop != null){
             ExcelPoiUtils.addCellsAndMerged(sheet,7,row-2,12,rowm-2,parentShop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet,7,row-1,12,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
-            ExcelPoiUtils.addCellsAndMerged(sheet,7,row,12,rowm, "Tel: " +  (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet,7,row,12,rowm, "Tel: " +  (parentShop.getPhone()!=null?parentShop.getPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
         }
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+12,rowm+3,"BẢNG TỔNG HỢP ĐỔI HÀNG HƯ HỎNG",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));

@@ -54,12 +54,12 @@ public class SellExcel {
 
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row, colm, rowm, shopDTO.getShopName(), style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet, col, ++row, colm, ++rowm, shopDTO.getAddress(), style.get(ExcelPoiUtils.HEADER_LEFT));
-            ExcelPoiUtils.addCellsAndMerged(sheet, col, ++row, colm, ++rowm, "Tel: " + (shopDTO.getMobiPhone()!=null? shopDTO.getMobiPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet, col, ++row, colm, ++rowm, "Tel: " + (shopDTO.getPhone()!=null? shopDTO.getPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), style.get(ExcelPoiUtils.HEADER_LEFT));
             //header right
             if(parentShop != null) {
                 ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row - 2, colm + 9, rowm - 2, parentShop.getShopName(), style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
                 ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row - 1, colm + 9, rowm - 1, parentShop.getAddress(), style.get(ExcelPoiUtils.HEADER_LEFT));
-                ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row, colm + 9, rowm, "Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), style.get(ExcelPoiUtils.HEADER_LEFT));
+                ExcelPoiUtils.addCellsAndMerged(sheet, col + 10, row, colm + 9, rowm, "Tel: " + (parentShop.getPhone()!=null?parentShop.getPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), style.get(ExcelPoiUtils.HEADER_LEFT));
             }
 
             ExcelPoiUtils.addCellsAndMerged(sheet, col, row + 3, colm + 15, rowm + 3, "BÁO CÁO BÁN HÀNG ", style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
@@ -159,7 +159,7 @@ public class SellExcel {
             ExcelPoiUtils.createCell(rowTotalFooter, 10, this.sellDTO.getTotalQuantity(), format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 11, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 12, this.sellDTO.getTotalTotal(), format3);
-            ExcelPoiUtils.createCell(rowTotalFooter, 13, this.sellDTO.getTotalPromotion(), format3);
+            ExcelPoiUtils.createCell(rowTotalFooter, 13, this.sellDTO.getTotalPromotionNotVAT(), format3);
             ExcelPoiUtils.createCell(rowTotalFooter, 14, this.sellDTO.getTotalPay(), format3);
             ExcelPoiUtils.createCell(rowTotalFooter, 15, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 16, null, format2);

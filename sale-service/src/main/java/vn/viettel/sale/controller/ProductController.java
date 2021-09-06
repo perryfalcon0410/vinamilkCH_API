@@ -81,9 +81,11 @@ public class ProductController extends BaseController {
     public Response<Page<OrderProductDTO>> findProductsTopSale(HttpServletRequest request,
                                                                @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm") @RequestParam(name = "keyWord", required = false) String keyWord,
                                                                @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
-                                                               @ApiParam("Kiểm tra tồn kho ") @RequestParam(name = "checkStockTotal", required = false, defaultValue = "1") Integer checkStocktotal, Pageable pageable) {
+                                                               @ApiParam("Kiểm tra tồn kho ") @RequestParam(name = "checkStockTotal", required = false, defaultValue = "1") Integer checkStocktotal,
+                                                               @ApiParam("Quét mã vạch ") @RequestParam(name = "checkBarcode", required = false) Boolean checkBarcode,
+                                                               Pageable pageable) {
         if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerId, checkStocktotal, pageable);
+        Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerId, checkStocktotal,checkBarcode, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
@@ -175,9 +177,9 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<OrderProductDTO> getByBarcode(HttpServletRequest request, @RequestParam String barcode, @RequestParam Long customerId) {
-        OrderProductDTO response = productService.getByBarcode(this.getShopId(), barcode, customerId);
+    public Response<List<OrderProductDTO>> getByBarcode(HttpServletRequest request, @RequestParam String barcode, @RequestParam Long customerId) {
+        List<OrderProductDTO> response = productService.getByBarcode(this.getShopId(), barcode, customerId);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
-        return new Response<OrderProductDTO>().withData(response);
+        return new Response<List<OrderProductDTO>>().withData(response);
     }
 }

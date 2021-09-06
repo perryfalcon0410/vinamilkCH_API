@@ -66,7 +66,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         }
 
         printDTO.setShopName(shopDTO.getShopName());
-        printDTO.setShopTel(shopDTO.getMobiPhone());
+        printDTO.setShopTel(shopDTO.getPhone());
         printDTO.setAddress(shopDTO.getAddress());
         printDTO.setDate(DateUtils.convertDateToLocalDateTime(stockDate));
         printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));

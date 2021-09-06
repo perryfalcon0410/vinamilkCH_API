@@ -27,7 +27,8 @@ public interface CustomerClient {
 
     @GetMapping("/api/v1/customers/ids-customer")
     Response<List<Long>> getIdCustomerByV1(@RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
-                                           @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone);
+                                           @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
+                                           @RequestParam(value = "ids") List<Long> ids);
 
     @GetMapping("/api/v1/customers/phone/{phone}")
     Response<List<CustomerDTO>> getCustomerByMobiPhoneV1(@PathVariable String phone);

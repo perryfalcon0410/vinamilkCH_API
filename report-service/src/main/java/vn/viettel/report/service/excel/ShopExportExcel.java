@@ -105,12 +105,12 @@ public class ShopExportExcel {
             ExcelPoiUtils.createCell(row1, 0, shopDTO.getAddress(), style1);
             sheet.addMergedRegion(CellRangeAddress.valueOf("A3:I3"));
             sheet.addMergedRegion(CellRangeAddress.valueOf("J3:S3"));
-            ExcelPoiUtils.createCell(row2, 0,"Tel: " + (shopDTO.getMobiPhone()!=null? shopDTO.getMobiPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), style1);
+            ExcelPoiUtils.createCell(row2, 0,"Tel: " + (shopDTO.getPhone()!=null? shopDTO.getPhone():"") + " Fax: " + (shopDTO.getFax()!=null?shopDTO.getFax():""), style1);
 
             if(parentShop !=null) {
                 ExcelPoiUtils.createCell(row, 9, parentShop.getShopName(), style);
                 ExcelPoiUtils.createCell(row1, 9, parentShop.getAddress(), style1);
-                ExcelPoiUtils.createCell(row2, 9, "Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), style1);
+                ExcelPoiUtils.createCell(row2, 9, "Tel: " + (parentShop.getPhone()!=null?parentShop.getPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""), style1);
             }
 
             sheet.addMergedRegion(CellRangeAddress.valueOf("A6:W6"));
@@ -187,7 +187,7 @@ public class ShopExportExcel {
                 ShopExportDTO record = exportGoodsDTOS.get(i);
 
                 ExcelPoiUtils.createCell(rowValue, column++, i + 1, styleTableValue);
-                ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDate(record.getTransDate()), styleTableValue);
+                ExcelPoiUtils.createCell(rowValue, column++, DateUtils.formatDate2StringDateTime(record.getTransDate()), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getImportType(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getTransCode(), styleTableValue);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getRedInvoiceNo(), styleTableValue);
