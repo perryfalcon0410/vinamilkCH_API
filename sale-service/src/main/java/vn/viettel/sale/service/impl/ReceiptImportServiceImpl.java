@@ -299,7 +299,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 }
                 dto.setShopName(shopDTO.getShopName()==null?"":shopDTO.getShopName());
                 dto.setShopAddress(shopDTO.getAddress()==null?"":shopDTO.getAddress());
-                dto.setShopContact("Tel: " + (shopDTO.getMobiPhone()==null?"":shopDTO.getMobiPhone()) + " Fax: " + (shopDTO.getFax()==null?"":shopDTO.getFax()));
+                dto.setShopContact("Tel: " + (shopDTO.getPhone()==null?"":shopDTO.getPhone()) + " Fax: " + (shopDTO.getFax()==null?"":shopDTO.getFax()));
                 dto.setTotalPrice(pt.getPrice() * pt.getQuantity());
                 totalPrice +=(pt.getPrice() * pt.getQuantity());
                 totalQuantity += pt.getQuantity();

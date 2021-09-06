@@ -66,7 +66,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
             if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             printDTO.setShopName(shopDTO.getShopName());
             printDTO.setAddress(shopDTO.getAddress());
-            printDTO.setShopTel(shopDTO.getMobiPhone());
+            printDTO.setShopTel(shopDTO.getPhone());
             printDTO.setFromDate(DateUtils.convertDateToLocalDateTime(fromDate));
             printDTO.setToDate(DateUtils.convertDateToLocalDateTime(toDate));
             printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));

@@ -342,7 +342,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         PrintSaleOrderDTO print = new PrintSaleOrderDTO();
         print.setShopName(shop.getShopName());
         print.setShopAddress(shop.getAddress());
-        print.setShopPhone(shop.getMobiPhone());
+        print.setShopPhone(shop.getPhone());
         print.setShopEmail(shop.getEmail());
         print.setCustomerName(customer.getFullName());
         print.setCustomerPhone(customer.getMobiPhone());
