@@ -58,8 +58,8 @@ public class ComboProductTransController extends BaseController {
                                       @RequestParam(value = "transCode", required = false) String transCode,
                                       @ApiParam("Loại giao dịch")
                                       @RequestParam(value = "transType", required = false) Integer transType,
-                                      @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                      @RequestParam(value = "toDate", required = false) Date toDate,
+                                      @RequestParam(value = "fromDate") Date fromDate,
+                                      @RequestParam(value = "toDate") Date toDate,
                                       @SortDefault.SortDefaults({
                                           @SortDefault(sort = "transDate", direction = Sort.Direction.DESC),
                                       })

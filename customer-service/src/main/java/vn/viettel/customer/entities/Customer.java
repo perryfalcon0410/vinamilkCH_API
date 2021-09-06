@@ -114,4 +114,12 @@ public class Customer extends BaseEntity {
     private String noted;
     @Column(name = "LAST_ORDER_DATE")
     private LocalDateTime lastOrderDate;
+
+    public Customer(Long id, String firstName, String lastName, String customerCode, String mobiPhone){
+        setId(id);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.customerCode = customerCode;
+        this.mobiPhone = mobiPhone;
+    }
 }

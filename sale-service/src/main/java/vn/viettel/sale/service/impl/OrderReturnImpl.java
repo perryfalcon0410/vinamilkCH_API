@@ -85,8 +85,12 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
         }
 
+        if (saleOrderFilter.getOrderNumber() != null)
+            saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
+
         if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
-            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+          List<Long> cusIds = repository.getCustomerIds(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null);
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone(), cusIds).getData();
             if (customerIds == null || customerIds.isEmpty()) {
                 customerIds = Arrays.asList(-1L);
             }
@@ -94,9 +98,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
         if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
-
-        if (saleOrderFilter.getOrderNumber() != null)
-            saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
 
         Page<SaleOrder> findAll = null;
         List<Long> saleCusIds = null;

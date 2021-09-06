@@ -15,7 +15,6 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.security.anotation.RoleFeign;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -75,7 +74,7 @@ public class ApParamController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    @RoleFeign
+
     @GetMapping(value = {V1 + root + "/reason-adjust/{id}"})
     Response<ApParamDTO> getReasonAdjust(HttpServletRequest httpRequest,
                                          @PathVariable Long id) {

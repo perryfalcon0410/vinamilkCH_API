@@ -6,14 +6,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,12 +24,9 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
-import vn.viettel.sale.entities.StockCounting;
-import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.excel.SampleExcel;
 import vn.viettel.sale.excel.StockCountingAllExcel;
 import vn.viettel.sale.excel.StockCountingFailExcel;
-import vn.viettel.sale.excel.StockCountingFilledExcel;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ShopClient;
@@ -61,8 +55,8 @@ public class InventoryController extends BaseController {
     @GetMapping(value = { V1 + root + "/inventory"})
     public Response<Page<StockCountingDTO>> index(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
                                                   @RequestParam(value ="wareHouseTypeId",required = false) Long wareHouseTypeId,
-                                                  @RequestParam(value = "fromDate",required = false) Date fromDate,
-                                                  @RequestParam(value = "toDate",required = false) Date toDate,
+                                                  @RequestParam(value = "fromDate") Date fromDate,
+                                                  @RequestParam(value = "toDate") Date toDate,
                                                   @SortDefault.SortDefaults({
                                                       @SortDefault(sort = "countingDate", direction = Sort.Direction.DESC),
                                                   }) Pageable pageable) {

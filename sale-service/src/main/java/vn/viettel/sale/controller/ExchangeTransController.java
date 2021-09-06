@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.common.CategoryDataDTO;
@@ -21,7 +20,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.ExchangeTrans;
@@ -34,8 +32,7 @@ import vn.viettel.sale.service.impl.ExchangeTranServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -67,8 +64,8 @@ public class ExchangeTransController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root})
     public Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>> getAllExchangeTrans(@RequestParam(value = "transCode", required = false) String transCode, HttpServletRequest request,
-                                                                                                 @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                                 @RequestParam(value = "toDate", required = false) Date toDate,
+                                                                                                 @RequestParam(value = "fromDate") Date fromDate,
+                                                                                                 @RequestParam(value = "toDate") Date toDate,
                                                                                                  @RequestParam(value = "reasonId", required = false) Long reasonId,
                                                                                                  @SortDefault.SortDefaults({
                                                                                                          @SortDefault(sort = "transDate", direction = Sort.Direction.DESC)

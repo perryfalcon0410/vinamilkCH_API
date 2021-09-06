@@ -87,8 +87,15 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             }
         }
 
+
+        String orderNumber = saleOrderFilter.getOrderNumber();
+        if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
+        LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
+        LocalDateTime toDate = DateUtils.convertToDate(saleOrderFilter.getToDate());
+
         if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
-            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone()).getData();
+            List<Long> cusIds = repository.getCustomerIds( fromDate, toDate, orderNumber, type, shopId, saleOrderFilter.getUsedRedInvoice());
+            customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone(), cusIds).getData();
             if (customerIds == null || customerIds.isEmpty()) {
                 customerIds = Arrays.asList(-1L);
             }
@@ -96,11 +103,6 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
         Pageable orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
         if(orderSort != null) orderPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), orderSort);
-
-        String orderNumber = saleOrderFilter.getOrderNumber();
-        if(orderNumber != null) orderNumber = orderNumber.trim().toUpperCase();
-        LocalDateTime fromDate = DateUtils.convertFromDate(saleOrderFilter.getFromDate());
-        LocalDateTime toDate = DateUtils.convertToDate(saleOrderFilter.getToDate());
 
         List<Long> saleCusIds = null;
         Page<SaleOrder> findAll = null;

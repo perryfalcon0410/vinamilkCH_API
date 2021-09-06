@@ -36,8 +36,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     List<CustomerDTO> getCustomerDefault(Long shopId);
 
     @Query(value = "SELECT DISTINCT c.id FROM Customer c where ( c.customerCode like %:nameOrCode% OR c.nameText like %:nameOrCode% ) " +
-            "and c.mobiPhone like %:customerPhone ")
-    List<Long> getCustomerIds(String nameOrCode, String customerPhone);
+            "and c.mobiPhone like %:customerPhone and c.id in (:ids)")
+    List<Long> getCustomerIds(String nameOrCode, String customerPhone, List<Long> ids);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO (c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
@@ -66,11 +66,11 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
     Page<CustomerDTO> searchForRedInvoice(String searchKeywords, String mobiphone, String workingOffice, String officeAddress, String taxCode, Pageable pageable);
 
     @Modifying()
-    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0 , updatedAt = sysdate ")
+    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0 , updatedAt = sysdate, updatedBy= 'schedule' ")
     int schedulerUpdateStartDay();
 
     @Modifying()
-    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0, monthOrderNumber = 0 , monthOrderAmount = 0 , updatedAt = sysdate ")
+    @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0, monthOrderNumber = 0 , monthOrderAmount = 0 , updatedAt = sysdate, updatedBy= 'schedule' ")
     int schedulerUpdateStartMonth();
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
@@ -81,6 +81,15 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
     )
     List<CustomerDTO> searchForAutoComplete(String name, String code, String phone);
+
+    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
+            " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +
+            " FROM Customer c WHERE c.status = 1 " +
+            " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
+            "   OR c.phone like %:phone OR c.mobiPhone like %:phone ) " +
+            " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
+    )
+    Page<CustomerDTO> searchCustomer(String name, String code, String phone, Pageable pageable);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill) " +

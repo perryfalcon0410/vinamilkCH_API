@@ -328,6 +328,12 @@ public enum ResponseMessage {
     TOTAL_FREE_PRODUCT_GREATER_THAN_ZERO(9097, "Phải nhập số lượng tặng cho khuyến mãi %s"),
     ONLINE_ORDER_PRODUCT_IS_EMPTY(9098, "Không có sản phẩm mua"),
     PROMOTION_NOT_FOUND(9099,"Không tìm thấy khuyến mãi cho đơn hàng"),
+    PROMOTION_NOT_AMOUNT_VALUE(9100, "Số tiền khuyến mãi vượt quá số tiền khuyến mãi tối đa %s"),
+    PAYMENT_UPDATE_VOUCHER_FAIL(9101, "Thanh toán không thành công. Cập nhật voucher thất bại."),
+    PAYMENT_UPDATE_PROMOTION_DISCOUNT_CODE_FAIL(9102, "Thanh toán không thành công. Cập nhật mã giảm giá thất bại."),
+    PAYMENT_UPDATE_PROMOTION_DISCOUNT_TYPE3_FAIL(9103, "Thanh toán không thành công. Cập nhật chi tiết khuyến mãi tay giảm giá khách hàng thất bại."),
+    PAYMENT_UPDATE_CUSTOMER_FAIL(9104, "Thanh toán không thành công. Cập nhật khách hàng thất bại."),
+    PAYMENT_UPDATE_MEMBER_CUSTOMER_FAIL(9105, "Thanh toán không thành công. Cập nhật số tiền tích lũy thất bại."),
 
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999

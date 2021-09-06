@@ -1,0 +1,5 @@
+[16/08/2021 13:54:21.412] [http-nio-9001-exec-10] [ERROR] [10.30.174.153 - /api/v1/users/shops/shop-params - HUONG] v.v.c.h.HandlerException.handleNotExistsException - Không tìm thấy tham số của cửa hàng
+[16/08/2021 13:54:51.763] [http-nio-9001-exec-8] [ERROR] [10.30.174.153 - /api/v1/users/shops/shop-params - HUONG] v.v.c.h.HandlerException.handleNotExistsException - Không tìm thấy tham số của cửa hàng
+[16/08/2021 14:39:32.419] [http-nio-9001-exec-9] [ERROR] [10.30.174.153 - /api/v1/users/shops/shop-params - HUONG] v.v.c.h.HandlerException.handleNotExistsException - Không tìm thấy tham số của cửa hàng
+[16/08/2021 14:40:08.635] [http-nio-9001-exec-7] [ERROR] [10.30.174.153 - /api/v1/users/shops/shop-params - HUONG] v.v.c.h.HandlerException.handleNotExistsException - Không tìm thấy tham số của cửa hàng
+[16/08/2021 14:44:26.264] [http-nio-9001-exec-8] [ERROR] [10.30.174.153 - /api/v1/users/shops/shop-params - HUONG] v.v.c.h.HandlerException.handleNotExistsException - Không tìm thấy tham số của cửa hàng

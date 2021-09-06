@@ -259,7 +259,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         List<FormDTO> froms = this.getForms(loginInfo.getRoleId());
 
         LoginResponse resData = modelMapper.map(user, LoginResponse.class);
-        ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(), shop.getAddress(), shop.getMobiPhone(), shop.getEmail());
+        ShopDTO usedShop = new ShopDTO(loginInfo.getShopId(), shop.getShopName(), shop.getAddress(), shop.getPhone(), shop.getEmail());
         setOnlineOrderPermission(usedShop, shop);
 
         resData.setUsedShop(usedShop);

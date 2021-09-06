@@ -12,6 +12,9 @@ import vn.viettel.core.service.helper.InstanceInitializerHelper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -129,5 +132,25 @@ public abstract class BaseServiceImpl<E/* extends BaseEntity*/, R extends BaseRe
         }
         return havePrivilege;
     }*/
+
+    public Predicate createInStatement(CriteriaBuilder cb, Path fieldName, List values) {
+        int listSize = values.size();
+        int PARAMETER_LIMIT = 999;
+        Predicate predicate = null;
+        for (int i = 0; i < listSize; i += PARAMETER_LIMIT) {
+            List subList;
+            if (listSize > i + PARAMETER_LIMIT) {
+                subList = values.subList(i, (i + PARAMETER_LIMIT));
+            } else {
+                subList = values.subList(i, listSize);
+            }
+            if (predicate == null) {
+                predicate = fieldName.in(subList);
+            } else {
+                predicate = cb.or(predicate, fieldName.in(subList));
+            }
+        }
+        return predicate;
+    }
 
 }

@@ -50,8 +50,8 @@ public class OrderReturnController extends BaseController {
     public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(  @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                      @RequestParam(value = "customerPhone", required = false) String customerPhone,
                                                                                                      @RequestParam(value = "returnNumber", required = false) String returnNumber,
-                                                                                                     @RequestParam(value = "fromDate", required = false) Date fromDate,
-                                                                                                     @RequestParam(value = "toDate", required = false) Date toDate,
+                                                                                                     @RequestParam(value = "fromDate") Date fromDate,
+                                                                                                     @RequestParam(value = "toDate") Date toDate,
                                                                                                      @SortDefault.SortDefaults({
                                                                                                              @SortDefault(sort = "orderDate", direction = Sort.Direction.DESC),
                                                                                                              @SortDefault(sort = "orderNumber", direction = Sort.Direction.DESC)

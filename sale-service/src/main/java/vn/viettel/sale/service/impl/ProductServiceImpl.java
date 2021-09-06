@@ -2,10 +2,7 @@ package vn.viettel.sale.service.impl;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -87,7 +84,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Pageable pageable) {
+    public Page<OrderProductDTO> findProductsTopSale(Long shopId, String keyWord, Long customerId, Integer checkStocktotal, Boolean barcode, Pageable pageable) {
         if (keyWord != null)
             keyWord = VNCharacterUtils.removeAccent(keyWord.trim()).toUpperCase(Locale.ROOT);
 
@@ -97,9 +94,15 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         boolean hasQty = false;
         CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
 
-        if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
-        return repository.findOrderProductTopSale(shopId, customerType.getId(), customerType.getWareHouseTypeId(), customerId,
-                keyWord, fromDate, toDate, hasQty, pageable);
+        if(barcode!= null && barcode) {
+            List<OrderProductDTO> productDTOS = repository.getByBarCodeAndStatus(keyWord, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
+            return new PageImpl<>(productDTOS);
+        }else {
+            if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
+            return repository.findOrderProductTopSale(shopId, customerType.getId(), customerType.getWareHouseTypeId(), customerId,
+                    keyWord, fromDate, toDate, hasQty, pageable);
+        }
+
     }
 
     @Override
@@ -264,11 +267,13 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }*/
 
     @Override
-    public OrderProductDTO getByBarcode(Long shopId, String barcode, Long customerId) {
+    public List<OrderProductDTO> getByBarcode(Long shopId, String barcode, Long customerId) {
         CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
+        List<OrderProductDTO> productDTOS = repository.getByBarCodeAndStatus(barcode, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
 
-        List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
+       /* List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
         if(products.isEmpty() || customerType == null) return null;
+
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), products.get(0).getId());
 
         List<Price> prices = productPriceRepo.findProductPriceWithType(Arrays.asList(products.get(0).getId()), customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));
@@ -276,10 +281,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
         OrderProductDTO orderProductDTO = modelMapper.map(products.get(0), OrderProductDTO.class);
         orderProductDTO.setPrice(prices.get(0).getPrice());
-        if(stockTotals == null || stockTotals.isEmpty())
-            orderProductDTO.setStockTotal(stockTotals.get(0).getQuantity());
+        if(stockTotals != null && !stockTotals.isEmpty())
+            orderProductDTO.setStockTotal(stockTotals.get(0).getQuantity());*/
 
-        return orderProductDTO;
+        return productDTOS;
     }
 
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest, List<Product> products, List<Price> prices,

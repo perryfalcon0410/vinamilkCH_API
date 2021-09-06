@@ -5,14 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
@@ -28,10 +24,10 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.utils.JMSType;
+import vn.viettel.sale.excel.ExportExcel;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.excel.ExportExcel;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.impl.ReceiptImportServiceImpl;
 
@@ -40,11 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,8 +63,8 @@ public class ReceiptImportController extends BaseController {
                                 HttpServletRequest request,
                                 @ApiParam("Mã phiếu nhập")@RequestParam(value = "transCode",required = false) String transCode,
                                 @ApiParam("Số hóa đơn") @RequestParam(value ="redInvoiceNo", required = false ) String redInvoiceNo,
-                                @ApiParam("Từ ngày nhập")@RequestParam(value ="fromDate",required = false) Date fromDate,
-                                @ApiParam("Đến ngày nhập")@RequestParam(value ="toDate",required = false) Date toDate,
+                                @ApiParam("Từ ngày nhập")@RequestParam(value ="fromDate") Date fromDate,
+                                @ApiParam("Đến ngày nhập")@RequestParam(value ="toDate") Date toDate,
                                 @ApiParam("Loại nhập")@RequestParam(value ="type", required = false ) Integer type,
                                 @SortDefault.SortDefaults({
                                         @SortDefault(sort = "transDate", direction = Sort.Direction.DESC),

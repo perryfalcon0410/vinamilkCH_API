@@ -257,9 +257,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             for (SalePromotionDTO inputPro : request.getPromotionInfo()){
                 if (dbPromotionIds.contains(inputPro.getProgramId()) && inputPro.getIsUse()){ // kiểm tra ctkm còn được sử dụng
-                    //kiểm tra đã đủ số xuất
-                    if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
-                        throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
 
                     SalePromotionDTO dbPro = new SalePromotionDTO();
                     for (SalePromotionDTO dbP : lstSalePromotions){
@@ -267,6 +264,19 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             dbPro = dbP;
                             break;
                         }
+                    }
+
+                    if(inputPro.getProgramType().equalsIgnoreCase("ZM") && inputPro.getAmount()!=null && inputPro.getAmount().getAmount()!=null &&
+                    inputPro.getAmount().getMaxAmount() !=null && inputPro.getAmount().getMaxAmount() >0 && inputPro.getAmount().getAmount() > inputPro.getAmount().getMaxAmount() && dbPro.getIsUse() == false )
+                        throw new ValidateException(ResponseMessage.PROMOTION_NOT_AMOUNT_VALUE, inputPro.getPromotionProgramName());
+
+                    //kiểm tra đã đủ số xuất
+                    if(inputPro.getAmount()!=null) {
+                        if (!salePromotionService.checkPromotionLimit(dbPro, shopId))
+                            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
+                    }else {
+                        if (!salePromotionService.checkPromotionLimit(inputPro, shopId))
+                            throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE, inputPro.getPromotionProgramName());
                     }
 
                     if (dbPro.getIsReturn() != null && !dbPro.getIsReturn()) isReturn = false;
@@ -336,13 +346,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             }
                         }
 
-                        if(dbPro.getTotalAmtInTax() != null){
-//                            promotionShopMap.setAmountMax(promotionShopMap.getAmountMax() - inputPro.getTotalAmtInTax());
-//                            promotionShopMaps.add(promotionShopMap);
-                            Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
-                            promotionShopMap.setQuantityReceived(received + dbPro.getTotalAmtInTax());
-                            promotionShopMaps.add(promotionShopMap);
-                        }
+                        Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
+                        promotionShopMap.setQuantityReceived(received + (dbPro.getAmount().getAmount() == null ? 0.0 : dbPro.getAmount().getAmount()));
+                        promotionShopMaps.add(promotionShopMap);
                     }
                     if(dbPro.getDiscountDTOs() != null && !dbPro.getDiscountDTOs().isEmpty()) discountDTOs.addAll(dbPro.getDiscountDTOs());
                 }
@@ -463,8 +469,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             item.setOrderShopCode(shop.getShopCode());
             item.setOrderCustomerCode(customer.getCustomerCode());
             item.setOrderAmount(saleOrder.getTotal());
-            promotionClient.updatePromotionProgramDiscountV1(item);
-            programDiscountIds.add(item.getId());
+            try{
+                promotionClient.updatePromotionProgramDiscountV1(item);
+                programDiscountIds.add(item.getId());
+            }catch (Exception ex) {
+                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_PROMOTION_DISCOUNT_TYPE3_FAIL);
+            }
         }
         syncMap.put(JMSType.promotion_program_discount, programDiscountIds);
 
@@ -732,7 +742,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     remain = 0;
                 }
                 else {
-                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getMemberCardAmount());
+                    amountDisTotal = amountDisTotal - saleOrder.getMemberCardAmount();
+                    remain = saleOrder.getAmount() - amountDisTotal;
                     saleOrder.setMemberCardAmount(0D);
                 }
             }
@@ -743,7 +754,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     remain = 0;
                 }
                 else {
-                    remain = saleOrder.getAmount() - (amountDisTotal - saleOrder.getDiscountCodeAmount());
+                    amountDisTotal = amountDisTotal - saleOrder.getDiscountCodeAmount();
+                    remain = saleOrder.getAmount() - amountDisTotal;
                     saleOrder.setDiscountCodeAmount(0D);
                 }
             }
@@ -761,13 +773,25 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     private void updateVoucher(SaleOrder saleOrder, List<VoucherDTO> lstVoucherNeedSave){
-        if(lstVoucherNeedSave != null){
+        if(lstVoucherNeedSave != null && saleOrder.getTotalVoucher() > 0){
+            double priceUse = saleOrder.getTotalVoucher();
             for(VoucherDTO voucher : lstVoucherNeedSave){
                 voucher.setOrderAmount(saleOrder.getAmount());
                 voucher.setOrderDate(saleOrder.getOrderDate());
                 voucher.setSaleOrderId(saleOrder.getId());
                 voucher.setOrderNumber(saleOrder.getOrderNumber());
-                promotionClient.updateVoucherV1(voucher);
+                if(priceUse >= voucher.getPriceUsed())
+                    priceUse -= voucher.getPriceUsed();
+                else if(priceUse > 0 && priceUse < voucher.getPriceUsed()) {
+                    voucher.setPriceUsed(priceUse);
+                    priceUse -= priceUse;
+                }
+                try {
+                    promotionClient.updateVoucherV1(voucher);
+                }catch (Exception ex) {
+                    throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_VOUCHER_FAIL);
+                }
+                if(saleOrder.getTotalVoucher() - priceUse == saleOrder.getTotalVoucher()) break;
             }
         }
     }
@@ -777,7 +801,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             discountNeedSave.setOrderAmount(saleOrder.getAmount());
             discountNeedSave.setOrderNumber(saleOrder.getOrderNumber());
             discountNeedSave.setOrderDate(saleOrder.getOrderDate());
-            promotionClient.updatePromotionProgramDiscountV1(discountNeedSave).getData();
+            try {
+                promotionClient.updatePromotionProgramDiscountV1(discountNeedSave);
+            }catch (Exception e) {
+                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_PROMOTION_DISCOUNT_CODE_FAIL);
+            }
         }
     }
 
@@ -885,7 +913,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId) {
         if (accumulatedAmount == null) return;
         MemberCustomerRequest request = new MemberCustomerRequest(accumulatedAmount);
-        customerClient.updateMemberCustomerV1(customerId, request);
+        try{
+            customerClient.updateMemberCustomerV1(customerId, request);
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_MEMBER_CUSTOMER_FAIL);
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -1253,7 +1286,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             customerRequest.setDayOrderAmount(dayOrderAmount + saleOrder.getAmount());
             customerRequest.setMonthOrderNumber(monthOrderNumber + quantity);
             customerRequest.setMonthOrderAmount(monthOrderAmount + saleOrder.getAmount());
-        customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
+        try {
+            customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_CUSTOMER_FAIL);
+        }
     }
 
 

@@ -33,7 +33,7 @@ public interface CustomerService extends BaseService {
 
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 
-    List<Long> getIdCustomerBy(String searchKeywords, String customerPhone);
+    List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, List<Long> ids);
 
     ByteArrayInputStream exportExcel(CustomerFilter filter) throws IOException;
 

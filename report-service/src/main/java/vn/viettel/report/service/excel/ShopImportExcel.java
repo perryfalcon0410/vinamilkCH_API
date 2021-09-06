@@ -49,12 +49,12 @@
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row,colm,rowm,shop.getShopName()==null?"":shop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
         ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,shop.getAddress()==null?"":(shop.getAddress()==null?"":shop.getAddress()) ,style.get(ExcelPoiUtils.HEADER_LEFT));
-        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel: " + (shop.getMobiPhone()!=null? shop.getMobiPhone():"") + " Fax: " + (shop.getFax()!=null?shop.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
+        ExcelPoiUtils.addCellsAndMerged(sheet,col,++row,colm,++rowm,"Tel: " + (shop.getPhone()!=null? shop.getPhone():"") + " Fax: " + (shop.getFax()!=null?shop.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
         //header right
         if(parentShop != null) {
             ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-2,colm+9,rowm-2,parentShop.getShopName(),style.get(ExcelPoiUtils.HEADER_LEFT_BOLD));
             ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row-1,colm+9,rowm-1,parentShop.getAddress(),style.get(ExcelPoiUtils.HEADER_LEFT));
-            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: " + (parentShop.getMobiPhone()!=null?parentShop.getMobiPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
+            ExcelPoiUtils.addCellsAndMerged(sheet,col+10,row,colm+9,rowm,"Tel: " + (parentShop.getPhone()!=null?parentShop.getPhone():"") + " Fax: " +(parentShop.getFax()!=null?parentShop.getFax():""),style.get(ExcelPoiUtils.HEADER_LEFT));
         }
 
         ExcelPoiUtils.addCellsAndMerged(sheet,col,row+3,colm+15,rowm+3,"BÁO CÁO NHẬP HÀNG CHI TIẾT",style.get(ExcelPoiUtils.TITLE_LEFT_BOLD));
@@ -112,7 +112,7 @@
             ExcelPoiUtils.addCell(sheet,col++,row,s.getRedInvoiceNo(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getPoNumber(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getInternalNumber(),format);
-            ExcelPoiUtils.addCell(sheet,col++,row,s.getOrderDate(),format);
+            ExcelPoiUtils.addCell(sheet,col++,row,DateUtils.formatDate2StringDate(s.getOrderDate()),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductInfoName(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductCode(),format);
             ExcelPoiUtils.addCell(sheet,col++,row,s.getProductName(),format);

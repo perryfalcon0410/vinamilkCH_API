@@ -91,7 +91,7 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         List<ShopExportDTO> shopExports = this.callProcedure(filter);
         this.removeDataList(shopExports);
 
-        PrintShopExportDTO response = new PrintShopExportDTO(shop.getShopName(), shop.getAddress(), shop.getMobiPhone());
+        PrintShopExportDTO response = new PrintShopExportDTO(shop.getShopName(), shop.getAddress(), shop.getPhone());
         response.setFromDate(filter.getFromDate());
         response.setToDate(filter.getToDate());
 
