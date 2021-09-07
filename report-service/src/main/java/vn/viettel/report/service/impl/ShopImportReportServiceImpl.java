@@ -214,7 +214,12 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 orderImport.setTotalQuantity(totalOrderQty);
                 orderImport.setTotalPriceNotVat(totalOrderPriceNotVat);
                 orderImport.setTotalPriceVat(totalOrderPriceVat);
-                orderImport.setVat(totalOrderPriceVat - totalOrderPriceNotVat);
+
+                if(totalOrderPriceNotVat > 0) {
+                    orderImport.setVat(totalOrderPriceVat - totalOrderPriceNotVat);
+                }else{
+                    orderImport.setVat(0.0);
+                }
 
                 shopImport.addOrderImport(orderImport);
             }
