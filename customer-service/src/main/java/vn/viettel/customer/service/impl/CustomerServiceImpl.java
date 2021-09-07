@@ -688,7 +688,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             query.orderBy(orderList);
         }
 
-        List<Customer> customerDB = entityManager.createQuery(query).getResultList();
+        List<Customer> customerDB = null;
+        try {
+            customerDB = entityManager.createQuery(query).getResultList();
+        }catch(Exception exception) {
+            throw exception;
+        }finally {
+            entityManager.close();
+        }
+
         return customerDB.stream().map(e -> modelMapper.map(e, CustomerDTO.class)).collect(Collectors.toList());
     }
 
