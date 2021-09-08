@@ -32,10 +32,12 @@ public interface PromotionProgramService {
     */
     List<PromotionProgramDTO> findPromotionPrograms(Long shopId, Long orderType, Long customerTypeId, Long memberCardId, Long cusCloselyTypeId
             ,Long cusCardTypeId);
-    List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId);
+    List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId, List<Long> productIds);
     List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId);
     PromotionProgramDiscountDTO updatePromotionProgramDiscount(PromotionProgramDiscountDTO discount);
     List<PromotionSaleProductDTO> findPromotionSaleProductByProgramId(Long programId);
+
+    Boolean checkPromotionSaleProduct(Long programId, List<Long> productIds);
 
     /*
      Update MGG cho đơn trả

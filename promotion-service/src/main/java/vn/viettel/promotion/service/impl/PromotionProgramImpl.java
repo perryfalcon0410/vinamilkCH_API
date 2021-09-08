@@ -159,33 +159,37 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         lstShopId.add(shopId);
         if(shopDTO.getParentShopId() != null) lstShopId.add(shopDTO.getParentShopId());
 
-        List<PromotionProgram> programs = promotionProgramRepository.findProgramWithConditions(lstShopId, orderType, customerTypeId, memberCardId, cusCloselyTypeId
+        List<PromotionProgramDTO> programs = promotionProgramRepository.findProgramWithConditions(lstShopId, orderType, customerTypeId, memberCardId, cusCloselyTypeId
                 , cusCardTypeId, DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now()));
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        return programs;
+
+        /*modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<PromotionProgramDTO> dtos  = programs.stream().map(program ->modelMapper.map(program, PromotionProgramDTO.class)).collect(Collectors.toList());
-        return dtos;
+        return dtos;*/
     }
 
     @Override
-    public List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId) {
-        List<PromotionProgramDetail> details = promotionDetailRepository.findByPromotionProgramIdOrderByFreeQtyDesc(programId);
-        List<PromotionProgramDetailDTO> detailDTOS = details.stream().map(detail ->{
+    public List<PromotionProgramDetailDTO> findPromotionDetailByProgramId(Long programId, List<Long> productIds) {
+        List<PromotionProgramDetailDTO> details = promotionDetailRepository.findByPromotionProgramIdOrderByFreeQtyDesc(programId, productIds);
+        return  details;
+       /* List<PromotionProgramDetailDTO> detailDTOS = details.stream().map(detail ->{
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             PromotionProgramDetailDTO dto  = modelMapper.map(detail, PromotionProgramDetailDTO.class);
             return dto;
         }).collect(Collectors.toList());
-        return detailDTOS;
+        return detailDTOS;*/
     }
 
     @Override
     public List<PromotionProgramDiscountDTO> findPromotionDiscountByPromotion(Long promotionId) {
-        List<PromotionProgramDiscount> saleProducts = promotionDiscountRepository.findPromotionDiscountByPromotion(promotionId);
-        if (saleProducts == null)
-            return null;
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->modelMapper.map(detail, PromotionProgramDiscountDTO.class)).collect(Collectors.toList());
+        List<PromotionProgramDiscountDTO> saleProducts = promotionDiscountRepository.findPromotionDiscountByPromotion(promotionId);
+//        if (saleProducts == null)
+//            return null;
+//        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//        List<PromotionProgramDiscountDTO> detailDTOS = saleProducts.stream().map(detail ->modelMapper.map(detail, PromotionProgramDiscountDTO.class)).collect(Collectors.toList());
 
-        return detailDTOS;
+        return saleProducts;
     }
 
     @Override
@@ -219,6 +223,16 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             return dto;
         }).collect(Collectors.toList());
         return detailDTOS;
+    }
+
+    @Override
+    public Boolean checkPromotionSaleProduct(Long programId, List<Long> productIds) {
+        Integer saleProduct = promotionSaleProductRepository.countDetail(programId);
+        if(saleProduct == null || saleProduct < 1) return true;
+        if(programId == null || productIds.isEmpty()) return false;
+        Integer saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(programId, productIds);
+        if(saleProducts != null && saleProducts > 0) return true;
+        return false;
     }
 
     @Override

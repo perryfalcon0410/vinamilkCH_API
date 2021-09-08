@@ -157,8 +157,8 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<List<PromotionProgramDetailDTO>> findPromotionProgramDetail(@PathVariable Long programId) {
-        List<PromotionProgramDetailDTO> response = promotionProgramService.findPromotionDetailByProgramId(programId);
+    public Response<List<PromotionProgramDetailDTO>> findPromotionProgramDetail(@PathVariable Long programId, @RequestParam(required = false) List<Long> productIds) {
+        List<PromotionProgramDetailDTO> response = promotionProgramService.findPromotionDetailByProgramId(programId, productIds);
         return new Response<List<PromotionProgramDetailDTO>>().withData(response);
     }
 
@@ -243,6 +243,16 @@ public class PromotionController extends BaseController {
         return new Response<List<PromotionSaleProductDTO>>().withData(response);
     }
 
+    @GetMapping(value = { V1 + root + "/check/promotion-sale-product/{programId}"})
+    @ApiOperation(value = "Lấy sản phảm KM tay")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<Boolean> checkSaleProductByProgramId(@PathVariable Long programId, @RequestParam(required = false) List<Long> productIds) {
+        Boolean response = promotionProgramService.checkPromotionSaleProduct(programId, productIds);
+        return new Response<Boolean>().withData(response);
+    }
 
     @ApiOperation(value = "Update MGG cho đơn trả")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

@@ -337,13 +337,17 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if ((program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty()) && (program.getGivenType() != null && program.getGivenType() != 1))
             return null;
 
-        boolean flag = false;
         boolean isInclusiveTax = isInclusiveTax(program.getDiscountPriceType());
 
         //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM/còn ko có SP thì hiểu là không quy định SP mua
-        List<Long> lstProductIds = new ArrayList<>();
-        List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
-        if(details.isEmpty()){
+        List<Long> lstProductIds = null;
+        if(orderData !=null)
+            lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+//        List<PromotionSaleProductDTO> details = promotionClient.findPromotionSaleProductByProgramIdV1(program.getId()).getData();
+
+        Boolean flag = promotionClient.checkSaleProductByProgramIdV1(program.getId(), lstProductIds).getData();
+        if(flag == null) flag = false;
+      /*  if(details.isEmpty()){
             flag = true;
         }else {
             if(orderData !=null) {
@@ -356,7 +360,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     }
                 }
             }
-        }
+        }*/
 
         if (flag/* || ( orderData == null && program.getGivenType() != null && program.getGivenType() == 1)*/){
             SalePromotionDTO salePromotion = null;
@@ -640,7 +644,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // danh sách sản phẩm loại trừ theo id ctkm
         List<Long> promotionIds = new ArrayList<>();
         promotionIds.add(program.getId());
-        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId(), null).getData();
         if(details == null || details.isEmpty()) return null;
 
         double amountExTax = 0;
@@ -1075,11 +1079,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
+        List<Long> idProductOrder = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
 
-        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId(), idProductOrder).getData();
         if(details.isEmpty()) return null;
         updateUomProduct(details);
-        List<Long> idProductOrder = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
 
         // key sản phẩm mua: 1 sp mua có nhiều mức, 1 mức theo 1 sản phẩm sẽ có nhiều item km
         HashMap<Long, HashMap<Integer, List<PromotionProgramDetailDTO>>> mapOrderNumber = new HashMap<>();
@@ -1357,7 +1361,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
 
-        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId(), null).getData();
         if(details.isEmpty()) return null;
         updateUomProduct(details);
         List<Long> idProductOrder = new ArrayList<>();
@@ -1667,7 +1671,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
 
-        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId(), null).getData();
         if(details.isEmpty()) return null;
         updateUomProduct(details);
         HashMap<Long, ProductOrderDetailDataDTO> idProductOrder = new HashMap<>();
@@ -2023,7 +2027,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
 
-        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId()).getData();
+        List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId(), null).getData();
         if(details.isEmpty()) return null;
         updateUomProduct(details);
 
@@ -2289,7 +2293,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(!promtionIds.isEmpty()) zvUsedInDay = saleOrderDiscountRepo.countDiscountUsed(shopId, customer.getId(), promtionIds);
         if(!programCodes.isEmpty()) zvFreeItemUsedInDay = saleOrderDiscountRepo.countDiscountUsedFreeItem(shopId, customer.getId(), programCodes);
 
-        Map<Long, Integer> numberOfZVUsedInDay = zvUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionGroupId, PromotionProgramDTO::getPromotionDateTime));
+        Map<Long, Integer> numberOfZVUsedInDay = zvUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getId, PromotionProgramDTO::getPromotionDateTime));
         Map<String, Integer> numberOfZVFreeItemUsedInDay = zvFreeItemUsedInDay.stream().collect(Collectors.toMap(PromotionProgramDTO::getPromotionProgramCode, PromotionProgramDTO::getPromotionDateTime));
 
         // Kiểm tra loại đơn hàng tham gia & Kiểm tra thuộc tính khách hàng tham gia
@@ -2365,8 +2369,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             return null;
 
         // ko chứa bất ky sp nào
-        List<PromotionSaleProductDTO> saleProducts = promotionClient.findPromotionSaleProductByProgramIdV1(discountDTO.getPromotionProgramId()).getData();
-        List<Long> productRequires = saleProducts.stream().map(PromotionSaleProductDTO::getProductId).collect(Collectors.toList());
+       // List<PromotionSaleProductDTO> saleProducts = promotionClient.findPromotionSaleProductByProgramIdV1(discountDTO.getPromotionProgramId()).getData();
+
+        List<Long> lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+
+        Boolean saleProduct = promotionClient.checkSaleProductByProgramIdV1(discountDTO.getPromotionProgramId(), lstProductIds).getData();
+
+        if(saleProduct == null || !saleProduct) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
+
+    /*    List<Long> productRequires = saleProducts.stream().map(PromotionSaleProductDTO::getProductId).collect(Collectors.toList());
         if(!saleProducts.isEmpty()) {
             boolean exits = false;
             for (ProductOrderDetailDataDTO productRequest : orderData.getProducts()) {
@@ -2376,7 +2387,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 }
             }
             if (!exits) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
-        }
+        }*/
 
         // sai khách hàng
         if(discountDTO.getCustomerCode()!=null && !discountDTO.getCustomerCode().equals(customer.getCustomerCode()))

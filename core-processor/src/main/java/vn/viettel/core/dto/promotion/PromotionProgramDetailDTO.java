@@ -26,5 +26,25 @@ public class PromotionProgramDetailDTO extends BaseDTO {
     private Integer required;
     private Double salePer;
     private Integer orderNumber;
-    private String type;
+
+    public PromotionProgramDetailDTO(Long id, Long promotionProgramId, Long productId, Integer saleQty, String saleUom,
+                 Double saleAmt, Double discAmt, Double disPer, Long freeProductId, Integer freeQty, String freeUom,
+                 Integer required, Double salePer, Integer orderNumber) {
+        this.setId(id);
+        this.promotionProgramId = promotionProgramId;
+        this.productId = productId;
+        this.saleQty = saleQty;
+        this.saleUom = saleUom;
+        this.saleAmt = saleAmt;
+        this.discAmt = discAmt;
+        this.disPer = disPer;
+        this.freeProductId = freeProductId;
+        this.freeQty = freeQty;
+        this.freeUom = freeUom;
+        this.required = required;
+        this.salePer = salePer;
+        this.orderNumber = orderNumber;
+
+    }
+
 }
