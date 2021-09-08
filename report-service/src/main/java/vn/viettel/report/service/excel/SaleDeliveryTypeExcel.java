@@ -18,24 +18,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-public class SaleDeliveryTypeExcel {
+public class SaleDeliveryTypeExcel extends ExcelPoiUtils {
     private ShopDTO shopDTO;
     private ShopDTO parentShop;
-    private SXSSFWorkbook workbook;
+    private SXSSFWorkbook  workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet;
     private List<SaleByDeliveryTypeDTO> saleDeli;
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
-    private Map<String, CellStyle> style;
+    private Map<String, CellStyle>  style = this.createStyles(workbook);
 
     public SaleDeliveryTypeExcel(ShopDTO shopDTO, ShopDTO parentShop, List<SaleByDeliveryTypeDTO> saleDeli) {
-        workbook = new SXSSFWorkbook();
-        {
-            this.shopDTO = shopDTO;
-            this.parentShop = parentShop;
-            this.saleDeli = saleDeli;
-            this.style = ExcelPoiUtils.createStyles(workbook);
-        }
+        this.shopDTO = shopDTO;
+        this.parentShop = parentShop;
+        this.saleDeli = saleDeli;
     }
 
     private void writeHeaderLine() {
@@ -177,11 +173,6 @@ public class SaleDeliveryTypeExcel {
 
         public ByteArrayInputStream export () throws IOException {
             this.writeHeaderLine();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            workbook.write(out);
-            ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-            workbook.close();
-            IOUtils.closeQuietly(out);
-            return response;
+            return this.getStream(workbook);
         }
 }

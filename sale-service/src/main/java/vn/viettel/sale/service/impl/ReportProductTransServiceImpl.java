@@ -93,6 +93,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setInfo(info);
         List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailPrint(poTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsPoTrans(poTransDetails,  reportDTO);
+        Collections.sort(reportProductCatDTOS, Comparator.comparing(ReportProductCatDTO::getType));
         reportDTO.setSaleProducts(reportProductCatDTOS);
         reportDTO.getInfo().setTotalPriceVat(reportDTO.getInfo().getTotalPrice() - reportDTO.getInfo().getTotalPriceNotVat());
     }
@@ -113,7 +114,9 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
             }
         }
         List<ReportProductCatDTO> saleProducts = this.groupProductsPoTrans(poTransProducts, reportDTO);
-        List<ReportProductCatDTO> promotionProducts = this.groupProductsPoTrans(poTransProductsPromotions,  reportDTO);
+        Collections.sort(saleProducts, Comparator.comparing(ReportProductCatDTO::getType));
+        List<ReportProductCatDTO> promotionProducts = this.groupProductsPoTrans(poTransProductsPromotions, reportDTO);
+        Collections.sort(promotionProducts, Comparator.comparing(ReportProductCatDTO::getType));
         reportDTO.setSaleProducts(saleProducts);
         reportDTO.setPromotionProducts(promotionProducts);
         reportDTO.getInfo().setTotalPriceVat(reportDTO.getInfo().getTotalPrice() - reportDTO.getInfo().getTotalPriceNotVat());
@@ -126,6 +129,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
                 = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsStockAdjustmentTrans(stockAdjustmentTransDetails, reportDTO);
+        Collections.sort(reportProductCatDTOS, Comparator.comparing(ReportProductCatDTO::getType));
         reportDTO.setSaleProducts(reportProductCatDTOS);
         if(reportDTO.getInfo().getTotalPriceNotVat() > 0)
             reportDTO.getInfo().setTotalPriceVat(reportDTO.getInfo().getTotalPrice() - reportDTO.getInfo().getTotalPriceNotVat());
@@ -139,6 +143,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         reportDTO.setInfo(info);
         List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsStockBorrowingTrans(borrowingDetails, reportDTO);
+        Collections.sort(reportProductCatDTOS, Comparator.comparing(ReportProductCatDTO::getType));
         reportDTO.setSaleProducts(reportProductCatDTOS);
         if(reportDTO.getInfo().getTotalPriceNotVat() > 0)
             reportDTO.getInfo().setTotalPriceVat(reportDTO.getInfo().getTotalPrice() - reportDTO.getInfo().getTotalPriceNotVat());
@@ -306,7 +311,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
                     targetProducts.add(product);
                 }
             }
-            groupProducts.put(productInfo.getProductInfoName(), targetProducts);
+            groupProducts.put(productInfo.getProductInfoCode(), targetProducts);
         }
 
         return groupProducts;

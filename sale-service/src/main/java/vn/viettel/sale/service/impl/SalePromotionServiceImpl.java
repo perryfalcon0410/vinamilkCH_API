@@ -89,7 +89,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 return null;
         }
 
-
         //key PromotionProgramDTO, value tính trước zv23 = true, sau zv23 = false
         HashMap<PromotionProgramDTO,Boolean> mapZV192021 = new HashMap<>();
         List<PromotionProgramDTO> lstZV23 = new ArrayList<>();

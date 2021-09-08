@@ -18,8 +18,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
-public class ReturnGoodsExcel {
-    private static final String FONT_NAME = "Times New Roman";
+public class ReturnGoodsExcel extends ExcelPoiUtils {
 
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet1;
@@ -35,8 +34,7 @@ public class ReturnGoodsExcel {
 
     private ReturnGoodsReportsRequest filter;
     private int rowNum = 1;
-    private Map<String, CellStyle> style;
-
+    private Map<String, CellStyle>  style = this.createStyles(workbook);
 
     public ReturnGoodsExcel(
             ShopDTO shopDTO, ShopDTO parentShop, ChangeReturnGoodsReportRequest reportRequest, ReturnGoodsReportsRequest filter) throws ParseException {
@@ -44,7 +42,6 @@ public class ReturnGoodsExcel {
         this.parentShop = parentShop;
         this.reportRequest = reportRequest;
         this.filter = filter;
-        style = ExcelPoiUtils.createStyles(workbook);
 
         for (ReturnGoodsDTO returnGoodsDTO : reportRequest.getReturnGoodsDTOS()) {
             if (!returnGoodsDTOS.stream().anyMatch(e -> e.getReturnCode().equals(returnGoodsDTO.getReturnCode()))) {
@@ -193,12 +190,7 @@ public class ReturnGoodsExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 
 }

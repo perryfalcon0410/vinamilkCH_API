@@ -79,12 +79,8 @@ public class ReturnGoodsReportController extends BaseController {
 
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(),
                 reciept.toUpperCase(Locale.ROOT), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW.toUpperCase(Locale.ROOT));
-        ByteArrayInputStream in = returnGoodsReportService.exportExcel(filter);
+        this.closeStreamExcel(response, returnGoodsReportService.exportExcel(filter), "DB_Hang_tra_lai_Filled_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_RETURN_GOODS_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=DB_Hang_tra_lai_Filled_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

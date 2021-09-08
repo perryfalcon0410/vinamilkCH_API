@@ -9,6 +9,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.service.feign.UserClient;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
@@ -22,9 +23,7 @@ import vn.viettel.report.service.dto.SellTotalDTO;
 import vn.viettel.report.service.excel.SellExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,7 +35,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class SellsReportServiceImpl implements SellsReportService {
+public class SellsReportServiceImpl extends BaseReportServiceImpl implements SellsReportService {
 
     @Autowired
     ShopClient shopClient;
@@ -44,14 +43,10 @@ public class SellsReportServiceImpl implements SellsReportService {
     @Autowired
     UserClient userClient;
 
-    @PersistenceContext
-    EntityManager entityManager;
-
-    private List<SellDTO> callStoreProcedure(Long shopId, String orderNumber, LocalDateTime fromDate, LocalDateTime toDate, String productKW, Integer collecter, Integer salesChannel, String customerKW, String phoneNumber, Double fromInvoiceSales, Double toInvoiceSales) {
-
+    private List<SellDTO> callStoreProcedure(SellsReportsRequest filter) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SELL", SellDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(2, Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(4, LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(5, LocalDateTime.class, ParameterMode.IN);
@@ -63,26 +58,25 @@ public class SellsReportServiceImpl implements SellsReportService {
         query.registerStoredProcedureParameter(11, Double.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(12, Double.class, ParameterMode.IN);
 
-        query.setParameter(2, Integer.valueOf(shopId.toString()));
-        query.setParameter(3, orderNumber);
-        query.setParameter(4, fromDate);
-        query.setParameter(5, toDate);
-        query.setParameter(6, productKW);
-        query.setParameter(7, collecter);
-        query.setParameter(8, salesChannel);
-        if (customerKW == null) {
-            query.setParameter(9, customerKW);
+        query.setParameter(2, filter.getShopId());
+        query.setParameter(3, filter.getOrderNumber());
+        query.setParameter(4, filter.getFromDate());
+        query.setParameter(5, filter.getToDate());
+        query.setParameter(6, filter.getProductKW());
+        query.setParameter(7, filter.getCollecter());
+        query.setParameter(8, filter.getSalesChannel());
+        if (filter.getCustomerKW() == null) {
+            query.setParameter(9, filter.getCustomerKW());
         } else {
-            query.setParameter(9, VNCharacterUtils.removeAccent(customerKW).trim().toUpperCase(Locale.ROOT));
+            query.setParameter(9, VNCharacterUtils.removeAccent(filter.getCustomerKW()).trim().toUpperCase(Locale.ROOT));
         }
-        query.setParameter(10, phoneNumber);
-        query.setParameter(11, fromInvoiceSales);
-        query.setParameter(12, toInvoiceSales);
+        query.setParameter(10, filter.getPhoneNumber());
+        query.setParameter(11, filter.getFromInvoiceSales());
+        query.setParameter(12, filter.getToInvoiceSales());
 
-        query.execute();
-
+        this.executeQuery(query, "P_SELL", filter.toString());
         List<SellDTO> reportDTOS = query.getResultList();
-        entityManager.close();
+
         return reportDTOS;
     }
 
@@ -92,9 +86,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
                 throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
         }
-        List<SellDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
-                filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
+        List<SellDTO> reportDTOS = this.callStoreProcedure(filter);
         
         SellTotalDTO totalDTO = new SellTotalDTO();
         List<SellDTO> dtoList = new ArrayList<>();
@@ -127,9 +119,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
                 throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
         }
-        List<SellDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
-                filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
+        List<SellDTO> reportDTOS = this.callStoreProcedure(filter);
         if (reportDTOS.size() == 0)
             throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
@@ -149,9 +139,7 @@ public class SellsReportServiceImpl implements SellsReportService {
             if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
                 throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
         }
-        List<SellDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getOrderNumber(), filter.getFromDate(), filter.getToDate(), filter.getProductKW(), filter.getCollecter(),
-                filter.getSalesChannel(), filter.getCustomerKW(), filter.getPhoneNumber(), filter.getFromInvoiceSales(), filter.getToInvoiceSales());
+        List<SellDTO> reportDTOS = this.callStoreProcedure(filter);
         if (reportDTOS.size() == 0)
             throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
         ReportSellDTO dto = new ReportSellDTO();

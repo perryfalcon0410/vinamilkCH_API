@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EntryMenuDetailsExcel {
+public class EntryMenuDetailsExcel extends ExcelPoiUtils {
 
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet1;
@@ -28,7 +28,7 @@ public class EntryMenuDetailsExcel {
     private List<EntryMenuDetailsDTO> entryMenuDetailsDTOS;
     private EntryMenuDetailsDTO entryMenuDetailsDTO;
     private EntryMenuDetailsReportsRequest filter;
-    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);;
+    private Map<String, CellStyle> style = this.createStyles(workbook);;
     private CellStyle format = style.get(ExcelPoiUtils.DATA);
     private CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
     private CellStyle format2 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
@@ -120,11 +120,6 @@ public class EntryMenuDetailsExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.createTableSheet1();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

@@ -3,6 +3,7 @@ package vn.viettel.report.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
+import oracle.security.crypto.cert.ValidationException;
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.report.messaging.ChangePriceFilter;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.ChangePriceDTO;
@@ -53,9 +55,10 @@ public class ChangePriceReportController extends BaseController {
     public Object index(HttpServletRequest request, @RequestParam(required = false) String licenseNumber, @RequestParam Date fromTransDate,
                                                                                     @RequestParam Date toTransDate, @RequestParam(required = false) Date fromOrderDate,  @RequestParam(required = false) Date toOrderDate,
                                                                                     @RequestParam(required = false) String productCodes, Pageable pageable, @RequestParam Boolean isPaging) throws ParseException {
-        Object result =
-                service.index(licenseNumber, this.getShopId(), DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate),
-                        DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), productCodes, pageable, isPaging);
+
+        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(),
+                DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), productCodes);
+        Object result = service.index(filter, pageable, isPaging);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_PRICE_CHANGED_SUCCESS);
         return result;
     }
@@ -71,9 +74,9 @@ public class ChangePriceReportController extends BaseController {
                                                 @RequestParam(required = false) Date toOrderDate,
                                                 @RequestParam(required = false) String ids,
                                                 Pageable pageable) throws ParseException {
-        ChangePricePrintDTO result =
-                service.getAll(licenseNumber, this.getShopId(), DateUtils.convertFromDate(fromTransDate),
-                        DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), ids, pageable);
+        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(),
+                DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), ids);
+        ChangePricePrintDTO result = service.getAll(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_LIST_PRICE_CHANGED_SUCCESS);
         return new Response<ChangePricePrintDTO>().withData(result);
     }
@@ -86,16 +89,13 @@ public class ChangePriceReportController extends BaseController {
                                         HttpServletResponse response,Pageable pageable) throws IOException, ParseException {
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(
-                licenseNumber, this.getShopId(), DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), ids, pageable, false);
+        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(),
+                DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), ids);
+
+        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(filter, pageable, false);
         ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getData().getInfo(), listData.getData().getResponse());
         ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, shop.getParentShop(), DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate));
-        ByteArrayInputStream in = exportExcel.export();
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_chenh_lech_gia_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        this.closeStreamExcel(response, exportExcel.export(), "BC_chenh_lech_gia_" + StringUtils.createExcelFileName() );
         response.getOutputStream().flush();
-
     }
 }

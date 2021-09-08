@@ -3,18 +3,24 @@ package vn.viettel.core.utils;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.util.ResponseMessage;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class ExcelPoiUtils {
+public class ExcelPoiUtils {
 
     public final static String TITLE_LEFT_BOLD = "title_left_bold";
     public final static String HEADER_LEFT_BOLD = "header_left_bold";
@@ -481,4 +487,21 @@ public final class ExcelPoiUtils {
         Comment comment = drawing.createCellComment(clientAnchor);
         return comment;
     }
+
+    public ByteArrayInputStream getStream(Workbook workbook ) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayInputStream response;
+        try {
+            workbook.write(out);
+            response = new ByteArrayInputStream(out.toByteArray());
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.EXPORT_EXCEL_FAILED);
+        }finally {
+            workbook.close();
+            IOUtils.closeQuietly(out);
+        }
+
+        return response;
+    }
+
 }

@@ -69,13 +69,8 @@ public class SaleOrderController extends BaseController {
                     @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Double toAmount,
                                                                         HttpServletResponse response) throws IOException {
         SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
-
-        ByteArrayInputStream in = saleOrderAmountService.exportExcel(filter);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=report_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
+        this.closeStreamExcel(response, saleOrderAmountService.exportExcel(filter), "report_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

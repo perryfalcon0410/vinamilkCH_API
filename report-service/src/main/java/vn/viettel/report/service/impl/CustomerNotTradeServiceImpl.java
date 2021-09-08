@@ -9,9 +9,11 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
+import vn.viettel.report.messaging.CustomerNotTradeFilter;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
 import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
@@ -21,9 +23,7 @@ import vn.viettel.report.service.dto.CustomerTradeTotalDTO;
 import vn.viettel.report.service.excel.CustomerTradeExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,16 +34,14 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class CustomerNotTradeServiceImpl extends BaseReportServiceImpl implements CustomerNotTradeService {
 
     @Autowired
     ShopClient shopClient;
 
     @Override
-    public Object index(Date fromDate, Date toDate, Boolean isPaging, Pageable pageable, Long shopId) {
-        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate, shopId);
+    public Object index(CustomerNotTradeFilter filter, Boolean isPaging, Pageable pageable) {
+        List<CustomerReportDTO> result = this.customerNotTradeProcedures(filter);
         if (result.isEmpty())
             return new Response<Page<CustomerReportDTO>>()
                     .withData(new PageImpl<>(new ArrayList<>()));
@@ -58,17 +56,18 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
             return new Response<List<CustomerReportDTO>>().withData(result);
     }
 
-    public CustomerNotTradePrintDTO printCustomerNotTrade(Date fromDate, Date toDate, Long shopId) {
-        List<CustomerReportDTO> result = this.customerNotTradeProcedures(fromDate, toDate, shopId);
+    @Override
+    public CustomerNotTradePrintDTO printCustomerNotTrade(CustomerNotTradeFilter filter) {
+        List<CustomerReportDTO> result = this.customerNotTradeProcedures(filter);
         CustomerNotTradePrintDTO printDTO = new CustomerNotTradePrintDTO();
         if(!result.isEmpty()) {
-            ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+            ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
             if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             printDTO.setShopName(shopDTO.getShopName());
             printDTO.setAddress(shopDTO.getAddress());
             printDTO.setShopTel(shopDTO.getPhone());
-            printDTO.setFromDate(DateUtils.convertDateToLocalDateTime(fromDate));
-            printDTO.setToDate(DateUtils.convertDateToLocalDateTime(toDate));
+            printDTO.setFromDate(DateUtils.convertDateToLocalDateTime(filter.getFromDate()));
+            printDTO.setToDate(DateUtils.convertDateToLocalDateTime(filter.getToDate()));
             printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
             printDTO.setData(result);
             return printDTO;
@@ -76,19 +75,21 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         return printDTO;
     }
 
-    private List<CustomerReportDTO> customerNotTradeProcedures(Date fromDate, Date toDate, Long ShopId) {
+    private List<CustomerReportDTO> customerNotTradeProcedures(CustomerNotTradeFilter filter) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CUSTOMER_NOT_TRADE", CustomerReportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
-        storedProcedure.registerStoredProcedureParameter(3, Date.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(2, LocalDateTime.class, ParameterMode.IN);
+        storedProcedure.registerStoredProcedureParameter(3, LocalDateTime.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
 
-        storedProcedure.setParameter(2, fromDate);
-        storedProcedure.setParameter(3, toDate);
-        storedProcedure.setParameter(4, ShopId);
+        storedProcedure.setParameter(2, DateUtils.convertFromDate(filter.getFromDate()));
+        storedProcedure.setParameter(3, DateUtils.convertToDate(filter.getToDate()));
+        storedProcedure.setParameter(4, filter.getShopId());
+        this.executeQuery(storedProcedure, "P_CUSTOMER_NOT_TRADE",  filter.toString());
+
         List<CustomerReportDTO> result = storedProcedure.getResultList();
-        entityManager.close();
+
         return result;
     }
 
@@ -103,6 +104,8 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
 //        }
 //        return new PageImpl<>( subList, pageable, customers.size());
 //    }
+
+
 
     @Override
     public CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO> findCustomerTrades(CustomerTradeFilter filter, Pageable pageable) {
@@ -124,6 +127,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         return response;
     }
 
+
     @Override
     public ByteArrayInputStream customerTradesExportExcel(CustomerTradeFilter filter) throws IOException {
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
@@ -133,6 +137,7 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         CustomerTradeExcel excel = new CustomerTradeExcel(shopDTO, shopDTO.getParentShop(), customers);
         return excel.export();
     }
+
 
     private List<CustomerTradeDTO> callProcedure(CustomerTradeFilter filter) {
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getKeySearch().toUpperCase(Locale.ROOT));
@@ -162,8 +167,8 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         query.setParameter("fromPurchaseDate", filter.getFromPurchaseDate());
         query.setParameter("toPurchaseDate", filter.getToPurchaseDate());
 
+        this.executeQuery(query, "P_CUSTOMER_TRADE", filter.toString());
         List<CustomerTradeDTO> result = query.getResultList();
-        entityManager.close();
 
         return result;
     }
@@ -172,6 +177,5 @@ public class CustomerNotTradeServiceImpl implements CustomerNotTradeService {
         customerTrades.remove(customerTrades.size() - 1);
         customerTrades.remove(customerTrades.size() - 1);
     }
-
 
 }

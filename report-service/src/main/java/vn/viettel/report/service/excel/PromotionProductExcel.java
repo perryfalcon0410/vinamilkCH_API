@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Setter
-public class PromotionProductExcel {
+public class PromotionProductExcel extends ExcelPoiUtils{
 
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet1;
@@ -34,7 +34,7 @@ public class PromotionProductExcel {
     private List<PromotionProductDTO> promotionproducts;
     private PromotionProductDTO promotionProductTotal;
     private PromotionProductFilter filter;
-    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    private Map<String, CellStyle> style = this.createStyles(workbook);
     private CellStyle format = style.get(ExcelPoiUtils.DATA);
     private CellStyle format1 = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
     private CellStyle format2 = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
@@ -229,11 +229,6 @@ public class PromotionProductExcel {
         this.createTableSheet1();
         this.createTableSheet2();
         this.createTableSheet3();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

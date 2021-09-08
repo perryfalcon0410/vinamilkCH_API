@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-public class CustomerTradeExcel {
+public class CustomerTradeExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
-    Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    Map<String, CellStyle> style = this.createStyles(workbook);
     private SXSSFSheet sheet;
     ShopDTO shop;
     ShopDTO parentShop;
@@ -170,12 +170,7 @@ public class CustomerTradeExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 
 }

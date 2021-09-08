@@ -21,7 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ChangePriceReportExcel {
+public class ChangePriceReportExcel extends ExcelPoiUtils {
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private ChangePriceReportRequest changePriceReport;
@@ -159,11 +159,6 @@ public class ChangePriceReportExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

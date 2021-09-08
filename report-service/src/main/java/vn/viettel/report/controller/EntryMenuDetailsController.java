@@ -73,15 +73,10 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "toDate") Date toDate, HttpServletResponse response) throws IOException {
 
         EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate));
-        ByteArrayInputStream in = entryMenuDetailsReportService.exportExcel(filter);
+        this.closeStreamExcel(response,entryMenuDetailsReportService.exportExcel(filter), "DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
-
 
     @GetMapping(V1 + root + "/print")
     @ApiOperation(value = "In báo cáo bảng kê chi tiết đơn nhập hàng")

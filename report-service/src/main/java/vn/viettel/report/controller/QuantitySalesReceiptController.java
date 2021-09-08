@@ -70,13 +70,8 @@ public class QuantitySalesReceiptController extends BaseController{
                                   @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Long toQuantity,
                                   HttpServletResponse response) throws IOException {
         QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
-
-        ByteArrayInputStream in = quantitySalesReceiptService.exportExcel(filter);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=report_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
+        this.closeStreamExcel(response, quantitySalesReceiptService.exportExcel(filter), "report_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

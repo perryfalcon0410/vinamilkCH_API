@@ -41,7 +41,7 @@ public class CustomerNotTradeReportControllerTest extends BaseTest {
         PageRequest pageReq = PageRequest.of(page, size);
         List<CustomerReportDTO> lstDto = Arrays.asList(new CustomerReportDTO(), new CustomerReportDTO());
         Page<CustomerReportDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
-        given(customerNotTradeService.index(any(), any(), any(), any(),any())).willReturn(pageDto);
+        given(customerNotTradeService.index( any(), any(),any())).willReturn(pageDto);
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .param("fromDate", "01/04/2021")
                 .param("toDate", "01/05/2021")

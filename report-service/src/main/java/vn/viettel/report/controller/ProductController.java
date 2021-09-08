@@ -53,12 +53,8 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException, CloneNotSupportedException {
 
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
-        ByteArrayInputStream in = promotionProductService.exportExcel(filter);
+        this.closeStreamExcel(response, promotionProductService.exportExcel(filter), "BC_hang_khuyen_mai_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_PROMOTION_PRODUCTS_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_hang_khuyen_mai_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

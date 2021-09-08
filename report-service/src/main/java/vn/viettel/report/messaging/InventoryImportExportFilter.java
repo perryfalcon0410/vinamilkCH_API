@@ -19,4 +19,14 @@ public class InventoryImportExportFilter {
     private Long warehouseTypeId;
     private String productCodes;
 
+    @Override
+    public String toString() {
+        return "InventoryImportExportFilter{" +
+                "shopId=" + shopId +
+                ", fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", warehouseTypeId=" + warehouseTypeId +
+                ", productCodes='" + productCodes + '\'' +
+                '}';
+    }
 }

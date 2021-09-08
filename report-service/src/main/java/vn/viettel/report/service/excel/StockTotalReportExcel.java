@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
 
-public class StockTotalReportExcel {
+public class StockTotalReportExcel extends ExcelPoiUtils {
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private StockTotalExcelRequest stockTotalExcelRequest;
@@ -83,7 +83,7 @@ public class StockTotalReportExcel {
     private void writeDataLines() {
         if(!stockTotalExcelRequest.getStockTotals().isEmpty()) {
             int stt = 0,col,row = 9,lastCol=0;
-            Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+            Map<String, CellStyle> style = this.createStyles(workbook);
             CellStyle format = style.get(ExcelPoiUtils.DATA_CURRENCY);
             CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2);
             CellStyle formatCry = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153_V2_FORMAT_CURRENCY);
@@ -132,11 +132,6 @@ public class StockTotalReportExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

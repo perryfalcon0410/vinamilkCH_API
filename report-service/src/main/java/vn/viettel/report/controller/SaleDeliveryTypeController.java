@@ -57,12 +57,8 @@ public class SaleDeliveryTypeController extends BaseController {
     ) throws Exception {
         SaleDeliveryTypeFilter filter =
                 new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
+        this.closeStreamExcel(response, saleDeliveryTypeService.exportExcel(filter), "BC_doanh_so_theo_loai_giao_hang_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
-        ByteArrayInputStream in = saleDeliveryTypeService.exportExcel(filter);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_doanh_so_theo_loai_giao_hang_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

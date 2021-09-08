@@ -115,7 +115,12 @@ public class LogMessage {
     public final static String EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS = "Export excel report sale order amount successfully";
     public final static String FIND_REPORT_CUSTOMER_TRADE_SUCCESS = "Find report customer trand successfully";
     public final static String EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS = "Export excel report sale order amount successfully";
-
+    public final static String FIND_REPORT_EXCHANGETRANS_SUCCESS = "Find report exchange trans successfully";
+    public final static String EXPORT_EXCEL_REPORT_EXCHANGETRANS_SUCCESS = "Export excel report exchange trans successfully";
+    public final static String FIND_SALE_BY_CATEGORY_SUCCESS = "Find sale by category successfully";
+    public final static String EXPORT_EXCEL_REPORT_SALE_BY_CATEGORY_SUCCESS = "Export excel report sale by category successfully";
+    public final static String FIND_SHOP_IMPORT_SUCCESS = "Find shop import successfully";
+    public final static String EXPORT_EXCEL_REPORT_SHOP_IMPORT_SUCCESS = "Export excel report shop import successfully";
     // Promotion service
     public final static String GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS = "GET_PROMOTION_PROGRAM_DISCOUNT_SUCCESS";
     public final static String GET_FREE_ITEMS_SUCCESS = "GET_FREE_ITEMS_SUCCESS";

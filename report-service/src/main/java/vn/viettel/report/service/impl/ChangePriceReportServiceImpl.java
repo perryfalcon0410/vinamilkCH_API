@@ -7,10 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.report.messaging.ChangePriceFilter;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.ChangePriceDTO;
 import vn.viettel.report.service.dto.ChangePricePrintDTO;
@@ -29,16 +32,13 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
-public class ChangePriceReportServiceImpl implements ChangePriceReportService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class ChangePriceReportServiceImpl extends BaseReportServiceImpl implements ChangePriceReportService {
 
     @Autowired
     ShopClient shopClient;
 
     @Override
-    public Object index(String searchKey, Long shopId, LocalDateTime fromTransDate, LocalDateTime toTransDate,
-                        LocalDateTime fromOrderDate, LocalDateTime toOrderDate, String ids, Pageable pageable, Boolean isPaging) {
+    public Object index(ChangePriceFilter filter, Pageable pageable, Boolean isPaging) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CHANGE_PRICE", ChangePriceDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -50,8 +50,8 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
         storedProcedure.registerStoredProcedureParameter(7, LocalDateTime.class, ParameterMode.IN);
         storedProcedure.registerStoredProcedureParameter(8, String.class, ParameterMode.IN);
         String ra = "";
-        if(ids!=null){
-            String rs[] = ids.split(",");
+        if(filter.getIds()!=null){
+            String rs[] = filter.getIds().split(",");
             for(int i = 0;i< rs.length;i++){
                 if(i == rs.length-1)
                     ra +=rs[i].trim();
@@ -59,16 +59,19 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
                     ra +=rs[i].trim()+",";
             }
         }
-        storedProcedure.setParameter(2, shopId);
-        storedProcedure.setParameter(3, searchKey);
-        storedProcedure.setParameter(4, fromTransDate);
-        storedProcedure.setParameter(5, toTransDate);
-        storedProcedure.setParameter(6, fromOrderDate);
-        storedProcedure.setParameter(7, toOrderDate);
+        storedProcedure.setParameter(2, filter.getShopId());
+        storedProcedure.setParameter(3, filter.getSearchKey());
+        storedProcedure.setParameter(4, filter.getFromTransDate());
+        storedProcedure.setParameter(5, filter.getToTransDate());
+        storedProcedure.setParameter(6, filter.getFromOrderDate());
+        storedProcedure.setParameter(7, filter.getToOrderDate());
         storedProcedure.setParameter(8, ra == "" ? null : ra);
 
+        this.executeQuery(storedProcedure, "P_CHANGE_PRICE", "");
+
         List<ChangePriceDTO> result = storedProcedure.getResultList();
-        entityManager.close();
+
+
         if (result.isEmpty())
             return new Response<CoverResponse<Page<ChangePriceDTO>, ChangePriceTotalDTO>>()
                     .withData(new CoverResponse<>(new PageImpl<>(new ArrayList<>()), null));
@@ -89,10 +92,10 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
     }
 
     @Override
-    public ChangePricePrintDTO getAll(String searchKey, Long shopId, LocalDateTime fromTransDate, LocalDateTime toTransDate, LocalDateTime fromOrderDate, LocalDateTime toOrderDate, String ids, Pageable pageable) {
+    public ChangePricePrintDTO getAll(ChangePriceFilter filter, Pageable pageable) {
 
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> data =
-                (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) index(searchKey, shopId, fromTransDate, toTransDate, fromOrderDate, toOrderDate, ids, pageable, false);
+                (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) index( filter, pageable, false);
         ChangePricePrintDTO response = new ChangePricePrintDTO();
         List<ChangePriceDTO> listPriceChange = data.getData().getResponse();
         ChangePriceTotalDTO changePriceTotal = data.getData().getInfo();
@@ -140,11 +143,11 @@ public class ChangePriceReportServiceImpl implements ChangePriceReportService {
             coverResponse.add(subResponse);
         }
 
-        ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         response.setShop(shopDTO);
-        response.setFromDate(DateUtils.convertFromDate(fromTransDate));
-        response.setToDate(DateUtils.convertFromDate(toTransDate));
+        response.setFromDate(DateUtils.convertFromDate(filter.getFromTransDate()));
+        response.setToDate(DateUtils.convertFromDate(filter.getToTransDate()));
         response.setTotalQuantity(changePriceTotal.getTotalQuantity());
         response.setTotalPriceInput(changePriceTotal.getTotalPriceInput());
         response.setTotalPriceOutput(changePriceTotal.getTotalPriceOutput());

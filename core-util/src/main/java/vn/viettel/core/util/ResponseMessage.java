@@ -63,6 +63,7 @@ public enum ResponseMessage {
     // 5xxx - connection failed
     CONNECT_DATABASE_FAILED(5000, "Kết nối cơ sở dữ liệu thất bại"),
     DELETE_SUCCESSFUL(5001, "Xóa thành công"),
+    EXPORT_EXCEL_FAILED(5002, "Xuất excel thất bại"),
     /**
      * USER: 6000 -> 6999
      */

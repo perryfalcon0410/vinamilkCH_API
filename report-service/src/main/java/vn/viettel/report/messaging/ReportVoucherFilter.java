@@ -27,4 +27,19 @@ public class ReportVoucherFilter {
     private String customerKeywords;
     private String customerMobiPhone;
     private Long shopId;
+
+    @Override
+    public String toString() {
+        return "ReportVoucherFilter{" +
+                "fromProgramDate=" + fromProgramDate +
+                ", toProgramDate=" + toProgramDate +
+                ", fromUseDate=" + fromUseDate +
+                ", toUseDate=" + toUseDate +
+                ", voucherProgramName='" + voucherProgramName + '\'' +
+                ", voucherKeywords='" + voucherKeywords + '\'' +
+                ", customerKeywords='" + customerKeywords + '\'' +
+                ", customerMobiPhone='" + customerMobiPhone + '\'' +
+                ", shopId=" + shopId +
+                '}';
+    }
 }

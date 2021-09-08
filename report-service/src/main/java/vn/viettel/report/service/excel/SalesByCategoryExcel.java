@@ -16,24 +16,20 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class SalesByCategoryExcel {
+public class SalesByCategoryExcel extends ExcelPoiUtils{
     private ShopDTO shopDTO;
     private ShopDTO parentShop;
-    private SXSSFWorkbook workbook;
+    private SXSSFWorkbook workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet;
     private SaleCategoryFilter filter;
     private SalesByCategoryReportDTO tableDynamicDTO;
-    private Map<String, CellStyle> style;
+    private Map<String, CellStyle> style = this.createStyles(workbook);
 
     public SalesByCategoryExcel(SaleCategoryFilter filter, ShopDTO shopDTO, SalesByCategoryReportDTO tableDynamicDTO, ShopDTO parentShop) {
-        workbook = new SXSSFWorkbook();
-        {
-            this.filter = filter;
-            this.shopDTO = shopDTO;
-            this.tableDynamicDTO = tableDynamicDTO;
-            this.parentShop = parentShop;
-            this.style = ExcelPoiUtils.createStyles(workbook);
-        }
+        this.filter = filter;
+        this.shopDTO = shopDTO;
+        this.tableDynamicDTO = tableDynamicDTO;
+        this.parentShop = parentShop;
     }
 
     private void writeHeaderLine()  {
@@ -93,11 +89,6 @@ public class SalesByCategoryExcel {
         if(tableDynamicDTO.getResponse() != null) {
             this.writeDataLines();
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

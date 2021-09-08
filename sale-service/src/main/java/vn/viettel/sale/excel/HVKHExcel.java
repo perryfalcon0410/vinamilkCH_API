@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HVKHExcel {
+public class HVKHExcel extends ExcelPoiUtils{
     private String FONT_NAME= "Times New Roman";
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet1;
@@ -30,7 +30,6 @@ public class HVKHExcel {
 
     private XSSFCellStyle styleTableHeader;
     private CellStyle styleTableValue;
-    private XSSFCellStyle styleCellTotalTable;
 
     private Map<String, CellStyle> stylemap = ExcelPoiUtils.createStyles(workbook);
     private CellStyle formatCurrency = stylemap.get(ExcelPoiUtils.DATA_CURRENCY);
@@ -41,7 +40,6 @@ public class HVKHExcel {
         this.ctdtos = ctdtos;
 
         this.styleTableHeader = this.getTableHeaderStyle();
-        this.styleCellTotalTable = this.getTableTotalHeaderStyle();
         this.styleTableValue = this.getTableValueStyle();
     }
 
@@ -212,11 +210,6 @@ public class HVKHExcel {
         this.writeHeaderLine();
         this.createTableSheet1();
         this.createTableSheet2();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class SaleOrderAmountExcel {
+public class SaleOrderAmountExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
-    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    private Map<String, CellStyle> style = this.createStyles(workbook);
     private SXSSFSheet sheet;
     private SaleOrderAmountFilter filter;
     private TableDynamicDTO tableDynamicDTO;
@@ -91,11 +91,6 @@ public class SaleOrderAmountExcel {
         if(tableDynamicDTO.getResponse() != null) {
             this.writeDataLines();
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }
