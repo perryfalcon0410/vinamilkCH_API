@@ -138,6 +138,7 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
         if(!promotions.isEmpty()) {
             PromotionProductDTO total = promotions.get(promotions.size() -1);
             totalDTO.setTotalQuantity(total.getQuantity());
+            total.setTotalPrice(total.getTotalPrice());
 
             this.removeDataList(promotions);
             int start = (int)pageable.getOffset();

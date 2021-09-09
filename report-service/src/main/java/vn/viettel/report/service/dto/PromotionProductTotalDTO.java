@@ -15,4 +15,8 @@ import lombok.Setter;
 public class PromotionProductTotalDTO {
     @ApiModelProperty(notes = "Tổng số lượng")
     private Integer totalQuantity;
+
+    @ApiModelProperty(notes = "Tổng thành tiền")
+    private Integer totalPrice;
+
 }
