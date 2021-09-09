@@ -528,10 +528,15 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
 
 
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
-        //Xắp xếp ZM trước sau đó ts các ZV19->23
-        Collections.sort(lstZMValue, Comparator.comparing(PrintZMZV19ZV20ZV23DTO::getPromotionType));
 
-        if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
+        List<PrintZMZV19ZV20ZV23DTO> listZV19ZV20ZV23s = lstZMValue.stream().filter(e -> !e.getPromotionType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
+        Collections.sort(listZV19ZV20ZV23s, Comparator.comparing(PrintZMZV19ZV20ZV23DTO::getPromotionType));
+
+        List<PrintZMZV19ZV20ZV23DTO> ZMs = lstZMValue.stream().filter(e -> e.getPromotionType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
+        Collections.sort(ZMs, Comparator.comparing(PrintZMZV19ZV20ZV23DTO::getPromotionCode));
+        listZV19ZV20ZV23s.addAll(ZMs);
+
+        if(!lstZMValue.isEmpty()) print.setLstZM(listZV19ZV20ZV23s);
 
         return print;
     }
