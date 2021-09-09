@@ -56,10 +56,13 @@ public interface PromotionClient {
     Response<Set<Long>> findCusCardPromotion(@PathVariable Long programId, @RequestParam Integer objectType);
 
     @GetMapping(value = { "/api/v1/promotions/promotion-program-detail/{programId}"})
-    Response<List<PromotionProgramDetailDTO>> findPromotionProgramDetailV1(@PathVariable Long programId);
+    Response<List<PromotionProgramDetailDTO>> findPromotionProgramDetailV1(@PathVariable Long programId, @RequestParam List<Long> productIds);
 
-    @GetMapping(value = { "/api/v1/promotions/promotion-sale-product/{programId}"})
-    Response<List<PromotionSaleProductDTO>> findPromotionSaleProductByProgramIdV1(@PathVariable Long programId);
+//    @GetMapping(value = { "/api/v1/promotions/promotion-sale-product/{programId}"})
+//    Response<List<PromotionSaleProductDTO>> findPromotionSaleProductByProgramIdV1(@PathVariable Long programId);
+
+    @GetMapping(value = { "/api/v1/promotions/check/promotion-sale-product/{programId}"})
+    Response<Boolean> checkSaleProductByProgramIdV1(@PathVariable Long programId, @RequestParam List<Long> productIds);
 
     @GetMapping(value = { "/api/v1/promotions/promotion-discount/{programId}"})
     Response<List<PromotionProgramDiscountDTO>> findPromotionDiscountByPromotion(@PathVariable Long programId);

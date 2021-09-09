@@ -19,4 +19,13 @@ public class EntryMenuDetailsReportsRequest {
     private LocalDateTime fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime toDate;
+
+    @Override
+    public String toString() {
+        return "EntryMenuDetailsReportsRequest{" +
+                "shopId=" + shopId +
+                ", fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                '}';
+    }
 }

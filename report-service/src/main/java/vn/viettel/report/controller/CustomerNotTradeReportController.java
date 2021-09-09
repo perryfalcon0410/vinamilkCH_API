@@ -1,11 +1,9 @@
 package vn.viettel.report.controller;
 
 import io.swagger.annotations.*;
-import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +18,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.report.messaging.CustomerNotTradeFilter;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
 import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
@@ -31,7 +30,6 @@ import vn.viettel.report.service.feign.ShopClient;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +47,8 @@ public class    CustomerNotTradeReportController extends BaseController {
     @GetMapping(V1 + root + "/not-trade")
     public Object getCustomerNotTrade(@RequestParam Date fromDate, @RequestParam Date toDate,
                                       @RequestParam Boolean isPaging, Pageable pageable) {
-        return service.index(fromDate, toDate, isPaging, pageable, this.getShopId());
+        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId());
+        return service.index(filter, isPaging, pageable);
     }
 
     @GetMapping(value = { V1 + root + "/not-trade/excel"})
@@ -58,16 +57,10 @@ public class    CustomerNotTradeReportController extends BaseController {
             HttpServletResponse response, Pageable pageable) throws IOException{
         ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(fromDate, toDate, false, pageable, this.getShopId());
-
+        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId());
+        Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(filter, false, pageable);
         CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, shop.getParentShop(), fromDate, toDate);
-
-        ByteArrayInputStream in = exportExcel.export();
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=report_x_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_NOT_TRADE_SUCCESS);
-        IOUtils.closeQuietly(in);
+        this.closeStreamExcel(response, exportExcel.export(), "report_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 
@@ -79,7 +72,8 @@ public class    CustomerNotTradeReportController extends BaseController {
     @GetMapping(V1 + root + "/print")
     public Response<CustomerNotTradePrintDTO> print(@RequestParam Date fromDate,
                                                     @RequestParam Date toDate){
-        CustomerNotTradePrintDTO response = service.printCustomerNotTrade(fromDate, toDate, this.getShopId());
+        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId());
+        CustomerNotTradePrintDTO response = service.printCustomerNotTrade(filter);
         return new Response<CustomerNotTradePrintDTO>().withData(response);
     }
 
@@ -126,14 +120,8 @@ public class    CustomerNotTradeReportController extends BaseController {
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertFromDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertFromDate(toPurchaseDate));
-
-        ByteArrayInputStream in = service.customerTradesExportExcel(filter);
-
+        this.closeStreamExcel(response, service.customerTradesExportExcel(filter), "filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

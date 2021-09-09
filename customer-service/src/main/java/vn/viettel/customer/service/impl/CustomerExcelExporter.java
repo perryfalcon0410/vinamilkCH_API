@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class CustomerExcelExporter {
+public class CustomerExcelExporter extends ExcelPoiUtils {
 
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
@@ -271,11 +271,6 @@ public class CustomerExcelExporter {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

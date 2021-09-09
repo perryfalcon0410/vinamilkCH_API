@@ -33,6 +33,7 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
 
     public RPT_ZV23DTO checkSaleOrderZV23(String promotionCode, Long customerId, Long shopId) {
         RPT_ZV23 rpt_zv23 = rpt_zv23Repository.checkZV23Require(promotionCode, customerId, shopId);
+        if(rpt_zv23 == null) return null;
         return modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
     }
 

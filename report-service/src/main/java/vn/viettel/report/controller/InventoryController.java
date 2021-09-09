@@ -52,14 +52,9 @@ public class InventoryController extends BaseController {
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), warehouseTypeId, productCodes);
-        ByteArrayInputStream in = inventoryService.exportImportExcel(filter);
+        this.closeStreamExcel(response, inventoryService.exportImportExcel(filter), "Xuat_nhap_ton_Filled_" + StringUtils.createExcelFileName() );
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Xuat_nhap_ton_Filled_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
-
     }
 
     @GetMapping(V1 + root + "/import-export")

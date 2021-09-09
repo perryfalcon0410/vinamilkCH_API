@@ -162,11 +162,7 @@ public class CustomerController extends BaseController {
                                                ) throws IOException {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
-        ByteArrayInputStream in = service.exportExcel(customerFilter);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        this.closeStreamExcel(response, service.exportExcel(customerFilter), "Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 

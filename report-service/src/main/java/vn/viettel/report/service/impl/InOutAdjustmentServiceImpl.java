@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.report.messaging.InOutAdjustmentFilter;
 import vn.viettel.report.service.InOutAdjustmentService;
 import vn.viettel.report.service.dto.InOutAdjusmentDTO;
@@ -20,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class InOutAdjustmentServiceImpl extends BaseReportServiceImpl implements InOutAdjustmentService {
+
     @Override
     public CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO> find(InOutAdjustmentFilter filter, Pageable pageable) {
         List<InOutAdjusmentDTO> data =  this.callProcedure(filter).getData();
@@ -56,8 +56,7 @@ public class InOutAdjustmentServiceImpl implements InOutAdjustmentService {
         storedProcedure.setParameter(3, filter.getToDate());
         storedProcedure.setParameter(4, filter.getProductCodes());
         storedProcedure.setParameter(5, filter.getShopId());
-        storedProcedure.execute();
-        entityManager.close();
+        this.executeQuery(storedProcedure, "P_IN_OUT_ADJUSTMENT", filter.toString());
         List<InOutAdjusmentDTO> data =  storedProcedure.getResultList();
         return new Response<List<InOutAdjusmentDTO>>().withData(data);
     }

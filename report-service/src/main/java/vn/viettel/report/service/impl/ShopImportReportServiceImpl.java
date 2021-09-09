@@ -9,26 +9,25 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.service.ShopImportReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ShopImportReportServiceImpl implements ShopImportReportService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class ShopImportReportServiceImpl extends BaseReportServiceImpl implements ShopImportReportService {
+
     @Autowired
     ShopClient shopClient;
+
     @Override
     public CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> find(ShopImportFilter filter, Pageable pageable) {
         if(filter.getImportType() !=null){
@@ -75,9 +74,10 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
         storedProcedure.setParameter(7, filter.getFromOrderDate());
         storedProcedure.setParameter(8, filter.getToOrderDate());
         storedProcedure.setParameter(9, filter.getShopId());
-        storedProcedure.execute();
+
+        this.executeQuery(storedProcedure, "P_SHOP_IMPORT", filter.toString());
         List<ShopImportDTO> response = storedProcedure.getResultList();
-        entityManager.close();
+
         return new Response<List<ShopImportDTO>>().withData(response);
     }
 
@@ -214,7 +214,12 @@ public class ShopImportReportServiceImpl implements ShopImportReportService {
                 orderImport.setTotalQuantity(totalOrderQty);
                 orderImport.setTotalPriceNotVat(totalOrderPriceNotVat);
                 orderImport.setTotalPriceVat(totalOrderPriceVat);
-                orderImport.setVat(totalOrderPriceVat - totalOrderPriceNotVat);
+
+                if(totalOrderPriceNotVat > 0) {
+                    orderImport.setVat(totalOrderPriceVat - totalOrderPriceNotVat);
+                }else{
+                    orderImport.setVat(0.0);
+                }
 
                 shopImport.addOrderImport(orderImport);
             }

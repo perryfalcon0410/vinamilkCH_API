@@ -28,4 +28,16 @@ public class SaleCategoryFilter {
         if(toDate == null) return LocalDate.now();
         return toDate;
     }
+
+    @Override
+    public String toString() {
+        return "SaleCategoryFilter{" +
+                "customerKW='" + customerKW + '\'' +
+                ", customerPhone='" + customerPhone + '\'' +
+                ", fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", customerType=" + customerType +
+                ", shopId=" + shopId +
+                '}';
+    }
 }

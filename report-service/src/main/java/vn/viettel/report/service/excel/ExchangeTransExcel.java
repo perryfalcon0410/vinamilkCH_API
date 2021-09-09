@@ -18,24 +18,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ExchangeTransExcel {
+public class ExchangeTransExcel extends ExcelPoiUtils {
     private ShopDTO shopDTO;
     private ShopDTO parentShop;
-    private SXSSFWorkbook workbook;
+    private SXSSFWorkbook  workbook = new SXSSFWorkbook();
+    Map<String, CellStyle>  style = this.createStyles(workbook);
     private SXSSFSheet sheet;
     ExchangeTransFilter filter;
     ExchangeTransReportDTO tableDynamicDTO;
-    Map<String, CellStyle> style;
 
     public ExchangeTransExcel(ExchangeTransFilter filter, ShopDTO shopDTO,ExchangeTransReportDTO tableDynamicDTO,ShopDTO parentShop) {
-        workbook = new SXSSFWorkbook();
-        {
-            this.filter = filter;
-            this.shopDTO = shopDTO;
-            this.tableDynamicDTO = tableDynamicDTO;
-            this.parentShop = parentShop;
-            this.style = ExcelPoiUtils.createStyles(workbook);
-        }
+        this.filter = filter;
+        this.shopDTO = shopDTO;
+        this.tableDynamicDTO = tableDynamicDTO;
+        this.parentShop = parentShop;
+
     }
 
     private void writeHeaderLine()  {
@@ -129,11 +126,6 @@ public class ExchangeTransExcel {
         if(tableDynamicDTO.getResponse() != null) {
             this.writeDataLines();
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

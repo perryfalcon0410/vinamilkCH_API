@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
@@ -20,8 +22,6 @@ import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
 import vn.viettel.report.service.excel.SalesByCategoryExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
@@ -33,9 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class SaleByCategoryImpl implements SaleByCategoryReportService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class SaleByCategoryImpl extends BaseReportServiceImpl implements SaleByCategoryReportService {
 
     @Autowired
     ShopClient shopClient;
@@ -53,70 +51,78 @@ public class SaleByCategoryImpl implements SaleByCategoryReportService {
     public SalesByCategoryReportDTO callProcedure(SaleCategoryFilter filter){
         Session session = entityManager.unwrap(Session.class);
         SalesByCategoryReportDTO tableDynamicDTO = new SalesByCategoryReportDTO();
-        session.doWork(new Work() {
-            @Override
-            public void execute(Connection con) throws SQLException {
-                try (CallableStatement cs = con.prepareCall("{CALL P_SALES_BY_CATEGORY(?,?,?,?,?,?,?,?)}")) {
-                    cs.registerOutParameter(1, OracleTypes.CURSOR);
-                    cs.registerOutParameter(2, OracleTypes.CURSOR);
-                    if(filter.getCustomerKW() != null) {
-                        cs.setString(3, VNCharacterUtils.removeAccent(filter.getCustomerKW()).trim().toUpperCase(Locale.ROOT));
-                    }else cs.setNull(3, Types.INTEGER);
+        try{
+            session.doWork(new Work() {
+                @Override
+                public void execute(Connection con) throws SQLException {
+                    try (CallableStatement cs = con.prepareCall("{CALL P_SALES_BY_CATEGORY(?,?,?,?,?,?,?,?)}")) {
+                        cs.registerOutParameter(1, OracleTypes.CURSOR);
+                        cs.registerOutParameter(2, OracleTypes.CURSOR);
+                        if(filter.getCustomerKW() != null) {
+                            cs.setString(3, VNCharacterUtils.removeAccent(filter.getCustomerKW()).trim().toUpperCase(Locale.ROOT));
+                        }else cs.setNull(3, Types.INTEGER);
 
-                    if(filter.getCustomerPhone() != null) {
-                        cs.setString(4, filter.getCustomerPhone().trim());
-                    }else cs.setNull(4, Types.INTEGER);
+                        if(filter.getCustomerPhone() != null) {
+                            cs.setString(4, filter.getCustomerPhone().trim());
+                        }else cs.setNull(4, Types.INTEGER);
 
-                    if (filter.getFromDate() != null)
-                        cs.setDate(5, java.sql.Date.valueOf(filter.getFromDate()));
-                    else cs.setNull(5, Types.DATE);
+                        if (filter.getFromDate() != null)
+                            cs.setDate(5, java.sql.Date.valueOf(filter.getFromDate()));
+                        else cs.setNull(5, Types.DATE);
 
-                    if (filter.getToDate() != null)
-                        cs.setDate(6, java.sql.Date.valueOf(filter.getToDate()));
-                    else cs.setNull(6, Types.DATE);
+                        if (filter.getToDate() != null)
+                            cs.setDate(6, java.sql.Date.valueOf(filter.getToDate()));
+                        else cs.setNull(6, Types.DATE);
 
-                    if(filter.getCustomerType() != null) {
-                        cs.setLong(7, filter.getCustomerType());
-                    }else cs.setNull(7, Types.INTEGER);
+                        if(filter.getCustomerType() != null) {
+                            cs.setLong(7, filter.getCustomerType());
+                        }else cs.setNull(7, Types.INTEGER);
 
-                    cs.setLong(8, filter.getShopId());
+                        cs.setLong(8, filter.getShopId());
 
-                    cs.execute();
-                    ResultSet rs = (ResultSet) cs.getObject(1);
-                    ResultSet rs1 = (ResultSet) cs.getObject(2);
+                        cs.execute();
+                        ResultSet rs = (ResultSet) cs.getObject(1);
+                        ResultSet rs1 = (ResultSet) cs.getObject(2);
 
-                    List<Object[]> rowData = new ArrayList<>();
-                    ResultSetMetaData rsmd = rs1.getMetaData();
-                    Integer frequency = 0;
-                    while (rs1.next()) {
-                        Object[] rowDatas = new Object[rsmd.getColumnCount()];
-                        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                            rowDatas[i - 1] = rs1.getObject(i);
-                            if(i == 4 && rs1.getObject(i)!=null) {
-                                String temp = String.valueOf(rs1.getObject(i));
-                                frequency += Integer.valueOf(temp);
+                        List<Object[]> rowData = new ArrayList<>();
+                        ResultSetMetaData rsmd = rs1.getMetaData();
+                        Integer frequency = 0;
+                        while (rs1.next()) {
+                            Object[] rowDatas = new Object[rsmd.getColumnCount()];
+                            for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                                rowDatas[i - 1] = rs1.getObject(i);
+                                if(i == 4 && rs1.getObject(i)!=null) {
+                                    String temp = String.valueOf(rs1.getObject(i));
+                                    frequency += Integer.valueOf(temp);
+                                }
                             }
+                            rowData.add(rowDatas);
                         }
-                        rowData.add(rowDatas);
+                        if(!rowData.isEmpty()) {
+                            Object[] total = rowData.get(rowData.size() - 1);
+                            total[3] = frequency;
+                            tableDynamicDTO.setTotals(total);
+                            rowData.remove(rowData.size() - 1);
+                            tableDynamicDTO.setResponse(rowData);
+                        }
+                        //Category
+                        List<String> categoryData = new ArrayList<>();
+                        while (rs.next()) {
+                            categoryData.add(String.valueOf(rs.getObject(1)));
+                        }
+                        tableDynamicDTO.setCategory(categoryData);
                     }
-                    if(!rowData.isEmpty()) {
-                        Object[] total = rowData.get(rowData.size() - 1);
-                        total[3] = frequency;
-                        tableDynamicDTO.setTotals(total);
-                        rowData.remove(rowData.size() - 1);
-                        tableDynamicDTO.setResponse(rowData);
-                    }
-                    //Category
-                    List<String> categoryData = new ArrayList<>();
-                    while (rs.next()) {
-                        categoryData.add(String.valueOf(rs.getObject(1)));
-                    }
-                    tableDynamicDTO.setCategory(categoryData);
                 }
-            }
-        });
-        session.close();
-        entityManager.close();
+            });
+        }catch (Exception ex) {
+            LogFile.logErrorToFile(appName, "[Call Procedure P_SALES_BY_CATEGORY ] " + filter.toString(), ex);
+            throw new ValidateException(ResponseMessage.CONNECT_DATABASE_FAILED);
+        }finally {
+            session.close();
+            entityManager.close();
+        }
+
+
         return tableDynamicDTO;
     }
 

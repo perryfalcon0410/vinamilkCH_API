@@ -25,7 +25,7 @@ public class PromotionProductCatDTO {
     private Integer totalQuantity = 0;
 
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private Float totalPrice = 0F;
+    private Double totalPrice = 0D;
 
     @ApiModelProperty(notes = "Danh sách sản phẩm thuộc ngành hàng")
     List<PromotionProductDTO> productCats = new ArrayList<>();
@@ -43,8 +43,7 @@ public class PromotionProductCatDTO {
         return this.totalQuantity;
     }
 
-    public Float addTotalTotalPrice(Float price) {
-        if(price == null) return this.totalPrice;
+    public Double addTotalTotalPrice(Double price) {
         this.totalPrice += price;
         return this.totalPrice;
     }

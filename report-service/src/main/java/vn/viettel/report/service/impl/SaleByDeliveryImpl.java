@@ -9,6 +9,7 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
@@ -31,9 +32,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class SaleByDeliveryImpl extends BaseReportServiceImpl implements SaleDeliveryTypeService {
     @Autowired
     ShopClient shopClient;
     @Autowired
@@ -72,9 +71,10 @@ public class SaleByDeliveryImpl implements SaleDeliveryTypeService {
         query.setParameter("phoneText", filter.getPhoneText().trim());
         query.setParameter("fromTotal", filter.getFromTotal());
         query.setParameter("toTotal", filter.getToTotal());
-        query.execute();
+
+        this.executeQuery(query, "P_SALES_BY_DELIVERY", filter.toString());
         List<SaleByDeliveryTypeDTO> reportDTOS = query.getResultList();
-        entityManager.close();
+
         return reportDTOS;
     }
 

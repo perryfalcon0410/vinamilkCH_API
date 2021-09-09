@@ -26,4 +26,18 @@ public class ShopImportFilter {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime toOrderDate;
     private Long shopId;
+
+    @Override
+    public String toString() {
+        return "ShopImportFilter{" +
+                "fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", productCodes='" + productCodes + '\'' +
+                ", importType='" + importType + '\'' +
+                ", internalNumber='" + internalNumber + '\'' +
+                ", fromOrderDate=" + fromOrderDate +
+                ", toOrderDate=" + toOrderDate +
+                ", shopId=" + shopId +
+                '}';
+    }
 }

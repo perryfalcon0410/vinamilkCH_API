@@ -25,4 +25,19 @@ public class SaleDeliveryTypeFilter {
     private String phoneText;
     private Float fromTotal;
     private Float toTotal;
+
+    @Override
+    public String toString() {
+        return "SaleDeliveryTypeFilter{" +
+                "fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", shopId=" + shopId +
+                ", orderNumber='" + orderNumber + '\'' +
+                ", apValue='" + apValue + '\'' +
+                ", customerKW='" + customerKW + '\'' +
+                ", phoneText='" + phoneText + '\'' +
+                ", fromTotal=" + fromTotal +
+                ", toTotal=" + toTotal +
+                '}';
+    }
 }

@@ -74,16 +74,10 @@ public class ReportExportGoodsController extends BaseController {
                               @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                               @RequestParam(value = "fromOrderDate", required = false) Date fromOrderDate,
                               @RequestParam(value = "toOrderDate", required = false) Date toOrderDate, HttpServletResponse response) throws IOException {
-
         ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertFromDate(toExportDate), productCodes, importType, searchKeywords,
                 DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), this.getShopId());
-        ByteArrayInputStream in = reportExportGoodsService.exportExcel(shopExportFilter);
-
+        this.closeStreamExcel(response, reportExportGoodsService.exportExcel(shopExportFilter), "BC_xuat_hang_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_xuat_hang_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

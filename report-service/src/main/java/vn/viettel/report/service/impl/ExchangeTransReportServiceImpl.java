@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
@@ -34,9 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class ExchangeTransReportServiceImpl implements ExchangeTransReportService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class ExchangeTransReportServiceImpl extends BaseReportServiceImpl implements ExchangeTransReportService {
 
     @Autowired
     ShopClient shopClient;
@@ -58,71 +58,77 @@ public class ExchangeTransReportServiceImpl implements ExchangeTransReportServic
     public ExchangeTransReportDTO callProcedure(ExchangeTransFilter filter){
         Session session = entityManager.unwrap(Session.class);
         ExchangeTransReportDTO tableDynamicDTO = new ExchangeTransReportDTO();
-        session.doWork(new Work() {
-            @Override
-            public void execute(Connection con) throws SQLException {
-                try (CallableStatement cs = con.prepareCall("{CALL P_EXCHANGE_TRANS(?,?,?,?,?,?,?,?)}")) {
-                    cs.registerOutParameter(1, OracleTypes.CURSOR);
-                    cs.registerOutParameter(2, OracleTypes.CURSOR);
-                    if(filter.getTransCode() != null) {
-                        cs.setString(3, VNCharacterUtils.removeAccent(filter.getTransCode()).trim().toUpperCase(Locale.ROOT));
-                    }else cs.setNull(3, Types.INTEGER);
 
-                    if (filter.getFromDate() != null)
-                        cs.setDate(4, new Date(filter.getFromDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
-                    else cs.setNull(4, Types.DATE);
+        try {
+            session.doWork(new Work() {
+                @Override
+                public void execute(Connection con) throws SQLException {
+                    try (CallableStatement cs = con.prepareCall("{CALL P_EXCHANGE_TRANS(?,?,?,?,?,?,?,?)}")) {
+                        cs.registerOutParameter(1, OracleTypes.CURSOR);
+                        cs.registerOutParameter(2, OracleTypes.CURSOR);
+                        if(filter.getTransCode() != null) {
+                            cs.setString(3, VNCharacterUtils.removeAccent(filter.getTransCode()).trim().toUpperCase(Locale.ROOT));
+                        }else cs.setNull(3, Types.INTEGER);
 
-                    if (filter.getToDate() != null)
-                        cs.setDate(5, new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
-                    else cs.setNull(5, Types.DATE);
+                        if (filter.getFromDate() != null)
+                            cs.setDate(4, new Date(filter.getFromDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                        else cs.setNull(4, Types.DATE);
 
-                    if(filter.getReason() != null) {
-                        cs.setString(6, filter.getReason());
-                    }else cs.setNull(6, Types.INTEGER);
+                        if (filter.getToDate() != null)
+                            cs.setDate(5, new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                        else cs.setNull(5, Types.DATE);
 
-                    if(filter.getProductKW() != null) {
-                        cs.setString(7, VNCharacterUtils.removeAccent(filter.getProductKW()).trim().toUpperCase(Locale.ROOT));
-                    }else cs.setNull(7, Types.INTEGER);
+                        if(filter.getReason() != null) {
+                            cs.setString(6, filter.getReason());
+                        }else cs.setNull(6, Types.INTEGER);
 
-                    cs.setLong(8, filter.getShopId());
+                        if(filter.getProductKW() != null) {
+                            cs.setString(7, VNCharacterUtils.removeAccent(filter.getProductKW()).trim().toUpperCase(Locale.ROOT));
+                        }else cs.setNull(7, Types.INTEGER);
 
-                    cs.execute();
-                    ResultSet rs = (ResultSet) cs.getObject(1);
-                    ResultSet rs1 = (ResultSet) cs.getObject(2);
+                        cs.setLong(8, filter.getShopId());
 
-                    List<Object[]> rowData = new ArrayList<>();
-                    ResultSetMetaData rsmd = rs.getMetaData();
-                    while (rs.next()) {
-                        Object[] rowDatas = new Object[rsmd.getColumnCount()];
-                        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                            rowDatas[i - 1] = rs.getObject(i);
+                        cs.execute();
+                        ResultSet rs = (ResultSet) cs.getObject(1);
+                        ResultSet rs1 = (ResultSet) cs.getObject(2);
+
+                        List<Object[]> rowData = new ArrayList<>();
+                        ResultSetMetaData rsmd = rs.getMetaData();
+                        while (rs.next()) {
+                            Object[] rowDatas = new Object[rsmd.getColumnCount()];
+                            for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                                rowDatas[i - 1] = rs.getObject(i);
+                            }
+                            rowData.add(rowDatas);
                         }
-                        rowData.add(rowDatas);
-                    }
-                    if(!rowData.isEmpty()) {
-                        tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
-                        rowData.remove(rowData.size() - 1);
-                        rowData.remove(rowData.size() - 1);
-                        tableDynamicDTO.setResponse(rowData);
-                    }
-                    List<Object[]> rowData1 = new ArrayList<>();
-                    ResultSetMetaData rsmd1 = rs1.getMetaData();
-                    while (rs1.next()) {
-                        Object[] rowDatas = new Object[rsmd1.getColumnCount()];
-                        for (int i = 1; i <= rsmd1.getColumnCount(); i++) {
-                            rowDatas[i-1] = rs1.getObject(i);
+                        if(!rowData.isEmpty()) {
+                            tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
+                            rowData.remove(rowData.size() - 1);
+                            rowData.remove(rowData.size() - 1);
+                            tableDynamicDTO.setResponse(rowData);
                         }
-                        rowData1.add(rowDatas);
-                    }
-                    if(!rowData.isEmpty()) {
-                        tableDynamicDTO.setExchangeRate(rowData1);
+                        List<Object[]> rowData1 = new ArrayList<>();
+                        ResultSetMetaData rsmd1 = rs1.getMetaData();
+                        while (rs1.next()) {
+                            Object[] rowDatas = new Object[rsmd1.getColumnCount()];
+                            for (int i = 1; i <= rsmd1.getColumnCount(); i++) {
+                                rowDatas[i-1] = rs1.getObject(i);
+                            }
+                            rowData1.add(rowDatas);
+                        }
+                        if(!rowData.isEmpty()) {
+                            tableDynamicDTO.setExchangeRate(rowData1);
+                        }
                     }
                 }
-            }
-        });
-
-        session.close();
-        entityManager.close();
+            });
+        }catch (Exception ex) {
+            LogFile.logErrorToFile(appName, "[Call Procedure P_EXCHANGE_TRANS ] " + filter.toString(), ex);
+            throw new ValidateException(ResponseMessage.CONNECT_DATABASE_FAILED);
+        }finally {
+            session.close();
+            entityManager.close();
+        }
         return tableDynamicDTO;
     }
 

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class StockCountingFailExcel {
+public class StockCountingFailExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private List<StockCountingExcel> stockCountingExcels;
@@ -126,11 +126,6 @@ public class StockCountingFailExcel {
 
     }
 
-
-
-
-
-
     private void writeDataLines() {
         int rowCount =4;
         int stt = 0;
@@ -179,11 +174,6 @@ public class StockCountingFailExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

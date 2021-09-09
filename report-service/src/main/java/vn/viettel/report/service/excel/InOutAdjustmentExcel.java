@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class InOutAdjustmentExcel {
+public class InOutAdjustmentExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private List<InOutAdjusmentDTO> data;
@@ -34,7 +34,7 @@ public class InOutAdjustmentExcel {
         workbook = new SXSSFWorkbook();
     }
     private void writeHeaderLine()  {
-        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        Map<String, CellStyle> style = this.createStyles(workbook);
         int col = 0,col_=4,row =0;
         int colm = 9,rowm =0;
         sheet = workbook.createSheet("Sheet1");
@@ -88,11 +88,6 @@ public class InOutAdjustmentExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

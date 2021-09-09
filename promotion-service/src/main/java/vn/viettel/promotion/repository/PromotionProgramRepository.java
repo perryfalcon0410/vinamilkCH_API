@@ -1,6 +1,7 @@
 package vn.viettel.promotion.repository;
 
 import org.springframework.data.jpa.repository.Query;
+import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.promotion.entities.PromotionProgram;
 
@@ -15,7 +16,7 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
     List<PromotionProgram> findAvailableProgram(List<Long> shopIds, LocalDateTime firstDay, LocalDateTime lastDay);
 
     @Query(value = "SELECT pp FROM PromotionProgram pp " +
-                    "WHERE pp.promotionProgramCode = :code")
+            "WHERE pp.promotionProgramCode = :code")
     PromotionProgram findByCode(String code);
 
     /*
@@ -24,7 +25,8 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
     - 3. Kiểm tra loại đơn hàng tham gia
     - 4. Kiểm tra thuộc tính khách hàng tham gia
      */
-    @Query(value = "SELECT DISTINCT p " +
+    @Query(value = "SELECT distinct new vn.viettel.core.dto.promotion.PromotionProgramDTO(p.id, p.promotionProgramCode, p.promotionProgramName, p.status, p.type, p.fromDate, p.toDate, p.relation," +
+            " p.multiple, p.recursive, p.isReturn, p.objectType, p.givenType, p.discountType, p.discountPriceType, p.promotionDateTime, p.amountOrderType, p.isEdited) " +
             " FROM PromotionProgram p " +
             " JOIN PromotionShopMap ps ON p.id = ps.promotionProgramId " +
             " WHERE p.status = 1 AND p.fromDate <=:lastDay AND ( p.toDate IS NULL OR p.toDate >=:firstDay ) " +
@@ -72,6 +74,6 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
             "               ) " +
             "     ) " +
             "")
-    List<PromotionProgram> findProgramWithConditions(List<Long> shopIds, Long orderType, Long customerTypeId, Long memberCardId, Long cusCloselyTypeId
-                                                     ,Long cusCardTypeId, LocalDateTime firstDay, LocalDateTime lastDay);
+    List<PromotionProgramDTO> findProgramWithConditions(List<Long> shopIds, Long orderType, Long customerTypeId, Long memberCardId, Long cusCloselyTypeId
+            , Long cusCardTypeId, LocalDateTime firstDay, LocalDateTime lastDay);
 }

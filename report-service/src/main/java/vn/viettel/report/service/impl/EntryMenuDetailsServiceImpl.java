@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
@@ -30,37 +31,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportService {
+public class EntryMenuDetailsServiceImpl extends BaseReportServiceImpl implements EntryMenuDetailsReportService {
 
     @Autowired
     ShopClient shopClient;
 
-    @PersistenceContext
-    EntityManager entityManager;
-
-    private List<EntryMenuDetailsDTO> callStoreProcedure(Long shopId, LocalDateTime fromDate, LocalDateTime toDate) {
+    private List<EntryMenuDetailsDTO> callStoreProcedure(EntryMenuDetailsReportsRequest filter) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_ENTRY_MENU_DETAILS", EntryMenuDetailsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter(2, Long.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(3, LocalDateTime.class, ParameterMode.IN);
         query.registerStoredProcedureParameter(4, LocalDateTime.class, ParameterMode.IN);
 
-        query.setParameter(2, Integer.valueOf(shopId.toString()));
-        query.setParameter(3, fromDate);
-        query.setParameter(4, toDate);
+        query.setParameter(2, filter.getShopId());
+        query.setParameter(3, filter.getFromDate());
+        query.setParameter(4, filter.getToDate());
 
-        query.execute();
-
+        this.executeQuery(query, "P_ENTRY_MENU_DETAILS", filter.toString());
         List<EntryMenuDetailsDTO> reportDTOS =  query.getResultList();
-        entityManager.close();
+
         return reportDTOS;
     }
 
     @Override
     public CoverResponse<Page<EntryMenuDetailsDTO>, ReportTotalDTO> getEntryMenuDetailsReport(EntryMenuDetailsReportsRequest filter, Pageable pageable) {
-        List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getFromDate(), filter.getToDate());
+        List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(filter);
         ReportTotalDTO totalDTO = new ReportTotalDTO();
         List<EntryMenuDetailsDTO> dtoList = new ArrayList<>();
 
@@ -82,8 +78,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
 
     @Override
     public ByteArrayInputStream exportExcel(EntryMenuDetailsReportsRequest filter) throws IOException {
-        List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getFromDate(), filter.getToDate());
+        List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         EntryMenuDetailsDTO entryMenuDetailsDTO = new EntryMenuDetailsDTO();
@@ -98,8 +93,7 @@ public class EntryMenuDetailsServiceImpl implements EntryMenuDetailsReportServic
 
     @Override
     public CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> getEntryMenuDetails(EntryMenuDetailsReportsRequest filter) {
-        List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(
-                filter.getShopId(), filter.getFromDate(), filter.getToDate());
+        List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(filter);
         ReportDateDTO dateDTO = new ReportDateDTO();
 
         if (!reportDTOS.isEmpty()){

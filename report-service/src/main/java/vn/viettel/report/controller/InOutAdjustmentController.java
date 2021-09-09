@@ -62,12 +62,7 @@ public class InOutAdjustmentController extends BaseController {
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId());
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
         InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop, shop.getParentShop(), filter);
-        ByteArrayInputStream in = inOutAdjustmentExcel.export();
-
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_nhap_xuat_dieu_chinh_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        this.closeStreamExcel(response, inOutAdjustmentExcel.export(), "BC_nhap_xuat_dieu_chinh_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 }

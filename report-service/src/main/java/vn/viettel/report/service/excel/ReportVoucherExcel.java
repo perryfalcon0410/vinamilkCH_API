@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ReportVoucherExcel {
+public class ReportVoucherExcel extends ExcelPoiUtils{
     private static final String FONT_NAME= "Times New Roman";
 
     private SXSSFWorkbook workbook;
@@ -124,7 +124,7 @@ public class ReportVoucherExcel {
     }
 
     private void createTableSheet1() {
-        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        Map<String, CellStyle> style = this.createStyles(workbook);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
         int rowTable = 9;
 
@@ -249,12 +249,7 @@ public class ReportVoucherExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.createTableSheet1();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 
 }

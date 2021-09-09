@@ -120,11 +120,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
-        ByteArrayInputStream in = inventoryService.exportExcel(id, this.getShopId());
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Kiem_ke_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        this.closeStreamExcel(response,inventoryService.exportExcel(id, this.getShopId()), "Kiem_ke_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 
@@ -138,13 +134,8 @@ public class InventoryController extends BaseController {
                                                   @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId,
                                                   @PageableDefault(value = 2000)Pageable pageable, HttpServletResponse response) throws IOException {
         CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords,wareHouseTypeId);
-        StockCountingFailExcel stockCountingFailExcel =
-                new StockCountingFailExcel(data.getResponse().getImportFails(), LocalDateTime.now());
-        ByteArrayInputStream in = stockCountingFailExcel.export();
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=stock_counting_fail_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);;
+        StockCountingFailExcel stockCountingFailExcel = new StockCountingFailExcel(data.getResponse().getImportFails(), LocalDateTime.now());
+        this.closeStreamExcel(response, stockCountingFailExcel.export(), "stock_counting_fail" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 
@@ -157,13 +148,8 @@ public class InventoryController extends BaseController {
         ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(),null,null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
-        StockCountingAllExcel stockCountingAll =
-                new StockCountingAllExcel(listAll, shop, shop.getParentShop(), LocalDateTime.now());
-        ByteArrayInputStream in = stockCountingAll.export();
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=stock_counting_all_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        StockCountingAllExcel stockCountingAll = new StockCountingAllExcel(listAll, shop, shop.getParentShop(), LocalDateTime.now());
+        this.closeStreamExcel(response, stockCountingAll.export(), "stock_counting_all" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
     @GetMapping(value = { V1 + root + "/inventory/sample-excel"})
@@ -172,14 +158,8 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public void ExportSampleExcel(HttpServletResponse response) throws IOException {
-        SampleExcel sampleExcel =
-                new SampleExcel(LocalDateTime.now());
-        ByteArrayInputStream in = sampleExcel.export();
-
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Nhap_kiem_ke_mau_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        SampleExcel sampleExcel = new SampleExcel(LocalDateTime.now());
+        this.closeStreamExcel(response, sampleExcel.export(), "Nhap_kiem_ke_mau_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 

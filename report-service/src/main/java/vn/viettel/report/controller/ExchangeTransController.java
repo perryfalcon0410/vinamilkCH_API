@@ -42,18 +42,15 @@ public class ExchangeTransController extends BaseController {
     @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/excel")
-    public void exportToExcel(@RequestParam(value = "transCode", required = false) String transCode,
+    public void exportToExcel( HttpServletRequest request, @RequestParam(value = "transCode", required = false) String transCode,
                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW
             , HttpServletResponse response) throws IOException {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId());
-        ByteArrayInputStream in = exchangeTransReportService.exportExcel(filter);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        this.closeStreamExcel(response, exchangeTransReportService.exportExcel(filter), "BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_EXCHANGETRANS_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -72,7 +69,7 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "productKW", required = false, defaultValue = "") String productKW, Pageable pageable) {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId());
         ExchangeTransReportDTO response = exchangeTransReportService.getExchangeTransReport(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_EXCHANGETRANS_SUCCESS);
         return new Response<ExchangeTransReportDTO>().withData(response);
     }
 

@@ -22,4 +22,18 @@ public class ShopExportFilter {
     private LocalDateTime fromOrderDate;
     private LocalDateTime toOrderDate;
     private Long shopId;
+
+    @Override
+    public String toString() {
+        return "ShopExportFilter{" +
+                "fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", productCodes='" + productCodes + '\'' +
+                ", importType='" + importType + '\'' +
+                ", searchKeywords='" + searchKeywords + '\'' +
+                ", fromOrderDate=" + fromOrderDate +
+                ", toOrderDate=" + toOrderDate +
+                ", shopId=" + shopId +
+                '}';
+    }
 }
