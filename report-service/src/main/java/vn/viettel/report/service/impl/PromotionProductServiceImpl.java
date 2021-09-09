@@ -64,12 +64,13 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
             if(maps.containsKey(key)){
                 PromotionProductDTO dto = maps.get(key);
                 dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
+                dto.setTotalPrice(dto.getTotalPrice() + promotion.getTotalPrice());
                 maps.put(key, dto);
             }else {
                 maps.put(key, (PromotionProductDTO) promotion.clone());
             }
         }
-        List<PromotionProductDTO> results = new ArrayList<>(maps.values());
+        List<PromotionProductDTO> results = new ArrayList<>(maps.values()).stream().filter(e -> e.getQuantity() != null && e.getQuantity() > 0).collect(Collectors.toList());
         Collections.sort(results, Comparator.comparing(PromotionProductDTO::getOrderDate, Comparator.reverseOrder())
                 .thenComparing(PromotionProductDTO::getProductCatName).thenComparing(PromotionProductDTO::getProductCode));
 
@@ -83,13 +84,14 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
             if(maps.containsKey(promotion.getProductCode())) {
                 PromotionProductDTO dto = maps.get(promotion.getProductCode());
                 dto.setQuantity(dto.getQuantity() + promotion.getQuantity());
+                dto.setTotalPrice(dto.getTotalPrice() + promotion.getTotalPrice());
                 maps.put(promotion.getProductCode(), dto);
             }else{
                 maps.put(promotion.getProductCode(), (PromotionProductDTO) promotion.clone());
             }
         }
 
-        List<PromotionProductDTO> results = new ArrayList<>(maps.values());
+        List<PromotionProductDTO> results = new ArrayList<>(maps.values()).stream().filter(e -> e.getQuantity() != null && e.getQuantity() > 0).collect(Collectors.toList());
         Collections.sort(results, Comparator.comparing(PromotionProductDTO::getProductCatName).thenComparing(PromotionProductDTO::getProductCode));
         return results;
     }
@@ -104,6 +106,7 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
         if(!promotions.isEmpty()) {
             PromotionProductDTO reportTotal = promotions.get(promotions.size() -1);
             reportDTO.setTotalQuantity(reportTotal.getQuantity());
+            reportDTO.setTotalPrice(reportTotal.getTotalPrice());
             this.removeDataList(promotions);
             Set<String> productCats =  promotions.stream().map(PromotionProductDTO::getProductCatName).collect(Collectors.toSet());
             List<PromotionProductCatDTO> cats = new ArrayList<>();
@@ -113,6 +116,7 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
                     if(product.getProductCatName().equals(catName)) {
                         productCatDTO.addProduct(product);
                         productCatDTO.addTotalQuantity(product.getQuantity());
+                        productCatDTO.addTotalTotalPrice(product.getTotalPrice());
                     }
                 }
                 cats.add(productCatDTO);
