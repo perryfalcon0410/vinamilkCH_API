@@ -67,7 +67,7 @@ public class ChangePriceReportServiceImpl extends BaseReportServiceImpl implemen
         storedProcedure.setParameter(7, filter.getToOrderDate());
         storedProcedure.setParameter(8, ra == "" ? null : ra);
 
-        this.executeQuery(storedProcedure, "P_CHANGE_PRICE", "");
+        this.executeQuery(storedProcedure, "P_CHANGE_PRICE", filter.toString());
 
         List<ChangePriceDTO> result = storedProcedure.getResultList();
 

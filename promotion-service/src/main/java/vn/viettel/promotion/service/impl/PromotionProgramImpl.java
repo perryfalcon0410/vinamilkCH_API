@@ -229,7 +229,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     public Boolean checkPromotionSaleProduct(Long programId, List<Long> productIds) {
         Integer saleProduct = promotionSaleProductRepository.countDetail(programId);
         if(saleProduct == null || saleProduct < 1) return true;
-        if(programId == null || productIds.isEmpty()) return false;
+        if(programId == null || productIds == null || productIds.isEmpty()) return false;
         Integer saleProducts = promotionSaleProductRepository.findByPromotionProgramIdAndStatus(programId, productIds);
         if(saleProducts != null && saleProducts > 0) return true;
         return false;
