@@ -723,11 +723,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             PoConfirm poConfirm = poConfirmRepository.getById(request.getPoId());
             if(poConfirm == null || poConfirm.getStatus()==1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
-            if(poConfirm.getStatus()==1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
+            if(poConfirm.getId() == null || !poConfirm.getId().equals(shopId)) throw new ValidateException(ResponseMessage.IMPORT_PO_SHOP_NOT_MATCH);
             if(poConfirm.getWareHouseTypeId()==null) throw new ValidateException(ResponseMessage.DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT);
             poRecord.setId(null);
             poRecord.setTransDate(transDate);
-            poRecord.setShopId(shopId);
+            poRecord.setShopId(poConfirm.getId());
             poRecord.setWareHouseTypeId(poConfirm.getWareHouseTypeId());
             poRecord.setOrderDate(request.getOrderDate());
             poRecord.setInternalNumber(poConfirm.getInternalNumber());
