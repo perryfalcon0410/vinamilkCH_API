@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class CustomerNotTradeExcel {
+public class CustomerNotTradeExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private ShopDTO shop;
@@ -37,7 +37,7 @@ public class CustomerNotTradeExcel {
     }
 
     private void writeHeaderLine() {
-        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        Map<String, CellStyle> style = this.createStyles(workbook);
         int col = 0,row =0;
         int colm = 2,rowm =0;
         sheet = workbook.createSheet("Khách Không Giao Dịch");
@@ -67,7 +67,7 @@ public class CustomerNotTradeExcel {
 
     private void writeDataLines() {
         int stt = 0, col = 0, row = 9;
-        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        Map<String, CellStyle> style = this.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA);
 
         for (CustomerReportDTO data : customers) {
@@ -76,9 +76,6 @@ public class CustomerNotTradeExcel {
             ExcelPoiUtils.addCell(sheet, col++, row, stt, format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerCode(), format);
             ExcelPoiUtils.addCell(sheet, col++, row, data.getCustomerName(), format);
-            /*ExcelPoiUtils.addCell(sheet, col++, row, data.getPhone(), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, DateUtils.formatDate2StringDate(data.getBirthDay()), format);
-            ExcelPoiUtils.addCell(sheet, col++, row, data.getGender(), format);*/
             ExcelPoiUtils.addCell(sheet, col++, row, data.getAddress(), format);
             row++;
         }
@@ -89,11 +86,6 @@ public class CustomerNotTradeExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

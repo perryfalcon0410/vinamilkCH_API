@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
@@ -20,9 +21,7 @@ import vn.viettel.report.service.dto.PrintInventoryDTO;
 import vn.viettel.report.service.excel.ImportExportInventoryExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,13 +31,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class InventoryServiceImpl implements InventoryService {
+public class InventoryServiceImpl extends BaseReportServiceImpl implements InventoryService {
 
     @Autowired
     ShopClient shopClient;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     @Autowired
     ModelMapper modelMapper;
@@ -143,7 +139,7 @@ public class InventoryServiceImpl implements InventoryService {
         query.setParameter("toDate", filter.getToDate());
         query.setParameter("productCodes", upperCode);
 
-        query.execute();
+        this.executeQuery(query, "P_INVENTORY", filter.toString() );
 
         List<ImportExportInventoryDTO> reportDTOS = query.getResultList();
         entityManager.close();

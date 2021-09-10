@@ -8,16 +8,16 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.report.messaging.StockTotalFilter;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.StockTotalReportExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,19 +25,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class StockTotalReportServiceImpl implements StockTotalReportService {
-    @PersistenceContext
-    EntityManager entityManager;
+public class StockTotalReportServiceImpl extends BaseReportServiceImpl implements StockTotalReportService {
 
     @Autowired
     ShopClient shopClient;
 
     @Override
-    public StockTotalReportPrintDTO print(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) {
-        ShopDTO shopDTO = shopClient.getShopByIdV1(shopId).getData();
+    public StockTotalReportPrintDTO print(StockTotalFilter filter) {
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
         if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         StockTotalReportPrintDTO printDTO = new StockTotalReportPrintDTO();
-        List<StockTotalReportDTO> lists =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
+        List<StockTotalReportDTO> lists =  callProcedure(filter);
         StockTotalReportDTO totalInfo = lists.get(lists.size() - 1);
         List<StockTotalReportDTO> listResults = lists.subList(0, lists.size() - 2);
         /*
@@ -68,7 +66,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         printDTO.setShopName(shopDTO.getShopName());
         printDTO.setShopTel(shopDTO.getPhone());
         printDTO.setAddress(shopDTO.getAddress());
-        printDTO.setDate(DateUtils.convertDateToLocalDateTime(stockDate));
+        printDTO.setDate(DateUtils.convertDateToLocalDateTime(filter.getStockDate()));
         printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
         printDTO.setTotalInfo(totalInfo);
         printDTO.setDataByCat(dataByCat);
@@ -76,10 +74,10 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
     }
 
     @Override
-    public ByteArrayInputStream exportExcel(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) throws IOException {
-        ShopDTO shop = shopClient.getShopByIdV1(shopId).getData();
+    public ByteArrayInputStream exportExcel(StockTotalFilter filter) throws IOException {
+        ShopDTO shop = shopClient.getShopByIdV1(filter.getShopId()).getData();
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
+        List<StockTotalReportDTO> listResult =  callProcedure(filter);
         StockTotalReportDTO totalInfo = new StockTotalReportDTO();
         List<StockTotalReportDTO> listResults = new ArrayList<>();
         if(listResult !=null && !listResult.isEmpty()) {
@@ -89,14 +87,14 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
 
         StockTotalExcelRequest input = new StockTotalExcelRequest(listResults,
                 new StockTotalInfoDTO(totalInfo.getStockQuantity(), totalInfo.getPacketQuantity(), totalInfo.getUnitQuantity(), totalInfo.getTotalAmount()));
-        StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, shop.getParentShop(), DateUtils.convert2Local(stockDate));
+        StockTotalReportExcel exportExcel = new StockTotalReportExcel(input, shop, shop.getParentShop(), DateUtils.convert2Local(filter.getStockDate()));
 
        return exportExcel.export();
     }
 
     @Override
-    public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId, Pageable pageable) {
-        List<StockTotalReportDTO> listResult =  callProcedure(stockDate, productCodes, shopId, warehouseTypeId);
+    public CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(StockTotalFilter filter, Pageable pageable) {
+        List<StockTotalReportDTO> listResult =  callProcedure(filter);
         if (listResult.isEmpty())
             return new CoverResponse<>(new PageImpl<>(listResult), null);
         StockTotalReportDTO totalInfo = listResult.get(listResult.size() - 1);
@@ -112,7 +110,7 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
         return response;
     }
 
-   private List<StockTotalReportDTO> callProcedure(Date stockDate, String productCodes, Long shopId, Long warehouseTypeId) {
+   private List<StockTotalReportDTO> callProcedure(StockTotalFilter filter) {
 
        StoredProcedureQuery storedProcedure =
                entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);
@@ -122,10 +120,10 @@ public class StockTotalReportServiceImpl implements StockTotalReportService {
        storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(5, Long.class, ParameterMode.IN);
 
-       storedProcedure.setParameter(2, stockDate);
-       storedProcedure.setParameter(3, productCodes);
-       storedProcedure.setParameter(4, shopId);
-       storedProcedure.setParameter(5, warehouseTypeId);
+       storedProcedure.setParameter(2, filter.getStockDate());
+       storedProcedure.setParameter(3, filter.getProductCodes());
+       storedProcedure.setParameter(4, filter.getShopId());
+       storedProcedure.setParameter(5, filter.getWarehouseTypeId());
 
        List<StockTotalReportDTO> listResult = storedProcedure.getResultList();
        entityManager.close();

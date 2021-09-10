@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.report.messaging.ReportVoucherFilter;
@@ -15,9 +16,7 @@ import vn.viettel.report.service.dto.ReportVoucherDTO;
 import vn.viettel.report.service.excel.ReportVoucherExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,10 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class ReportVoucherServiceImpl implements ReportVoucherService {
-
-    @PersistenceContext
-    EntityManager entityManager;
+public class ReportVoucherServiceImpl extends BaseReportServiceImpl implements ReportVoucherService {
 
     @Autowired
     ShopClient shopClient;
@@ -90,8 +86,10 @@ public class ReportVoucherServiceImpl implements ReportVoucherService {
         storedProcedure.setParameter(9, filter.getCustomerMobiPhone());
         storedProcedure.setParameter(10, filter.getShopId());
         storedProcedure.execute();
+
+        this.executeQuery(storedProcedure, "P_VOUCHER", filter.toString());
         List<ReportVoucherDTO> response = storedProcedure.getResultList();
-        entityManager.close();
+
         return response;
     }
 }

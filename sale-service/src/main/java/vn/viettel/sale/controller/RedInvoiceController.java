@@ -162,12 +162,8 @@ public class RedInvoiceController extends BaseController {
                                         @RequestParam(value = "ids") String ids,
                                         @ApiParam(value = "1-DVKH, 2-HDDT")
                                         @RequestParam(value = "type") Integer type, HttpServletResponse response) throws IOException {
-        ByteArrayInputStream in = redInvoiceService.exportExcel(ids, type);
+        this.closeStreamExcel(response, redInvoiceService.exportExcel(ids, type), "Hoa_Don_Vat_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=Hoa_Don_Vat_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
         response.getOutputStream().flush();
     }
 

@@ -41,17 +41,14 @@ public class SaleByCategoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/excel")
-    public void exportToExcel(@RequestParam(value = "customerKW", required = false, defaultValue = "") String customerKW,
+    public void exportToExcel(HttpServletRequest request, @RequestParam(value = "customerKW", required = false, defaultValue = "") String customerKW,
                                       @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                       @RequestParam(value = "toDate", required = false) Date toDate,
                                       @RequestParam(value = "customerType", required = false) Long customerType, HttpServletResponse response) throws IOException {
         SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate),customerType,this.getShopId());
-        ByteArrayInputStream in = saleByCategoryReportService.exportExcel(filter);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_doanh_so_theo_nganh_hang_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        this.closeStreamExcel(response, saleByCategoryReportService.exportExcel(filter), "BC_doanh_so_theo_nganh_hang_" + StringUtils.createExcelFileName());
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_BY_CATEGORY_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -70,7 +67,7 @@ public class SaleByCategoryController extends BaseController {
             @RequestParam(value = "customerType", required = false) Long customerType, Pageable pageable) {
         SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate),customerType,this.getShopId());
         SalesByCategoryReportDTO response = saleByCategoryReportService.getSaleByCategoryReport(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
         return new Response<SalesByCategoryReportDTO>().withData(response);
     }
 
@@ -84,7 +81,7 @@ public class SaleByCategoryController extends BaseController {
             @RequestParam(value = "customerType", required = false) Long customerType, Pageable pageable) {
         SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate),customerType,this.getShopId());
         SaleByCategoryPrintDTO response = saleByCategoryReportService.print(filter);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
         return new Response<SaleByCategoryPrintDTO>().withData(response);
     }
 }

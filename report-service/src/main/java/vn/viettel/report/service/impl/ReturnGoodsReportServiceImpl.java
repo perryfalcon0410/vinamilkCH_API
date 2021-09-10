@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.ChangeReturnGoodsReportRequest;
@@ -17,9 +18,7 @@ import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.ReturnGoodsExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,13 +28,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
-
+public class ReturnGoodsReportServiceImpl extends BaseReportServiceImpl implements ReturnGoodsReportService {
     @Autowired
     ShopClient shopClient;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     private List<ReturnGoodsDTO> callStoreProcedure(ReturnGoodsReportsRequest filter) {
 
@@ -54,11 +49,9 @@ public class ReturnGoodsReportServiceImpl implements ReturnGoodsReportService {
         query.setParameter(5, filter.getToDate());
         query.setParameter(6, filter.getReason());
         query.setParameter(7, filter.getProductKW());
-
-        query.execute();
-
+        this.executeQuery(query, "P_RETURNED_GOODS", filter.toString());
         List<ReturnGoodsDTO> reportDTOS = query.getResultList();
-        entityManager.close();
+
         return reportDTOS;
     }
 

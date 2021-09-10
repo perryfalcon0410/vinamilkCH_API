@@ -77,13 +77,8 @@ public class ReportVoucherController extends BaseController {
 
         ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convertFromDate(fromProgramDate), DateUtils.convertFromDate(toProgramDate), DateUtils.convertFromDate(fromUseDate), DateUtils.convertFromDate(toUseDate), voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
-        ByteArrayInputStream in = reportVoucherService.exportExcel(filter);
+        this.closeStreamExcel(response, reportVoucherService.exportExcel(filter), "BC_voucher" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC_voucher_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
-
         response.getOutputStream().flush();
     }
 }

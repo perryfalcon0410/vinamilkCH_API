@@ -21,4 +21,15 @@ public class PromotionProductFilter {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime toDate;
     private String productCodes;
+
+    @Override
+    public String toString() {
+        return "PromotionProductFilter{" +
+                "shopId=" + shopId +
+                ", orderNumber='" + orderNumber + '\'' +
+                ", fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", productCodes='" + productCodes + '\'' +
+                '}';
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.ShopExportFilter;
 import vn.viettel.report.messaging.TotalReport;
@@ -27,10 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
-
-    @PersistenceContext
-    EntityManager entityManager;
+public class ReportExportGoodsServiceImpl extends BaseReportServiceImpl implements ReportExportGoodsService {
 
     @Autowired
     ShopClient shopClient;
@@ -226,9 +224,9 @@ public class ReportExportGoodsServiceImpl implements ReportExportGoodsService {
         storedProcedure.setParameter(7, filter.getFromOrderDate());
         storedProcedure.setParameter(8, filter.getToOrderDate());
         storedProcedure.setParameter(9, filter.getShopId());
-        storedProcedure.execute();
+        this.executeQuery(storedProcedure, "P_SHOP_EXPORT", filter.toString());
         List<ShopExportDTO> response =  storedProcedure.getResultList();
-        entityManager.close();
+
         return response;
     }
 

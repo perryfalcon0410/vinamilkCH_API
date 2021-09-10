@@ -22,4 +22,16 @@ public class ExchangeTransFilter {
     private String reason;
     private String productKW;
     private Long shopId;
+
+    @Override
+    public String toString() {
+        return "ExchangeTransFilter{" +
+                "transCode='" + transCode + '\'' +
+                ", fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", reason='" + reason + '\'' +
+                ", productKW='" + productKW + '\'' +
+                ", shopId=" + shopId +
+                '}';
+    }
 }

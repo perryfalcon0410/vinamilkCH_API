@@ -43,6 +43,13 @@ public class LogFile {
 		}
 	}
 
+	public static void logErrorToFile(String logFile, String message, Exception ex){
+		if (logFile != null && !logFile.equals("")) {
+			Logger logger = LoggerFactory.getLogger(logFile);
+			logger.error(message, ex);
+		}
+	}
+
 	private static String getSource(){
 		StackTraceElement e = null;
 		StackTraceElement[] stElements = Thread.currentThread().getStackTrace();

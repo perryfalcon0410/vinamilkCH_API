@@ -18,14 +18,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class ImportExportInventoryExcel {
+public class ImportExportInventoryExcel extends ExcelPoiUtils{
 
     private SXSSFWorkbook workbook = new SXSSFWorkbook();
     private SXSSFSheet sheet;
     private PrintInventoryDTO inventoryDTO;
     private ShopDTO parentShop;
     private InventoryImportExportFilter filter;
-    private Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+    private Map<String, CellStyle> style = this.createStyles(workbook);
     private CellStyle format = style.get(ExcelPoiUtils.DATA);
     private CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL192_192_192);
     private CellStyle formatBold1 = style.get(ExcelPoiUtils.BOLD_10_CL255_255_153);
@@ -187,12 +187,7 @@ public class ImportExportInventoryExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 
 }

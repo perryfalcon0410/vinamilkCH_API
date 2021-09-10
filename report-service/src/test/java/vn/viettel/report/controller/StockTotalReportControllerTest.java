@@ -12,16 +12,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.StockTotalReportService;
-import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
-import vn.viettel.report.service.dto.ReportTotalDTO;
 import vn.viettel.report.service.dto.StockTotalInfoDTO;
 import vn.viettel.report.service.dto.StockTotalReportDTO;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,7 +38,7 @@ public class StockTotalReportControllerTest extends BaseTest {
         Page<StockTotalReportDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = new CoverResponse<>(pageDto, new StockTotalInfoDTO());
 
-        given(stockTotalReportService.getStockTotalReport(any(),any(),any(), any(), Mockito.any(PageRequest.class)))
+        given(stockTotalReportService.getStockTotalReport( any(), Mockito.any(PageRequest.class)))
                 .willReturn(response);
 
         ResultActions resultActions = mockMvc.perform(get(uri)

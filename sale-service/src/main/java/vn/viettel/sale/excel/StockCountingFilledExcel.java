@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class StockCountingFilledExcel {
+public class StockCountingFilledExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private List<StockCountingExcelDTO> stockCountingExcels;
@@ -236,11 +236,6 @@ public class StockCountingFilledExcel {
     public ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

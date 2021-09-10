@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public class SampleExcel {
+public class SampleExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
 
@@ -43,16 +43,10 @@ public class SampleExcel {
 
             }
         }
-
     }
 
     public  ByteArrayInputStream export() throws IOException {
         writeHeaderLine();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

@@ -30,4 +30,17 @@ public class SaleOrderAmountFilter {
 
     private Double toAmount;
 
+    @Override
+    public String toString() {
+        return "SaleOrderAmountFilter{" +
+                "shopId=" + shopId +
+                ", fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", customerTypeId=" + customerTypeId +
+                ", nameOrCodeCustomer='" + nameOrCodeCustomer + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", fromAmount=" + fromAmount +
+                ", toAmount=" + toAmount +
+                '}';
+    }
 }

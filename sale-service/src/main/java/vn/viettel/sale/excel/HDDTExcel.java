@@ -17,27 +17,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HDDTExcel {
+public class HDDTExcel extends ExcelPoiUtils{
     private static final String FONT_NAME= "Times New Roman";
 
     private SXSSFWorkbook workbook =new SXSSFWorkbook();
     private SXSSFSheet sheet1;
-
     private List<HDDTExcelDTO> hddtExcelDTOS;
-
     private XSSFCellStyle styleTableHeader;
     private CellStyle styleTableValue;
-    private XSSFCellStyle styleCellTotalTable;
 
-    private Map<String, CellStyle> stylemap = ExcelPoiUtils.createStyles(workbook);
+    private Map<String, CellStyle> stylemap = this.createStyles(workbook);
     private CellStyle formatCurrency = stylemap.get(ExcelPoiUtils.DATA_CURRENCY);
-
-
 
     public  HDDTExcel(List<HDDTExcelDTO> hddtExcelDTOS) {
         this.hddtExcelDTOS = hddtExcelDTOS;
         this.styleTableHeader = this.getTableHeaderStyle();
-        this.styleCellTotalTable = this.getTableTotalHeaderStyle();
         this.styleTableValue = this.getTableValueStyle();
     }
 
@@ -210,11 +204,6 @@ public class HDDTExcel {
     public ByteArrayInputStream export() throws IOException {
         this.writeHeaderLine();
         this.createTableSheet1();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

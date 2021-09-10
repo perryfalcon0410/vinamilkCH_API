@@ -22,7 +22,7 @@
  import java.util.List;
  import java.util.Map;
 
- public class ShopImportExcel {
+ public class ShopImportExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
     private CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data;
@@ -41,7 +41,7 @@
     }
 
     private void writeHeaderLine() throws ParseException {
-        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        Map<String, CellStyle> style = this.createStyles(workbook);
         int col = 0,col_=4,row =0;
         int colm = 9,rowm =0;
         sheet = workbook.createSheet("Sản phẩm");
@@ -70,7 +70,7 @@
     }
     private void writeDataLines() {
         int stt = 0,col,row = 9,col_=4, lastCol = 0;
-        Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
+        Map<String, CellStyle> style = this.createStyles(workbook);
         CellStyle format = style.get(ExcelPoiUtils.DATA);
         CellStyle formatBold = style.get(ExcelPoiUtils.BOLD_10_CL255_204_153);
         CellStyle formatCurrency = style.get(ExcelPoiUtils.DATA_CURRENCY);
@@ -167,11 +167,6 @@
     public ByteArrayInputStream export() throws IOException, ParseException {
         writeHeaderLine();
         writeDataLines();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        workbook.write(out);
-        ByteArrayInputStream response = new ByteArrayInputStream(out.toByteArray());
-        workbook.close();
-        IOUtils.closeQuietly(out);
-        return response;
+        return this.getStream(workbook);
     }
 }

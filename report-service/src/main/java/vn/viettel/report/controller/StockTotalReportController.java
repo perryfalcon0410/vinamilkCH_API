@@ -13,9 +13,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.report.messaging.StockTotalFilter;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.StockTotalInfoDTO;
 import vn.viettel.report.service.dto.StockTotalReportDTO;
@@ -41,7 +45,8 @@ public class StockTotalReportController extends BaseController {
                                                                                                      @RequestParam Long warehouseTypeId,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
-        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(stockDate, productCodes, this.getShopId(), warehouseTypeId, pageable);
+        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(), warehouseTypeId);
+        CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(filter, pageable);
         return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>().withData(response);
     }
 
@@ -49,11 +54,8 @@ public class StockTotalReportController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = {V1 + root + "/excel"})
     public void exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes,  @RequestParam Long warehouseTypeId, HttpServletResponse response) throws IOException {
-        ByteArrayInputStream in = stockTotalReportService.exportExcel(stockDate, productCodes, this.getShopId(), warehouseTypeId);
-        response.setContentType("application/octet-stream");
-        response.addHeader("Content-Disposition", "attachment; filename=BC-ton_kho_" + StringUtils.createExcelFileName());
-        FileCopyUtils.copy(in, response.getOutputStream());
-        IOUtils.closeQuietly(in);
+        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(), warehouseTypeId);
+        this.closeStreamExcel(response, stockTotalReportService.exportExcel(filter), "BC-ton_kho_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 
@@ -66,7 +68,8 @@ public class StockTotalReportController extends BaseController {
     public Response<StockTotalReportPrintDTO> print(@RequestParam Date stockDate,
                                                     @RequestParam Long warehouseTypeId,
                                                     @RequestParam(required = false) String productCodes) {
-        StockTotalReportPrintDTO response = stockTotalReportService.print(stockDate, productCodes, this.getShopId(), warehouseTypeId);
+        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(), warehouseTypeId);
+        StockTotalReportPrintDTO response = stockTotalReportService.print(filter);
         return new Response<StockTotalReportPrintDTO>().withData(response);
     }
 }

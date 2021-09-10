@@ -28,4 +28,20 @@ public class SellsReportsRequest {
     private Double fromInvoiceSales;
     private Double toInvoiceSales;
 
+    @Override
+    public String toString() {
+        return "SellsReportsRequest{" +
+                "shopId=" + shopId +
+                ", orderNumber='" + orderNumber + '\'' +
+                ", fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", productKW='" + productKW + '\'' +
+                ", collecter=" + collecter +
+                ", salesChannel=" + salesChannel +
+                ", customerKW='" + customerKW + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", fromInvoiceSales=" + fromInvoiceSales +
+                ", toInvoiceSales=" + toInvoiceSales +
+                '}';
+    }
 }
