@@ -264,7 +264,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         LocalDateTime transDate = LocalDateTime.now();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoTrans poRecord = modelMapper.map(request, PoTrans.class);
-        PoTrans poTrans = repository.findById(request.getReceiptImportId()).get();
+        PoTrans poTrans = repository.findByIdAndShopIdAndStatus(request.getReceiptImportId(), shopId, 1 )
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
+
         poRecord.setId(null);
         poRecord.setTransDate(transDate);
         poRecord.setWareHouseTypeId(poTrans.getWareHouseTypeId());
@@ -396,7 +398,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         CustomerDTO cus = customerClient.getCusDefault(shopId);
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockAdjustmentTrans poAdjustTrans = modelMapper.map(request, StockAdjustmentTrans.class);
-        StockAdjustment stockAdjustment = stockAdjustmentRepository.findById(request.getReceiptImportId()).get();
+
+        StockAdjustment stockAdjustment = stockAdjustmentRepository.getById(request.getReceiptImportId(), shopId, 2);
+        if(stockAdjustment == null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
+
         if (stockAdjustment.getStatus() == 3) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_EXPORTED);
         Response<ApParamDTO> reason = apparamClient.getReasonV1(stockAdjustment.getReasonId());
         if (reason.getData() == null || reason.getData().getId() == null)
@@ -515,7 +520,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         LocalDateTime transDate = LocalDateTime.now();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         StockBorrowingTrans poBorrowTransRecord = modelMapper.map(request, StockBorrowingTrans.class);
-        StockBorrowing stockBorrowing = stockBorrowingRepository.findById(request.getReceiptImportId()).get();
+
+        StockBorrowing stockBorrowing = stockBorrowingRepository.getExportById(request.getReceiptImportId(), shopId);
+        if(stockBorrowing == null) throw new ValidateException(ResponseMessage.STOCK_BORROWING_NOT_EXITS);
+
         if (stockBorrowing.getStatusExport() == 2)
             throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_EXPORTED);
         poBorrowTransRecord.setId(null);

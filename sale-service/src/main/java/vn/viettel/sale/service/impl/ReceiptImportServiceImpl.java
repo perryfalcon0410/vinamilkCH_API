@@ -723,11 +723,11 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             PoTrans poRecord = modelMapper.map(request, PoTrans.class);
             PoConfirm poConfirm = poConfirmRepository.getById(request.getPoId());
             if(poConfirm == null || poConfirm.getStatus()==1) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
-            if(poConfirm.getId() == null || !poConfirm.getId().equals(shopId)) throw new ValidateException(ResponseMessage.IMPORT_PO_SHOP_NOT_MATCH);
+            if(poConfirm.getShopId() == null || !poConfirm.getShopId().equals(shopId)) throw new ValidateException(ResponseMessage.IMPORT_PO_SHOP_NOT_MATCH);
             if(poConfirm.getWareHouseTypeId()==null) throw new ValidateException(ResponseMessage.DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT);
             poRecord.setId(null);
             poRecord.setTransDate(transDate);
-            poRecord.setShopId(poConfirm.getId());
+            poRecord.setShopId(poConfirm.getShopId());
             poRecord.setWareHouseTypeId(poConfirm.getWareHouseTypeId());
             poRecord.setOrderDate(request.getOrderDate());
             poRecord.setInternalNumber(poConfirm.getInternalNumber());
@@ -739,7 +739,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             poRecord.setType(1);
             poRecord.setStatus(1);
             poRecord.setIsDebit(false);
-            poRecord.setTransCode(createPoTransCode(shopId));
+            poRecord.setTransCode(createPoTransCode(poConfirm.getShopId()));
             repository.save(poRecord);
             List<PoDetail> poDetails = poDetailRepository.findByPoId(poConfirm.getId());
             Set<Long> countNumSKU = new HashSet<>();
@@ -800,7 +800,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             if (shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockAdjustmentTrans stockAdjustmentRecord = modelMapper.map(request, StockAdjustmentTrans.class);
-            StockAdjustment stockAdjustment = stockAdjustmentRepository.getById(request.getPoId());
+            StockAdjustment stockAdjustment = stockAdjustmentRepository.getById(request.getPoId(), shopId, 1);
             if(stockAdjustment == null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
             if(stockAdjustment.getWareHouseTypeId()==null) throw new ValidateException(ResponseMessage.DID_NOT_FIND_WARE_HOUSE_OF_RECEIPT);
             if(stockAdjustment.getStatus() ==3) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
@@ -911,8 +911,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         if (request.getImportType() == 2) {
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             StockBorrowingTrans stockBorrowingTrans = modelMapper.map(request, StockBorrowingTrans.class);
-            StockBorrowing stockBorrowing = stockBorrowingRepository.findById(request.getPoId()).get();
-            if(stockBorrowing.getStatusImport()==2) throw new ValidateException(ResponseMessage.RECEIPT_HAS_BEEN_IMPORTED);
+            StockBorrowing stockBorrowing = stockBorrowingRepository.getImportById(request.getPoId(), shopId);
+            if(stockBorrowing == null) throw new ValidateException(ResponseMessage.STOCK_BORROWING_NOT_EXITS);
             stockBorrowingTrans.setId(null);
             stockBorrowingTrans.setTransDate(transDate);
             stockBorrowingTrans.setWareHouseTypeId(request.getWareHouseTypeId());

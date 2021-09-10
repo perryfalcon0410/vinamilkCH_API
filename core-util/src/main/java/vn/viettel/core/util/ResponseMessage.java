@@ -336,7 +336,7 @@ public enum ResponseMessage {
     PAYMENT_UPDATE_CUSTOMER_FAIL(9104, "Thanh toán không thành công. Cập nhật khách hàng thất bại."),
     PAYMENT_UPDATE_MEMBER_CUSTOMER_FAIL(9105, "Thanh toán không thành công. Cập nhật số tiền tích lũy thất bại."),
     IMPORT_PO_SHOP_NOT_MATCH(9106, "Đơn nhập sai cửa hàng"),
-
+    STOCK_BORROWING_NOT_EXITS(9107, "Phiếu nhập vay mượn không tồn tại"),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
