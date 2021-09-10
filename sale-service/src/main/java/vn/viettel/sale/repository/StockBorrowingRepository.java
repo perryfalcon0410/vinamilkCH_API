@@ -1,6 +1,7 @@
 package vn.viettel.sale.repository;
 
 import org.springframework.data.jpa.repository.Query;
+import vn.viettel.sale.entities.StockAdjustment;
 import vn.viettel.sale.entities.StockBorrowing;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.service.dto.StockBorrowingDTO;
@@ -25,5 +26,11 @@ public interface StockBorrowingRepository extends BaseRepository<StockBorrowing>
             " AND sb.borrowDate >= :date1 AND sb.borrowDate <= :date2 " +
             " ORDER BY sb.poBorrowCode desc ")
     List<StockBorrowingDTO> getStockBorrowingExport(Long shopId,LocalDateTime date1,LocalDateTime date2);
+
+    @Query("SELECT sb FROM StockBorrowing sb WHERE sb.id = :id AND sb.toShopId =:shopId AND sb.statusImport = 1 AND sb.status = 1 ")
+    StockBorrowing getImportById(Long id, Long shopId);
+
+    @Query("SELECT sb FROM StockBorrowing sb WHERE sb.id = :id AND sb.shopId =:shopId AND sb.statusExport = 1 AND sb.status = 1 ")
+    StockBorrowing getExportById(Long id, Long shopId);
 
 }

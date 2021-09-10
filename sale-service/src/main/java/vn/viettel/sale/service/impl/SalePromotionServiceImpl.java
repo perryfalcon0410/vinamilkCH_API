@@ -2444,9 +2444,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     private List<SalePromotionDTO> sortPromotions( List<SalePromotionDTO> results) {
-        //isEditable = true - relation = 1
+
         List<SalePromotionDTO> zvFreeItems = results.stream().filter(p -> p.getProducts()!=null && !p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());
-        Collections.sort(zvFreeItems,  Comparator.comparing(SalePromotionDTO::getIsEditable)
+        Collections.sort(zvFreeItems,  Comparator.comparing(SalePromotionDTO::getContraintType, Comparator.reverseOrder())
                 .thenComparing(SalePromotionDTO::getProgramType).thenComparing(SalePromotionDTO::getPromotionProgramCode));
 
         List<SalePromotionDTO> zvAmounts =  results.stream().filter(p -> p.getAmount()!=null && !p.getProgramType().equalsIgnoreCase("ZM")).collect(Collectors.toList());

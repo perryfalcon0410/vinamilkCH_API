@@ -526,11 +526,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         }
         print.setProducts(printProductSaleOrderDTO);
 
-
         List<PrintZMZV19ZV20ZV23DTO> lstZMValue = new ArrayList<>(lstZM.values());
         //Xắp xếp ZM trước sau đó ts các ZV19->23
         Collections.sort(lstZMValue, Comparator.comparing(PrintZMZV19ZV20ZV23DTO::getPromotionType));
-
         if(!lstZMValue.isEmpty()) print.setLstZM(lstZMValue);
 
         return print;

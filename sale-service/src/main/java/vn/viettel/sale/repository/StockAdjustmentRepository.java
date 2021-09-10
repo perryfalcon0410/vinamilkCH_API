@@ -19,4 +19,8 @@ public interface StockAdjustmentRepository extends BaseRepository<StockAdjustmen
             " WHERE sa.shopId =:shopId AND sa.type = 2 AND sa.status = 1 " +
             " ORDER BY sa.adjustmentDate desc, sa.adjustmentCode desc ")
     List<StockAdjustmentDTO> getStockAdjustmentExport(Long shopId);
+
+    @Query(value = "SELECT st FROM StockAdjustment st  WHERE st.id =:id AND st.shopId=:shopId AND st.status = 1 AND st.type = :type")
+    StockAdjustment getById(Long id, Long shopId, Integer type);
+
 }
