@@ -41,12 +41,12 @@ public class PromotionProductDTO implements Cloneable{
     @ApiModelProperty(notes = "Số lượng")
     @Column(name = "QUANTITY")
     private Integer quantity;
-    @ApiModelProperty(notes = "Giá")
-  /*  @Column(name = "PRICE")*/
+  /*  @ApiModelProperty(notes = "Giá")
+    @Column(name = "PRICE")
     private Double price;
     @ApiModelProperty(notes = "Tổng thành tiền")
-    /*@Column(name = "TOTAL_PRICE")*/
-    private Double totalPrice;
+    @Column(name = "TOTAL_PRICE")
+    private Double totalPrice;*/
     @ApiModelProperty(notes = "Mã vạch")
     @Column(name = "BAR_CODE")
     private String barCode;
