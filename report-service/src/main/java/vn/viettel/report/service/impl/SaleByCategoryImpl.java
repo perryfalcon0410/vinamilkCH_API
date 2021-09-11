@@ -67,12 +67,20 @@ public class SaleByCategoryImpl extends BaseReportServiceImpl implements SaleByC
                             cs.setString(4, filter.getCustomerPhone().trim());
                         }else cs.setNull(4, Types.INTEGER);
 
-                        if (filter.getFromDate() != null)
+                       /* if (filter.getFromDate() != null)
                             cs.setDate(5, new Date(filter.getFromDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
                         else cs.setNull(5, Types.DATE);
 
                         if (filter.getToDate() != null)
                             cs.setDate(6, new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                        else cs.setNull(6, Types.DATE);*/
+
+                        if (filter.getFromDate() != null)
+                            cs.setDate(5, java.sql.Date.valueOf(filter.getFromDate()));
+                        else cs.setNull(5, Types.DATE);
+
+                        if (filter.getToDate() != null)
+                            cs.setDate(6, java.sql.Date.valueOf(filter.getToDate()));
                         else cs.setNull(6, Types.DATE);
 
                         if(filter.getCustomerType() != null) {
@@ -164,7 +172,7 @@ public class SaleByCategoryImpl extends BaseReportServiceImpl implements SaleByC
     }
 
     private void validMonth(SaleCategoryFilter filter){
-        LocalDate fromDate = filter.getFromDate().toLocalDate().plusDays(1);
+        LocalDate fromDate = filter.getFromDate().plusDays(1);
         long monthsBetween = ChronoUnit.MONTHS.between(fromDate, filter.getToDate());
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
     }
