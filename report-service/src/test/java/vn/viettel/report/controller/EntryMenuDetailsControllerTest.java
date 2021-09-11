@@ -20,11 +20,10 @@ import vn.viettel.report.service.dto.ReportTotalDTO;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.BDDMockito.given;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

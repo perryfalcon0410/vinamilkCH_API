@@ -12,9 +12,7 @@ import vn.viettel.report.service.InOutAdjustmentService;
 import vn.viettel.report.service.dto.InOutAdjusmentDTO;
 import vn.viettel.report.service.dto.InOutAdjustmentTotalDTO;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

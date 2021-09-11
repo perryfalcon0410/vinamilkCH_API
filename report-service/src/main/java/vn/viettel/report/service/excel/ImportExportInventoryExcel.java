@@ -1,7 +1,6 @@
 package vn.viettel.report.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import vn.viettel.core.dto.ShopDTO;
@@ -13,7 +12,6 @@ import vn.viettel.report.service.dto.ImportExportInventoryTotalDTO;
 import vn.viettel.report.service.dto.PrintInventoryDTO;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
