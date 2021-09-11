@@ -116,7 +116,7 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
        StoredProcedureQuery storedProcedure =
                entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);
        storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
-       storedProcedure.registerStoredProcedureParameter(2, LocalDateTime.class, ParameterMode.IN);
+       storedProcedure.registerStoredProcedureParameter(2, Date.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(5, Long.class, ParameterMode.IN);
