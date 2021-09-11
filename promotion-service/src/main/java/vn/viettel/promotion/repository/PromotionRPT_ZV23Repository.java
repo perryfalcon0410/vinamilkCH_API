@@ -17,9 +17,16 @@ public interface PromotionRPT_ZV23Repository extends BaseRepository<RPT_ZV23> {
             " AND pr.status = 1")
     RPT_ZV23 checkZV23Require(String promotionCode, Long customerId, Long shopId);
 
+
+    @Query(value = "SELECT zv FROM RPT_ZV23 zv" +
+            " JOIN PromotionProgram pr ON pr.id = zv.promotionProgramId" +
+            " WHERE zv.promotionProgramCode =:promotionCode" +
+            " AND zv.customerId =:customerId" +
+            " AND pr.status = 1" +
+            " ORDER BY zv.updatedAt desc ")
+    List<RPT_ZV23> checkZV23Require(String promotionCode, Long customerId);
+
     @Query("Select r From RPT_ZV23 r Where r.promotionProgramId In (:programIds) And r.customerId =:customerId And r.shopId = :shopId ")
     List<RPT_ZV23> getByProgramIds(Set<Long> programIds, Long customerId, Long shopId);
 
 }
-
-
