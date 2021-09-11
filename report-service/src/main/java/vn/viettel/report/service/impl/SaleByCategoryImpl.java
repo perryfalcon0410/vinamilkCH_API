@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,14 @@ public class SaleByCategoryImpl extends BaseReportServiceImpl implements SaleByC
                         if(filter.getCustomerPhone() != null) {
                             cs.setString(4, filter.getCustomerPhone().trim());
                         }else cs.setNull(4, Types.INTEGER);
+
+                       /* if (filter.getFromDate() != null)
+                            cs.setDate(5, new Date(filter.getFromDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                        else cs.setNull(5, Types.DATE);
+
+                        if (filter.getToDate() != null)
+                            cs.setDate(6, new Date(filter.getToDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                        else cs.setNull(6, Types.DATE);*/
 
                         if (filter.getFromDate() != null)
                             cs.setDate(5, java.sql.Date.valueOf(filter.getFromDate()));
@@ -121,7 +130,6 @@ public class SaleByCategoryImpl extends BaseReportServiceImpl implements SaleByC
             session.close();
             entityManager.close();
         }
-
 
         return tableDynamicDTO;
     }

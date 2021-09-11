@@ -87,26 +87,22 @@ public class PromotionProductExcel extends ExcelPoiUtils{
         ExcelPoiUtils.createCell(rowHeader, 3, "MÃ HÀNG", format1);
         ExcelPoiUtils.createCell(rowHeader, 4, "HÓA ĐƠN", format1);
         ExcelPoiUtils.createCell(rowHeader, 5, "SL", format1);
-        ExcelPoiUtils.createCell(rowHeader, 6, "GIÁ", format1);
-        ExcelPoiUtils.createCell(rowHeader, 7, "THÀNH TIỀN", format1);
-        ExcelPoiUtils.createCell(rowHeader, 8, "BARCODE", format1);
-        ExcelPoiUtils.createCell(rowHeader, 9, "TÊN HÀNG", format1);
-        ExcelPoiUtils.createCell(rowHeader, 10, "ĐVT", format1);
-        ExcelPoiUtils.createCell(rowHeader, 11, "MÃ CTKM", format1);
-        ExcelPoiUtils.createCell(rowHeader, 12, "SỐ ĐƠN ONLINE", format1);
-        ExcelPoiUtils.createCell(rowHeader, 13, "LOẠI", format1);
+        ExcelPoiUtils.createCell(rowHeader, 6, "BARCODE", format1);
+        ExcelPoiUtils.createCell(rowHeader, 7, "TÊN HÀNG", format1);
+        ExcelPoiUtils.createCell(rowHeader, 8, "ĐVT", format1);
+        ExcelPoiUtils.createCell(rowHeader, 9, "MÃ CTKM", format1);
+        ExcelPoiUtils.createCell(rowHeader, 10, "SỐ ĐƠN ONLINE", format1);
+        ExcelPoiUtils.createCell(rowHeader, 11, "LOẠI", format1);
 
         if(!promotionDetails.isEmpty()) {
             Row rowTotalHeader = sheet1.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalHeader, 5, this.promotionProductTotal.getQuantity(), format5);
-            ExcelPoiUtils.createCell(rowTotalHeader, 6, this.promotionProductTotal.getPrice(), format5);
-            ExcelPoiUtils.createCell(rowTotalHeader, 7, this.promotionProductTotal.getTotalPrice(), format5);
+            ExcelPoiUtils.createCell(rowTotalHeader, 6, null, format2);
+            ExcelPoiUtils.createCell(rowTotalHeader, 7, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 8, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 9, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 10, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 11, null, format2);
-            ExcelPoiUtils.createCell(rowTotalHeader, 12, null, format2);
-            ExcelPoiUtils.createCell(rowTotalHeader, 13, null, format2);
 
             for (int i = 0; i < promotionDetails.size(); i++) {
                 int column = 0;
@@ -118,10 +114,8 @@ public class PromotionProductExcel extends ExcelPoiUtils{
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCatName(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductCode(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOrderNumber(), format);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPrice(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getBarCode(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getBarCode(), format4);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getPromotionCode(), format);
@@ -129,17 +123,15 @@ public class PromotionProductExcel extends ExcelPoiUtils{
                 ExcelPoiUtils.createCell(rowValue, column++, record.getOrderType(), format);
 
             }
-            ExcelPoiUtils.autoSizeAllColumns(sheet1, 13);
+            ExcelPoiUtils.autoSizeAllColumns(sheet1, 11);
             Row rowTotalFooter = sheet1.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalFooter, 5, this.promotionProductTotal.getQuantity(), format5);
-            ExcelPoiUtils.createCell(rowTotalFooter, 6, this.promotionProductTotal.getPrice(), format5);
-            ExcelPoiUtils.createCell(rowTotalFooter, 7, this.promotionProductTotal.getTotalPrice(), format5);
+            ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
+            ExcelPoiUtils.createCell(rowTotalFooter, 7, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 8, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 9, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 10, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 11, null, format2);
-            ExcelPoiUtils.createCell(rowTotalFooter, 12, null, format2);
-            ExcelPoiUtils.createCell(rowTotalFooter, 13, null, format2);
 
         }
     }
@@ -157,17 +149,13 @@ public class PromotionProductExcel extends ExcelPoiUtils{
         ExcelPoiUtils.createCell(rowValues, 6, "TÊN IN HĐ", format1);
         ExcelPoiUtils.createCell(rowValues, 7, "ĐVT", format1);
         ExcelPoiUtils.createCell(rowValues, 8, "SL", format1);
-        ExcelPoiUtils.createCell(rowValues, 9, "GIÁ", format1);
-        ExcelPoiUtils.createCell(rowValues, 10, "THÀNH TIỀN", format1);
 
         if(!promotionIndays.isEmpty()) {
             Row rowTotalHeader = sheet2.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalHeader, 5, "Tổng:", format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 6, null, format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 7, null, format2);
-            ExcelPoiUtils.createCell(rowTotalHeader, 8, this.promotionProductTotal.getQuantity(), format5);
-            ExcelPoiUtils.createCell(rowTotalHeader, 9, this.promotionProductTotal.getPrice(), format5);
-            ExcelPoiUtils.createCell(rowTotalHeader, 10, this.promotionProductTotal.getTotalPrice(), format5);
+            ExcelPoiUtils.createCell(rowTotalHeader, 8, this.promotionProductTotal.getQuantity(), format2);
 
             for (int i = 0; i < promotionIndays.size(); i++) {
                 int column = 0;
@@ -183,17 +171,13 @@ public class PromotionProductExcel extends ExcelPoiUtils{
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPrice(), format4);
             }
-            ExcelPoiUtils.autoSizeAllColumns(sheet2, 10);
+            ExcelPoiUtils.autoSizeAllColumns(sheet2, 8);
             Row rowTotalFooter = sheet2.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalFooter, 5, "Tổng:", format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 7, null, format2);
-            ExcelPoiUtils.createCell(rowTotalFooter, 8, this.promotionProductTotal.getQuantity(), format5);
-            ExcelPoiUtils.createCell(rowTotalFooter, 9, this.promotionProductTotal.getPrice(), format5);
-            ExcelPoiUtils.createCell(rowTotalFooter, 10, this.promotionProductTotal.getTotalPrice(), format5);
+            ExcelPoiUtils.createCell(rowTotalFooter, 8, this.promotionProductTotal.getQuantity(), format2);
         }
 
     }
@@ -209,16 +193,13 @@ public class PromotionProductExcel extends ExcelPoiUtils{
         ExcelPoiUtils.createCell(rowValues, 5, "TÊN IN HĐ", format1);
         ExcelPoiUtils.createCell(rowValues, 6, "ĐVT", format1);
         ExcelPoiUtils.createCell(rowValues, 7, "SL", format1);
-        ExcelPoiUtils.createCell(rowValues, 8, "GIÁ", format1);
-        ExcelPoiUtils.createCell(rowValues, 9, "THÀNH TIỀN", format1);
 
         if(!promotionproducts.isEmpty()) {
             Row rowTotalHeader = sheet3.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalHeader, 5, "Tổng:", format2);
             ExcelPoiUtils.createCell(rowTotalHeader, 6, null, format2);
-            ExcelPoiUtils.createCell(rowTotalHeader, 7, this.promotionProductTotal.getQuantity(), format5);
-            ExcelPoiUtils.createCell(rowTotalHeader, 8, this.promotionProductTotal.getPrice(), format5);
-            ExcelPoiUtils.createCell(rowTotalHeader, 9, this.promotionProductTotal.getTotalPrice(), format5);
+            ExcelPoiUtils.createCell(rowTotalHeader, 7, this.promotionProductTotal.getQuantity(), format2);
+
 
             for (int i = 0; i < promotionproducts.size(); i++) {
                 int column = 0;
@@ -232,17 +213,13 @@ public class PromotionProductExcel extends ExcelPoiUtils{
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getProductName(), format);
                 ExcelPoiUtils.createCell(rowValue, column++, record.getUom(), format);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getPrice(), format4);
-                ExcelPoiUtils.createCell(rowValue, column++, record.getTotalPrice(), format4);
+                ExcelPoiUtils.createCell(rowValue, column++, record.getQuantity(), format);
             }
-            ExcelPoiUtils.autoSizeAllColumns(sheet3, 9);
+            ExcelPoiUtils.autoSizeAllColumns(sheet3, 7);
             Row rowTotalFooter = sheet3.createRow(rowTable++);
             ExcelPoiUtils.createCell(rowTotalFooter, 5, "Tổng:", format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 6, null, format2);
             ExcelPoiUtils.createCell(rowTotalFooter, 7, this.promotionProductTotal.getQuantity(), format2);
-            ExcelPoiUtils.createCell(rowTotalFooter, 8, this.promotionProductTotal.getPrice(), format5);
-            ExcelPoiUtils.createCell(rowTotalFooter, 9, this.promotionProductTotal.getTotalPrice(), format5);
         }
 
     }

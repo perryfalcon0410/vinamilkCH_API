@@ -21,6 +21,7 @@ import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -120,6 +121,7 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
        storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(5, Long.class, ParameterMode.IN);
 
+    //   storedProcedure.setParameter(2, DateUtils.convertFromDate(filter.getStockDate()));
        storedProcedure.setParameter(2, filter.getStockDate());
        storedProcedure.setParameter(3, filter.getProductCodes());
        storedProcedure.setParameter(4, filter.getShopId());

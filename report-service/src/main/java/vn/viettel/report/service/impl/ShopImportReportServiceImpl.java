@@ -30,9 +30,6 @@ public class ShopImportReportServiceImpl extends BaseReportServiceImpl implement
 
     @Override
     public CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> find(ShopImportFilter filter, Pageable pageable) {
-        if(filter.getImportType() !=null){
-            if(filter.getImportType().equals("0")) filter.setImportType("0,3");
-        }
         List<ShopImportDTO> shopImports =  this.callProcedure(filter).getData();
         ShopImportTotalDTO totalDTO = new ShopImportTotalDTO();
         List<ShopImportDTO> subList = new ArrayList<>();

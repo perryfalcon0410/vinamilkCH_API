@@ -17,6 +17,6 @@ public class PromotionProductTotalDTO {
     private Integer totalQuantity;
 
     @ApiModelProperty(notes = "Tổng thành tiền")
-    private Integer totalPrice;
+    private Double totalPrice;
 
 }

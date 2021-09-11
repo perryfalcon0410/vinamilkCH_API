@@ -901,11 +901,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             Double amount =  rpt_zv23DTO.getTotalAmount()!=null?rpt_zv23DTO.getTotalAmount():0;
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
             zv23Request.setTotalAmount(amount + inputPro.getZv23Amount());
+            zv23Request.setShopId(customer.getShopId());
             promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
         }else{
             PromotionProgramDTO program = promotionClient.getByIdV1(inputPro.getProgramId()).getData();
             RPT_ZV23Request zv23Request =
-                new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), shopId, customer.getId(), inputPro.getZv23Amount());
+                new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), customer.getShopId(), customer.getId(), inputPro.getZv23Amount());
             promotionClient.createRPTZV23V1(zv23Request);
         }
     }

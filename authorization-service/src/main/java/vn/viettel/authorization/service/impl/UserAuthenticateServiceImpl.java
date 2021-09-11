@@ -152,7 +152,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 resData.setForms(froms);
                 response.setToken(createToken(user, usedRole.getRoleName(), shopDTO.getId(), usedRole.getId()));
                 this.loginSuccess(user.getUserAccount(), shopDTO.getId(), user.getId());
-                saveLoginLog(shopDTO.getId(), user.getUserAccount());
+                saveLoginLog(shopDTO.getId(), user.getUserAccount(), loginInfo);
             }
         }
 
@@ -272,7 +272,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         response.setToken(createToken(user, role.getRoleName(), shop.getId(), role.getId()));
         response.setData(resData);
         this.loginSuccess(user.getUserAccount(), shop.getId(), user.getId());
-        saveLoginLog(shop.getId(), user.getUserAccount());
+        saveLoginLog(shop.getId(), user.getUserAccount(), loginInfo);
         return response;
     }
 
@@ -555,11 +555,24 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 new Response<>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
     }
 
-    public void saveLoginLog(Long shopId, String userAccount) {
+    public void saveLoginLog(Long shopId, String userAccount, LoginRequest loginInfo) {
         UserLogOnTime log = new UserLogOnTime();
         log.setShopId(shopId);
         log.setAccount(userAccount);
-        try {
+        Date date = new Date();
+        Timestamp time = new Timestamp(date.getTime());
+        StringBuilder logCode = new StringBuilder();
+        if(loginInfo.getComputerName() != null && !loginInfo.getComputerName().isEmpty())
+            logCode.append(loginInfo.getComputerName());
+        if(loginInfo.getMacAdrress() != null && !loginInfo.getMacAdrress().isEmpty())
+            logCode.append("_").append(loginInfo.getMacAdrress()).append("_");
+        logCode.append(time);
+        log.setLogCode(logCode.toString());
+        log.setComputerName(loginInfo.getComputerName());
+        log.setMacAddress(loginInfo.getMacAdrress());
+
+        userLogRepository.save(log);
+/*        try {
             InetAddress inetAddress = InetAddress.getLocalHost();
             String hostName = inetAddress.getHostName(); //Get Host Name
             String macAddress = "";
@@ -588,7 +601,8 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             e.printStackTrace();
         } catch (UnknownHostException e) {
             e.printStackTrace();
-        }
+        }*/
+
     }
 
     private void loginSuccess(String userName, Long shopId, Long userId) {

@@ -26,4 +26,9 @@ public class LoginRequest extends BaseDTO {
     private Long shopId;
     @ApiModelProperty(notes = "Mã captcha(nếu đc yêu cầu nhập)")
     private String captchaCode;
+
+    @ApiModelProperty(notes = "Địa chỉ mac")
+    private String macAdrress;
+    @ApiModelProperty(notes = "Computer name")
+    private String computerName;
 }
