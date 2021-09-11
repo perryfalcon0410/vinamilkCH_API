@@ -32,9 +32,11 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
     SaleClient saleClient;
 
     public RPT_ZV23DTO checkSaleOrderZV23(String promotionCode, Long customerId, Long shopId) {
-        RPT_ZV23 rpt_zv23 = rpt_zv23Repository.checkZV23Require(promotionCode, customerId, shopId);
-        if(rpt_zv23 == null) return null;
-        return modelMapper.map(rpt_zv23, RPT_ZV23DTO.class);
+        List<RPT_ZV23> rpt_zv23 = rpt_zv23Repository.checkZV23Require(promotionCode, customerId);
+        if(rpt_zv23 != null && !rpt_zv23.isEmpty())  {
+            return modelMapper.map(rpt_zv23.get(0), RPT_ZV23DTO.class);
+        }
+        return null;
     }
 
     @Override
@@ -42,6 +44,7 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
         RPT_ZV23 zv23 = rpt_zv23Repository.findById(id).get();
         if(zv23 == null) return false;
         zv23.setTotalAmount(request.getTotalAmount());
+        zv23.setShopId(request.getShopId());
         rpt_zv23Repository.save(zv23);
         return true;
     }

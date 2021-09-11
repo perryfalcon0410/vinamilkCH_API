@@ -121,7 +121,8 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
        storedProcedure.registerStoredProcedureParameter(4, Long.class, ParameterMode.IN);
        storedProcedure.registerStoredProcedureParameter(5, Long.class, ParameterMode.IN);
 
-       storedProcedure.setParameter(2, DateUtils.convertFromDate(filter.getStockDate()));
+    //   storedProcedure.setParameter(2, DateUtils.convertFromDate(filter.getStockDate()));
+       storedProcedure.setParameter(2, filter.getStockDate());
        storedProcedure.setParameter(3, filter.getProductCodes());
        storedProcedure.setParameter(4, filter.getShopId());
        storedProcedure.setParameter(5, filter.getWarehouseTypeId());

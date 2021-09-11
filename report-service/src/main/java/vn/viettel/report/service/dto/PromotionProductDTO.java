@@ -42,10 +42,10 @@ public class PromotionProductDTO implements Cloneable{
     @Column(name = "QUANTITY")
     private Integer quantity;
     @ApiModelProperty(notes = "Giá")
-    @Column(name = "PRICE")
+  /*  @Column(name = "PRICE")*/
     private Double price;
     @ApiModelProperty(notes = "Tổng thành tiền")
-    @Column(name = "TOTAL_PRICE")
+    /*@Column(name = "TOTAL_PRICE")*/
     private Double totalPrice;
     @ApiModelProperty(notes = "Mã vạch")
     @Column(name = "BAR_CODE")
@@ -68,7 +68,7 @@ public class PromotionProductDTO implements Cloneable{
         return super.clone();
     }
 
-    public Double getPrice() {
+ /*   public Double getPrice() {
         if(price == null) return 0.0;
         return price;
     }
@@ -76,5 +76,5 @@ public class PromotionProductDTO implements Cloneable{
     public Double getTotalPrice() {
         if(totalPrice == null) return 0.0;
         return totalPrice;
-    }
+    }*/
 }
