@@ -59,7 +59,7 @@ public class RPT_ZV23Impl implements RPT_ZV23Service {
 
     @Override
     public List<RPT_ZV23DTO> findByProgramIds(Set<Long> programIds, Long customerId, Long shopId) {
-        List<RPT_ZV23> rpts = rpt_zv23Repository.getByProgramIds(programIds, customerId, shopId);
+        List<RPT_ZV23> rpts = rpt_zv23Repository.getByProgramIds(programIds, customerId);
         if(rpts == null || rpts.isEmpty()) return new ArrayList<>();
         List<RPT_ZV23DTO> dtos = rpts.stream().map(r -> modelMapper.map(r, RPT_ZV23DTO.class)).collect(Collectors.toList());
         return dtos;
