@@ -171,7 +171,7 @@ public class RedInvoiceControllerTest extends BaseTest {
         String uri = V1 + root + "/update";
         List<RedInvoiceRequest> redInvoiceRequests = Arrays.asList(new RedInvoiceRequest(), new RedInvoiceRequest());
         ResponseMessage message =  ResponseMessage.SUCCESSFUL;
-        given(redInvoiceService.updateRed(any(), any())).willReturn(message);
+        given(redInvoiceService.updateRed(any(), any(), any())).willReturn(message);
         String inputJson = super.mapToJson(redInvoiceRequests);
         ResultActions resultActions =  mockMvc.perform(MockMvcRequestBuilders.put(uri)
                 .content(inputJson)

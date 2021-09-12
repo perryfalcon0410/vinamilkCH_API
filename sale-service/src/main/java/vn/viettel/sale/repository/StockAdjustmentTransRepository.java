@@ -13,6 +13,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface StockAdjustmentTransRepository extends BaseRepository<StockAdjustmentTrans>, JpaSpecificationExecutor<StockAdjustmentTrans> {
 
@@ -22,4 +23,7 @@ public interface StockAdjustmentTransRepository extends BaseRepository<StockAdju
             " WHERE p.createdAt>= :startDate And p.type =:type AND p.internalNumber like :codeStart% " +
             " ORDER BY p.internalNumber desc ")
     Page<StockAdjustmentTrans> getLastInternalCode(Integer type, String codeStart, LocalDateTime startDate, Pageable pageable);
+
+    @Query(value = "SELECT p FROM StockAdjustmentTrans p WHERE p.id =:id And p.shopId =:shopId And p.type =:type AND p.status = 1")
+    StockAdjustmentTrans getByIdAndShopId(Long id, Long shopId, Integer type);
 }

@@ -264,7 +264,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         LocalDateTime transDate = LocalDateTime.now();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoTrans poRecord = modelMapper.map(request, PoTrans.class);
-        PoTrans poTrans = repository.findByIdAndShopIdAndStatus(request.getReceiptImportId(), shopId, 1 )
+        PoTrans poTrans = repository.findByIdAndShopIdAndTypeAndStatus(request.getReceiptImportId(), shopId, 1,1 )
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
 
         poRecord.setId(null);
@@ -572,8 +572,9 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     /** Chỉnh sửa phiếu trả PO **/
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage updatePoTransExport(ReceiptExportUpdateRequest request, Long id,Long shopId) {
-        PoTrans poTrans = repository.getById(id);
-        if(poTrans == null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+        PoTrans poTrans = repository.findByIdAndShopIdAndTypeAndStatus(id, shopId, 2, 1 )
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
+
         if (poTrans.getTransDate().isBefore(DateUtils.convertFromDate(LocalDateTime.now())))
             throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
         else {
@@ -647,7 +648,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     /** Chỉnh sửa phiếu trả điều chỉnh **/
 
     private ResponseMessage updateAdjustmentTransExport(ReceiptExportUpdateRequest request, Long id,Long shopId) {
-        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getById(id);
+        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getByIdAndShopId(id, shopId, 2);
         if(adjustmentTrans == null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
         if (DateUtils.formatDate2StringDate(adjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             adjustmentTrans.setNote(request.getNote());
@@ -658,7 +659,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
     /** Chỉnh sửa phiếu trả vay mượn **/
     private ResponseMessage updateBorrowingTransExport(ReceiptExportUpdateRequest request, Long id,Long shopId) {
-        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getById(id);
+        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getByIdAndShopId(id, shopId, 2);
         if(borrowingTrans == null) throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
         if (DateUtils.formatDate2StringDate(borrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
             borrowingTrans.setNote(request.getNote());

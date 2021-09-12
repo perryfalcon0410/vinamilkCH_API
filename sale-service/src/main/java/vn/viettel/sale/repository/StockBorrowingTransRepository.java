@@ -33,4 +33,7 @@ public interface StockBorrowingTransRepository extends BaseRepository<StockBorro
             " ORDER BY p.redInvoiceNo desc ")
     Page<StockBorrowingTrans> getLastRedInvoiceNo(Integer type, String startWith, LocalDateTime startDate, Pageable pageable);
 
+    @Query(value = "SELECT p FROM StockBorrowingTrans p WHERE p.id=:id And p.shopId =:shopId And p.type =:type AND p.status =1")
+    StockBorrowingTrans getByIdAndShopId(Long id, Long shopId, Integer type);
+
 }
