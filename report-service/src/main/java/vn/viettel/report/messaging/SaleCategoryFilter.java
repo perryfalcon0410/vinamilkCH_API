@@ -14,18 +14,18 @@ import java.time.LocalDateTime;
 public class SaleCategoryFilter {
     private String customerKW;
     private String customerPhone;
-    private LocalDate fromDate;
-    private LocalDate toDate;
+    private LocalDateTime fromDate;
+    private LocalDateTime toDate;
     private Long customerType;
     private Long shopId;
 
-    public LocalDate getFromDate() {
-        if(fromDate == null) return LocalDate.now();
+    public LocalDateTime getFromDate() {
+        if(fromDate == null) return LocalDateTime.now();
         return fromDate;
     }
 
-    public LocalDate getToDate() {
-        if(toDate == null) return LocalDate.now();
+    public LocalDateTime getToDate() {
+        if(toDate == null) return LocalDateTime.now();
         return toDate;
     }
 
