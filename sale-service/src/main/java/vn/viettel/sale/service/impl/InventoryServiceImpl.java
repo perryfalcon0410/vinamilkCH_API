@@ -297,9 +297,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     }
 
     @Override
-    public ResponseMessage updateStockCounting(Long stockCountingId, String userAccount,
-                                               List<StockCountingUpdateDTO> details) {
-        StockCounting stockCounting = repository.findById(stockCountingId).get();
+    public ResponseMessage updateStockCounting(Long stockCountingId, Long shopId, String userAccount, List<StockCountingUpdateDTO> details) {
+        StockCounting stockCounting = repository.getByIdAndShopId(stockCountingId, shopId);
         if (stockCounting == null)
             throw new ValidateException(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
         if (stockCounting.getCountingDate().isBefore(DateUtils.convertFromDate(LocalDateTime.now())))

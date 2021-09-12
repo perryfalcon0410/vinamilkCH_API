@@ -57,8 +57,11 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT count(so) FROM SaleOrder so WHERE so.fromSaleOrderId = :id AND so.type = 2 ")
     Integer checkIsReturn(Long id);
 
-    @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.type = 1")
-    SaleOrder getSaleOrderByNumber(String ON);
+    @Query(value = "SELECT so FROM SaleOrder so WHERE so.orderNumber = :ON AND so.shopId =:shopId AND so.type = 1")
+    SaleOrder getSaleOrderByNumber(String ON, Long shopId);
+
+    @Query(value = "SELECT so FROM SaleOrder so WHERE so.id In (:ids) AND so.shopId =:shopId AND so.type = 1")
+    List<SaleOrder> findAllById(List<Long> ids, Long shopId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE )
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "1000")})

@@ -39,4 +39,5 @@ public interface StockCountingRepository extends BaseRepository<StockCounting>, 
             " AND (:warehouseTypeId IS NULL OR s.wareHouseTypeId = :warehouseTypeId) ")
     Page<StockCountingDTO> findStockCounting(String stockCountingCode, Long warehouseTypeId, LocalDateTime fromDate, LocalDateTime toDate, Long shopId, Pageable pageable);
 
+    StockCounting getByIdAndShopId(Long id, Long shopId);
 }
