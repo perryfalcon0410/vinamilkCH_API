@@ -189,7 +189,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
 
-            //kiểm tra xem tổng sản phẩm mua có vượt quá tôn kho
+        //kiểm tra xem tổng sản phẩm mua có vượt quá tôn kho
             List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(),
                     new ArrayList<>(mapProductWithQty.keySet()));
             for (FreeProductDTO freeProductDTO : freeProductDTOs){
@@ -266,7 +266,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     }
 
                     if(inputPro.getProgramType().equalsIgnoreCase("ZM") && inputPro.getAmount()!=null && inputPro.getAmount().getAmount()!=null &&
-                            inputPro.getAmount().getMaxAmount() !=null && inputPro.getAmount().getMaxAmount() >0 && inputPro.getAmount().getAmount() > inputPro.getAmount().getMaxAmount() && dbPro.getIsUse() == false )
+                    inputPro.getAmount().getMaxAmount() !=null && inputPro.getAmount().getMaxAmount() >0 && inputPro.getAmount().getAmount() > inputPro.getAmount().getMaxAmount() && dbPro.getIsUse() == false )
                         throw new ValidateException(ResponseMessage.PROMOTION_NOT_AMOUNT_VALUE, inputPro.getPromotionProgramName());
 
                     //kiểm tra đã đủ số xuất
@@ -669,7 +669,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
     private SaleOrder createSaleOrder(SaleOrderRequest request, long userId, ShopDTO shop, CustomerDTO customer, CustomerTypeDTO customerType,
-                                      double promotion, double promotionInVat, double promotionExVat, double voucherAmount, double autoPromtion,
+                                     double promotion, double promotionInVat, double promotionExVat, double voucherAmount, double autoPromtion,
                                       double autoPromotionExVat, double autoPromotionInVat, double zmPromotion, double zmPromotionInVat,
                                       double zmPromotionExVat, double customerPurchase, boolean isReturn ){
         SaleOrder saleOrder = modelMapper.map(request, SaleOrder.class);
@@ -896,7 +896,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }else{
             PromotionProgramDTO program = promotionClient.getByIdV1(inputPro.getProgramId()).getData();
             RPT_ZV23Request zv23Request =
-                    new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), customer.getShopId(), customer.getId(), inputPro.getZv23Amount());
+                new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), customer.getShopId(), customer.getId(), inputPro.getZv23Amount());
             promotionClient.createRPTZV23V1(zv23Request);
         }
     }
@@ -1033,7 +1033,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                 percentZVExTax = calPercent(amountExTax, item.getAutoPromotionNotVat());
             }
 
-            //  double amountTotal = 0;
+          //  double amountTotal = 0;
             double zmAmtTotal = 0;
             double zmAmtVatTotal = 0;
             double zmAmtNotVatTotal = 0;
@@ -1074,7 +1074,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                         double proAmtVat = roundValue(amount * percentZVInTax / 100);
                         double proAmtNotVat = roundValue((orderComboDetail.getPriceNotVat() * orderComboDetail.getQuantity()) * percentZVExTax / 100);
                         if(cnt == totalComboDtl){
-                            /*   amount = (item.getAmount() == null ? 0 : item.getAmount()) - amountTotal;*/
+                         /*   amount = (item.getAmount() == null ? 0 : item.getAmount()) - amountTotal;*/
                             zmAmt = (item.getZmPromotion() == null ? 0 : item.getZmPromotion()) - zmAmtTotal;
                             zmAmtVat = (item.getZmPromotionVat() == null ? 0 : item.getZmPromotionVat()) - zmAmtVatTotal;
                             zmAmtNotVat = (item.getZmPromotionNotVat() == null ? 0 : item.getZmPromotionNotVat()) - zmAmtNotVatTotal;
@@ -1082,7 +1082,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                             proAmtVat = (item.getAutoPromotionVat() == null ? 0 : item.getAutoPromotionVat()) - proAmtVatTotal;
                             proAmtNotVat = (item.getAutoPromotionNotVat() == null ? 0 : item.getAutoPromotionNotVat()) - proAmtNotVatTotal;
                         }
-                        //     amountTotal += amount;
+                   //     amountTotal += amount;
                         zmAmtTotal += zmAmt;
                         zmAmtVatTotal += zmAmtVat;
                         zmAmtNotVatTotal += zmAmtNotVat;
@@ -1272,11 +1272,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         CustomerRequest customerRequest = modelMapper.map(customer, CustomerRequest.class);
-        customerRequest.setTotalBill(totalBillCus + customerPurchase);
-        customerRequest.setDayOrderNumber(dayOrderNumber + quantity);
-        customerRequest.setDayOrderAmount(dayOrderAmount + saleOrder.getAmount());
-        customerRequest.setMonthOrderNumber(monthOrderNumber + quantity);
-        customerRequest.setMonthOrderAmount(monthOrderAmount + saleOrder.getAmount());
+            customerRequest.setTotalBill(totalBillCus + customerPurchase);
+            customerRequest.setDayOrderNumber(dayOrderNumber + quantity);
+            customerRequest.setDayOrderAmount(dayOrderAmount + saleOrder.getAmount());
+            customerRequest.setMonthOrderNumber(monthOrderNumber + quantity);
+            customerRequest.setMonthOrderAmount(monthOrderAmount + saleOrder.getAmount());
         try {
             customerClient.updateFeignV1(customerRequest.getId(), customerRequest);
         }catch (Exception ex) {
