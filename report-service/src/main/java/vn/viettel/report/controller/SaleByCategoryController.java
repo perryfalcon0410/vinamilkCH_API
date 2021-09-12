@@ -3,10 +3,8 @@ package vn.viettel.report.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +22,6 @@ import vn.viettel.report.service.dto.SalesByCategoryReportDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 
@@ -46,8 +43,7 @@ public class SaleByCategoryController extends BaseController {
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                       @RequestParam(value = "toDate", required = false) Date toDate,
                                       @RequestParam(value = "customerType", required = false) Long customerType, HttpServletResponse response) throws IOException {
-        //SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),customerType,this.getShopId());
-        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate),customerType,this.getShopId());
+        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId());
         this.closeStreamExcel(response, saleByCategoryReportService.exportExcel(filter), "BC_doanh_so_theo_nganh_hang_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_BY_CATEGORY_SUCCESS);
         response.getOutputStream().flush();
@@ -66,8 +62,7 @@ public class SaleByCategoryController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "customerType", required = false) Long customerType, Pageable pageable) {
-        //SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),customerType,this.getShopId());
-        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate),customerType,this.getShopId());
+        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId());
         SalesByCategoryReportDTO response = saleByCategoryReportService.getSaleByCategoryReport(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
         return new Response<SalesByCategoryReportDTO>().withData(response);
@@ -81,8 +76,7 @@ public class SaleByCategoryController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "customerType", required = false) Long customerType, Pageable pageable) {
-        //SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),customerType,this.getShopId());
-        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convert2Local(fromDate), DateUtils.convert2Local(toDate),customerType,this.getShopId());
+        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId());
         SaleByCategoryPrintDTO response = saleByCategoryReportService.print(filter);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
         return new Response<SaleByCategoryPrintDTO>().withData(response);

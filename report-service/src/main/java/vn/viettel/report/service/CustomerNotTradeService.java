@@ -11,7 +11,6 @@ import vn.viettel.report.service.dto.CustomerTradeTotalDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
 
 public interface CustomerNotTradeService {
     Object index(CustomerNotTradeFilter filter, Boolean isPaging, Pageable pageable);

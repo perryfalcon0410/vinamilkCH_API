@@ -12,13 +12,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.SellsReportService;
-import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.dto.ReportDateDTO;
+import vn.viettel.report.service.dto.SellDTO;
+import vn.viettel.report.service.dto.SellTotalDTO;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

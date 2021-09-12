@@ -127,8 +127,9 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
        storedProcedure.setParameter(4, filter.getShopId());
        storedProcedure.setParameter(5, filter.getWarehouseTypeId());
 
+       this.executeQuery(storedProcedure, "P_STOCK_COUNTING", filter.toString());
        List<StockTotalReportDTO> listResult = storedProcedure.getResultList();
-       entityManager.close();
+
        return listResult;
    }
 }

@@ -10,7 +10,6 @@ import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
 
 public interface StockTotalReportService {
     CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> getStockTotalReport(StockTotalFilter filter, Pageable pageable);

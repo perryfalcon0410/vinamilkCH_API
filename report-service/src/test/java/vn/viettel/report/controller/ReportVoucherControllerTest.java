@@ -11,14 +11,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.ReportVoucherService;
-import vn.viettel.report.service.dto.InOutAdjusmentDTO;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

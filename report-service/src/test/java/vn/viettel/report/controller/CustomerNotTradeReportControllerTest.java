@@ -8,19 +8,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.CustomerNotTradeService;
-import vn.viettel.report.service.dto.ChangePriceDTO;
-import vn.viettel.report.service.dto.ChangePriceTotalDTO;
 import vn.viettel.report.service.dto.CustomerReportDTO;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

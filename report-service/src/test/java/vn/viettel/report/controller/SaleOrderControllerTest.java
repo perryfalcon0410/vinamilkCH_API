@@ -11,7 +11,6 @@ import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.SaleOrderAmountService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
