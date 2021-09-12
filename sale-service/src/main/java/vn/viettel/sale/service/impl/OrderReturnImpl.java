@@ -643,6 +643,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             Double amount =  zv23.getTotalAmount()!=null?zv23.getTotalAmount():0;
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
             zv23Request.setTotalAmount(amount - amountInTax);
+            zv23Request.setShopId(customer.getShopId());
             promotionClient.updateRPTZV23V1(zv23.getId(), zv23Request);
         }
 
