@@ -2176,11 +2176,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     List<SaleDiscountSaveDTO> infos = initSaleDiscountSaveDTO(orderData.getProducts(), entry.getKey(), pcInTax, pcExTax, isInclusiveTax,
                             amtInTax, amtExTax);
                     discountInTax = 0;
-                    discountInTax = 0;
+                    discountExTax = 0;
                     for(SaleDiscountSaveDTO info : infos) {
                         saveInfo.add(info);
                         discountInTax += info.getAmountInTax();
-                        discountInTax += info.getAmountExTax();
+                        discountExTax += info.getAmountExTax();
                     }
 
                     if (checkMulti == MR_RECURSIVE || checkMulti == MR_MULTIPLE_RECURSIVE) { // có tối ưu thì tính tiếp
