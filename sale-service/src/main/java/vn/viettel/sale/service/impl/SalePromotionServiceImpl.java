@@ -564,7 +564,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             double percentInTax = calPercent(orderData.getTotalPrice(), amtInTax);
             double percentExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
             List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentInTax, percentExTax,
-                    isInclusiveTax(program.getDiscountPriceType()), salePromotion.getTotalAmtInTax(), salePromotion.getTotalAmtExTax());
+                    isInclusiveTax(program.getDiscountPriceType()), amtInTax, amtExTax);
             amtInTax = 0D;
             amtExTax = 0D;
             for(SaleDiscountSaveDTO info: saveInfo) {
