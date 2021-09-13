@@ -1,28 +1,8 @@
 package vn.viettel.report.controller;
 
-import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.InOutAdjustmentService;
-import vn.viettel.report.service.dto.CustomerReportDTO;
-import vn.viettel.report.service.dto.InOutAdjusmentDTO;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class InOutAdjustmentControllerTest extends BaseTest {
     private final String root = "/reports/in-out-adjustment";

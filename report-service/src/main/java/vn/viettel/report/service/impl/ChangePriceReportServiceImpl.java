@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseReportServiceImpl;
@@ -21,9 +20,7 @@ import vn.viettel.report.service.dto.ChangePriceSubTotalDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

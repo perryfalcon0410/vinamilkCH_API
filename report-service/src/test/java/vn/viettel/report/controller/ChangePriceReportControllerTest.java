@@ -1,7 +1,6 @@
 package vn.viettel.report.controller;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,21 +11,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.ChangePriceReportService;
-import vn.viettel.report.service.dto.*;
+import vn.viettel.report.service.dto.ChangePriceDTO;
+import vn.viettel.report.service.dto.ChangePricePrintDTO;
+import vn.viettel.report.service.dto.ChangePriceTotalDTO;
 
 import java.util.*;
 
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.BDDMockito.given;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.junit.Assert.*;
 
 public class ChangePriceReportControllerTest extends BaseTest {
     private final String root = "/reports/changePrices";

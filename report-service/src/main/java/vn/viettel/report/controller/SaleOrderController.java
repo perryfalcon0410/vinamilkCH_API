@@ -1,10 +1,8 @@
 package vn.viettel.report.controller;
 
 import io.swagger.annotations.*;
-import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +19,6 @@ import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 
@@ -47,8 +44,7 @@ public class SaleOrderController extends BaseController {
                        @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
                        @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Double fromAmount,
                        @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Double toAmount, Pageable pageable) {
-        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
-        // SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
+        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
         TableDynamicDTO table = saleOrderAmountService.findAmounts(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         return new Response<TableDynamicDTO>().withData(table);
@@ -69,8 +65,7 @@ public class SaleOrderController extends BaseController {
                     @ApiParam("Doanh số tối thiểu") @RequestParam(value = "fromAmount", required = false) Double fromAmount,
                     @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Double toAmount,
                                                                         HttpServletResponse response) throws IOException {
-        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
-     //   SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
+        SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
         this.closeStreamExcel(response, saleOrderAmountService.exportExcel(filter), "report_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         response.getOutputStream().flush();

@@ -19,9 +19,7 @@ import vn.viettel.report.service.dto.ReportTotalDTO;
 import vn.viettel.report.service.excel.EntryMenuDetailsExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
-import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

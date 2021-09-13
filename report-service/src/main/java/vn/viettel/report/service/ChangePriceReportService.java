@@ -5,7 +5,6 @@ import vn.viettel.report.messaging.ChangePriceFilter;
 import vn.viettel.report.service.dto.ChangePricePrintDTO;
 
 import java.text.ParseException;
-import java.time.LocalDateTime;
 
 public interface ChangePriceReportService {
     Object index(ChangePriceFilter filter, Pageable pageable, Boolean isPaging) throws ParseException;
