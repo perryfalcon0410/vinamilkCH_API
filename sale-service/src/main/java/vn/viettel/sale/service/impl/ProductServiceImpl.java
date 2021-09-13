@@ -93,6 +93,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         LocalDateTime fromDate = DateUtils.convertFromDate(localDateTime.plusMonths(-6));
         boolean hasQty = false;
         CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
+        if(customerType == null) return null;
 
         if(barcode!= null && barcode) {
             List<OrderProductDTO> productDTOS = repository.getByBarCodeAndStatus(keyWord, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
@@ -174,7 +175,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public List<OrderProductDTO> findProductsByKeyWord(Long shopId, Long customerId, String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
-        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
+        CustomerTypeDTO customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
         List<OrderProductDTO> rp = new ArrayList<>();
 
         if(products!=null && !products.isEmpty()){
@@ -269,20 +270,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     @Override
     public List<OrderProductDTO> getByBarcode(Long shopId, String barcode, Long customerId) {
         CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
-        List<OrderProductDTO> productDTOS = repository.getByBarCodeAndStatus(barcode, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
-
-       /* List<Product> products = repository.getByBarCodeAndStatus(barcode, 1);
-        if(products.isEmpty() || customerType == null) return null;
-
-        List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), products.get(0).getId());
-
-        List<Price> prices = productPriceRepo.findProductPriceWithType(Arrays.asList(products.get(0).getId()), customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));
-        if(prices == null || prices.isEmpty() ) return null;
-
-        OrderProductDTO orderProductDTO = modelMapper.map(products.get(0), OrderProductDTO.class);
-        orderProductDTO.setPrice(prices.get(0).getPrice());
-        if(stockTotals != null && !stockTotals.isEmpty())
-            orderProductDTO.setStockTotal(stockTotals.get(0).getQuantity());*/
+        List<OrderProductDTO> productDTOS = new ArrayList<>();
+        if(customerType != null)
+            productDTOS = repository.getByBarCodeAndStatus(barcode, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
 
         return productDTOS;
     }
