@@ -31,6 +31,7 @@ import javax.validation.Valid;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -106,21 +107,26 @@ public class OrderReturnController extends BaseController {
         Response<SaleOrder> response = new Response<>();
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_ORDER_RETURN_SUCCESS);
         response.setStatusValue("Tạo hóa đơn trả thành công");
-        SaleOrder newOrderReturn = orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName());
+        HashMap<String,Object> mapResult = orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName());
+        SaleOrder newOrderReturn = (SaleOrder) mapResult.get(JMSType.sale_order);
         if(newOrderReturn != null && newOrderReturn.getId() != null) {
-        	sendSynRequest(Arrays.asList(newOrderReturn.getId()));
+        	sendSynRequest(JMSType.sale_order, Arrays.asList(newOrderReturn.getId()));
+        }
+        Long memberCustomerId = (Long) mapResult.get(JMSType.member_customer);
+        if(memberCustomerId != null) {
+        	sendSynRequest(JMSType.member_customer, Arrays.asList(memberCustomerId));
         }
         return response.withData(newOrderReturn);
     }
     
     
-	private void sendSynRequest(List<Long> lstIds) {
+	private void sendSynRequest(String type, List<Long> lstIds) {
 		try {
 			if(!lstIds.isEmpty()) {
-				jmsSender.sendMessage(JMSType.sale_order, lstIds);
+				jmsSender.sendMessage(type, lstIds);
 			}
 		} catch (Exception ex) {
-			LogFile.logToFile("vn.viettel.sale.service.impl.OrderReturnImpl.sendSynRequest", JMSType.sale_order, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
+			LogFile.logToFile("vn.viettel.sale.service.impl.OrderReturnImpl.sendSynRequest", type, LogLevel.ERROR, null, "has error when encode data " + ex.getMessage());
 		}
 	}
 }

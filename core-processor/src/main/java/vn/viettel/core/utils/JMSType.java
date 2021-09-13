@@ -14,6 +14,7 @@ public final class JMSType {
 
 	public static final String sale_order = "sale_orders";
 	public static final String customers = "customers";
+	public static final String member_customer = "member_customer";
 
 	public static final String vouchers = "vouchers";
 

@@ -80,9 +80,9 @@ public class MemberCustomerController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @PutMapping(value = { V1 + root + "/update/{customerId}"})
-    public Response<Boolean> updateMemberCustomer(@PathVariable Long customerId, @RequestBody MemberCustomerRequest request) {
-        Response<Boolean> response = new Response<>();
-        Boolean result = memberCustomerService.updateMemberCustomer(customerId, request);
+    public Response<Long> updateMemberCustomer(@PathVariable Long customerId, @RequestBody MemberCustomerRequest request) {
+        Response<Long> response = new Response<>();
+        Long result = memberCustomerService.updateMemberCustomer(customerId, request);
         return response.withData(result);
     }
 

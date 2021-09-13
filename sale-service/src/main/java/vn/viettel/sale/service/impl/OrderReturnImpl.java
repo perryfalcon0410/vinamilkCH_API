@@ -20,6 +20,7 @@ import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
+import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
@@ -280,7 +281,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public SaleOrder createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
+    public HashMap<String,Object> createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
         SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
@@ -499,12 +500,16 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         this.updateZV23(customer, saleOrder, saleOrderDetails, orderReturnDiscount);
+        Long memberCustomerId = null;
         if (saleOrder.getCustomerPurchase() != null)
             saleService.updateCustomer(newOrderReturn, customer, true);
         if (saleOrder.getMemberCardAmount() != null)
-            saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId());
-
-        return newOrderReturn;
+        	memberCustomerId = saleService.updateAccumulatedAmount(-saleOrder.getMemberCardAmount(), customer.getId());
+        
+        HashMap<String,Object> syncmap = new HashMap<>();
+        syncmap.put(JMSType.sale_order , newOrderReturn);
+        syncmap.put(JMSType.member_customer, memberCustomerId);
+        return syncmap;
     }
 
 

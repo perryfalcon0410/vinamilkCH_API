@@ -25,6 +25,7 @@ import vn.viettel.sale.service.dto.SaleOrderDTO;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
@@ -132,7 +133,9 @@ public class OrderReturnControllerTest extends BaseTest {
         dtoObj.setZmPromotion(0D);
         dtoObj.setReasonId(requestObj.getReasonId());
         dtoObj.setReasonDesc(requestObj.getReasonDescription());
-        given(orderReturnService.createOrderReturn(any(), any(), any())).willReturn(dtoObj);
+        HashMap<String,Object> syncmap = new HashMap<>();
+        syncmap.put("AA", dtoObj);
+        given(orderReturnService.createOrderReturn(any(), any(), any())).willReturn(syncmap);
         String inputJson = super.mapToJson(requestObj);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)

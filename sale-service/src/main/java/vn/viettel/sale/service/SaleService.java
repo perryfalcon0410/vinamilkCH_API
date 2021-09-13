@@ -20,7 +20,7 @@ public interface SaleService {
     /*
     câp nhật giá trị chiết tích lũy
      */
-    void updateAccumulatedAmount(Double accumulatedAmount, Long customerId);
+    Long updateAccumulatedAmount(Double accumulatedAmount, Long customerId);
 
 
     /*

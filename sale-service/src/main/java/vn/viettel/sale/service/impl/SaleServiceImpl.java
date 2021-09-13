@@ -484,7 +484,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         updateCustomer(saleOrder, customer, false);
 
         //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
-        updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
+        Long memberCustomerId = updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
+        if(memberCustomerId != null) {
+        	syncMap.put(JMSType.member_customer , Arrays.asList(memberCustomerId));
+        }
         // update RPT_ZV23: nếu có km zv23
 
         if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()) {
@@ -911,15 +914,16 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
     }
 
-    public void updateAccumulatedAmount(Double accumulatedAmount, Long customerId) {
-        if (accumulatedAmount == null) return;
+    public Long updateAccumulatedAmount(Double accumulatedAmount, Long customerId) {
+        if (accumulatedAmount == null) return null;
         MemberCustomerRequest request = new MemberCustomerRequest(accumulatedAmount);
+        Long memberCustomerId;
         try{
-            customerClient.updateMemberCustomerV1(customerId, request);
+            memberCustomerId =  customerClient.updateMemberCustomerV1(customerId, request).getData();
         }catch (Exception ex) {
             throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_MEMBER_CUSTOMER_FAIL);
         }
-
+        return memberCustomerId;
     }
 
     @Transactional(rollbackFor = Exception.class)

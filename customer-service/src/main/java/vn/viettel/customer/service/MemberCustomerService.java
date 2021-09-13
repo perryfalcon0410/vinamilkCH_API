@@ -12,5 +12,5 @@ public interface MemberCustomerService extends BaseService {
     /*
      * Cập nhật lại tiền tích lủy của khách hàng sau mua hàng
      */
-    Boolean updateMemberCustomer(Long customerId, MemberCustomerRequest request);
+    Long updateMemberCustomer(Long customerId, MemberCustomerRequest request);
 }

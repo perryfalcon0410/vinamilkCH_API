@@ -46,6 +46,6 @@ public interface CustomerClient {
 //    Response<List<CustomerDTO>> getAllCustomerToRedInvocieV1(@RequestParam List<Long> customerIds);
 
     @PutMapping(value = {"/api/v1/customers/membercustomers/update/{customerId}"})
-    Response<Boolean> updateMemberCustomerV1(@PathVariable Long customerId, @RequestBody MemberCustomerRequest request);
+    Response<Long> updateMemberCustomerV1(@PathVariable Long customerId, @RequestBody MemberCustomerRequest request);
 
 }

@@ -73,6 +73,7 @@ public class SaleController extends BaseController {
         sendSynRequest(JMSType.vouchers, syncmap.get(JMSType.vouchers));
         sendSynRequest(JMSType.promotion_program_discount, syncmap.get(JMSType.promotion_program_discount));
         sendSynRequest(JMSType.sale_order, saleOrderIds);
+        sendSynRequest(JMSType.member_customer, syncmap.get(JMSType.member_customer));
         
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
