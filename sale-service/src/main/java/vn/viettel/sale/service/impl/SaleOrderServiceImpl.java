@@ -506,7 +506,11 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         }
 
         if(saleOrder.getTotalPromotionNotVat() != null) {
-            print.setPromotionAmountNotVat(-saleOrder.getTotalPromotionNotVat());
+            if(saleOrder.getTotalPromotionNotVat() > 0) {
+                print.setPromotionAmountNotVat(-saleOrder.getTotalPromotionNotVat());
+            }else{
+                print.setPromotionAmountNotVat(0.0);
+            }
             print.setTotalNotVat(print.getAmountNotVAT() - saleOrder.getTotalPromotionNotVat());
         }
 
