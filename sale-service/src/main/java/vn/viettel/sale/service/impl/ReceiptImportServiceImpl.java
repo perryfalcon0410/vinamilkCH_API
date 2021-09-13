@@ -972,8 +972,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     @Transactional(rollbackFor = Exception.class)
     public List<Long> updatePoTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
         checkNoteLength(request.getNote());
-        PoTrans poTrans = repository.findById(id).get();
-        if(poTrans==null) throw new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED);
+        PoTrans poTrans = repository.findByIdAndShopIdAndTypeAndStatus(id, shopId, 1, 1 )
+                .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
 
         List<PoTrans> lstRedInvoiceNos = repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim());
         if(!lstRedInvoiceNos.isEmpty() && !lstRedInvoiceNos.get(0).getId().equals(poTrans.getId()))
@@ -1127,7 +1127,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     /**Up date stock adjustment trans**/
     public List<Long> updateAdjustmentTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
-        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.findById(id).get();
+        StockAdjustmentTrans adjustmentTrans = stockAdjustmentTransRepository.getByIdAndShopId(id, shopId, 1);
         if(adjustmentTrans == null) throw new ValidateException(ResponseMessage.STOCK_ADJUSTMENT_TRANS_IS_NOT_EXISTED);
         checkNoteLength(request.getNote());
         if (DateUtils.formatDate2StringDate(adjustmentTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {
@@ -1141,7 +1141,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     }
     /** Up date stock borrowing trans **/
     public List<Long> updateBorrowingTrans(ReceiptUpdateRequest request, Long id,String userName,Long shopId) {
-        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.findById(id).get();
+        StockBorrowingTrans borrowingTrans = stockBorrowingTransRepository.getByIdAndShopId(id, shopId, 1);
         if(borrowingTrans == null) throw new ValidateException(ResponseMessage.STOCK_BORROWING_TRANS_IS_NOT_EXISTED);
         checkNoteLength(request.getNote());
         if (DateUtils.formatDate2StringDate(borrowingTrans.getTransDate()).equals(DateUtils.formatDate2StringDate(LocalDateTime.now()))) {

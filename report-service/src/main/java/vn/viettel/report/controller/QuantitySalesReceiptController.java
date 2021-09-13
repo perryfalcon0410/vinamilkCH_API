@@ -1,10 +1,8 @@
 package vn.viettel.report.controller;
 
 import io.swagger.annotations.*;
-import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +19,6 @@ import vn.viettel.report.service.dto.TableDynamicDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 
@@ -48,10 +45,7 @@ public class QuantitySalesReceiptController extends BaseController{
                                                  @ApiParam("Tìm theo số điện thoại của khách hàng") @RequestParam(value = "phoneNumber", required = false, defaultValue = "") String phoneNumber,
                                                  @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Long fromQuantity,
                                                  @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Long toQuantity, Pageable pageable) {
-       // QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
-        QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
-
-
+        QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
         TableDynamicDTO table = quantitySalesReceiptService.findQuantity(filter, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         return new Response<TableDynamicDTO>().withData(table);
@@ -72,8 +66,7 @@ public class QuantitySalesReceiptController extends BaseController{
                                   @ApiParam("Số hóa đơn tối thiểu") @RequestParam(value = "fromQuantity", required = false) Long fromQuantity,
                                   @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Long toQuantity,
                                   HttpServletResponse response) throws IOException {
-        //QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
-        QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
+        QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
         this.closeStreamExcel(response, quantitySalesReceiptService.exportExcel(filter), "report_" + StringUtils.createExcelFileName());
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         response.getOutputStream().flush();

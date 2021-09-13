@@ -295,7 +295,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (redInvoiceNewDataDTO.getSaleOrderId().size() > 0) {
             redInvoiceRecord.setCustomerId(redInvoiceNewDataDTO.getCustomerId());
             ////////////////////////////////////////////////////////////////
-            List<SaleOrder> saleOrders = saleOrderRepository.findAllById(redInvoiceNewDataDTO.getSaleOrderId());
+            List<SaleOrder> saleOrders = saleOrderRepository.findAllById(redInvoiceNewDataDTO.getSaleOrderId(), shopId);
             for (SaleOrder saleOrder : saleOrders) {
                 if(orderNumber == null) orderNumber = saleOrder.getOrderNumber();
                 else orderNumber = orderNumber + "," + saleOrder.getOrderNumber();
@@ -511,7 +511,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseMessage updateRed(List<RedInvoiceRequest> redInvoiceRequests, Long userId) {
+    public ResponseMessage updateRed(List<RedInvoiceRequest> redInvoiceRequests, Long userId, Long shopId) {
         UserDTO userDTO = userClient.getUserByIdV1(userId);
         String userName = userDTO.getLastName() + " " + userDTO.getFirstName();
         if (redInvoiceRequests.isEmpty()) {
@@ -529,7 +529,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             if (!(checkRedInvoice == null)) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED, checkRedInvoice);
             } else {
-                RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceById(redInvoiceRequests.get(i).getId());
+                RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceByIdAndShopId(redInvoiceRequests.get(i).getId(), shopId);
                 redInvoice.setId(redInvoiceRequests.get(i).getId());
                 redInvoice.setInvoiceNumber(redInvoiceRequests.get(i).getInvoiceNumber());
                 redInvoice.setUpdatedBy(userName);

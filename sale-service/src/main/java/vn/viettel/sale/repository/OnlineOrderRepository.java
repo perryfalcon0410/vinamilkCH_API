@@ -9,9 +9,13 @@ import vn.viettel.sale.entities.OnlineOrder;
 import vn.viettel.core.repository.BaseRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaSpecificationExecutor<OnlineOrder> {
     OnlineOrder findByOrderNumber(String orderNumber);
+
+    @Query(value = "SELECT onl FROM OnlineOrder onl WHERE onl.id =:id AND onl.shopId =:shopId AND onl.synStatus = 0")
+    Optional<OnlineOrder> getById(Long id, Long shopId);
 
     @Query(value = "SELECT onl FROM OnlineOrder onl WHERE onl.synStatus = 1 AND onl.vnmSynStatus = 0 AND onl.shopId =:shopId")
     List<OnlineOrder> findOnlineOrderExportXml(Long shopId);

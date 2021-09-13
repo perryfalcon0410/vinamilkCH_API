@@ -23,7 +23,7 @@ import java.util.Optional;
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {
 
-   Optional<PoTrans> findByIdAndShopIdAndStatus(Long id, Long shopId, Integer status);
+   Optional<PoTrans> findByIdAndShopIdAndTypeAndStatus(Long id, Long shopId, Integer type, Integer status);
 
    @Query(value = "SELECT p FROM PoTrans p " +
            " WHERE p.createdAt>= :startDate And p.type =:type AND p.transCode like :startWith% " +

@@ -60,5 +60,7 @@ public interface ExchangeTransRepository extends BaseRepository<ExchangeTrans>, 
             "")
     List<Long> getReasonIds(Long shopId, String transCode, Integer status, Long reasonId, LocalDateTime fromDate, LocalDateTime toDate);
 
+    @Query(value = "SELECT ex FROM ExchangeTrans ex WHERE ex.id =:id And ex.shopId =:shopId And ex.customerId =:customerId And ex.status =1 ")
+    ExchangeTrans getById(Long id, Long shopId, Long customerId);
 
 }

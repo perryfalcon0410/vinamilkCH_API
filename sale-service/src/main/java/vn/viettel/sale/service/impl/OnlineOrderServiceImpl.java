@@ -104,9 +104,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public OnlineOrderDTO getOnlineOrder(Long id, Long shopId, Long userId) {
-        OnlineOrder onlineOrder = repository.findById(id).orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
-        if(onlineOrder.getSynStatus()!=null &&  onlineOrder.getSynStatus()==1)
-            throw new ValidateException(ResponseMessage.SALE_ORDER_ALREADY_CREATED);
+        OnlineOrder onlineOrder = repository.getById(id, shopId).orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
 
         List<OnlineOrderDetail> orderDetails = onlineOrderDetailRepo.findByOnlineOrderId(id);
         if(orderDetails.isEmpty()) throw new ValidateException(ResponseMessage.ONLINE_ORDER_PRODUCT_IS_EMPTY);

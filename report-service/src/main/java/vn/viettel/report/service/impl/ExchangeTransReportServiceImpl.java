@@ -23,8 +23,6 @@ import vn.viettel.report.service.excel.ExchangeTransExcel;
 import vn.viettel.report.service.feign.CommonClient;
 import vn.viettel.report.service.feign.ShopClient;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;

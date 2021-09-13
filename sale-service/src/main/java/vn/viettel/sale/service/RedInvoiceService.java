@@ -23,6 +23,6 @@ public interface RedInvoiceService extends BaseService {
     RedInvoiceDTO create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId);
     ResponseMessage deleteByIds(List<Long> ids);
     ByteArrayInputStream exportExcel(String ids, Integer type) throws IOException;
-    ResponseMessage updateRed(List<RedInvoiceRequest> redInvoiceRequests, Long userId);
+    ResponseMessage updateRed(List<RedInvoiceRequest> redInvoiceRequests, Long userId, Long shopId);
     CoverResponse<List<ProductDataResponse>, PrintDataRedInvoiceResponse> getDataPrint(Long id, Long shopId);
 }
