@@ -28,6 +28,8 @@ public interface StockCountingRepository extends BaseRepository<StockCounting>, 
             " ORDER BY s.stockCountingCode desc ")
     Page<StockCounting> getLastStockCounting(Long shopId, LocalDateTime startDate, Pageable pageable);
 
+    StockCounting getByIdAndShopId(Long id, Long shopId);
+
     /*WareHouseType w: w  ko đổi do sort FE  w.wareHouseTypeName*/
     @Query(value = "SELECT NEW vn.viettel.sale.service.dto.StockCountingDTO(s.id," +
             " s.stockCountingCode, s.countingDate, s.shopId, s.wareHouseTypeId, w.wareHouseTypeName, s.createdBy, s.updatedBy, s.createdAt, s.updatedAt) " +
