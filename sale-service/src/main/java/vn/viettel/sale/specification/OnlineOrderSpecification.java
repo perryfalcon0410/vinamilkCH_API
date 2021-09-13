@@ -10,12 +10,7 @@ public class OnlineOrderSpecification {
 
     public static Specification<OnlineOrder> hasShopId(Long shopId) {
 
-        return (root, query, criteriaBuilder) -> {
-            if (shopId == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.equal(root.get(OnlineOrder_.shopId), shopId);
-        };
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(OnlineOrder_.shopId), shopId);
     }
 
     public static Specification<OnlineOrder> hasSynStatus(Integer synStatus) {
