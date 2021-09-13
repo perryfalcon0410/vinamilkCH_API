@@ -1208,7 +1208,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         if (request.getOrderOnlineId() != null) {
-            onlineOrder = onlineOrderRepo.findById(request.getOrderOnlineId())
+            onlineOrder = onlineOrderRepo.getById(request.getOrderOnlineId(), shopId)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND));
             if (onlineOrder.getSynStatus()!=null && onlineOrder.getSynStatus() == 1) throw new ValidateException(ResponseMessage.ORDER_ONLINE_NOT_FOUND);
 
