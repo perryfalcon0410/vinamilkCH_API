@@ -283,7 +283,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public SaleOrder createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
-        SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber(), shopId);
         if (saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
 

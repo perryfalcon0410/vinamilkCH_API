@@ -185,7 +185,7 @@ public class RedInvoiceController extends BaseController {
 
     @PutMapping(value = {V1 + root + "/red-invoices/update"})
     public Response<ResponseMessage> update(@Valid @RequestBody List<RedInvoiceRequest> redInvoiceRequests, HttpServletRequest httpRequest) {
-        ResponseMessage message = redInvoiceService.updateRed(redInvoiceRequests, this.getUserId());
+        ResponseMessage message = redInvoiceService.updateRed(redInvoiceRequests, this.getUserId(), this.getShopId());
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
