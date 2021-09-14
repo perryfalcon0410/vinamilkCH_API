@@ -552,20 +552,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         UserLogOnTime log = new UserLogOnTime();
         log.setShopId(shopId);
         log.setAccount(userAccount);
-        Date date = new Date();
-        Timestamp time = new Timestamp(date.getTime());
-        StringBuilder logCode = new StringBuilder();
-        if(loginInfo.getComputerName() != null && !loginInfo.getComputerName().isEmpty())
-            logCode.append(loginInfo.getComputerName());
-        if(loginInfo.getMacAdrress() != null && !loginInfo.getMacAdrress().isEmpty())
-            logCode.append("_").append(loginInfo.getMacAdrress()).append("_");
-        logCode.append(time);
-        log.setLogCode(logCode.toString());
-        log.setComputerName(loginInfo.getComputerName());
-        log.setMacAddress(loginInfo.getMacAdrress());
-
-        userLogRepository.save(log);
-/*        try {
+       try {
             InetAddress inetAddress = InetAddress.getLocalHost();
             String hostName = inetAddress.getHostName(); //Get Host Name
             String macAddress = "";
@@ -590,7 +577,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
             e.printStackTrace();
         } catch (UnknownHostException e) {
             e.printStackTrace();
-        }*/
+        }
 
     }
 
