@@ -29,7 +29,15 @@ public class ConnectFTP {
 //    @Value( "${directory.tmp}" )
 //    private String directoryTmp;
 
+    public String getReadFile() {
+        return readFile;
+    }
+
     public ConnectFTP(String server, String portStr, String userName, String password) {
+        this.connect(server, portStr, userName, password);
+    }
+
+    public boolean connect(String server, String portStr, String userName, String password) {
         AtomicReference<String> strServer = new AtomicReference<>("");
         AtomicReference<String> strUser = new AtomicReference<>("");
         AtomicReference<String> strPass = new AtomicReference<>("");
@@ -62,11 +70,16 @@ public class ConnectFTP {
                 ftpClient.setDataTimeout(FTP_TIMEOUT);
                 System.out.println("connected");
             }
+            return true;
         } catch (IOException ex) {
             ex.printStackTrace();
-            throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());
+            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
+            ///throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());
         }
+
+        return false;
     }
+
 
     public HashMap<String, InputStream> getFiles(String locationPath, String containsStr, String shopCode){
         HashMap<String,InputStream> mapinputStreams = new HashMap<>();
@@ -105,6 +118,33 @@ public class ConnectFTP {
         return mapinputStreams;
     }
 
+    public FTPFile[] getFilesV2(String locationPath){
+        try {
+            FTPFile[] ftpFiles = ftpClient.listFiles(locationPath);
+            if (ftpFiles != null && ftpFiles.length > 0) {
+                return ftpFiles;
+            }
+        }catch (Exception ex) {
+            ex.printStackTrace();
+            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
+        }
+
+        return null;
+    }
+
+    public boolean reConnected(String server, String portStr, String userName, String password) {
+        if(ftpClient != null && ftpClient.isConnected() ) {
+            return true;
+        }
+        return this.connect(server, portStr, userName, password);
+    }
+
+    public void retrieveFile( String fileName,  ByteArrayOutputStream outputStream) throws IOException {
+        ftpClient.retrieveFile(fileName, outputStream);
+    }
+
+
+
     public boolean uploadFile(InputStream inputStream, String fileName, String locationPath ){
         try {
             if(inputStream != null && !StringUtils.stringIsNullOrEmpty(fileName)) {
@@ -142,19 +182,6 @@ public class ConnectFTP {
                 String toFile = toPath + "/" + destinationFile;
                 if (ftpClient != null && ftpClient.isConnected()) {
                    ftpClient.rename(fromFile ,toFile);
-
-/*                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    ftpClient.retrieveFile(fromFile, outputStream);
-                    InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
-
-                    // assuming backup directory is with in current working directory
-                    ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);//binary files
-                    ftpClient.changeWorkingDirectory(toPath);
-                    //this overwrites the existing file
-                    ftpClient.storeUniqueFile(destinationFile, is);
-                    is.close();
-                    outputStream.close();*/
-
                    ftpClient.deleteFile(fromFile );
                 } else {
                     Path source = Paths.get(fromFile);
