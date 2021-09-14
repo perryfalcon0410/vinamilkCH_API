@@ -91,6 +91,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     @Value( "${apparam.type.unique.online.order}" )
     private String uniqueParramType;
 
+    @Value("${spring.application.name}")
+    public String appName;
+
     XStreamTranslator xstream = XStreamTranslator.getInstance();
 
     private Class<?>[] classes = new Class[] { Line.class, DataSet.class, Header.class, NewDataSet.class, NewData.class};
@@ -420,7 +423,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                                 }
                             }catch (Exception ex) {
                                 ex.printStackTrace();
-                                LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
+                                LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "FTP read files error: " +  file.getName() + " - " + ex.getMessage());
                             }finally {
                                 IOUtils.closeQuietly(outputStream);
                                 IOUtils.closeQuietly(inputstream);
@@ -505,7 +508,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         if (inputStream != null)
                             connectFTP.uploadFile(inputStream, fileName, uploadDestination);
                     } catch (Exception ex) {
-                        LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
+                        LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
                     }
                 }
             }

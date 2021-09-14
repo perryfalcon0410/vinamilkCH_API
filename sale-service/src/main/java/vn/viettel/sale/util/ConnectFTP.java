@@ -29,10 +29,6 @@ public class ConnectFTP {
 //    @Value( "${directory.tmp}" )
 //    private String directoryTmp;
 
-    public String getReadFile() {
-        return readFile;
-    }
-
     public ConnectFTP(String server, String portStr, String userName, String password) {
         this.connect(server, portStr, userName, password);
     }
@@ -112,7 +108,7 @@ public class ConnectFTP {
             }
         }catch (Exception ex) {
            ex.printStackTrace();
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
         }
 
         return mapinputStreams;
@@ -126,7 +122,7 @@ public class ConnectFTP {
             }
         }catch (Exception ex) {
             ex.printStackTrace();
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
         }
 
         return null;
@@ -166,7 +162,7 @@ public class ConnectFTP {
             }
         }catch (Exception ex) {
             ex.printStackTrace();
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP upload error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "", LogLevel.ERROR, null, "FTP upload error: " + ex.getMessage());
         }
 
         return false;
@@ -192,7 +188,7 @@ public class ConnectFTP {
             }
         }catch (Exception ex) {
             ex.printStackTrace();
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
         }
         return false;
     }
@@ -208,5 +204,7 @@ public class ConnectFTP {
         }
     }
 
-
+    public String getReadFile() {
+        return readFile;
+    }
 }
