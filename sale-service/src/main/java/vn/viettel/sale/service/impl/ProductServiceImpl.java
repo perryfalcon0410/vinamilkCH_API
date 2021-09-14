@@ -96,7 +96,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if(customerType == null) return null;
 
         if(barcode!= null && barcode) {
-            List<OrderProductDTO> productDTOS = repository.getByBarCodeAndStatus(keyWord, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
+            List<OrderProductDTO> productDTOS = new ArrayList<>();
+            if(keyWord != null && !keyWord.isEmpty()) {
+                productDTOS = repository.getByBarCodeAndStatus(keyWord, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
+            }
             return new PageImpl<>(productDTOS);
         }else {
             if (checkStocktotal != null && checkStocktotal == 1) hasQty = true;
@@ -269,7 +272,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public List<OrderProductDTO> getByBarcode(Long shopId, String barcode, Long customerId) {
         CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
         List<OrderProductDTO> productDTOS = new ArrayList<>();
-        if(customerType != null)
+        if(customerType != null && barcode !=null && !barcode.isEmpty())
             productDTOS = repository.getByBarCodeAndStatus(barcode, shopId, customerType.getId(), customerType.getWareHouseTypeId(), LocalDateTime.now());
 
         return productDTOS;
