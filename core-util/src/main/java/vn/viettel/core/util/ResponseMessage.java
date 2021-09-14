@@ -394,6 +394,7 @@ public enum ResponseMessage {
      */
     CLIENT_IP_IS_EXITS(14000,"Client_Ip đã tồn tại"),
     PRINTER_CONFIG_NOT_FOUND(14000,"Cấu hình máy in không tồn tại"),
+    APPARAM_UNIQUE_ONLINE_NUMBER_VALUE0(14000,"Chưa thiết lập số ngày kiểm tra trùng số hóa đơn online"),
     ;
 
     private final int statusCode;

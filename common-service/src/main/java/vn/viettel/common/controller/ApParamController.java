@@ -171,5 +171,17 @@ public class ApParamController extends BaseController {
         return new Response<ApParamDTO>().withData(apParamDTO);
     }
 
+    @ApiOperation(value = "Ap param theo mã và loại")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/code-type/{code}"})
+    public Response<ApParamDTO> getApParamByCodeType(HttpServletRequest httpRequest, @PathVariable String code, @RequestParam String type) {
+        ApParamDTO apParamDTO = apParamService.getByCode(code, type);
+        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AP_PARAM_SUCCESS);
+        return new Response<ApParamDTO>().withData(apParamDTO);
+    }
+
 }
 

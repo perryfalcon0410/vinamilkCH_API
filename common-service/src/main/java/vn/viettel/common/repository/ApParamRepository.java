@@ -27,8 +27,10 @@ public interface ApParamRepository extends BaseRepository<ApParam> {
     @Query(value = "Select a FROM ApParam a Where a.type = 'SALEMT_PROMOTION_OBJECT' And a.apParamCode Like 'ONLINE%' and a.status = 1 ")
     List<ApParam> getOnlineOrderType();
 
-
     Optional<ApParam> findByTypeAndValueAndStatus(String type, String value, Integer status);
+
+    @Query(value = "SELECT a FROM ApParam a WHERE a.apParamCode = :CODE AND a.type =:TYPE AND a.status = 1 ORDER BY a.status desc ")
+    List<ApParam> findByCode(String CODE, String TYPE);
 
 }
 
