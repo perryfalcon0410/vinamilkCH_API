@@ -2175,13 +2175,15 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     double pcExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
                     List<SaleDiscountSaveDTO> infos = initSaleDiscountSaveDTO(orderData.getProducts(), entry.getKey(), pcInTax, pcExTax, isInclusiveTax,
                             amtInTax, amtExTax);
-                    discountInTax = 0;
-                    discountExTax = 0;
+                    amtInTax = 0;
+                    amtExTax = 0;
                     for(SaleDiscountSaveDTO info : infos) {
                         saveInfo.add(info);
-                        discountInTax += info.getAmountInTax();
-                        discountExTax += info.getAmountExTax();
+                        amtInTax += info.getAmountInTax();
+                        amtExTax += info.getAmountExTax();
                     }
+                    discountInTax += amtInTax;
+                    discountExTax += amtExTax;
 
                     if (checkMulti == MR_RECURSIVE || checkMulti == MR_MULTIPLE_RECURSIVE) { // có tối ưu thì tính tiếp
                     } else break; // không tính tối ưu thì dừng lại
