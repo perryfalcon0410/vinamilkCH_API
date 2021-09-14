@@ -30,4 +30,7 @@ public interface ApparamClient {
 
     @GetMapping(value = {"api/v1/commons/apparams/online-order/type"})
     Response<ApParamDTO> getApParamOnlineOrderV1(@RequestParam(required = false) String discription);
+
+    @GetMapping(value = {"api/v1/commons/apparams/code-type/{code}"})
+    Response<ApParamDTO> getApParamByCodeTypeV1(@PathVariable String code, @RequestParam String type);
 }

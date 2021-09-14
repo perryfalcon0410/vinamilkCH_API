@@ -337,6 +337,9 @@ public enum ResponseMessage {
     PAYMENT_UPDATE_MEMBER_CUSTOMER_FAIL(9105, "Thanh toán không thành công. Cập nhật số tiền tích lũy thất bại."),
     IMPORT_PO_SHOP_NOT_MATCH(9106, "Đơn nhập sai cửa hàng"),
     STOCK_BORROWING_NOT_EXITS(9107, "Phiếu nhập vay mượn không tồn tại"),
+    PAYMENT_UPDATE_P_SHOP_MAP_FAIL(9105, "Thanh toán không thành công. Cập nhật số xuất thất bại."),
+    PAYMENT_CREATE_RPT_ZV23_FAIL(9106, "Thanh toán không thành công. Tạo mới zpt_zv23 thất bại."),
+    PAYMENT_UPDATE_RPT_ZV23_FAIL(9107, "Thanh toán không thành công. Cập nhật zpt_zv23 chương trình %s thất bại."),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
@@ -391,6 +394,7 @@ public enum ResponseMessage {
      */
     CLIENT_IP_IS_EXITS(14000,"Client_Ip đã tồn tại"),
     PRINTER_CONFIG_NOT_FOUND(14000,"Cấu hình máy in không tồn tại"),
+    APPARAM_UNIQUE_ONLINE_NUMBER_VALUE0(14000,"Chưa thiết lập số ngày kiểm tra trùng số hóa đơn online"),
     ;
 
     private final int statusCode;

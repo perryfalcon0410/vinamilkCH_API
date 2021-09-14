@@ -93,17 +93,18 @@ public class SaleController extends BaseController {
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/promotion-products"})
     public Response<List<FreeProductDTO>> getPromotionProduct(@Valid @ApiParam("ID chương trình khuyến mãi") @RequestParam Long promotionId,
+                                                              @ApiParam("ID khách hàng") @RequestParam Long customerId,
                                                               @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm")
                                                               @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
                                                               @RequestParam(name = "page", required = false) Integer page) {
-        if (promotionId == null){
-            throw new ValidateException(ResponseMessage.PROMOTION_DOSE_NOT_EXISTS);
+        if (customerId == null){
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
         }
 
         if (page == null)
             page = 0;
 
-        List<FreeProductDTO> response = productService.findFreeProductDTONoOrder(this.getShopId(), null, keyWord.trim(), page);
+        List<FreeProductDTO> response = productService.findFreeProductDTONoOrder(this.getShopId(), customerId, keyWord.trim(), page);
 
         return new Response<List<FreeProductDTO>>().withData(response);
     }

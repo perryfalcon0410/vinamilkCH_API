@@ -4,6 +4,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -75,6 +76,12 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     SaleOrderRepository saleOrderRepository;
+
+    @Value( "${apparam.code.unique.online.order}" )
+    private String uniqueParramCode;
+
+    @Value( "${apparam.type.unique.online.order}" )
+    private String uniqueParramType;
 
     XStreamTranslator xstream = XStreamTranslator.getInstance();
 
@@ -156,11 +163,12 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Override
     public String checkOnlineNumber(String code) {
-        ApParamDTO apParam = apparamClient.getApParamByCodeV1("NUMDAY_CHECK_ONLNO").getData();
+        ApParamDTO apParam = apparamClient.getApParamByCodeTypeV1(uniqueParramCode, uniqueParramType).getData();
         LocalDateTime date = LocalDateTime.now();
         LocalDateTime daysAgo = null;
         if(apParam!=null && apParam.getStatus() == 1 && apParam.getValue() !=null) {
-            daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
+            //tính ngày hiện tại là 1 ngày
+            daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())  - 1));
         }
         List<SaleOrder> saleOrders = saleOrderRepository.checkOnlineNumber(code, daysAgo);
 

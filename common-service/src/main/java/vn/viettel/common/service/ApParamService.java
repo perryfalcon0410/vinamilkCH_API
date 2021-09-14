@@ -31,4 +31,6 @@ public interface ApParamService extends BaseService {
     */
     ApParamDTO getApParamOnlineOrder(String discription);
 
+    ApParamDTO getByCode(String code, String type);
+
 }
