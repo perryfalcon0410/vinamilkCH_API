@@ -318,6 +318,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             else
                 auto.setContraintType(1);
             LimitDto value = getPromotionLimit(auto, shopId);
+            //[Tính khuyến mãi - row 235] Mong muốn trường hợp nếu promotion_shop_map.quantity_received >= quantity_max rồi thì không hiển thị khuyến mãi đó lên popup thanh toán nữa
+            //https://trello.com/c/6M4MLG6m/850-t%C3%ADnh-khuy%E1%BA%BFn-m%C3%A3i-mong-mu%E1%BB%91n-tr%C6%B0%E1%BB%9Dng-h%E1%BB%A3p-n%E1%BA%BFu-promotionshopmapquantityreceived-quantitymax-r%E1%BB%93i-th%C3%AC-kh%C3%B4ng-hi%E1%BB%83n-th%E1%BB%8B-khuy%E1%BA%BFn-m%C3%A3i-%C4%91%C3%B3-l%C3%AAn-p
+            if(!value.isUsed) return null;
             auto.setNumberLimited(value.getLimited());
             auto.setIsUse(value.isUsed());
             auto.setIsReturn(false);
@@ -386,6 +389,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setTotalQty(totalQty);
                 }
                 LimitDto value = getPromotionLimit(salePromotion, shopId);
+                if(value.getLimited()!=null && value.getLimited() < 1) return null;
                 salePromotion.setNumberLimited(value.getLimited());
                 salePromotion.setIsUse(false);
                 salePromotion.setIsEditable(true);
@@ -599,11 +603,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 spDto.setMaxAmount(maxAmount);
                 salePromotion.setIsEditable(true);
                 salePromotion.setIsUse(false);
+                if(value.getLimited()!= null && value.getLimited()<1) return null;
             }
 
             if(forSaving && inputAmount!=null && inputAmount > 0) {
                 salePromotion.setIsUse(true);
             }
+            if(maxAmount < 1 && !value.isUsed()) return null;
+
         }
 
         return salePromotion;
@@ -804,6 +811,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             if (program.getRelation() != null && program.getRelation() == 0) salePromotion.setContraintType(0);
             salePromotion.setZv23Amount(saveAmountInTax);
             LimitDto value = getPromotionLimit(salePromotion, shopId);
+            if(!value.isUsed()) return null;
             salePromotion.setNumberLimited(value.getLimited());
             salePromotion.setIsUse(value.isUsed());
             salePromotion.setIsReturn(false);
