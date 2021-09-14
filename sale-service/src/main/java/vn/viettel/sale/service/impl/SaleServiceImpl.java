@@ -450,7 +450,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //update số suât
         for(PromotionShopMapDTO item : promotionShopMaps){
-            promotionClient.updatePromotionShopMapV1(item);
+            try {
+                promotionClient.updatePromotionShopMapV1(item);
+            }catch (Exception ex) {
+                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_P_SHOP_MAP_FAIL);
+            }
         }
 
         //update zm with given type = 3
@@ -892,12 +896,20 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
             zv23Request.setTotalAmount(amount + inputPro.getZv23Amount());
             zv23Request.setShopId(customer.getShopId());
-            promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
+            try {
+                promotionClient.updateRPTZV23V1(rpt_zv23DTO.getId(), zv23Request);
+            }catch (Exception ex) {
+                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_RPT_ZV23_FAIL, inputPro.getPromotionProgramCode());
+            }
         }else{
             PromotionProgramDTO program = promotionClient.getByIdV1(inputPro.getProgramId()).getData();
             RPT_ZV23Request zv23Request =
                 new RPT_ZV23Request(program.getId(), program.getPromotionProgramCode(), program.getFromDate(), program.getToDate(), customer.getShopId(), customer.getId(), inputPro.getZv23Amount());
-            promotionClient.createRPTZV23V1(zv23Request);
+            try {
+                promotionClient.createRPTZV23V1(zv23Request);
+            }catch (Exception ex) {
+                throw new ValidateException(ResponseMessage.PAYMENT_CREATE_RPT_ZV23_FAIL);
+            }
         }
     }
 

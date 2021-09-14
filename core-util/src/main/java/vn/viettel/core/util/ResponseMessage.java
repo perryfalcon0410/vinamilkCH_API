@@ -337,6 +337,9 @@ public enum ResponseMessage {
     PAYMENT_UPDATE_MEMBER_CUSTOMER_FAIL(9105, "Thanh toán không thành công. Cập nhật số tiền tích lũy thất bại."),
     IMPORT_PO_SHOP_NOT_MATCH(9106, "Đơn nhập sai cửa hàng"),
     STOCK_BORROWING_NOT_EXITS(9107, "Phiếu nhập vay mượn không tồn tại"),
+    PAYMENT_UPDATE_P_SHOP_MAP_FAIL(9105, "Thanh toán không thành công. Cập nhật số xuất thất bại."),
+    PAYMENT_CREATE_RPT_ZV23_FAIL(9106, "Thanh toán không thành công. Tạo mới zpt_zv23 thất bại."),
+    PAYMENT_UPDATE_RPT_ZV23_FAIL(9107, "Thanh toán không thành công. Cập nhật zpt_zv23 chương trình %s thất bại."),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
