@@ -175,7 +175,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     public List<OrderProductDTO> findProductsByKeyWord(Long shopId, Long customerId, String keyWord) {
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)));
-        CustomerTypeDTO customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
+        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
+        if(customerType == null) customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
         List<OrderProductDTO> rp = new ArrayList<>();
 
         if(products!=null && !products.isEmpty()){
