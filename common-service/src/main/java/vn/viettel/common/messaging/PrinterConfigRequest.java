@@ -22,4 +22,6 @@ public class PrinterConfigRequest extends BaseRequest {
 
     private Boolean removeAccent;
 
+    private  String userName;
+
 }

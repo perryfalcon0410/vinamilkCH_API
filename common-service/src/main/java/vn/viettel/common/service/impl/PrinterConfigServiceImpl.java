@@ -11,6 +11,8 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
+import java.util.Locale;
+
 @Service
 public class PrinterConfigServiceImpl extends BaseServiceImpl<PrinterConfig, PrinterConfigRepository> implements PrinterConfigService {
 
@@ -21,6 +23,8 @@ public class PrinterConfigServiceImpl extends BaseServiceImpl<PrinterConfig, Pri
         if (printerConfig!=null) throw new ValidateException(ResponseMessage.CLIENT_IP_IS_EXITS);
         PrinterConfig printer = modelMapper.map(request, PrinterConfig.class);
         if(printer.getRemoveAccent() == null) printer.setRemoveAccent(false);
+        if(request.getClientIp() == null) request.setClientIp("");
+        printer.setClientIp(request.getClientIp().toLowerCase() + "_" + request.getUserName().toLowerCase());
         PrinterConfig printerDB = repository.save(printer);
         return modelMapper.map(printerDB, PrinterConfigDTO.class);
     }
@@ -31,6 +35,8 @@ public class PrinterConfigServiceImpl extends BaseServiceImpl<PrinterConfig, Pri
         PrinterConfig printer = modelMapper.map(request, PrinterConfig.class);
         printer.setId(id);
         if(printer.getRemoveAccent() == null) printer.setRemoveAccent(false);
+        if(request.getClientIp() == null) request.setClientIp("");
+        printer.setClientIp(request.getClientIp().toLowerCase() + "_" + request.getUserName().toLowerCase());
         PrinterConfig printerDB = repository.save(printer);
         return modelMapper.map(printerDB, PrinterConfigDTO.class);
     }
