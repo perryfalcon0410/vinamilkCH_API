@@ -14,7 +14,7 @@ public class SchedulerManager{
 	@Autowired
 	OnlineOrderService onlineOrderService;
 
-	@Scheduled(cron = "* */2 * * * *")
+	@Scheduled(cron = "* */5 * * * *")
 	@SchedulerLock(name = "getOnlineOrder")
 	public void getOnlineOrder() throws InterruptedException {
 		onlineOrderService.getOnlineOrderSchedule();
