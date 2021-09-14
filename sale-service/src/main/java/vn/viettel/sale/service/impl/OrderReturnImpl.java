@@ -89,7 +89,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             saleOrderFilter.setOrderNumber(saleOrderFilter.getOrderNumber().trim().toUpperCase());
 
         if(saleOrderFilter.getSearchKeyword() != null || saleOrderFilter.getCustomerPhone() != null){
-          List<Long> cusIds = repository.getCustomerIds(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null);
+            List<Long> cusIds = repository.getCustomerIds(saleOrderFilter.getFromDate(), saleOrderFilter.getToDate(), saleOrderFilter.getOrderNumber(), type, shopId, null);
             customerIds = customerClient.getIdCustomerByV1(saleOrderFilter.getSearchKeyword(), saleOrderFilter.getCustomerPhone(), cusIds).getData();
             if (customerIds == null || customerIds.isEmpty()) {
                 customerIds = Arrays.asList(-1L);
@@ -283,7 +283,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     public SaleOrder createOrderReturn(OrderReturnRequest request, Long shopId, String userName) {
         if (request == null)
             throw new ValidateException(ResponseMessage.REQUEST_BODY_NOT_BE_NULL);
-        SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber());
+        SaleOrder saleOrder = repository.getSaleOrderByNumber(request.getOrderNumber(), shopId);
         if (saleOrder == null)
             throw new ValidateException(ResponseMessage.ORDER_RETURN_DOES_NOT_EXISTS);
 
@@ -637,9 +637,9 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             // lấy tổng tiền theo những sản phẩm quy định
             Double amountInTax = 0.0;
             List<Long> productIds = zv23MapProducts.get(zv23.getPromotionProgramId()).stream().map(SaleOrderDiscount::getProductId).collect(Collectors.toList());
-                for(SaleOrderDetail detail: details) {
-                    if(productIds.contains(detail.getProductId())) amountInTax += detail.getAmount();
-                }
+            for(SaleOrderDetail detail: details) {
+                if(productIds.contains(detail.getProductId())) amountInTax += detail.getAmount();
+            }
             Double amount =  zv23.getTotalAmount()!=null?zv23.getTotalAmount():0;
             RPT_ZV23Request zv23Request = new RPT_ZV23Request();
             zv23Request.setTotalAmount(amount - amountInTax);

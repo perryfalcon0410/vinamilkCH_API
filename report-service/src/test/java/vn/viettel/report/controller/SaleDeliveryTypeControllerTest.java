@@ -13,8 +13,6 @@ import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.SaleDeliveryTypeService;
-import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
-import vn.viettel.report.service.dto.ReportTotalDTO;
 import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
 import vn.viettel.report.service.dto.SaleDeliTypeTotalDTO;
 
@@ -23,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

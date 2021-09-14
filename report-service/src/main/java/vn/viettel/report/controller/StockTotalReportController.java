@@ -4,18 +4,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.logging.LogFile;
-import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.StringUtils;
@@ -27,7 +22,6 @@ import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 import vn.viettel.report.service.feign.ShopClient;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 

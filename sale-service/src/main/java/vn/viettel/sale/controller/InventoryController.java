@@ -107,7 +107,7 @@ public class InventoryController extends BaseController {
     @PutMapping(value = { V1 + root + "/inventory/{id}"})
     public Response<String> updateStockCounting(@PathVariable Long id,
                                                                    @RequestBody List<StockCountingUpdateDTO> details) {
-        ResponseMessage message = inventoryService.updateStockCounting(id, this.getUserName(), details);
+        ResponseMessage message = inventoryService.updateStockCounting(id, this.getShopId(), this.getUserName(), details);
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
