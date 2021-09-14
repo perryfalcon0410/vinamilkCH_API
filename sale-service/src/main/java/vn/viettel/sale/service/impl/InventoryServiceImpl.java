@@ -155,25 +155,24 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         totalStockCounting.setCountingCode(stockCounting.getStockCountingCode());
         totalStockCounting.setCountingDate(stockCounting.getCountingDate().toString());
         totalStockCounting.setWarehouseType(stockCounting.getWareHouseTypeId());
-        //List<StockCountingExcel> result = countingDetailRepository.getStockCountingExcel(id);
 
         List<StockCountingExcelDTO> result = countingDetailRepository.getStockCountingDetail(id);
 
         if(DateUtils.isToday(stockCounting.getCountingDate().toLocalDate())) {
-            List<StockTotal> listSt = stockTotalRepository.getStockTotal(stockCounting.getShopId(), stockCounting.getWareHouseTypeId()
-                    , result.stream().map(e -> e.getProductId()).distinct().collect(Collectors.toList()));
+            List<StockCountingDetailDTO> countingDetails = stockTotalRepository.getStockCountingDetail(shopId, stockCounting.getWareHouseTypeId(), null);
+            if (countingDetails == null || countingDetails.isEmpty()) return null;
             List<StockCountingExcelDTO> dtos = new ArrayList<>();
-            Map<Long, StockTotal> stockMaps = listSt.stream().collect(Collectors.toMap(StockTotal::getProductId, Function.identity()));
-            Map<Long, StockTotal> newStockMaps = new HashMap<>();
-            for (StockCountingExcelDTO countingExcel : result) {
-                for (StockTotal st : listSt) {
-                    if (st.getProductId().equals(countingExcel.getProductId())) {
+            List<StockCountingDetailDTO> newProducts = new ArrayList<>();
+            Map<Long, StockCountingExcelDTO> resultMap = result.stream().collect(Collectors.toMap(StockCountingExcelDTO::getProductId, Function.identity()));
+            for (StockCountingDetailDTO st : countingDetails) {
+                 if(resultMap.containsKey(st.getProductId())) {
+                     StockCountingExcelDTO countingExcel = resultMap.get(st.getProductId());
                         StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
                         if (dto.getInventoryQuantity() == null) dto.setInventoryQuantity(0);
-                        if (st.getQuantity() == null){
+                        if (st.getStockQuantity() == null){
                             dto.setStockQuantity(0);
                         }else{
-                            dto.setStockQuantity(st.getQuantity());
+                            dto.setStockQuantity(st.getStockQuantity());
                         }
                         if(dto.getPacketQuantity() == null) dto.setPacketQuantity(0);
                         if(dto.getUnitQuantity() == null) dto.setUnitQuantity(0);
@@ -193,16 +192,66 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                         if(dto.getPacketQuantity() == 0) dto.setPacketQuantity(null);
                         if(dto.getUnitQuantity() == 0) dto.setUnitQuantity(null);
                         dtos.add(dto);
-                        if(!newStockMaps.containsKey(st.getProductId())) newStockMaps.put(st.getProductId(), st);
-                        break;
+
+                    } else{
+                        newProducts.add(st);
+                    }
+            }
+
+            if(!newProducts.isEmpty()) {
+                List<Long> customerTypeIds = Arrays.asList(-1L);
+                List<CustomerTypeDTO> customerTypes = customerTypeClient.getCusTypeByWarehouse(stockCounting.getWareHouseTypeId());
+                if(!customerTypes.isEmpty()) customerTypeIds = customerTypes.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+
+                List<Price> prices = priceRepository.findProductPriceWithTypes(newProducts.stream().map(item -> item.getProductId()).distinct()
+                        .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()));
+
+                Map<Long, Double> priceMaps = new HashMap<>();
+                if (prices != null) {
+                    for (Price price : prices) {
+                        if (!priceMaps.containsKey(price.getProductId())) priceMaps.put(price.getProductId(), price.getPrice());
+                    }
+                }
+
+                for (StockCountingDetailDTO detail : newProducts) {
+                    if(priceMaps.containsKey(detail.getProductId())) {
+                        StockCountingExcelDTO dto = new StockCountingExcelDTO();
+                        dto.setProductId(detail.getProductId());
+                        dto.setProductCategory(detail.getProductCategory());
+                        dto.setProductCategoryCode(detail.getProductCategoryCode());
+                        dto.setProductGroup(detail.getProductGroup());
+                        dto.setProductCode(detail.getProductCode());
+                        dto.setProductName(detail.getProductName());
+                        dto.setStockQuantity(detail.getStockQuantity());
+                        dto.setPrice(priceMaps.get(detail.getProductId()));
+                        dto.setConvfact(detail.getConvfact());
+                        dto.setPacketUnit(detail.getPacketUnit());
+                        dto.setUnit(detail.getUnit());
+
+                        dto.setTotalAmount(detail.getStockQuantity() * dto.getPrice());
+                        dto.setPacketQuantity(0);
+                        dto.setUnitQuantity(0);
+                        dto.setInventoryQuantity(0);
+                        dto.setChangeQuantity((-1) * dto.getStockQuantity());
+
+                        totalStockCounting.setStockTotal(totalStockCounting.getStockTotal() + dto.getStockQuantity());
+                        totalStockCounting.setInventoryTotal(totalStockCounting.getInventoryTotal() + dto.getInventoryQuantity());
+                        totalStockCounting.setChangeQuantity(totalStockCounting.getInventoryTotal() - totalStockCounting.getStockTotal());
+                        totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (dto.getStockQuantity() * (dto.getPrice() == null ? 0D : dto.getPrice())));
+                        totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + dto.getPacketQuantity()));
+                        totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
+                        dtos.add(dto);
+
                     }
                 }
             }
 
+            Collections.sort(dtos, Comparator.comparing(StockCountingExcelDTO::getProductCategoryCode).thenComparing(StockCountingExcelDTO::getProductCode));
 
             CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = new CoverResponse(dtos, totalStockCounting);
             return response;
         }else {
+
             List<StockCountingExcelDTO> dtos = new ArrayList<>();
             for (StockCountingExcelDTO countingExcel : result) {
                 StockCountingExcelDTO dto = modelMapper.map(countingExcel, StockCountingExcelDTO.class);
