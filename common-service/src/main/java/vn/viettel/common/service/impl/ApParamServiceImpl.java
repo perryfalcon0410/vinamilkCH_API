@@ -151,6 +151,13 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
         return apParamDTOS.get(0);
     }
+
+    @Override
+    public ApParamDTO getByCode(String code, String type) {
+        List<ApParam> apParam = repository.findByCode(code, type);
+        if (apParam.isEmpty()) return null;
+        return modelMapper.map(apParam.get(0), ApParamDTO.class);
+    }
 }
 
 
