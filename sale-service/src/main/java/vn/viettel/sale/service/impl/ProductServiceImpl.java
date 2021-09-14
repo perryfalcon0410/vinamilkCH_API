@@ -107,19 +107,16 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
     }
 
     @Override
-    public List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long warehouseId, String keyWord, int page) {
+    public List<FreeProductDTO> findFreeProductDTONoOrder(Long shopId, Long customerId, String keyWord, int page) {
         Pageable pageable = PageRequest.of(page, 5, Sort.by("productCode").and(Sort.by("productName")));
         String keyUpper = "";
         if (keyWord != null) {
             keyUpper = VNCharacterUtils.removeAccent(keyWord).toUpperCase(Locale.ROOT);
         }
-        if (warehouseId == null) {
-            CustomerTypeDTO customerType = customerTypeClient.getCusTypeByShopIdV1(shopId);
-            if (customerType != null)
-                warehouseId = customerType.getWareHouseTypeId();
-        }
+        CustomerTypeDTO customerType = customerTypeClient.getCustomerTypeForSale(customerId, shopId);
+        if(customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
 
-        Page<FreeProductDTO> result = repository.findFreeProductDTONoOrder(shopId, warehouseId, keyUpper, pageable);
+        Page<FreeProductDTO> result = repository.findFreeProductDTONoOrder(shopId, customerType.getWareHouseTypeId(), keyUpper, pageable);
 
         return result.getContent();
     }
