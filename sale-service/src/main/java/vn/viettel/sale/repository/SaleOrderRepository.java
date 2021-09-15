@@ -66,7 +66,7 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Lock(LockModeType.PESSIMISTIC_WRITE )
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "1000")})
     @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId And s.createdAt>= :startDate" +
-            " AND s.orderNumber like :startWith% " +
+            " AND s.orderNumber like :startWith% AND s.id is not null" +
             " ORDER BY s.orderNumber desc ")
     Page<SaleOrder> getLastSaleOrderNumber(Long shopId, String startWith, LocalDateTime startDate, Pageable pageable);
 

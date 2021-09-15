@@ -415,8 +415,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             return saleOrderService.createPrintSaleOrderDTO(shopId, customer, saleOrder, saleOrderDetails, saleOrderDiscounts);
         }
 
-        saleOrder.setOrderNumber(createOrderNumber(shop));
-        repository.save(saleOrder);
+       /* saleOrder.setOrderNumber(createOrderNumber(shop));*/
+        /*repository.save(saleOrder);*/
+        this.safeSave(saleOrder, shop);
+
 
         updateOnlineOrder(saleOrder, onlineOrder);
 
@@ -1302,17 +1304,50 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return df.format(value);
     }
 
+
+    @Transactional
     public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
         try {
             saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+            System.out.println("old code ---------------------------------------------------------------------------------- " + saleOrder.getOrderNumber());
             repository.save(saleOrder);
         }catch (DataIntegrityViolationException | ConstraintViolationException ex){
+            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+            System.out.println("reset code ---------------------------------------------------------------------------------------" + saleOrder.getOrderNumber());
+            repository.save(saleOrder);
+        }
+
+        return saleOrder;
+    }
+
+
+
+ /*   @Transactional(rollbackFor = Exception.class)
+    public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
+        try {
+            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+            saleOrder.setOrderNumber("SAL.SHOP121091500012");
+            this.saveDB(saleOrder, shopDTO);
+        }catch (DataIntegrityViolationException | ConstraintViolationException ex){
+           // entityManager.clear();
             saleOrder.setOrderNumber(createOrderNumber(shopDTO));
             repository.save(saleOrder);
         }
 
         return saleOrder;
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public SaleOrder saveDB(SaleOrder saleOrder, ShopDTO shopDTO){
+            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+            saleOrder.setOrderNumber("SAL.SHOP121091500011");
+            repository.saveAndFlush(saleOrder);
+        return saleOrder;
+    }
+*/
+
+
+
 
 }
 
