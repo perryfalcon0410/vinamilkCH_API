@@ -33,6 +33,9 @@ import vn.viettel.sale.service.*;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -415,8 +418,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             return saleOrderService.createPrintSaleOrderDTO(shopId, customer, saleOrder, saleOrderDetails, saleOrderDiscounts);
         }
 
-        saleOrder.setOrderNumber(createOrderNumber(shop));
-        repository.save(saleOrder);
+       /* saleOrder.setOrderNumber(createOrderNumber(shop));*/
+        /*repository.save(saleOrder);*/
+        this.safeSave(saleOrder, shop);
+
 
         updateOnlineOrder(saleOrder, onlineOrder);
 
@@ -1302,15 +1307,32 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return df.format(value);
     }
 
-    public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
-        try {
-            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
-            repository.save(saleOrder);
-        }catch (DataIntegrityViolationException | ConstraintViolationException ex){
-            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
-            repository.save(saleOrder);
-        }
 
+    public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
+        for(int i = 0; ; i++) {
+            EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
+            boolean flag = false;
+            try {
+                newEntityM.getTransaction().begin();
+                saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+                newEntityM.persist(saleOrder);
+                newEntityM.flush();
+                newEntityM.getTransaction().commit();
+                flag = true;
+            }catch (Exception ex ){
+                newEntityM.getTransaction().rollback();
+                if(ex.getCause().getClass().equals(ConstraintViolationException.class)
+                        || ex.getCause().getClass().equals(DataIntegrityViolationException.class) || ex.getCause().getClass().equals(SQLIntegrityConstraintViolationException.class))  {
+                    continue;
+                }else {
+                    throw ex;
+                }
+            }finally {
+                newEntityM.close();
+            }
+
+            if(flag) break;
+        }
         return saleOrder;
     }
 
