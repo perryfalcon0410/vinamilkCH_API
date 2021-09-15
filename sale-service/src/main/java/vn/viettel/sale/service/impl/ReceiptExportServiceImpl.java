@@ -448,8 +448,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         order.setDiscountCodeAmount(0D);
         order.setUsedRedInvoice(false);
 
-        order.setOrderNumber(saleService.createOrderNumber(shop));
-        saleOrderRepository.save(order);
+      /*  order.setOrderNumber(saleService.createOrderNumber(shop));
+        saleOrderRepository.save(order);*/
+        saleService.safeSave(order, shop);
+
         poAdjustTrans.setRedInvoiceNo(order.getOrderNumber());
         stockAdjustmentTransRepository.save(poAdjustTrans);
 

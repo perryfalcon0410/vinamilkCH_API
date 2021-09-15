@@ -33,6 +33,9 @@ import vn.viettel.sale.service.*;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -1305,49 +1308,33 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
 
-    @Transactional
     public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
-        try {
-            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
-            System.out.println("old code ---------------------------------------------------------------------------------- " + saleOrder.getOrderNumber());
-            repository.save(saleOrder);
-        }catch (DataIntegrityViolationException | ConstraintViolationException ex){
-            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
-            System.out.println("reset code ---------------------------------------------------------------------------------------" + saleOrder.getOrderNumber());
-            repository.save(saleOrder);
+        for(int i = 0; ; i++) {
+            EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
+            boolean flag = false;
+            try {
+                newEntityM.getTransaction().begin();
+                saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+                newEntityM.persist(saleOrder);
+                newEntityM.flush();
+                newEntityM.getTransaction().commit();
+                flag = true;
+            }catch (Exception ex ){
+                newEntityM.getTransaction().rollback();
+                if(ex.getCause().getClass().equals(ConstraintViolationException.class)
+                        || ex.getCause().getClass().equals(DataIntegrityViolationException.class) || ex.getCause().getClass().equals(SQLIntegrityConstraintViolationException.class))  {
+                    continue;
+                }else {
+                    throw ex;
+                }
+            }finally {
+                newEntityM.close();
+            }
+
+            if(flag) break;
         }
-
         return saleOrder;
     }
-
-
-
- /*   @Transactional(rollbackFor = Exception.class)
-    public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
-        try {
-            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
-            saleOrder.setOrderNumber("SAL.SHOP121091500012");
-            this.saveDB(saleOrder, shopDTO);
-        }catch (DataIntegrityViolationException | ConstraintViolationException ex){
-           // entityManager.clear();
-            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
-            repository.save(saleOrder);
-        }
-
-        return saleOrder;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public SaleOrder saveDB(SaleOrder saleOrder, ShopDTO shopDTO){
-            saleOrder.setOrderNumber(createOrderNumber(shopDTO));
-            saleOrder.setOrderNumber("SAL.SHOP121091500011");
-            repository.saveAndFlush(saleOrder);
-        return saleOrder;
-    }
-*/
-
-
-
 
 }
 
