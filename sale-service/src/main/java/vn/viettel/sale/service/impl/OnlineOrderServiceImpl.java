@@ -381,18 +381,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         FTPINFO ftpinfo = new FTPINFO(apParamDTOList);
         ConnectFTP connectFTP = new ConnectFTP(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword());
 
-     /*  // ConnectFTP connectFTP = connectFTP(apParamDTOList);
-        //read new order
-        HashMap<String, InputStream> newOrders = new HashMap<>();
-        if(shopCodes == null || shopCodes.isEmpty())
-            newOrders = connectFTP.getFiles(readPath, newOrder, null);
-        else{
-            String[] arrShops = shopCodes.split(";");
-            for(String shopCode : arrShops){
-                newOrders.putAll(connectFTP.getFiles(readPath, newOrder, shopCode));
-            }
-        }
-*/
         String[] arrShops = {null};
         if(shopCodes != null && !shopCodes.isEmpty()) {
             arrShops = shopCodes.split(";");
@@ -408,24 +396,20 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         if (file.isFile() && file.getName().endsWith(connectFTP.getReadFile()) &&
                                 ((shopCode==null || shopCode.isEmpty()) || (shopCode!=null && file.getName().toLowerCase().startsWith(shopCode.trim().toLowerCase())))) {
                             InputStream inputstream = null;
-                            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                             try {
                                 if(connectFTP.reConnected(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword())){
-                                    connectFTP.retrieveFile(file.getName(), outputStream);
-                                    inputstream = new ByteArrayInputStream(outputStream.toByteArray());
-                                    if(file.getName().toLowerCase().contains(newOrder.toLowerCase())) {
+                                    inputstream = connectFTP.retrieveFile(readPath + "/" + file.getName());
+                                    if(file.getName().toLowerCase().contains(newOrder.toLowerCase()) && inputstream != null) {
                                         this.syncXmlOnlineOrder(inputstream);
                                         connectFTP.moveFile(readPath, backupPath, file.getName());
-                                    }else if(file.getName().toLowerCase().contains(cancelOrder.toLowerCase())) {
+                                    }else if(file.getName().toLowerCase().contains(cancelOrder.toLowerCase()) && inputstream != null) {
                                         this.syncXmlToCancelOnlineOrder(inputstream);
                                         connectFTP.moveFile(readPath, backupPath, file.getName());
                                     }
                                 }
                             }catch (Exception ex) {
-                                ex.printStackTrace();
                                 LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "FTP read files error: " +  file.getName() + " - " + ex.getMessage());
                             }finally {
-                                IOUtils.closeQuietly(outputStream);
                                 IOUtils.closeQuietly(inputstream);
                             }
                         }
@@ -434,46 +418,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }
         }
         connectFTP.disconnectFTPServer();
-
-/*        if(newOrders != null){
-            for (Map.Entry<String, InputStream> entry : newOrders.entrySet()){
-                try {
-                    this.syncXmlOnlineOrder(entry.getValue());
-                    connectFTP.moveFile(readPath, backupPath, entry.getKey());
-                }catch (Exception ex) {
-                    ex.printStackTrace();
-                    LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
-                }finally {
-                    IOUtils.closeQuietly( entry.getValue());
-                   // entry.getValue().close();
-                }
-            }
-        }*/
-
-
-        //read cancel order
-    /*   HashMap<String, InputStream> cancelOrders = new HashMap<>();
-        if(shopCodes == null || shopCodes.isEmpty())
-            cancelOrders = connectFTP.getFiles(readPath, cancelOrder, null);
-        else{
-            String[] arrShops = shopCodes.split(";");
-            for(String shopCode : arrShops){
-                cancelOrders.putAll(connectFTP.getFiles(readPath, cancelOrder, shopCode));
-            }
-        }
-
-        if(cancelOrders != null){
-            for (Map.Entry<String, InputStream> entry : cancelOrders.entrySet()){
-                try {
-                    this.syncXmlToCancelOnlineOrder(entry.getValue());
-                    connectFTP.moveFile(readPath, backupPath, entry.getKey());
-                    entry.getValue().close();
-                }catch (Exception ex) {
-                    System.out.println(ex);
-                    LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
-                }
-            }
-        }*/
 
     }
 
