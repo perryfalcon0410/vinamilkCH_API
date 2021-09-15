@@ -240,6 +240,11 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
                         totalStockCounting.setTotalAmount(totalStockCounting.getTotalAmount() + (dto.getStockQuantity() * (dto.getPrice() == null ? 0D : dto.getPrice())));
                         totalStockCounting.setTotalPacket((totalStockCounting.getTotalPacket() + dto.getPacketQuantity()));
                         totalStockCounting.setTotalUnit((totalStockCounting.getTotalUnit() +dto.getUnitQuantity()));
+
+                        if(dto.getInventoryQuantity() == 0) dto.setInventoryQuantity(null);
+                        if(dto.getPacketQuantity() == 0) dto.setPacketQuantity(null);
+                        if(dto.getUnitQuantity() == 0) dto.setUnitQuantity(null);
+
                         dtos.add(dto);
 
                     }
