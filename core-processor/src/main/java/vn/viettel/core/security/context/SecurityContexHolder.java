@@ -4,9 +4,9 @@ import org.springframework.util.Assert;
 
 public class SecurityContexHolder {
 
-    private UserContext context;
+    private static UserContext context;
 
-    public UserContext getContext() {
+    public static synchronized UserContext getContext() {
         if (context == null) {
             context = new UserContext();
         }

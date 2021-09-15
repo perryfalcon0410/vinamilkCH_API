@@ -48,22 +48,7 @@ public class PreFilter extends ZuulFilter {
     public Object run() {
         final RequestContext requestContext = RequestContext.getCurrentContext();
         requestContext.remove("error.status_code");
-        String formId = requestContext.getRequest().getParameter("formId");
-        String ctrlId = requestContext.getRequest().getParameter("ctrlId");
-        String method = requestContext.getRequest().getMethod();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        boolean isValidShopId = false;
-
-        if (formId == null) {
-            customizeZuulException(requestContext, ResponseMessage.FORM_ID_CAN_NOT_BE_NULL);
-            return null;
-        }
-        if (!method.equals("GET"))
-            if (ctrlId == null) {
-                customizeZuulException(requestContext, ResponseMessage.CONTROL_ID_CAN_NOT_BE_NULL);
-                return null;
-            }
         HttpServletRequest request = requestContext.getRequest();
         Optional<String> header = Optional.ofNullable(request.getHeader("Authorization"));
         String token;
@@ -96,30 +81,6 @@ public class PreFilter extends ZuulFilter {
             return null;
         }
 
-//        if (jwtTokenBody.getPermissions().isEmpty()) {
-//            customizeZuulException(requestContext, ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
-//            return null;
-//        }
-
-//        for (int i = 0; i < jwtTokenBody.getPermissions().size(); i++) {
-//            DataPermissionDTO permission = objectMapper.convertValue(jwtTokenBody.getPermissions().get(i), DataPermissionDTO.class);
-//            if (permission.getShopId().equals(jwtTokenBody.getShopId()))
-//                isValidShopId = true;
-//        }
-//        if (!isValidShopId) {
-//            customizeZuulException(requestContext, ResponseMessage.USER_HAVE_NO_PRIVILEGE_ON_THIS_SHOP);
-//            return null;
-//        }
-
-        // waiting for data
-//        List<PermissionDTO> permissions = authClient.getUserPermission(jwtTokenBody.getRoleId());
-//
-//        if (!checkUserPermission(requestContext.getRequest().getRequestURI(),
-//                permissions, Long.valueOf(formId), Long.valueOf(ctrlId))) {
-//            customizeZuulException(requestContext, ResponseMessage.NO_FUNCTIONAL_PERMISSION);
-//            return null;
-//        }
-
         return null;
     }
 
@@ -135,30 +96,6 @@ public class PreFilter extends ZuulFilter {
     public static String getTokenFromAuthorizationHeader(String header) {
         String token = header.replace("Bearer ", "");
         return token.trim();
-    }
-
-    public boolean checkUserPermission(String url, List<PermissionDTO> permissionList, Long formId, Long controlId) {
-        for (PermissionDTO permission : permissionList) {
-            List<ControlDTO> controlList = permission.getControls();
-            if (permission.getId().equals(formId)) {
-                if (controlId == null) {
-                    if (!checkFormControlPermission(url, permission, null))
-                        return false;
-                    else
-                        return true;
-                } else {
-                    for (ControlDTO ctrl : controlList) {
-                        if (ctrl.getId().equals(controlId)) {
-                            if (!checkFormControlPermission(url, permission, ctrl))
-                                return false;
-                            else
-                                return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     public boolean checkFormControlPermission(String url, PermissionDTO form, ControlDTO control) {
