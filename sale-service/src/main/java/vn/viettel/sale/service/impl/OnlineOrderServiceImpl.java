@@ -314,7 +314,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         if (onlineOrder != null) {
                             if (onlineOrder.getSynStatus() == 0) {
                                 String orderNumber = onlineOrder.getOrderNumber() + "_HUY";
-                                repository.schedulerCancel(-1, orderNumber, onlineOrder.getId());
+                                repository.schedulerCancel(-1, orderNumber, LocalDateTime.now(), onlineOrder.getId());
                             }
                         }
                     }
@@ -340,11 +340,12 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 Header header = new Header();
                 header.setOrderNumber(onlineOrder.getOrderNumber());
                 header.setOrderID(onlineOrder.getOrderId());
-
-                SaleOrder saleOrder = saleOrderRepository.findById(onlineOrder.getSaleOrderId()).orElse(null);
-                if(saleOrder != null)
-                {
-                    header.setPosOrderNumber(saleOrder.getOrderNumber());
+                if(onlineOrder.getSaleOrderId()!=null) {
+                    SaleOrder saleOrder = saleOrderRepository.findById(onlineOrder.getSaleOrderId()).orElse(null);
+                    if(saleOrder != null)
+                    {
+                        header.setPosOrderNumber(saleOrder.getOrderNumber());
+                    }
                 }
                 newDataSet.setHeader(header);
                 newDataSets.add(newDataSet);

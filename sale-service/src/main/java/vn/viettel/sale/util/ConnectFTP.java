@@ -135,7 +135,7 @@ public class ConnectFTP {
             ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
             flag = ftpClient.retrieveFile(fileName, outputStream);
         }catch (Exception ex) {
-            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP dowload error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP download error: " + ex.getMessage());
         }finally {
             outputStream.flush();
             IOUtils.closeQuietly(outputStream);
