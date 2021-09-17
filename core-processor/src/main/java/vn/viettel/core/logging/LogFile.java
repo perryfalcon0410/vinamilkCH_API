@@ -26,7 +26,6 @@ public class LogFile {
 			}
 
 			message = "[" + ipAddress + " - " + uri + " - " + username + "] " + getSource() + " - " + message;
-
 			Logger logger = LoggerFactory.getLogger(logFile);
 
 			if (LogLevel.DEBUG.equals(logLevel)) {

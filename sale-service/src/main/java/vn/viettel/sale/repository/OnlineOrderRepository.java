@@ -24,11 +24,11 @@ public interface OnlineOrderRepository extends BaseRepository<OnlineOrder>, JpaS
     List<Long> findALLShopId();
 
     @Modifying()
-    @Query(value = "Update OnlineOrder SET vnmSynStatus = :vnmSynStatus , vnmSynTime = :vnmSynTime where id =:id")
+    @Query(value = "Update OnlineOrder SET vnmSynStatus = :vnmSynStatus , vnmSynTime = :vnmSynTime, updatedAt = :vnmSynTime, updatedBy= 'schedule' where id =:id")
     int schedulerUpdate(Integer vnmSynStatus, LocalDateTime vnmSynTime, Long id);
 
     @Modifying()
-    @Query(value = "Update OnlineOrder SET synStatus = :synStatus , orderNumber =:orderNumber Where id =:id")
-    int schedulerCancel(Integer synStatus, String orderNumber, Long id);
+    @Query(value = "Update OnlineOrder SET synStatus = :synStatus , orderNumber =:orderNumber, updatedAt = :vnmSynTime, updatedBy= 'schedule' Where id =:id")
+    int schedulerCancel(Integer synStatus, String orderNumber, LocalDateTime vnmSynTime, Long id);
 
 }
