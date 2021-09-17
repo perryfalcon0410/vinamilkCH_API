@@ -47,7 +47,28 @@ public class StockCountingExcelDTO {
 
     private Long productId;
 
+    public StockCountingExcelDTO(Long productId,
+                                 String productCode, String productName,  String productGroup,
+                                 String productCategory, String productCategoryCode,
+                                 Double price, Integer stockQuantity,  String unit, String packetUnit,
+                                 Integer convfact,
+                                 Integer unitQuantity,  Integer packetQuantity) {
+        this.productId = productId;
+        this.productCode = productCode;
+        this.productName = productName;
+        this.productGroup = productGroup;
+        this.productCategory = productCategory;
+        this.productCategoryCode = productCategoryCode;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.unit = unit;
+        this.packetUnit = packetUnit;
+        this.convfact = convfact;
+        this.unitQuantity = unitQuantity;
+        this.packetQuantity = packetQuantity;
 
+      /*  this.inventoryQuantity = inventoryQuantity;
+        this.changeQuantity = changeQuantity;*/
 
-
+    }
 }

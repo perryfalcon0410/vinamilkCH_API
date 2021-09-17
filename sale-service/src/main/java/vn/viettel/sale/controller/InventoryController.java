@@ -82,7 +82,7 @@ public class InventoryController extends BaseController {
     })
     @GetMapping(value = { V1 + root + "/inventory/{id}"})
     public Response<CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id) {
-        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = inventoryService.getByStockCountingId(id);
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = inventoryService.getByStockCountingId(id, this.getShopId());
         return new Response<CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting>>().withData(response);
     }
 

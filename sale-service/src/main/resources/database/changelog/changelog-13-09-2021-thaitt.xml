@@ -1,0 +1,17 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="13-09-2021-add-new-colunm-package-quantity-in-table-stock-counting-detail" author="thaitt">
+        <addColumn tableName="STOCK_COUNTING_DETAIL">
+            <column name="PACKAGE_QUANTITY" type="int"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="STOCK_COUNTING_DETAIL" columnName="PACKAGE_QUANTITY"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
