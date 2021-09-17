@@ -2,6 +2,7 @@ package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
 import org.apache.commons.lang.StringUtils;
+import org.mapstruct.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -9,6 +10,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.exception.ValidateException;
+import vn.viettel.core.logging.LogFile;
+import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.entities.SaleOrder;
@@ -24,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -58,8 +63,10 @@ public class SaleController extends BaseController {
             @ApiResponse(code = 6100, message = "Số lượng mua vượt quá tồn kho")
     })
     @PostMapping(value = { V1 + root })
-    public Response<HashMap> createSaleOrder(@Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
+    public Response<HashMap> createSaleOrder(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
         Long id = (Long) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
+        //Logs theo dõi nhầm shop
+        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "][clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ ", username: " +this.getUserName() +"]");
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", id);
@@ -154,4 +161,44 @@ public class SaleController extends BaseController {
         return new Response<OnlineOrderValidDTO>().withData(response);
     }
 
+
+    private final String LOCALHOST_IPV4 = "127.0.0.1";
+    private final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
+    private static final String[] IP_HEADER_CANDIDATES = {
+            "X-Forwarded-For",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED",
+            "HTTP_X_CLUSTER_CLIENT_IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR",
+            "HTTP_FORWARDED",
+            "HTTP_VIA",
+            "REMOTE_ADDR" };
+    public String getClientIp(@Context HttpServletRequest request) {
+        String ipAddress = request.getRemoteAddr();
+        if(LOCALHOST_IPV4.equals(ipAddress) || LOCALHOST_IPV6.equals(ipAddress)) {
+            try {
+                InetAddress inetAddress = InetAddress.getLocalHost();
+                ipAddress = inetAddress.getHostAddress();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+        for (String header : IP_HEADER_CANDIDATES) {
+            String ip = request.getHeader(header);
+            if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
+                ipAddress += "-" + ip;
+            }
+        }
+
+        if(!StringUtils.isEmpty(ipAddress)
+                && ipAddress.length() > 15
+                && ipAddress.indexOf(",") > 0) {
+            ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
+        }
+
+        return ipAddress;
+    }
 }
