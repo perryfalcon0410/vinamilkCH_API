@@ -343,8 +343,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         if (saleOrder.getZmPromotionNotVat() != null)
             newOrderReturn.setZmPromotionNotVat(saleOrder.getZmPromotionNotVat() * -1);
         newOrderReturn.setOrderDate(returnDate);
-        newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop));
-        repository.save(newOrderReturn); //save new orderReturn
+
+      /*  newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop));
+        repository.save(newOrderReturn); //save new orderReturn*/
+        saleService.safeSave(newOrderReturn, shop);
+
         saleOrder.setIsReturn(false);
         repository.save(saleOrder);
         Map<String, Double> shopMapNeedUpdates = new HashMap<>();

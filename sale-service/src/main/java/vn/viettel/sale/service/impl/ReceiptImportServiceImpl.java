@@ -849,8 +849,10 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             order.setDiscountCodeAmount(0D);
             order.setUsedRedInvoice(false);
 
-            order.setOrderNumber(saleService.createOrderNumber(shop));
-            saleOrderRepository.save(order);
+           /* order.setOrderNumber(saleService.createOrderNumber(shop));
+            saleOrderRepository.save(order);*/
+            saleService.safeSave(order, shop);
+
             stockAdjustmentRecord.setRedInvoiceNo(order.getOrderNumber());
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(shopId));
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);

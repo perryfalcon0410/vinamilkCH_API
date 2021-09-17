@@ -29,4 +29,6 @@ public interface SaleService {
     String createOrderNumber(ShopDTO shopDTO);
 
     OnlineOrderValidDTO getValidOnlineOrder(Long shopId);
+
+    SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO);
 }

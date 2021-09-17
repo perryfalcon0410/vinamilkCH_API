@@ -30,6 +30,7 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.enums.PromotionProgramType;
 import vn.viettel.sale.service.feign.*;
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -87,6 +88,23 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             orderData = this.getProductOrderData(request, customer);
             if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
                 return null;
+
+            //kiem tra ton kho co du
+            List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(),
+                    request.getProducts().stream().map(ProductOrderRequest::getProductId).distinct().collect(Collectors.toList()));
+            for (FreeProductDTO freeProductDTO : freeProductDTOs){
+                int qty =  0;
+                for(ProductOrderDetailDataDTO product: orderData.getProducts()) {
+                     if(freeProductDTO.getProductId().equals(product.getProductId())) {
+                         qty = product.getQuantity();
+                         break;
+                     }
+                }
+
+                if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < qty))
+                    throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " +
+                            freeProductDTO.getProductName(), this.withLargeIntegers(freeProductDTO.getStockQuantity()) + "");
+            }
         }
 
         //key PromotionProgramDTO, value tính trước zv23 = true, sau zv23 = false
@@ -267,7 +285,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     private SalePromotionDTO getAutoItemPromotionZV01ToZV21(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId,
                                                             double totalBeforeZV23InTax, double totalBeforeZV23ExTax, double totalZV23InTax, double totalZV23ExTax, boolean forSaving){
        if(orderData == null) return  null;
-
+        PromotionShopMapDTO shopMapDTO = this.getPromotionShopMap(program.getId(), shopId);
+        if(shopMapDTO == null) return null;
         SalePromotionDTO auto = null;
         switch (PromotionProgramType.valueOf(program.getType())) {
             case ZV01:
@@ -317,7 +336,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 auto.setContraintType(0);
             else
                 auto.setContraintType(1);
-            LimitDto value = getPromotionLimit(auto, shopId);
+            LimitDto value = getPromotionLimit(auto, shopMapDTO);
+            //[Tính khuyến mãi - row 235] Mong muốn trường hợp nếu promotion_shop_map.quantity_received >= quantity_max rồi thì không hiển thị khuyến mãi đó lên popup thanh toán nữa
+            //https://trello.com/c/6M4MLG6m/850-t%C3%ADnh-khuy%E1%BA%BFn-m%C3%A3i-mong-mu%E1%BB%91n-tr%C6%B0%E1%BB%9Dng-h%E1%BB%A3p-n%E1%BA%BFu-promotionshopmapquantityreceived-quantitymax-r%E1%BB%93i-th%C3%AC-kh%C3%B4ng-hi%E1%BB%83n-th%E1%BB%8B-khuy%E1%BA%BFn-m%C3%A3i-%C4%91%C3%B3-l%C3%AAn-p
             auto.setNumberLimited(value.getLimited());
             auto.setIsUse(value.isUsed());
             auto.setIsReturn(false);
@@ -337,6 +358,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if ((program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty()) && (program.getGivenType() != null && program.getGivenType() != 1))
             return null;
 
+        PromotionShopMapDTO shopMapDTO = this.getPromotionShopMap(program.getId(), shopId);
+        if(shopMapDTO == null) return null;
+
         boolean isInclusiveTax = isInclusiveTax(program.getDiscountPriceType());
 
         //nếu có khai báo sp km thì kiểm tra đơn hàng mua phải có ít nhất 1 sản phẩm nằm trong tập spkm thì mới được hưởng KM/còn ko có SP thì hiểu là không quy định SP mua
@@ -347,21 +371,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         Boolean flag = promotionClient.checkSaleProductByProgramIdV1(program.getId(), lstProductIds).getData();
         if(flag == null) flag = false;
-      /*  if(details.isEmpty()){
-            flag = true;
-        }else {
-            if(orderData !=null) {
-                lstProductIds = orderData.getProducts().stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
-                for (PromotionSaleProductDTO productPromotion : details) {
-                    if (productPromotion.getProductId() == null ||
-                            (productPromotion.getProductId() != null && lstProductIds.contains(productPromotion.getProductId()))) {
-                        flag = true;
-                        break;
-                    }
-                }
-            }
-        }*/
-
         if (flag/* || ( orderData == null && program.getGivenType() != null && program.getGivenType() == 1)*/){
             SalePromotionDTO salePromotion = null;
 
@@ -385,7 +394,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     salePromotion.setProducts(products);
                     salePromotion.setTotalQty(totalQty);
                 }
-                LimitDto value = getPromotionLimit(salePromotion, shopId);
+                LimitDto value = getPromotionLimit(salePromotion, shopMapDTO);
                 salePromotion.setNumberLimited(value.getLimited());
                 salePromotion.setIsUse(false);
                 salePromotion.setIsEditable(true);
@@ -396,7 +405,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     return null;
 
                 salePromotion = calZMAmount(program, orderData, shopId, programDiscounts,  amountProInTax,  amountProExTax, isInclusiveTax,
-                        inputAmount, customerCode, forSaving, false);
+                        inputAmount, customerCode, forSaving, false, shopMapDTO);
 
                 if (salePromotion != null) salePromotion.setLstProductHasPromtion(lstProductIds);
             }
@@ -426,7 +435,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     }
 
     private SalePromotionDTO calZMAmount(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, List<PromotionProgramDiscountDTO> discountDTOs, double amountProInTax,
-                                         double amountProExTax, boolean isInclusiveTax, Double inputAmount, String customerCode, boolean forSaving, boolean forDiscountCode){
+                                         double amountProExTax, boolean isInclusiveTax, Double inputAmount, String customerCode, boolean forSaving, boolean forDiscountCode, PromotionShopMapDTO shopMapDTO){
         double totalAmountInTax = orderData.getTotalPrice();
         double totalAmountExtax = orderData.getTotalPriceNotVAT();
         double billPercent = (totalAmountInTax - totalAmountExtax) / totalAmountExtax * 100;
@@ -591,7 +600,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             }
 
             salePromotion.setAmount(spDto);
-            LimitDto value = getPromotionLimit(salePromotion, shopId);
+            LimitDto value = getPromotionLimit(salePromotion, shopMapDTO);
             salePromotion.setNumberLimited(value.getLimited());
             salePromotion.setIsUse(value.isUsed());
             salePromotion.setIsEditable(false);
@@ -628,6 +637,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                                                   Long customerId, double totalBeforeZV23InTax, double totalBeforeZV23ExTax, boolean forSaving){
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
+
+        PromotionShopMapDTO shopMapDTO = this.getPromotionShopMap(program.getId(), shopId);
+        if(shopMapDTO == null) return null;
+
         /* lấy amount từ promotion service: lấy doanh số RPT_ZV23.TOTAL_AMOUNT của khách hàng
          Doanh số tại thời điểm mua = doanh số tổng hợp đồng bộ đầu ngày + doanh số phát sinh trong ngày */
         RPT_ZV23DTO rpt_zv23DTO = promotionClient.checkZV23RequireV1(program.getPromotionProgramCode(),customerId,shopId).getData();
@@ -803,7 +816,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setContraintType(1);
             if (program.getRelation() != null && program.getRelation() == 0) salePromotion.setContraintType(0);
             salePromotion.setZv23Amount(saveAmountInTax);
-            LimitDto value = getPromotionLimit(salePromotion, shopId);
+            LimitDto value = getPromotionLimit(salePromotion, shopMapDTO);
             salePromotion.setNumberLimited(value.getLimited());
             salePromotion.setIsUse(value.isUsed());
             salePromotion.setIsReturn(false);
@@ -1039,6 +1052,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
     @Override
     public boolean checkPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
+        PromotionShopMapDTO shopMapDTO = this.getPromotionShopMap(salePromotion.getProgramId(), shopId);
+        if(shopMapDTO == null) return false;
+
         int qty = 0;
         if(salePromotion.getProducts()!= null) {
             for(FreeProductDTO free: salePromotion.getProducts()) {
@@ -1047,7 +1063,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setTotalQty(qty);
         }
 
-        LimitDto value = getPromotionLimit(salePromotion, shopId);
+        LimitDto value = getPromotionLimit(salePromotion, shopMapDTO);
 
         return value.isUsed();
     }
@@ -1055,9 +1071,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     /*
     Lấy số xuất theo ctkm, return null = vô hạn , = 0 hết suất, > 0 giới hạn số suât
      */
-    private LimitDto getPromotionLimit(SalePromotionDTO salePromotion, Long shopId) {
-        if(salePromotion != null && salePromotion.getProgramId() != null && shopId != null) {
-            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(salePromotion.getProgramId(), shopId).getData();
+    private LimitDto getPromotionLimit(SalePromotionDTO salePromotion, PromotionShopMapDTO promotionShopMap) {
+        if(salePromotion != null && salePromotion.getProgramId() != null && promotionShopMap != null) {
             salePromotion.setMaxShopQty(promotionShopMap.getQuantityMax());
             salePromotion.setReceiveShopQty(promotionShopMap.getQuantityReceived());
             double receiving = 0;
@@ -1068,12 +1083,27 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
                 if (promotionShopMap.getQuantityMax() >= (quantityReceive + receiving))
                     return new LimitDto(true, promotionShopMap.getQuantityMax() - quantityReceive);
-                else return new LimitDto(false, promotionShopMap.getQuantityMax() - quantityReceive);
+                else{
+                    return new LimitDto(false, promotionShopMap.getQuantityMax() - quantityReceive);
+                }
             }
         }
 
         return new LimitDto(false, 0.0);
     }
+
+
+    private PromotionShopMapDTO getPromotionShopMap(Long programId, Long shopId) {
+        if(programId != null && shopId != null) {
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(programId, shopId).getData();
+            //Mong muốn trường hợp nếu promotion_shop_map.quantity_received >= quantity_max rồi thì không hiển thị khuyến mãi đó lên popup thanh toán nữa - không đủ suất vẫn để
+            double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+            if (promotionShopMap.getQuantityMax() != null && quantityReceive >= promotionShopMap.getQuantityMax()) return null;
+            return promotionShopMap;
+        }
+        return null;
+    }
+
 
     /*
      *ZV01 to zv06
@@ -2372,6 +2402,10 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(discountDTO == null || !this.commonValidPromotionProgram(request, discountDTO.getProgram(), shopId, customer))
             throw new ValidateException(ResponseMessage.DISCOUNT_CODE_NOT_EXISTS);
 
+
+        PromotionShopMapDTO shopMapDTO = this.getPromotionShopMap(discountDTO.getPromotionProgramId(), shopId);
+        if(shopMapDTO == null) return null;
+
         ProductOrderDataDTO orderData = this.getProductOrderData(request, customer);
         if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
@@ -2385,18 +2419,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         if(saleProduct == null || !saleProduct) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
 
-    /*    List<Long> productRequires = saleProducts.stream().map(PromotionSaleProductDTO::getProductId).collect(Collectors.toList());
-        if(!saleProducts.isEmpty()) {
-            boolean exits = false;
-            for (ProductOrderDetailDataDTO productRequest : orderData.getProducts()) {
-                if(productRequires.contains(productRequest.getProductId())) {
-                    exits = true;
-                    break;
-                }
-            }
-            if (!exits) throw new ValidateException(ResponseMessage.PROMOTION_SALE_PRODUCT_REJECT);
-        }*/
-
         // sai khách hàng
         if(discountDTO.getCustomerCode()!=null && !discountDTO.getCustomerCode().equals(customer.getCustomerCode()))
             throw new ValidateException(ResponseMessage.CUSTOMER_REJECT);
@@ -2407,7 +2429,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         if(request.getPromotionAmountExTax() != null) totalAmountExtax -= request.getPromotionAmountExTax();
         boolean isInclusiveTax = isInclusiveTax(discountDTO.getProgram().getDiscountPriceType());
         SalePromotionDTO salePromotion = calZMAmount(discountDTO.getProgram(), orderData, shopId, Arrays.asList(discountDTO), 0, 0,
-                isInclusiveTax, null, customer.getCustomerCode(), false, true);
+                isInclusiveTax, null, customer.getCustomerCode(), false, true, shopMapDTO);
 
         if ( salePromotion == null){
             throw new ValidateException(ResponseMessage.MGG_SALE_AMOUNT_REJECT, discountCode);
@@ -2473,6 +2495,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         zvFreeItems.addAll(zmAmounts);
 
         return zvFreeItems;
+    }
+
+    public static String withLargeIntegers(Integer value) {
+        DecimalFormat df = new DecimalFormat("#,###");
+        return df.format(value);
     }
 
     @Getter
