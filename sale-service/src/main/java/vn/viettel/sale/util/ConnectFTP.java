@@ -3,6 +3,7 @@ package vn.viettel.sale.util;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.apache.poi.util.IOUtils;
 import vn.viettel.core.exception.ApplicationException;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
@@ -30,6 +31,10 @@ public class ConnectFTP {
 //    private String directoryTmp;
 
     public ConnectFTP(String server, String portStr, String userName, String password) {
+        this.connect(server, portStr, userName, password);
+    }
+
+    public boolean connect(String server, String portStr, String userName, String password) {
         AtomicReference<String> strServer = new AtomicReference<>("");
         AtomicReference<String> strUser = new AtomicReference<>("");
         AtomicReference<String> strPass = new AtomicReference<>("");
@@ -62,10 +67,12 @@ public class ConnectFTP {
                 ftpClient.setDataTimeout(FTP_TIMEOUT);
                 System.out.println("connected");
             }
+            return true;
         } catch (IOException ex) {
-            ex.printStackTrace();
-            throw new ApplicationException("Can not connect to server "+server+": " + ex.getMessage());
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
         }
+
+        return false;
     }
 
     public HashMap<String, InputStream> getFiles(String locationPath, String containsStr, String shopCode){
@@ -87,23 +94,57 @@ public class ConnectFTP {
                             if (file.isFile() && file.getName().endsWith(readFile) &&
                             ((shopCode==null || shopCode.isEmpty()) || (shopCode!=null && file.getName().toLowerCase().startsWith(shopCode.trim().toLowerCase())))
                                 && file.getName().toLowerCase().contains(containsStr.toLowerCase())) {
-                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                                ftpClient.retrieveFile(file.getName(), outputStream);
-                                InputStream inputstream = new ByteArrayInputStream(outputStream.toByteArray());
-                                mapinputStreams.put(file.getName(), inputstream);
-                                outputStream.close();
+                                InputStream inputstream = this.retrieveFile(file.getName());
+                                if(inputstream!=null) mapinputStreams.put(file.getName(), inputstream);
                             }
                         }
                     }
                 }
             }
         }catch (Exception ex) {
-           ex.printStackTrace();
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
         }
 
         return mapinputStreams;
     }
+
+    public FTPFile[] getFilesV2(String locationPath){
+        try {
+            FTPFile[] ftpFiles = ftpClient.listFiles(locationPath);
+            if (ftpFiles != null && ftpFiles.length > 0) {
+                return ftpFiles;
+            }
+        }catch (Exception ex) {
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP read files error: " + ex.getMessage());
+        }
+
+        return null;
+    }
+
+    public boolean reConnected(String server, String portStr, String userName, String password) {
+        if(ftpClient != null && ftpClient.isConnected() ) {
+            return true;
+        }
+        return this.connect(server, portStr, userName, password);
+    }
+
+    public InputStream retrieveFile( String fileName) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        boolean flag = false;
+        try{
+            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+            flag = ftpClient.retrieveFile(fileName, outputStream);
+        }catch (Exception ex) {
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP download error: " + ex.getMessage());
+        }finally {
+            outputStream.flush();
+            IOUtils.closeQuietly(outputStream);
+        }
+         if(flag) return new ByteArrayInputStream(outputStream.toByteArray());
+         return null;
+    }
+
+
 
     public boolean uploadFile(InputStream inputStream, String fileName, String locationPath ){
         try {
@@ -125,8 +166,7 @@ public class ConnectFTP {
                 return true;
             }
         }catch (Exception ex) {
-            ex.printStackTrace();
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP upload error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP upload error: " + ex.getMessage());
         }
 
         return false;
@@ -142,19 +182,6 @@ public class ConnectFTP {
                 String toFile = toPath + "/" + destinationFile;
                 if (ftpClient != null && ftpClient.isConnected()) {
                    ftpClient.rename(fromFile ,toFile);
-
-/*                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    ftpClient.retrieveFile(fromFile, outputStream);
-                    InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
-
-                    // assuming backup directory is with in current working directory
-                    ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);//binary files
-                    ftpClient.changeWorkingDirectory(toPath);
-                    //this overwrites the existing file
-                    ftpClient.storeUniqueFile(destinationFile, is);
-                    is.close();
-                    outputStream.close();*/
-
                    ftpClient.deleteFile(fromFile );
                 } else {
                     Path source = Paths.get(fromFile);
@@ -164,8 +191,7 @@ public class ConnectFTP {
                 return true;
             }
         }catch (Exception ex) {
-            ex.printStackTrace();
-            LogFile.logToFile("", "", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP move file error: " + ex.getMessage());
         }
         return false;
     }
@@ -181,5 +207,7 @@ public class ConnectFTP {
         }
     }
 
-
+    public String getReadFile() {
+        return readFile;
+    }
 }

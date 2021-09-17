@@ -1,5 +1,12 @@
 package vn.viettel.sale.service.impl;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.poi.util.IOUtils;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +45,7 @@ import vn.viettel.sale.util.ConnectFTP;
 import vn.viettel.sale.xml.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -82,6 +90,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Value( "${apparam.type.unique.online.order}" )
     private String uniqueParramType;
+
+    @Value("${spring.application.name}")
+    public String appName;
 
     XStreamTranslator xstream = XStreamTranslator.getInstance();
 
@@ -303,7 +314,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         if (onlineOrder != null) {
                             if (onlineOrder.getSynStatus() == 0) {
                                 String orderNumber = onlineOrder.getOrderNumber() + "_HUY";
-                                repository.schedulerCancel(-1, orderNumber, onlineOrder.getId());
+                                repository.schedulerCancel(-1, orderNumber, LocalDateTime.now(), onlineOrder.getId());
                             }
                         }
                     }
@@ -329,11 +340,12 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 Header header = new Header();
                 header.setOrderNumber(onlineOrder.getOrderNumber());
                 header.setOrderID(onlineOrder.getOrderId());
-
-                SaleOrder saleOrder = saleOrderRepository.findById(onlineOrder.getSaleOrderId()).orElse(null);
-                if(saleOrder != null)
-                {
-                    header.setPosOrderNumber(saleOrder.getOrderNumber());
+                if(onlineOrder.getSaleOrderId()!=null) {
+                    SaleOrder saleOrder = saleOrderRepository.findById(onlineOrder.getSaleOrderId()).orElse(null);
+                    if(saleOrder != null)
+                    {
+                        header.setPosOrderNumber(saleOrder.getOrderNumber());
+                    }
                 }
                 newDataSet.setHeader(header);
                 newDataSets.add(newDataSet);
@@ -364,58 +376,50 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     destinationMessage = app.getValue().trim();
                 if (app.getApParamCode() == null || "FTP_FILE_FAIL".equalsIgnoreCase(app.getApParamCode().trim()))
                     failName = app.getValue().trim();
-                if(app.getApParamCode() == null || "FTP_ORDER_SHOP".equalsIgnoreCase(app.getApParamCode().trim())) shopCodes = app.getValue().trim();
+                if(app.getApParamCode() == null || "FTP_ORDER_SHOP".equalsIgnoreCase(app.getApParamCode().trim())) shopCodes = app.getValue();
             }
         }
-        ConnectFTP connectFTP = connectFTP(apParamDTOList);
-        //read new order
-        HashMap<String, InputStream> newOrders = new HashMap<>();
-        if(shopCodes == null || shopCodes.isEmpty())
-            newOrders = connectFTP.getFiles(readPath, newOrder, null);
-        else{
-            String[] arrShops = shopCodes.split(";");
-            for(String shopCode : arrShops){
-                newOrders.putAll(connectFTP.getFiles(readPath, newOrder, shopCode));
-            }
+        FTPINFO ftpinfo = new FTPINFO(apParamDTOList);
+        ConnectFTP connectFTP = new ConnectFTP(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword());
+
+        String[] arrShops = {null};
+        if(shopCodes != null && !shopCodes.isEmpty()) {
+            arrShops = shopCodes.split(";");
         }
 
-        if(newOrders != null){
-            for (Map.Entry<String, InputStream> entry : newOrders.entrySet()){
-                try {
-                    this.syncXmlOnlineOrder(entry.getValue());
-                    connectFTP.moveFile(readPath, backupPath, entry.getKey());
-                    entry.getValue().close();
-                }catch (Exception ex) {
-                    ex.printStackTrace();
-                    System.out.println(ex);
-                    LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
-                }
-            }
-        }
-
-        //read cancel order
-        HashMap<String, InputStream> cancelOrders = new HashMap<>();
-        if(shopCodes == null || shopCodes.isEmpty())
-            cancelOrders = connectFTP.getFiles(readPath, cancelOrder, null);
-        else{
-            String[] arrShops = shopCodes.split(";");
-            for(String shopCode : arrShops){
-                cancelOrders.putAll(connectFTP.getFiles(readPath, cancelOrder, shopCode));
-            }
-        }
-        if(cancelOrders != null){
-            for (Map.Entry<String, InputStream> entry : cancelOrders.entrySet()){
-                try {
-                    this.syncXmlToCancelOnlineOrder(entry.getValue());
-                    connectFTP.moveFile(readPath, backupPath, entry.getKey());
-                    entry.getValue().close();
-                }catch (Exception ex) {
-                    System.out.println(ex);
-                    LogFile.logToFile("", "", LogLevel.ERROR, null, "Error while read file " + entry.getKey() + " - " + ex.getMessage());
+        for(String shopCode : arrShops){
+            if(newOrder == null) newOrder = "";
+            if(cancelOrder == null) cancelOrder = "";
+            if(connectFTP.reConnected(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword())){
+                FTPFile[] ftpFiles = connectFTP.getFilesV2(readPath);
+                if (ftpFiles != null && ftpFiles.length > 0) {
+                    for (FTPFile file : ftpFiles) {
+                        if (file.isFile() && file.getName().endsWith(connectFTP.getReadFile()) &&
+                                ((shopCode==null || shopCode.isEmpty()) || (shopCode!=null && file.getName().toLowerCase().startsWith(shopCode.trim().toLowerCase())))) {
+                            InputStream inputstream = null;
+                            try {
+                                if(connectFTP.reConnected(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword())){
+                                    inputstream = connectFTP.retrieveFile(readPath + "/" + file.getName());
+                                    if(file.getName().toLowerCase().contains(newOrder.toLowerCase()) && inputstream != null) {
+                                        this.syncXmlOnlineOrder(inputstream);
+                                        connectFTP.moveFile(readPath, backupPath, file.getName());
+                                    }else if(file.getName().toLowerCase().contains(cancelOrder.toLowerCase()) && inputstream != null) {
+                                        this.syncXmlToCancelOnlineOrder(inputstream);
+                                        connectFTP.moveFile(readPath, backupPath, file.getName());
+                                    }
+                                }
+                            }catch (Exception ex) {
+                                LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "FTP read files error: " +  file.getName() + " - " + ex.getMessage());
+                            }finally {
+                                IOUtils.closeQuietly(inputstream);
+                            }
+                        }
+                    }
                 }
             }
         }
         connectFTP.disconnectFTPServer();
+
     }
 
     @Override
@@ -436,7 +440,9 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         successName = app.getValue().trim();
                 }
             }
-            ConnectFTP connectFTP = connectFTP(apParamDTOList);
+            FTPINFO ftpinfo = new FTPINFO(apParamDTOList);
+            ConnectFTP connectFTP = new ConnectFTP(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword());
+
             for (Long shopId : shops) {
                 List<OnlineOrder> onlineOrders = repository.findOnlineOrderExportXml(shopId);
                 ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
@@ -447,7 +453,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                         if (inputStream != null)
                             connectFTP.uploadFile(inputStream, fileName, uploadDestination);
                     } catch (Exception ex) {
-                        LogFile.logToFile("", "", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
+                        LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "Error parse sale order " + shopDTO.getShopCode() + " to file - " + ex.getMessage());
                     }
                 }
             }
@@ -455,7 +461,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         }
     }
 
-    private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
+    /*private ConnectFTP connectFTP(List<ApParamDTO> apParamDTOList){
         String server = "192.168.100.112", portStr = "21", userName = "ftpimt", password = "Viett3l$Pr0ject";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
@@ -465,9 +471,11 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                 if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
             }
         }
+
+
         return new ConnectFTP(server, portStr, userName, password);
     }
-
+*/
     private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, List<Product> products, List<Price> prices, List<StockTotal> stockTotals) {
         Product product = null;
         for(Product p : products){
@@ -509,6 +517,26 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         dto.setOrderInfo(order.getCustomerName() + " - " + order.getCustomerPhone());
         dto.setCreatedAt(order.getCreateDate()); //vì cần tìm theo ngày tạo trên ftp
         return dto;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public class FTPINFO {
+       private String server;
+       private String portStr;
+       private String userName;
+       private String password;
+        public FTPINFO(List<ApParamDTO> apParamDTOList) {
+            if(apParamDTOList != null){
+                for(ApParamDTO app : apParamDTOList){
+                    if(app.getApParamCode() == null || "FTP_SERVER".equalsIgnoreCase(app.getApParamCode().trim())) server = app.getValue().trim();
+                    if(app.getApParamCode() == null || "FTP_USER".equalsIgnoreCase(app.getApParamCode().trim())) userName = app.getValue().trim();
+                    if(app.getApParamCode() == null || "FTP_PASS".equalsIgnoreCase(app.getApParamCode().trim())) password = app.getValue().trim();
+                    if(app.getApParamCode() == null || "FTP_PORT".equalsIgnoreCase(app.getApParamCode().trim())) portStr = app.getValue().trim();
+                }
+            }
+        }
     }
 
 
