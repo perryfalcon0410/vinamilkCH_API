@@ -66,7 +66,7 @@ public class SaleController extends BaseController {
     public Response<HashMap> createSaleOrder(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
         Long id = (Long) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
         //Logs theo dõi nhầm shop
-        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "][clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ ", username: " +this.getUserName() +"]");
+        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "][clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ ", username: " +this.getUserName() +"][sale_order_id: " + id +"]");
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", id);
