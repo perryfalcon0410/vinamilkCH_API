@@ -178,8 +178,8 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         LocalDateTime date = LocalDateTime.now();
         LocalDateTime daysAgo = null;
         if(apParam!=null && apParam.getStatus() == 1 && apParam.getValue() !=null) {
-            //tính ngày hiện tại là 1 ngày
-            daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())  - 1));
+            if(apParam.getValue().equals("0")) daysAgo = DateUtils.convertFromDate(date);
+            else daysAgo = DateUtils.convertFromDate(date.minusDays(Integer.valueOf(apParam.getValue())));
         }
         List<SaleOrder> saleOrders = saleOrderRepository.checkOnlineNumber(code, daysAgo);
 
