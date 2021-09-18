@@ -81,7 +81,7 @@ public class SaleController extends BaseController {
         sendSynRequest(JMSType.member_customer, syncmap.get(JMSType.member_customer));
         
         //Logs theo dõi nhầm shop
-        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "][clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ ", username: " +this.getUserName() +"][sale_order_id: " + id +"]");
+        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "][clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ ", username: " +this.getUserName() +"][sale_order_id: " + saleOrderIds.get(0) +"]");
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", saleOrderIds.get(0));
