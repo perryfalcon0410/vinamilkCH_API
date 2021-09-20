@@ -92,7 +92,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Object createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, boolean printTemp) {
+    public Object createSaleOrder(SaleOrderRequest request, long userId, long shopId, boolean printTemp) {
         if ((request.getPromotionInfo() == null || request.getPromotionInfo().isEmpty()) && (request.getProducts() == null || request.getProducts().isEmpty()))
             throw new ValidateException(ResponseMessage.PROMOTION_NOT_FOUND);
 
@@ -1310,6 +1310,31 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
         for(int i = 0; ; i++) {
+            boolean flag = false;
+            try {
+                saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+                repository.save(saleOrder);
+                flag = true;
+            }catch (Exception ex ){
+                if(ex.getCause().getClass().equals(ConstraintViolationException.class)
+                        || ex.getCause().getClass().equals(DataIntegrityViolationException.class) || ex.getCause().getClass().equals(SQLIntegrityConstraintViolationException.class))  {
+                    continue;
+                }else {
+                    throw ex;
+                }
+            }
+
+            if(flag) break;
+        }
+        return saleOrder;
+    }
+
+
+
+
+
+    /*public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
+        for(int i = 0; ; i++) {
             EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
             boolean flag = false;
             try {
@@ -1334,7 +1359,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             if(flag) break;
         }
         return saleOrder;
-    }
+    }*/
 
 }
 

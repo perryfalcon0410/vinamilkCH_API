@@ -62,7 +62,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     }
 
     @Override
-    public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
+    public CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange( Long shopId, String transCode, Date fromDate,
                                                                                   Date toDate, Long reasonId, Pageable pageable) {
         String sortName = null;
         String direction = null;

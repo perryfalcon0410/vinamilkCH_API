@@ -60,7 +60,7 @@ public class ExchangeTransController extends BaseController {
                                                                                                          @SortDefault(sort = "transDate", direction = Sort.Direction.DESC)
                                                                                                  }) Pageable pageable) {
         CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> response =
-                service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);
+                service.getAllExchange(this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);
         LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_LIST_SUCCESS);
 
         return new Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>>().withData(response);

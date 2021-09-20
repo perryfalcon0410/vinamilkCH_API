@@ -96,6 +96,11 @@ public class PreFilter extends ZuulFilter {
             return null;
         }
 
+      /*  requestContext.addZuulRequestHeader("shopId", jwtTokenBody.getShopId().toString());
+        requestContext.put("shopId", jwtTokenBody.getShopId().toString());*/
+        RequestContext.getCurrentContext().put("shopId", jwtTokenBody.getShopId().toString());
+        RequestContext.getCurrentContext().addZuulRequestHeader("shopId", jwtTokenBody.getShopId().toString());
+
 //        if (jwtTokenBody.getPermissions().isEmpty()) {
 //            customizeZuulException(requestContext, ResponseMessage.NO_PRIVILEGE_ON_ANY_SHOP);
 //            return null;

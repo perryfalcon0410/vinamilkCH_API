@@ -42,22 +42,35 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, java.lang.Object handler) throws Exception {
         if (HandlerMethod.class.isAssignableFrom(handler.getClass())) {
             String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-            String role = getRoleFromAuthorizationHeader(authorizationHeader, request);
+            getRoleFromAuthorizationHeader(authorizationHeader, request);
         }
         return super.preHandle(request, response, handler);
     }
 
-    public String getRoleFromAuthorizationHeader(String authorizationHeader, HttpServletRequest request) {
-        String role = StringUtils.EMPTY;
+    public void getRoleFromAuthorizationHeader(String authorizationHeader, HttpServletRequest request) {
         String authorizationType = getAuthorizationType(authorizationHeader);
+        JwtTokenBody jwtTokenBody = null;
         if (authorizationType.equals(AuthorizationType.BEARER_TOKEN)) {
             request.setAttribute(Constants.REQUEST_FROM, Constants.CLIENT_REQUEST);
-            role = getRoleByBearerTokenAndSetUserContext(authorizationHeader);
+            jwtTokenBody = this.getRoleByBearerTokenAndSetUserContext(authorizationHeader);
         } else if (authorizationType.equals(AuthorizationType.FEIGN_AUTH)) {
             request.setAttribute(Constants.REQUEST_FROM, Constants.SERVICE_REQUEST);
-            role = getRoleByFeignToken(authorizationHeader);
+            jwtTokenBody = this.getRoleByFeignToken(authorizationHeader);
         }
-        return role;
+
+        if (jwtTokenBody != null) {
+            String role = StringUtils.defaultIfBlank(jwtTokenBody.getRole(), StringUtils.EMPTY);
+            Long userId = jwtTokenBody.getUserId();
+            Long roleId = jwtTokenBody.getRoleId();
+            Long shopId = jwtTokenBody.getShopId();
+            String username = jwtTokenBody.getUserName();
+            List<DataPermissionDTO> permissions = jwtTokenBody.getPermissions();
+            setUserContext(role, userId, username, roleId, shopId, permissions);
+            request.setAttribute(Constants.CURRENT_SHOP_ID, shopId);
+            request.setAttribute(Constants.CURRENT_USER_ID, userId);
+            request.setAttribute(Constants.CURRENT_USERNAME, username);
+        }
+
     }
 
     private String getAuthorizationType(String authorizationHeader) {
@@ -72,20 +85,11 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         return authorizationType;
     }
 
-    private String getRoleByBearerTokenAndSetUserContext(String authorizationHeader) {
+    private JwtTokenBody getRoleByBearerTokenAndSetUserContext(String authorizationHeader) {
         String role = StringUtils.EMPTY;
         String token = authorizationHeader.substring(AuthorizationType.BEARER_TOKEN.length()).trim();
         JwtTokenBody jwtTokenBody = jwtTokenValidate.getJwtBodyByToken(token);
-        if (jwtTokenBody != null) {
-            role = StringUtils.defaultIfBlank(jwtTokenBody.getRole(), StringUtils.EMPTY);
-            Long userId = jwtTokenBody.getUserId();
-            Long roleId = jwtTokenBody.getRoleId();
-            Long shopId = jwtTokenBody.getShopId();
-            String username = jwtTokenBody.getUserName();
-            List<DataPermissionDTO> permissions = jwtTokenBody.getPermissions();
-            setUserContext(role, userId, username, roleId, shopId, permissions);
-        }
-        return role;
+        return jwtTokenBody;
     }
 
     private void setUserContext(String role, Long userId, String username, Long roleId, Long shopId, List<DataPermissionDTO> permissions) {
@@ -111,13 +115,13 @@ public class CheckRoleInterceptor extends HandlerInterceptorAdapter {
         securityContexHolder.setContext(context);
     }
 
-    private String getRoleByFeignToken(String authorizationHeader) {
+    private JwtTokenBody getRoleByFeignToken(String authorizationHeader) {
         String token = authorizationHeader.substring(AuthorizationType.FEIGN_AUTH.length()).trim();
         if (feignTokenValidate.isValidToken(token)) {
-            return UserRole.FEIGN.value();
-        } else {
-            return StringUtils.EMPTY;
+            JwtTokenBody jwtTokenBody = jwtTokenValidate.getJwtBodyByToken(token);
+            return jwtTokenBody;
         }
+        return null;
     }
 
     private boolean checkValidRole(HandlerMethod handler, String role) {

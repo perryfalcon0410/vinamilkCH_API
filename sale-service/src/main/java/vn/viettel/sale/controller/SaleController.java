@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -64,9 +65,10 @@ public class SaleController extends BaseController {
     })
     @PostMapping(value = { V1 + root })
     public Response<HashMap> createSaleOrder(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
-        Long id = (Long) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
+        Long id = (Long) service.createSaleOrder(request, this.getUserId(httpRequest), this.getShopId(httpRequest), false);
         //Logs theo dõi nhầm shop
-        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "][clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ ", username: " +this.getUserName() +"][sale_order_id: " + id +"]");
+        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "]" +
+                "[clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ "-"+this.getShopId(httpRequest)+ ", username: " +this.getUserName() +"-"+ this.getUsername(httpRequest)+"][sale_order_id: " + id +"]");
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", id);
@@ -136,7 +138,7 @@ public class SaleController extends BaseController {
     @PostMapping(value = { V1 + root + "/printtmp"})
     public Response<PrintSaleOrderDTO> printTempSaleOrder(@Valid @ApiParam("Thông tin đơn hàng") @RequestBody SaleOrderRequest request) {
         Response<PrintSaleOrderDTO> response = new Response<>();
-        PrintSaleOrderDTO result = (PrintSaleOrderDTO) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), true);
+        PrintSaleOrderDTO result = (PrintSaleOrderDTO) service.createSaleOrder(request, this.getUserId(), this.getShopId(), true);
         return response.withData(result);
     }
 
