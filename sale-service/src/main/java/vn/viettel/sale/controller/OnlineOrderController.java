@@ -53,9 +53,9 @@ public class OnlineOrderController extends BaseController {
                                                           @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                           @RequestParam(value = "toDate", required = false) Date toDate,
                                                           Pageable pageable) {
-        OnlineOrderFilter filter = new OnlineOrderFilter(orderNumber, this.getShopId(), synStatus, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        OnlineOrderFilter filter = new OnlineOrderFilter(orderNumber, this.getShopId(request), synStatus, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Page<OnlineOrderDTO> response = onlineOrderService.getOnlineOrders(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
         return new Response<Page<OnlineOrderDTO>>().withData(response);
     }
 
@@ -66,8 +66,8 @@ public class OnlineOrderController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<OnlineOrderDTO> getOnlineOrder(HttpServletRequest request, @PathVariable Long id) {
-        OnlineOrderDTO response = onlineOrderService.getOnlineOrder(id, this.getShopId(), this.getUserId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_ONLINE_ORDER_SUCCESS);
+        OnlineOrderDTO response = onlineOrderService.getOnlineOrder(id, this.getShopId(request), this.getUserId(request));
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_ONLINE_ORDER_SUCCESS);
         return new Response<OnlineOrderDTO>().withData(response);
     }
 
@@ -79,7 +79,7 @@ public class OnlineOrderController extends BaseController {
     )
     public Response<String> checkOnlineNumber(HttpServletRequest request, @PathVariable String code) {
         String response = onlineOrderService.checkOnlineNumber(code);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.ONLINE_ORDER_NUMBER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.ONLINE_ORDER_NUMBER_SUCCESS);
         return new Response<String>().withData(response);
     }
 

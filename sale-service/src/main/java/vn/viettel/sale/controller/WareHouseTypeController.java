@@ -11,6 +11,8 @@ import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.WareHouseTypeService;
 import vn.viettel.sale.service.dto.WareHouseTypeDTO;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -28,8 +30,8 @@ public class WareHouseTypeController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
 
-    public Response<List<WareHouseTypeDTO>> index() {
-        List<WareHouseTypeDTO> wareHouseTypeDTOS = wareHouseTypeService.index(this.getShopId());
+    public Response<List<WareHouseTypeDTO>> index(HttpServletRequest httpRequest) {
+        List<WareHouseTypeDTO> wareHouseTypeDTOS = wareHouseTypeService.index(this.getShopId(httpRequest));
         return new Response<List<WareHouseTypeDTO>>().withData(wareHouseTypeDTOS);
     }
 }

@@ -49,9 +49,9 @@ public class ReportVoucherController extends BaseController {
                                                              @RequestParam(value = "customerKeywords", required = false) String customerKeywords,
                                                              @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone, Pageable pageable) {
         ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convertFromDate(fromProgramDate), DateUtils.convertFromDate(toProgramDate), DateUtils.convertFromDate(fromUseDate), DateUtils.convertFromDate(toUseDate), voucherProgramName,
-                voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
+                voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId(httpRequest));
         Page<ReportVoucherDTO> reportVoucherDTOS = reportVoucherService.index(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_VOUCHER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.SEARCH_REPORT_VOUCHER_SUCCESS);
         return new Response<Page<ReportVoucherDTO>>().withData(reportVoucherDTOS);
     }
 
@@ -73,9 +73,9 @@ public class ReportVoucherController extends BaseController {
                                         @RequestParam(value = "customerMobiPhone", required = false) String customerMobiPhone, HttpServletResponse response) throws IOException {
 
         ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convertFromDate(fromProgramDate), DateUtils.convertFromDate(toProgramDate), DateUtils.convertFromDate(fromUseDate), DateUtils.convertFromDate(toUseDate), voucherProgramName,
-                voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId());
+                voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId(httpRequest));
         this.closeStreamExcel(response, reportVoucherService.exportExcel(filter), "BC_voucher" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         response.getOutputStream().flush();
     }
 }

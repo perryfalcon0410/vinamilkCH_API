@@ -53,9 +53,9 @@ public class SaleDeliveryTypeController extends BaseController {
             , HttpServletResponse response
     ) throws Exception {
         SaleDeliveryTypeFilter filter =
-                new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
+                new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(request), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
         this.closeStreamExcel(response, saleDeliveryTypeService.exportExcel(filter), "BC_doanh_so_theo_loai_giao_hang_" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -80,9 +80,9 @@ public class SaleDeliveryTypeController extends BaseController {
             @RequestParam(value = "phoneText", required = false, defaultValue = "") String phoneText,
             @RequestParam(value = "fromTotal", required = false) Float fromTotal,
             @RequestParam(value = "toTotal", required = false) Float toTotal, Pageable pageable){
-        SaleDeliveryTypeFilter filter = new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
+        SaleDeliveryTypeFilter filter = new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(request), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
         CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO> response = saleDeliveryTypeService.getSaleDeliType(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.SEARCH_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
         return new Response<CoverResponse<Page<SaleByDeliveryTypeDTO>, SaleDeliTypeTotalDTO>>().withData(response);
     }
 }

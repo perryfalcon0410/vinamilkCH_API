@@ -10,7 +10,7 @@ public interface SaleService {
     /*
     create sale order return order id
      */
-    Object createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, boolean printTemp);
+    Object createSaleOrder(SaleOrderRequest request, long userId, long shopId, boolean printTemp);
 
     /*
     Cập nhật doanh số mua cho khách hàng

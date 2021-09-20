@@ -24,6 +24,7 @@ import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
 import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +41,7 @@ public class SaleOrderController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(@RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+    public Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> getAllSaleOrder(HttpServletRequest httpRequest, @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                @RequestParam(value = "customerPhone", required = false) String customerPhone,
                                                                                                @RequestParam(value = "orderNumber", required = false) String orderNumber,
                                                                                                @RequestParam(value = "usedRedInvoice", required = false) Boolean usedRedInvoice,
@@ -53,7 +54,7 @@ public class SaleOrderController extends BaseController {
                                                                                                Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, orderNumber, usedRedInvoice, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse>> response = new Response<>();
-        return response.withData(saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId()));
+        return response.withData(saleOrderService.getAllSaleOrder(filter, pageable, this.getShopId(httpRequest)));
     }
 
     @GetMapping(value = { V1 + root + "/detail"})
@@ -78,9 +79,9 @@ public class SaleOrderController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    Response<PrintSaleOrderDTO> printSaleOrder(@PathVariable("id") Long id){
+    Response<PrintSaleOrderDTO> printSaleOrder(HttpServletRequest httpRequest, @PathVariable("id") Long id){
         Response<PrintSaleOrderDTO> response = new Response<>();
-        return response.withData(saleOrderService.printSaleOrder(id, this.getShopId()));
+        return response.withData(saleOrderService.printSaleOrder(id, this.getShopId(httpRequest)));
     }
 
     @GetMapping(value = { V1 + root + "/total-bill-for-month"})

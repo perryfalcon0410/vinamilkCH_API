@@ -44,7 +44,7 @@ public class ExchangeTransController extends BaseController {
     @GetMapping(value = { V1 + root + "/reasons"})
     public Response<List<CategoryDataDTO>> getAllReason(HttpServletRequest request) {
         Response<List<CategoryDataDTO>> response = service.getReasons();
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_REASON_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_REASON_SUCCESS);
 
         return response;
     }
@@ -60,8 +60,8 @@ public class ExchangeTransController extends BaseController {
                                                                                                          @SortDefault(sort = "transDate", direction = Sort.Direction.DESC)
                                                                                                  }) Pageable pageable) {
         CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> response =
-                service.getAllExchange(this.getRoleId(), this.getShopId(), transCode, fromDate, toDate, reasonId, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_LIST_SUCCESS);
+                service.getAllExchange(this.getShopId(request), transCode, fromDate, toDate, reasonId, pageable);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_EXCHANGE_LIST_SUCCESS);
 
         return new Response<CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO>>().withData(response);
     }
@@ -75,11 +75,11 @@ public class ExchangeTransController extends BaseController {
 
     @PostMapping(value = { V1 + root + "/create"})
     public Response<String> create(@Valid @RequestBody ExchangeTransRequest request, HttpServletRequest httpRequest) {
-        ResponseMessage message = service.create(request, this.getUserId(),this.getShopId());
+        ResponseMessage message = service.create(request, this.getUserId(httpRequest),this.getShopId(httpRequest));
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_EXCHANGE_TRANS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.CREATE_EXCHANGE_TRANS_SUCCESS);
         return response;
     }
 
@@ -93,7 +93,7 @@ public class ExchangeTransController extends BaseController {
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<ExchangeTransDTO> getExchangeTrans(@PathVariable Long id, HttpServletRequest httpRequest) {
         ExchangeTransDTO response = service.getExchangeTrans(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_EXCHANGE_TRANS_BY_ID_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_EXCHANGE_TRANS_BY_ID_SUCCESS);
 
         return new Response<ExchangeTransDTO>().withData(response);
     }
@@ -106,11 +106,11 @@ public class ExchangeTransController extends BaseController {
     })
     @PutMapping(value = { V1 + root + "/update/{id}"})
     public Response<String> update(@PathVariable Long id,@RequestBody @Valid ExchangeTransRequest request, HttpServletRequest httpRequest) {
-        ResponseMessage message = service.update(id,request,this.getShopId());
+        ResponseMessage message = service.update(id,request,this.getShopId(httpRequest));
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
         return response;
     }
 
@@ -121,11 +121,11 @@ public class ExchangeTransController extends BaseController {
     })
     @PutMapping(value = { V1 + root + "/remove/{id}"})
     public Response<ResponseMessage> remove(@PathVariable Long id, HttpServletRequest httpRequest) {
-        ResponseMessage message = service.remove(id,this.getShopId());
+        ResponseMessage message = service.remove(id,this.getShopId(httpRequest));
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
 
         return response ;
     }
@@ -137,7 +137,7 @@ public class ExchangeTransController extends BaseController {
     @GetMapping(V1 + root + "/products/{id}")
     public Response<List<ExchangeTransDetailRequest>> getBrokenProducts(@PathVariable Long id, HttpServletRequest httpRequest) {
         List<ExchangeTransDetailRequest> response = service.getBrokenProducts(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_BROKEN_PRODUCT_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_BROKEN_PRODUCT_SUCCESS);
 
         return new Response<List<ExchangeTransDetailRequest>>().withData(response);
     }

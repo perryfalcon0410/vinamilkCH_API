@@ -24,6 +24,7 @@ import vn.viettel.report.service.dto.InOutAdjustmentTotalDTO;
 import vn.viettel.report.service.excel.InOutAdjustmentExcel;
 import vn.viettel.report.service.feign.ShopClient;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
@@ -42,8 +43,10 @@ public class InOutAdjustmentController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO>> find (@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
-        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId());
+    public Response<CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO>> find (
+            HttpServletRequest httpRequest,
+            @RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable) {
+        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId(httpRequest));
         CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO> dtos = inOutAdjustmentService.find(filter,pageable);
         return new Response<CoverResponse<Page<InOutAdjusmentDTO>, InOutAdjustmentTotalDTO>>().withData(dtos);
     }
@@ -53,10 +56,10 @@ public class InOutAdjustmentController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public void exportToExcel(@RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes,Pageable pageable, HttpServletResponse response) throws IOException {
-        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+    public void exportToExcel(HttpServletRequest httpRequest, @RequestParam Date fromDate, @RequestParam Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes, Pageable pageable, HttpServletResponse response) throws IOException {
+        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId(httpRequest)).getData();
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId());
+        InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId(httpRequest));
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
         InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop, shop.getParentShop(), filter);
         this.closeStreamExcel(response, inOutAdjustmentExcel.export(), "BC_nhap_xuat_dieu_chinh_" + StringUtils.createExcelFileName());

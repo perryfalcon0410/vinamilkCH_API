@@ -10,6 +10,8 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.ReportProductTransService;
 import vn.viettel.sale.service.dto.ReportProductTransDTO;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 public class InvoiceController extends BaseController {
 
@@ -19,8 +21,8 @@ public class InvoiceController extends BaseController {
     private final String root = "/sales/invoices";
 
     @GetMapping(V1 + root + "/product-trans/{id}")
-    public Response<ReportProductTransDTO> findComboProducts(@PathVariable Long id, @RequestParam Integer receiptType ) {
-        return reportProductTransService.getInvoice(this.getShopId(), id, receiptType);
+    public Response<ReportProductTransDTO> findComboProducts(HttpServletRequest httpRequest, @PathVariable Long id, @RequestParam Integer receiptType ) {
+        return reportProductTransService.getInvoice(this.getShopId(httpRequest), id, receiptType);
     }
 
 }

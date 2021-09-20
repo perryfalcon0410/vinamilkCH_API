@@ -66,9 +66,9 @@ public class CustomerController extends BaseController {
                                                         @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
                                                       }) Pageable pageable) {
         if(isShop == null) isShop = false;
-        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(), isShop);
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(httpRequest), isShop);
         Page<CustomerDTO> customerDTOS = service.index(customerFilter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
 
@@ -86,7 +86,7 @@ public class CustomerController extends BaseController {
                                                               @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
                                                       }) Pageable pageable) {
         Page<CustomerDTO> customerDTOS = service.getCustomerForAutoComplete(searchKeywords, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
 
@@ -97,8 +97,8 @@ public class CustomerController extends BaseController {
     @PostMapping(value = { V1 + root + "/create"})
     public Response<CustomerDTO> create(HttpServletRequest httpRequest,@Valid @RequestBody CustomerRequest request) {
         Response<CustomerDTO> response = new Response<>();
-        CustomerDTO customerDTO = service.create(request, this.getUserId(), this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
+        CustomerDTO customerDTO = service.create(request, this.getUserId(httpRequest), this.getShopId(httpRequest));
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.CREATE_CUSTOMER_SUCCESS);
         response.setStatusValue("Thêm mới thông tin khách hàng thành công");
         return response.withData(customerDTO);
     }
@@ -114,8 +114,8 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<CustomerDTO> getCustomerById(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id) {
-        CustomerDTO customerDTO = service.getCustomerById(id,this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        CustomerDTO customerDTO = service.getCustomerById(id,this.getShopId(httpRequest));
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
@@ -127,7 +127,7 @@ public class CustomerController extends BaseController {
     @GetMapping(value = { V1 + root + "/phone/{phone}"})
     public Response<List<CustomerDTO>> getCustomerByMobiPhone(HttpServletRequest httpRequest, @PathVariable String phone) {
         List<CustomerDTO> customerDTOS = service.getCustomerByMobiPhone(phone);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<List<CustomerDTO>>().withData(customerDTOS);
     }
 
@@ -141,13 +141,13 @@ public class CustomerController extends BaseController {
         Response<CustomerDTO> response = new Response<>();
         response.setStatusCode(201);
         response.setStatusValue("Cập nhật thông tin khách hàng thành công");
-        CustomerDTO customerDTO = service.update(request, this.getUserId(),this.getShopId(), true);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
+        CustomerDTO customerDTO = service.update(request, this.getUserId(httpRequest),this.getShopId(httpRequest), true);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_CUSTOMER_SUCCESS);
         return response.withData(customerDTO);
     }
 
     @GetMapping(value = { V1 + root + "/export"})
-    public void excelCustomersReport(
+    public void excelCustomersReport(HttpServletRequest httpRequest,
                                                @ApiParam(value = "Tìm theo tên, Mã khách hàng, MobiPhone ")
                                                @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                @RequestParam(value = "customerTypeId", required = false) Long customerTypeId,
@@ -161,7 +161,7 @@ public class CustomerController extends BaseController {
             , HttpServletResponse response
                                                ) throws IOException {
         if(isShop == null) isShop = false;
-        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(),isShop);
+        CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(httpRequest),isShop);
         this.closeStreamExcel(response, service.exportExcel(customerFilter), "Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
@@ -170,8 +170,8 @@ public class CustomerController extends BaseController {
         Cập nhật KH bên bán hàng || hóa đơn đỏ
      */
     @PutMapping(value = { V1 + root + "/feign/update/{id}"})
-    public Response<CustomerDTO> updateFeign(@PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
-        CustomerDTO customerDTO = service.updateForSale(request, this.getShopId());
+    public Response<CustomerDTO> updateFeign(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+        CustomerDTO customerDTO = service.updateForSale(request, this.getShopId(httpRequest));
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
@@ -201,8 +201,8 @@ public class CustomerController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/default"})
     public Response<CustomerDTO> getCustomerDefault(HttpServletRequest httpRequest) {
-        CustomerDTO customerDTO = service.getCustomerDefault(this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
+        CustomerDTO customerDTO = service.getCustomerDefault(this.getShopId(httpRequest));
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_CUSTOMER_SUCCESS);
         return new Response<CustomerDTO>().withData(customerDTO);
     }
 
@@ -247,7 +247,7 @@ public class CustomerController extends BaseController {
         filter.setSearchPhoneOnly(searchPhoneOnly);
         filter.setSearchKeywords(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase());
 
-        return new Response<Page<CustomerDTO>>().withData(service.findCustomerForSale(this.getShopId(), filter, pageable));
+        return new Response<Page<CustomerDTO>>().withData(service.findCustomerForSale(this.getShopId(httpRequest), filter, pageable));
     }
 
     @ApiOperation(value = "Lấy thông tin tiền tích lũy theo khách hàng")
