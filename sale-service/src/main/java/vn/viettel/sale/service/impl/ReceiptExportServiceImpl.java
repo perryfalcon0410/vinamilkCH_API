@@ -450,7 +450,11 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
 
       /*  order.setOrderNumber(saleService.createOrderNumber(shop));
         saleOrderRepository.save(order);*/
-        saleService.safeSave(order, shop);
+        try{
+            saleService.safeSave(order, shop);
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.SAVE_FAIL);
+        }
 
         poAdjustTrans.setRedInvoiceNo(order.getOrderNumber());
         stockAdjustmentTransRepository.save(poAdjustTrans);

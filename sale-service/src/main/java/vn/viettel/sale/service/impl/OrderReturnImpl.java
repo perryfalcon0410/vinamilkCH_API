@@ -345,8 +345,11 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
       /*  newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop));
         repository.save(newOrderReturn); //save new orderReturn*/
-        saleService.safeSave(newOrderReturn, shop);
-
+        try{
+            saleService.safeSave(newOrderReturn, shop);
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.SAVE_FAIL);
+        }
         saleOrder.setIsReturn(false);
         repository.save(saleOrder);
         Map<String, Double> shopMapNeedUpdates = new HashMap<>();
