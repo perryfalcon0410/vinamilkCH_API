@@ -36,9 +36,9 @@ public class PrinterConfigController extends BaseController {
     @PostMapping(value = { V1 + root})
     public Response<PrinterConfigDTO> create(@Context HttpServletRequest httpRequest, @Valid @RequestBody PrinterConfigRequest request) {
         if( request.getClientIp() == null || request.getClientIp().isEmpty()) request.setClientIp(this.getClientIp(httpRequest));
-        request.setUserName(this.getUserName());
+        request.setUserName(this.getUsername(httpRequest));
         PrinterConfigDTO config = service.create(request);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_PRINTER_CONFIG_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.CREATE_PRINTER_CONFIG_SUCCESS);
         return new Response<PrinterConfigDTO>().withData(config);
     }
 
@@ -48,9 +48,9 @@ public class PrinterConfigController extends BaseController {
     )
     @PutMapping(value = { V1 + root + "/{id}"})
     public Response<PrinterConfigDTO> update(@Context HttpServletRequest httpRequest, @PathVariable Long id,  @Valid @RequestBody PrinterConfigRequest request) {
-        request.setUserName(this.getUserName());
+        request.setUserName(this.getUsername(httpRequest));
         PrinterConfigDTO config = service.update(id, request);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PRINTER_CONFIG_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PRINTER_CONFIG_SUCCESS);
         return new Response<PrinterConfigDTO>().withData(config);
     }
 
@@ -61,11 +61,11 @@ public class PrinterConfigController extends BaseController {
     @GetMapping(value = { V1 + root + "/{clientId}"})
     public Response<PrinterConfigDTO> getClient(HttpServletRequest httpRequest, @PathVariable String clientId) {
         if(clientId == null) clientId = "";
-        String clienIdStr = clientId.toLowerCase() + "_" + this.getUserName().toLowerCase();
+        String clienIdStr = clientId.toLowerCase() + "_" + this.getUsername(httpRequest).toLowerCase();
         PrinterConfigDTO config = service.getPrinter(clienIdStr);
         if(config == null) config = service.getPrinter(clientId);
 //        if(config == null) config = service.getPrinter(this.getClientIp(httpRequest));
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_PRINTER_CONFIG_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_PRINTER_CONFIG_SUCCESS);
         return new Response<PrinterConfigDTO>().withData(config);
     }
 

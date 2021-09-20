@@ -33,8 +33,8 @@ public class MemberCustomerController extends BaseController {
     public Response<MemberCustomer> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCustomerDTO request) {
         Response<MemberCustomer> response = new Response<>();
         response.setStatusValue("Tạo thẻ điểm thành viên thành công");
-        MemberCustomer memberCustomer = memberCustomerService.create(request, this.getUserId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_MEMBER_CUSTOMER_SUCCESS);
+        MemberCustomer memberCustomer = memberCustomerService.create(request, this.getUserId(httpRequest));
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.CREATE_MEMBER_CUSTOMER_SUCCESS);
         return response.withData(memberCustomer);
     }
 
@@ -46,7 +46,7 @@ public class MemberCustomerController extends BaseController {
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCustomerDTO> getMemberCustomerById(HttpServletRequest httpRequest, @PathVariable long id) {
         MemberCustomerDTO memberCustomerDTO = memberCustomerService.getMemberCustomerById(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CUSTOMER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CUSTOMER_SUCCESS);
         return new Response<MemberCustomerDTO>().withData(memberCustomerDTO);
     }
 
@@ -58,7 +58,7 @@ public class MemberCustomerController extends BaseController {
     @GetMapping(value = { V1 + root + "/findCustomer/{id}"})
     public Response<MemberCustomerDTO> getMemberCustomerByIdCustomer(HttpServletRequest httpRequest, @PathVariable long id) {
         MemberCustomerDTO memberCustomerDTO = memberCustomerService.getMemberCustomerByIdCustomer(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CUSTOMER_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CUSTOMER_SUCCESS);
         return new Response<MemberCustomerDTO>().withData(memberCustomerDTO);
     }
 

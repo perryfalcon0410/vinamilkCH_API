@@ -17,7 +17,7 @@ import java.util.List;
 
 public interface ExchangeTranService {
     Response<List<CategoryDataDTO>> getReasons();
-    CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange(Long roleId, Long shopId, String transCode, Date fromDate,
+    CoverResponse<Page<ExchangeTransDTO>, ExchangeTotalDTO> getAllExchange( Long shopId, String transCode, Date fromDate,
                                                                            Date toDate, Long reasonId, Pageable pageable);
     ExchangeTransDTO create(ExchangeTransRequest request, Long userId,Long shopId);
     ExchangeTransDTO update(Long id,ExchangeTransRequest request,Long shopId);

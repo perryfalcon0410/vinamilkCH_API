@@ -21,6 +21,7 @@ import vn.viettel.report.service.dto.StockTotalReportDTO;
 import vn.viettel.report.service.dto.StockTotalReportPrintDTO;
 import vn.viettel.report.service.feign.ShopClient;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
@@ -35,11 +36,11 @@ public class StockTotalReportController extends BaseController {
     ShopClient shopClient;
 
     @GetMapping(V1 + root)
-    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(@RequestParam Date stockDate,
+    public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(HttpServletRequest httpRequest, @RequestParam Date stockDate,
                                                                                                      @RequestParam Long warehouseTypeId,
                                                                                                      @RequestParam(required = false) String productCodes,
                                                                                                      Pageable pageable) {
-        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(), warehouseTypeId);
+        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(httpRequest), warehouseTypeId);
         CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO> response = stockTotalReportService.getStockTotalReport(filter, pageable);
         return new Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>>().withData(response);
     }
@@ -47,8 +48,8 @@ public class StockTotalReportController extends BaseController {
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = {V1 + root + "/excel"})
-    public void exportToExcel(@RequestParam Date stockDate, @RequestParam(required = false) String productCodes,  @RequestParam Long warehouseTypeId, HttpServletResponse response) throws IOException {
-        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(), warehouseTypeId);
+    public void exportToExcel(HttpServletRequest httpRequest, @RequestParam Date stockDate, @RequestParam(required = false) String productCodes,  @RequestParam Long warehouseTypeId, HttpServletResponse response) throws IOException {
+        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(httpRequest), warehouseTypeId);
         this.closeStreamExcel(response, stockTotalReportService.exportExcel(filter), "BC-ton_kho_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
@@ -59,10 +60,10 @@ public class StockTotalReportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/print")
-    public Response<StockTotalReportPrintDTO> print(@RequestParam Date stockDate,
+    public Response<StockTotalReportPrintDTO> print(HttpServletRequest httpRequest, @RequestParam Date stockDate,
                                                     @RequestParam Long warehouseTypeId,
                                                     @RequestParam(required = false) String productCodes) {
-        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(), warehouseTypeId);
+        StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(httpRequest), warehouseTypeId);
         StockTotalReportPrintDTO response = stockTotalReportService.print(filter);
         return new Response<StockTotalReportPrintDTO>().withData(response);
     }

@@ -43,9 +43,9 @@ public class SaleByCategoryController extends BaseController {
                                       @RequestParam(value = "fromDate", required = false) Date fromDate,
                                       @RequestParam(value = "toDate", required = false) Date toDate,
                                       @RequestParam(value = "customerType", required = false) Long customerType, HttpServletResponse response) throws IOException {
-        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId());
+        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId(request));
         this.closeStreamExcel(response, saleByCategoryReportService.exportExcel(filter), "BC_doanh_so_theo_nganh_hang_" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_BY_CATEGORY_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_BY_CATEGORY_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -62,9 +62,9 @@ public class SaleByCategoryController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "customerType", required = false) Long customerType, Pageable pageable) {
-        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId());
+        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId(request));
         SalesByCategoryReportDTO response = saleByCategoryReportService.getSaleByCategoryReport(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
         return new Response<SalesByCategoryReportDTO>().withData(response);
     }
 
@@ -76,9 +76,9 @@ public class SaleByCategoryController extends BaseController {
             @RequestParam(value = "fromDate", required = false) Date fromDate,
             @RequestParam(value = "toDate", required = false) Date toDate,
             @RequestParam(value = "customerType", required = false) Long customerType, Pageable pageable) {
-        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId());
+        SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId(request));
         SaleByCategoryPrintDTO response = saleByCategoryReportService.print(filter);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_SALE_BY_CATEGORY_SUCCESS);
         return new Response<SaleByCategoryPrintDTO>().withData(response);
     }
 }

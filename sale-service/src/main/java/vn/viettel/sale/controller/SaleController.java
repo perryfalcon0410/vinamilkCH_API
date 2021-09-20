@@ -33,6 +33,7 @@ import javax.validation.Valid;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,7 @@ public class SaleController extends BaseController {
     @PostMapping(value = { V1 + root })
     public Response<HashMap> createSaleOrder(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin tạo mới đơn hàng") @RequestBody SaleOrderRequest request) {
         HashMap<String,List<Long>> syncmap = new HashMap<>();
-        syncmap = (HashMap<String,List<Long>>) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), false);
+        syncmap = (HashMap<String,List<Long>>) service.createSaleOrder(request, this.getUserId(httpRequest), this.getShopId(httpRequest), false);
         List<Long> saleOrderIds = syncmap.get(JMSType.sale_order);
         sendSynRequest(JMSType.vouchers, syncmap.get(JMSType.vouchers));
         sendSynRequest(JMSType.promotion_program_discount, syncmap.get(JMSType.promotion_program_discount));
@@ -81,7 +82,8 @@ public class SaleController extends BaseController {
         sendSynRequest(JMSType.member_customer, syncmap.get(JMSType.member_customer));
         
         //Logs theo dõi nhầm shop
-        LogFile.logToFile(appName, getUserName(), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "][clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId()+ ", username: " +this.getUserName() +"][sale_order_id: " + saleOrderIds.get(0) +"]");
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "]" +
+                "[clientIp: " + this.getClientIp(httpRequest)   + ", customer: " + request.getCustomerId() + ", shop_id : " +  this.getShopId(httpRequest)+ "-"+this.getShopId(httpRequest)+ ", username: " +this.getUsername(httpRequest) +"-"+ this.getUsername(httpRequest)+"][sale_order_id: " + saleOrderIds.get(0) +"]");
         Response<HashMap> response = new Response<>();
         HashMap<String,Long> map = new HashMap<>();
         map.put("orderId", saleOrderIds.get(0));
@@ -91,15 +93,15 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách khuyến mãi cho một đơn hàng")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/order-promotions"})
-    public Response<SalePromotionCalculationDTO> getOrderPromotions(@Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
-        SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(), null, false);
+    public Response<SalePromotionCalculationDTO> getOrderPromotions(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+        SalePromotionCalculationDTO list = salePromotionService.getSaleItemPromotions(orderRequest, this.getShopId(httpRequest), null, false);
         return new Response<SalePromotionCalculationDTO>().withData(list);
     }
 
     @ApiOperation(value = "Api dùng để lấy danh sách sản phẩm cho khuyến mãi tay")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/promotion-products"})
-    public Response<List<FreeProductDTO>> getPromotionProduct(@Valid @ApiParam("ID chương trình khuyến mãi") @RequestParam Long promotionId,
+    public Response<List<FreeProductDTO>> getPromotionProduct(HttpServletRequest httpRequest, @Valid @ApiParam("ID chương trình khuyến mãi") @RequestParam Long promotionId,
                                                               @ApiParam("ID khách hàng") @RequestParam Long customerId,
                                                               @ApiParam("Tìm kiếm theo tên hoặc mã sản phẩm")
                                                               @RequestParam(name = "keyWord", required = false, defaultValue = "") String keyWord,
@@ -111,7 +113,7 @@ public class SaleController extends BaseController {
         if (page == null)
             page = 0;
 
-        List<FreeProductDTO> response = productService.findFreeProductDTONoOrder(this.getShopId(), customerId, keyWord.trim(), page);
+        List<FreeProductDTO> response = productService.findFreeProductDTONoOrder(this.getShopId(httpRequest), customerId, keyWord.trim(), page);
 
         return new Response<List<FreeProductDTO>>().withData(response);
     }
@@ -119,17 +121,17 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để tính khuyến mãi")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/promotion-calculation"})
-    public Response<SalePromotionCalculationDTO> promotionCalculation(@Valid @ApiParam("Thông tin cần tính") @RequestBody SalePromotionCalculationRequest calculationRequest) {
+    public Response<SalePromotionCalculationDTO> promotionCalculation(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin cần tính") @RequestBody SalePromotionCalculationRequest calculationRequest) {
 
-        SalePromotionCalculationDTO result = salePromotionService.promotionCalculation(calculationRequest, this.getShopId());
+        SalePromotionCalculationDTO result = salePromotionService.promotionCalculation(calculationRequest, this.getShopId(httpRequest));
         return new Response<SalePromotionCalculationDTO>().withData(result);
     }
 
     @ApiOperation(value = "Feign lấy giá trị sản phẩm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/price/{productId}"})
-    public Response<PriceDTO> getPriceByPrID(@PathVariable Long productId) {
-        return new Response<PriceDTO>().withData(productService.getProductPriceById(getShopId(), productId));
+    public Response<PriceDTO> getPriceByPrID(HttpServletRequest httpRequest, @PathVariable Long productId) {
+        return new Response<PriceDTO>().withData(productService.getProductPriceById(getShopId(httpRequest), productId));
     }
 
     @ApiOperation(value = "Api dùng để in tạm hóa đơn")
@@ -149,9 +151,9 @@ public class SaleController extends BaseController {
             @ApiResponse(code = 6100, message = "Số lượng mua vượt quá tồn kho")
     })
     @PostMapping(value = { V1 + root + "/printtmp"})
-    public Response<PrintSaleOrderDTO> printTempSaleOrder(@Valid @ApiParam("Thông tin đơn hàng") @RequestBody SaleOrderRequest request) {
+    public Response<PrintSaleOrderDTO> printTempSaleOrder(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin đơn hàng") @RequestBody SaleOrderRequest request) {
         Response<PrintSaleOrderDTO> response = new Response<>();
-        PrintSaleOrderDTO result = (PrintSaleOrderDTO) service.createSaleOrder(request, this.getUserId(), this.getRoleId(), this.getShopId(), true);
+        PrintSaleOrderDTO result = (PrintSaleOrderDTO) service.createSaleOrder(request, this.getUserId(httpRequest), this.getShopId(httpRequest), true);
         return response.withData(result);
     }
 
@@ -159,12 +161,12 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy mã giảm giá")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/discount-code/{code}"})
-    public Response<SalePromotionDTO> getDiscountCode(@PathVariable("code") String discountCode, @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+    public Response<SalePromotionDTO> getDiscountCode(HttpServletRequest httpRequest, @PathVariable("code") String discountCode, @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
         if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }
 
-        SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(), orderRequest);
+        SalePromotionDTO discount = salePromotionService.getDiscountCode(discountCode, this.getShopId(httpRequest), orderRequest);
         return new Response<SalePromotionDTO>().withData(discount);
     }
     
@@ -181,8 +183,8 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy quyền chỉnh sửa đơn online")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/valid/online-order"})
-    public Response<OnlineOrderValidDTO> getDiscountCode() {
-        OnlineOrderValidDTO response = service.getValidOnlineOrder(this.getShopId());
+    public Response<OnlineOrderValidDTO> getDiscountCode(HttpServletRequest httpRequest) {
+        OnlineOrderValidDTO response = service.getValidOnlineOrder(this.getShopId(httpRequest));
         return new Response<OnlineOrderValidDTO>().withData(response);
     }
 

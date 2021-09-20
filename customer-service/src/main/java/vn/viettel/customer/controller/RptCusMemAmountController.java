@@ -32,7 +32,7 @@ public class RptCusMemAmountController extends BaseController {
     @GetMapping(value = {V1 + root + "/customer-id/{id}"})
     public Response<RptCusMemAmountDTO> FindByCustomerId(HttpServletRequest httpRequest, @PathVariable Long id) {
         RptCusMemAmountDTO rptCusMemAmountDTO = rptCusMemAmountService.findByCustomerId(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_RPT_CUS_MEM_AMOUNT_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_RPT_CUS_MEM_AMOUNT_SUCCESS);
         return new Response<RptCusMemAmountDTO>().withData(rptCusMemAmountDTO);
     }
 }

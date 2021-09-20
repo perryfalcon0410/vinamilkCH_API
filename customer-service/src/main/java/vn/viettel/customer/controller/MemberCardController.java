@@ -32,10 +32,10 @@ public class MemberCardController extends BaseController {
     )
     @PostMapping(value = { V1 + root + "/create"})
     public Response<MemberCard> create(HttpServletRequest httpRequest, @Valid @RequestBody MemberCardDTO request) {
-        MemberCard memberCard = memberCardService.create(request, this.getUserId());
+        MemberCard memberCard = memberCardService.create(request, this.getUserId(httpRequest));
         Response<MemberCard> response = new Response<>();
         response.setStatusValue("Tạo mới thẻ thành viên thành công");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_MEMBER_CARD_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.CREATE_MEMBER_CARD_SUCCESS);
         return new Response<MemberCard>().withData(memberCard);
     }
 
@@ -47,7 +47,7 @@ public class MemberCardController extends BaseController {
     @GetMapping(value = { V1 + root + "/{id}"})
     public Response<MemberCardDTO> getMemberCardById(HttpServletRequest httpRequest, @PathVariable long id) {
         MemberCardDTO memberCardDTO = memberCardService.getMemberCardById(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CARD_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CARD_SUCCESS);
         return new Response<MemberCardDTO>().withData(memberCardDTO);
     }
 
@@ -63,7 +63,7 @@ public class MemberCardController extends BaseController {
         Response<MemberCard> response = new Response<>();
         response.setStatusCode(201);
         response.setStatusValue("Cập nhật thẻ thành viên thành công");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_MEMBER_CARD_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_MEMBER_CARD_SUCCESS);
         return response.withData(memberCard);
     }
 
@@ -75,7 +75,7 @@ public class MemberCardController extends BaseController {
     @GetMapping(value = { V1 + root + "/customer-type-id/{id}"})
     public Response<List<MemberCardDTO>> getAllByCustomerTypeId(HttpServletRequest httpRequest, @PathVariable Long id) {
         List<MemberCardDTO>  memberCardDTOS = memberCardService.getMemberCardByCustomerId(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CARD_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_MEMBER_CARD_SUCCESS);
         return new Response<List<MemberCardDTO>>().withData(memberCardDTOS);
     }
 

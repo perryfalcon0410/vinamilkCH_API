@@ -36,6 +36,9 @@ import vn.viettel.sale.service.feign.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -92,7 +95,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Object createSaleOrder(SaleOrderRequest request, long userId, long roleId, long shopId, boolean printTemp) {
+    public Object createSaleOrder(SaleOrderRequest request, long userId, long shopId, boolean printTemp) {
         if ((request.getPromotionInfo() == null || request.getPromotionInfo().isEmpty()) && (request.getProducts() == null || request.getProducts().isEmpty()))
             throw new ValidateException(ResponseMessage.PROMOTION_NOT_FOUND);
 
@@ -421,8 +424,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
        /* saleOrder.setOrderNumber(createOrderNumber(shop));*/
         /*repository.save(saleOrder);*/
-        this.safeSave(saleOrder, shop);
-
+        try{
+            this.safeSave(saleOrder, shop);
+        }catch (Exception ex) {
+            throw new ValidateException(ResponseMessage.SAVE_FAIL);
+        }
 
         updateOnlineOrder(saleOrder, onlineOrder);
 
@@ -976,6 +982,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     /*
     Tạo số đơn mua hàng
      */
+     /*
+    Tạo số đơn mua hàng
+     */
     public String createOrderNumber(ShopDTO shop){
         LocalDateTime now = DateUtils.convertDateToLocalDateTime(new Date());
         int day = now.getDayOfMonth();
@@ -984,8 +993,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         String  year = Integer.toString(now.getYear()).substring(2);
         String code = "SAL." +  shop.getShopCode() + year + Integer.toString(month + 100).substring(1)  + Integer.toString(day + 100).substring(1);
         LocalDateTime start =  DateUtils.convertFromDate(now);
-        Page<SaleOrder> saleOrders = repository.getLastSaleOrderNumber(shop.getId(), code, start, PageRequest.of(0,1));
-        int STT = 1;
+
+            Page<SaleOrder> saleOrders = repository.getLastSaleOrderNumber(shop.getId(), code, start, PageRequest.of(0,1));
+       int STT = 1;
         if(!saleOrders.getContent().isEmpty()) {
             String str = saleOrders.getContent().get(0).getOrderNumber();
             String numberString = str.substring(str.length() - 5);
@@ -993,7 +1003,37 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         return  code + Integer.toString(STT + 100000).substring(1);
+        /*
+        EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
+        CriteriaBuilder cb = newEntityM.getCriteriaBuilder();
+        CriteriaQuery<SaleOrder> query = cb.createQuery(SaleOrder.class);
+        Root<SaleOrder> saleOrder = query.from(SaleOrder.class);
+
+        query.where(cb.equal(saleOrder.get(SaleOrder_.shopId), shop.getId()),
+                cb.greaterThanOrEqualTo(saleOrder.get(SaleOrder_.createdAt), start), cb.like(saleOrder.get(SaleOrder_.orderNumber),  code + "%"));
+
+        query.orderBy(cb.desc(saleOrder.get("orderNumber")));
+
+        List<SaleOrder> saleOrders = null;
+        try {
+            saleOrders = newEntityM.createQuery(query).setMaxResults(1).setFirstResult(0).getResultList();
+        }catch(Exception exception) {
+            throw exception;
+        }finally {
+            newEntityM.close();
+        }
+
+        int STT = 1;
+        if(!saleOrders.isEmpty()) {
+            String str = saleOrders.get(0).getOrderNumber();
+            String numberString = str.substring(str.length() - 5);
+            STT = Integer.valueOf(numberString) + 1;
+        }
+         return  code + Integer.toString(STT + 100000).substring(1);
+        */
+
     }
+
 
     @Override
     public OnlineOrderValidDTO getValidOnlineOrder(Long shopId) {
@@ -1322,10 +1362,31 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     }
 
 
-    public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
+  /*  public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO){
         for(int i = 0; ; i++) {
-            EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
             boolean flag = false;
+            try {
+                saleOrder.setOrderNumber(createOrderNumber(shopDTO));
+                repository.save(saleOrder);
+                flag = true;
+            }catch (Exception ex ){
+                if(ex.getCause().getClass().equals(ConstraintViolationException.class)
+                        || ex.getCause().getClass().equals(DataIntegrityViolationException.class) || ex.getCause().getClass().equals(SQLIntegrityConstraintViolationException.class))  {
+                    continue;
+                }else {
+                    throw ex;
+                }
+            }
+
+            if(flag) break;
+        }
+        return saleOrder;
+    }*/
+
+    public SaleOrder safeSave(SaleOrder saleOrder, ShopDTO shopDTO) throws RuntimeException{
+        boolean flag = false;
+        for(int i = 0; i < 3; i++) {
+            EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
             try {
                 newEntityM.getTransaction().begin();
                 saleOrder.setOrderNumber(createOrderNumber(shopDTO));
@@ -1347,6 +1408,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             if(flag) break;
         }
+        if(!flag) throw new RuntimeException("Create sale_order fail");
         return saleOrder;
     }
 

@@ -340,6 +340,7 @@ public enum ResponseMessage {
     PAYMENT_UPDATE_P_SHOP_MAP_FAIL(9105, "Thanh toán không thành công. Cập nhật số xuất thất bại."),
     PAYMENT_CREATE_RPT_ZV23_FAIL(9106, "Thanh toán không thành công. Tạo mới zpt_zv23 thất bại."),
     PAYMENT_UPDATE_RPT_ZV23_FAIL(9107, "Thanh toán không thành công. Cập nhật zpt_zv23 chương trình %s thất bại."),
+    SAVE_FAIL(9107, "Có lỗi trong quá trình lưu, xin vui lòng thử lại."),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */

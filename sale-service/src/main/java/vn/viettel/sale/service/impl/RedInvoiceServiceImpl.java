@@ -278,11 +278,20 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
         if ((redInvoiceNewDataDTO.getRedInvoiceNumber() == null) || (redInvoiceNewDataDTO.getRedInvoiceNumber().equals(""))) {
             String redInvoiceCode = this.createRedInvoiceCode();
-            if (this.checkRedInvoiceNumber(redInvoiceCode)) {
+            for (int i = 0; ;i++) {
+                if (this.checkRedInvoiceNumber(redInvoiceCode)) {
+                    redInvoiceCode = this.createRedInvoiceCode();
+                }else{
+                    break;
+                }
+            }
+            redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
+
+            /*if (this.checkRedInvoiceNumber(redInvoiceCode)) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
             } else {
                 redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
-            }
+            }*/
         } else {
             if (this.checkRedInvoiceNumber(redInvoiceNewDataDTO.getRedInvoiceNumber())) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);

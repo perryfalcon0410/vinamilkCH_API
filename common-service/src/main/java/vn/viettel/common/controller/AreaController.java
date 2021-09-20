@@ -36,7 +36,7 @@ public class AreaController extends BaseController {
     @GetMapping( value = { V1 + root + "/provinces", V2 + root + "/provinces"})
     public Response<List<AreaDTO>> getProvinces(HttpServletRequest httpRequest) {
         List<AreaDTO> areaDTOS = areaService.getProvinces();
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PROVINCES_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PROVINCES_SUCCESS);
         return new Response<List<AreaDTO>>().withData(areaDTOS);
     }
 
@@ -47,8 +47,8 @@ public class AreaController extends BaseController {
     )
     @GetMapping( value = { V1 + root + "/default", V2 + root + "/default"})
     public Response<AreaDefaultDTO> getAreaDefault(HttpServletRequest httpRequest) {
-        AreaDefaultDTO areaDefaultDTO = areaService.getAreaDefault(this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AREA_SUCCESS);
+        AreaDefaultDTO areaDefaultDTO = areaService.getAreaDefault(this.getShopId(httpRequest));
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AREA_SUCCESS);
         return new Response<AreaDefaultDTO>().withData(areaDefaultDTO);
     }
 
@@ -59,8 +59,8 @@ public class AreaController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/districts/index-customers"})
     public Response<List<AreaSearch>> getDistrictsToSearchCustomer(HttpServletRequest httpRequest) {
-        List<AreaSearch> areaSearches = areaService.getDistrictsToSearchCustomer(this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_DISTRICTS_SUCCESS);
+        List<AreaSearch> areaSearches = areaService.getDistrictsToSearchCustomer(this.getShopId(httpRequest));
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_DISTRICTS_SUCCESS);
 
         return new Response<List<AreaSearch>>().withData(areaSearches);
     }
@@ -73,7 +73,7 @@ public class AreaController extends BaseController {
     @GetMapping(value = { V1 + root + "/districts"})
     public Response<List<AreaDTO>> getDistrictsByProvinceId(HttpServletRequest httpRequest, @RequestParam("provinceId") Long provinceId) {
         List<AreaDTO> areaDTOS = areaService.getDistrictsByProvinceId(provinceId);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_DISTRICTS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_DISTRICTS_SUCCESS);
         return new Response<List<AreaDTO>>().withData(areaDTOS);
     }
 
@@ -85,7 +85,7 @@ public class AreaController extends BaseController {
     @GetMapping(value = { V1 + root + "/precincts"})
     public Response<List<AreaDTO>> getPrecinctsByDistrictId(HttpServletRequest httpRequest, @RequestParam("districtId")Long districtId) {
         List<AreaDTO> areaDTOS = areaService.getPrecinctsByDistrictId(districtId);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRECINCT_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_PRECINCT_SUCCESS);
         return new Response<List<AreaDTO>>().withData(areaDTOS);
     }
 
@@ -98,7 +98,7 @@ public class AreaController extends BaseController {
     public Response<AreaDTO> getById(HttpServletRequest httpRequest,
                                      @PathVariable Long id) {
         AreaDTO areaDTO = areaService.getAreaById(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AREA_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_DATA_AREA_SUCCESS);
         return new Response<AreaDTO>().withData(areaDTO);
     }
 
@@ -116,7 +116,7 @@ public class AreaController extends BaseController {
                                     @ApiParam("Tên xã, phường, thị trấn")
                                     @RequestParam("precinctName") String precinctName) {
         AreaDTO areaDTO = areaService.getArea(provinceName, districtName, precinctName);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_ONLINE_ORDERS_SUCCESS);
         return new Response<AreaDTO>().withData(areaDTO);
     }
 }

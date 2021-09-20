@@ -36,7 +36,7 @@ public class CustomerTypeController extends BaseController {
     public Response<List<CustomerTypeDTO>> getAll(HttpServletRequest httpRequest,
                                                   @RequestParam(value = "isCreate",defaultValue = "false") Boolean isCreate) {
         List<CustomerTypeDTO> customerTypeDTOS = customerTypeService.getAll(isCreate);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_TYPE_SUCCESS);
         return new Response<List<CustomerTypeDTO>>().withData(customerTypeDTOS);
     }
 

@@ -53,23 +53,23 @@ public class InventoryController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy danh sách tồn kho theo điều kiện tìm kiếm")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventory"})
-    public Response<Page<StockCountingDTO>> index(@RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
+    public Response<Page<StockCountingDTO>> index(HttpServletRequest httpRequest, @RequestParam(value = "stockCountingCode",required = false) String stockCountingCode,
                                                   @RequestParam(value ="wareHouseTypeId",required = false) Long wareHouseTypeId,
                                                   @RequestParam(value = "fromDate") Date fromDate,
                                                   @RequestParam(value = "toDate") Date toDate,
                                                   @SortDefault.SortDefaults({
                                                       @SortDefault(sort = "countingDate", direction = Sort.Direction.DESC),
                                                   }) Pageable pageable) {
-        Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,wareHouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),this.getShopId(),pageable);
+        Page<StockCountingDTO> response = inventoryService.index(stockCountingCode,wareHouseTypeId, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),this.getShopId(httpRequest),pageable);
         return new Response<Page<StockCountingDTO>>().withData(response);
     }
 
     @ApiOperation(value = "Api dùng để lấy tất cả sản phẩm tồn kho")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/inventories"})
-    public Object getAll(@RequestParam(value = "searchKeywords",required = false) String searchKeywords,
+    public Object getAll(HttpServletRequest httpRequest, @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
                           @RequestParam(value = "wareHouseTypeId",required = false) Long wareHouseTypeId) {
-        Object response = inventoryService.getAll(getShopId(), searchKeywords,wareHouseTypeId);
+        Object response = inventoryService.getAll(getShopId(httpRequest), searchKeywords,wareHouseTypeId);
         return new Response<>().withData(response);
     }
 
@@ -81,8 +81,8 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 1007, message = "Không tìm thấy thông tin sản phẩm")
     })
     @GetMapping(value = { V1 + root + "/inventory/{id}"})
-    public Response<CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting>> getStockCountingDetails(@PathVariable Long id) {
-        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = inventoryService.getByStockCountingId(id, this.getShopId());
+    public Response<CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting>> getStockCountingDetails(HttpServletRequest httpRequest, @PathVariable Long id) {
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = inventoryService.getByStockCountingId(id, this.getShopId(httpRequest));
         return new Response<CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting>>().withData(response);
     }
 
@@ -94,8 +94,8 @@ public class InventoryController extends BaseController {
                                                                                             @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
                                                                                             @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId,
                                                                                             @PageableDefault(value = 2000)Pageable pageable) throws IOException {
-        CoverResponse<StockCountingImportDTO, InventoryImportInfo> response = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords,wareHouseTypeId);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> response = inventoryService.importExcel(getShopId(httpRequest), file, pageable, searchKeywords,wareHouseTypeId);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
         return new Response<CoverResponse<StockCountingImportDTO, InventoryImportInfo>>().withData(response);
     }
 
@@ -105,9 +105,9 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 1005, message = "Không tìm thấy phiếu kiểm kê")
     })
     @PutMapping(value = { V1 + root + "/inventory/{id}"})
-    public Response<String> updateStockCounting(@PathVariable Long id,
+    public Response<String> updateStockCounting(HttpServletRequest httpRequest,@PathVariable Long id,
                                                                    @RequestBody List<StockCountingUpdateDTO> details) {
-        ResponseMessage message = inventoryService.updateStockCounting(id, this.getShopId(), this.getUserName(), details);
+        ResponseMessage message = inventoryService.updateStockCounting(id, this.getShopId(httpRequest), this.getUsername(httpRequest), details);
         Response response = new Response();
         response.setStatusValue(message.statusCodeValue());
         response.setStatusCode(message.statusCode());
@@ -119,8 +119,8 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public void stockCountingExport(@RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
-        this.closeStreamExcel(response,inventoryService.exportExcel(id, this.getShopId()), "Kiem_ke_" + StringUtils.createExcelFileName());
+    public void stockCountingExport(HttpServletRequest httpRequest, @RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
+        this.closeStreamExcel(response,inventoryService.exportExcel(id, this.getShopId(httpRequest)), "Kiem_ke_" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
     }
 
@@ -129,11 +129,11 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public void stockCountingExportFail(@RequestParam(name = "file") MultipartFile file,
+    public void stockCountingExportFail(HttpServletRequest httpRequest, @RequestParam(name = "file") MultipartFile file,
                                                   @RequestParam(value = "searchKeywords",required = false) String searchKeywords,
                                                   @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId,
                                                   @PageableDefault(value = 2000)Pageable pageable, HttpServletResponse response) throws IOException {
-        CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(), file, pageable, searchKeywords,wareHouseTypeId);
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(httpRequest), file, pageable, searchKeywords,wareHouseTypeId);
         StockCountingFailExcel stockCountingFailExcel = new StockCountingFailExcel(data.getResponse().getImportFails(), LocalDateTime.now());
         this.closeStreamExcel(response, stockCountingFailExcel.export(), "stock_counting_fail" + StringUtils.createExcelFileName());
         response.getOutputStream().flush();
@@ -144,9 +144,9 @@ public class InventoryController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public void stockCountingExportAll( HttpServletResponse response) throws IOException {
-        ShopDTO shop = shopClient.getByIdV1(this.getShopId()).getData();
-        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(),null,null);
+    public void stockCountingExportAll(HttpServletRequest httpRequest, HttpServletResponse response) throws IOException {
+        ShopDTO shop = shopClient.getByIdV1(this.getShopId(httpRequest)).getData();
+        CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(httpRequest),null,null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll = new StockCountingAllExcel(listAll, shop, shop.getParentShop(), LocalDateTime.now());
         this.closeStreamExcel(response, stockCountingAll.export(), "stock_counting_all" + StringUtils.createExcelFileName());
@@ -170,10 +170,10 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 203, message = "Hủy thêm mới")
     })
     @PostMapping(value = { V1 + root + "/inventory"})
-    public Response<String> createStockCounting(@RequestBody List<StockCountingDetailDTO> stockCountingDetails,
+    public Response<String> createStockCounting(HttpServletRequest httpRequest, @RequestBody List<StockCountingDetailDTO> stockCountingDetails,
                                              @RequestParam(value = "wareHouseTypeId") Long wareHouseTypeId,
                                              @RequestParam(required = false) Boolean override) {
-        Long id = inventoryService.createStockCounting(stockCountingDetails, this.getUserId(), this.getShopId(),wareHouseTypeId, override);
+        Long id = inventoryService.createStockCounting(stockCountingDetails, this.getUserId(httpRequest), this.getShopId(httpRequest),wareHouseTypeId, override);
         Response response = new Response();
         response.setStatusValue(ResponseMessage.CREATED_SUCCESSFUL.statusCodeValue());
         response.setData(id);
@@ -181,8 +181,8 @@ public class InventoryController extends BaseController {
     }
 
     @GetMapping(value = {V1 + root + "/inventory/numInDay/{wareHouseTypeId}"})
-    public Response<Boolean> getInventoryNumberInDay(@PathVariable(value = "wareHouseTypeId") Long wareHouseTypeId) {
+    public Response<Boolean> getInventoryNumberInDay(HttpServletRequest httpRequest, @PathVariable(value = "wareHouseTypeId") Long wareHouseTypeId) {
         Response<Boolean> check = new Response<>();
-        return check.withData(inventoryService.checkInventoryInDay(wareHouseTypeId, this.getShopId()));
+        return check.withData(inventoryService.checkInventoryInDay(wareHouseTypeId, this.getShopId(httpRequest)));
     }
 }

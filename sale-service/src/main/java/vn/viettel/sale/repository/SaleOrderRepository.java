@@ -63,8 +63,8 @@ public interface SaleOrderRepository extends BaseRepository<SaleOrder>, JpaSpeci
     @Query(value = "SELECT so FROM SaleOrder so WHERE so.id In (:ids) AND so.shopId =:shopId AND so.type = 1")
     List<SaleOrder> findAllById(List<Long> ids, Long shopId);
 
-   /* @Lock(LockModeType.PESSIMISTIC_WRITE )
-    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "1000")})*/
+    @Lock(LockModeType.PESSIMISTIC_WRITE )
+    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "5000")})
     @Query(value = "SELECT s FROM SaleOrder s WHERE s.shopId =:shopId And s.createdAt>= :startDate" +
             " AND s.orderNumber like :startWith% AND s.id is not null" +
             " ORDER BY s.orderNumber desc ")
