@@ -53,10 +53,10 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false, defaultValue = "") String productKW,
             Pageable pageable) {
-        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(),
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(request),
                 reciept.toUpperCase(Locale.ROOT), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW.toUpperCase(Locale.ROOT));
         CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO> response = returnGoodsReportService.getReturnGoodsReport(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_RETURN_GOODS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_RETURN_GOODS_SUCCESS);
         return new  Response<CoverResponse<Page<ReturnGoodsDTO>, ReportTotalDTO>>().withData(response);
     }
 
@@ -74,10 +74,10 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false,defaultValue = "") String productKW, HttpServletResponse response) throws IOException, ParseException {
 
-        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(),
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(request),
                 reciept.toUpperCase(Locale.ROOT), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW.toUpperCase(Locale.ROOT));
         this.closeStreamExcel(response, returnGoodsReportService.exportExcel(filter), "DB_Hang_tra_lai_Filled_" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_RETURN_GOODS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_RETURN_GOODS_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -95,10 +95,10 @@ public class ReturnGoodsReportController extends BaseController {
             @RequestParam(value = "toDate") Date toDate,
             @RequestParam(value = "reason", required = false) String reason,
             @RequestParam(value = "productKW", required = false,defaultValue = "") String productKW) {
-        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(),
+        ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(request),
                 reciept.toUpperCase(Locale.ROOT), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW.toUpperCase(Locale.ROOT));
         ReportPrintIndustryTotalDTO response = returnGoodsReportService.getDataPrint(filter);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_RETURN_GOODS_SUCCESS);
         return new Response<ReportPrintIndustryTotalDTO>().withData(response);
     }
 }

@@ -28,7 +28,7 @@ public abstract class BaseController extends HandlerException {
 
     @Autowired
     private SecurityContexHolder securityContexHolder;
-
+/*
     public String getRole() {
         return securityContexHolder.getContext().getRole();
     }
@@ -47,7 +47,7 @@ public abstract class BaseController extends HandlerException {
 
     public String getUserName() {
         return securityContexHolder.getContext().getUserName();
-    }
+    }*/
 
     public Long getShopId(HttpServletRequest httpRequest) {
         Long shopId = (Long) httpRequest.getAttribute(Constants.CURRENT_SHOP_ID);

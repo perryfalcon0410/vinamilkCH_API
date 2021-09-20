@@ -45,9 +45,9 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false) String productKW
             , HttpServletResponse response) throws IOException {
-        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId());
+        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId(request));
         this.closeStreamExcel(response, exchangeTransReportService.exportExcel(filter), "BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_EXCHANGETRANS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_EXCHANGETRANS_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -64,9 +64,9 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "toDate", required = false) Date toDate,
                                         @RequestParam(value = "reason", required = false) String reason,
                                         @RequestParam(value = "productKW", required = false, defaultValue = "") String productKW, Pageable pageable) {
-        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId());
+        ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId(request));
         ExchangeTransReportDTO response = exchangeTransReportService.getExchangeTransReport(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_EXCHANGETRANS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_REPORT_EXCHANGETRANS_SUCCESS);
         return new Response<ExchangeTransReportDTO>().withData(response);
     }
 

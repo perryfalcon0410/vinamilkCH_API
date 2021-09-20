@@ -2,20 +2,21 @@ package vn.viettel.core.logging;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vn.viettel.core.util.Constants;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class LogFile {
 //	static LogFile globalInstance = new LogFile();
 
-	public static void logToFile(String logFile, String username, LogLevel logLevel, HttpServletRequest request, String message){
+	public static void logToFile(String logFile, String userName, LogLevel logLevel, HttpServletRequest request, String message){
 		if (logFile != null && !logFile.equals("")) {
 			String ipAddress = "Not.Get.IP";
 			String uri = "Not.Get.URI";
 
-			if (username == null){
-				username = "Not login";
-			}
+			String username = (String) request.getAttribute(Constants.CURRENT_USERNAME);
+			if(username !=null && !username.isEmpty())  username = userName;
+			if (username == null) username = "Not login";
 
 			if (request != null) {
 				ipAddress = request.getHeader("X-FORWARDED-FOR");

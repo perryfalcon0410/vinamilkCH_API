@@ -53,9 +53,9 @@ public class ComboProductTransController extends BaseController {
                                       })
                                       Pageable pageable) {
 
-        ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(), transCode, transType, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
+        ComboProductTranFilter filter = new ComboProductTranFilter(this.getShopId(request), transCode, transType, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         CoverResponse<Page<ComboProductTranDTO>, TotalDTO> response = comboProductTransService.getAll(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_TRANS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_COMBO_PRODUCTS_TRANS_SUCCESS);
         return new Response<CoverResponse<Page<ComboProductTranDTO>, TotalDTO>>().withData(response);
     }
 
@@ -66,8 +66,8 @@ public class ComboProductTransController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<String> create(HttpServletRequest request, @Valid @ApiParam("Thông tin tạo mới xuất, nhập combo") @RequestBody ComboProductTranRequest comboRequest) {
-        comboProductTransService.create(comboRequest, this.getShopId(), this.getUserName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CREATE_COMBO_PRODUCT_TRANS_SUCCESS);
+        comboProductTransService.create(comboRequest, this.getShopId(request), this.getUsername(request));
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.CREATE_COMBO_PRODUCT_TRANS_SUCCESS);
         Response response = new Response();
         response.setStatusValue(ResponseMessage.CREATED_SUCCESSFUL.statusCodeValue());
         return response;
@@ -81,7 +81,7 @@ public class ComboProductTransController extends BaseController {
     )
     public Response<ComboProductTranDTO> getComboProductTran(HttpServletRequest request, @PathVariable Long id) {
         ComboProductTranDTO response = comboProductTransService.getComboProductTrans(id);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_TRANS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_COMBO_PRODUCT_TRANS_SUCCESS);
         return new Response<ComboProductTranDTO>().withData(response);
     }
 }

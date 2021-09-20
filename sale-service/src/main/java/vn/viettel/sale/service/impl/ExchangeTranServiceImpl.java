@@ -402,6 +402,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             stockTotalService.updateWithLock(shopId, exchangeTrans.get().getWareHouseTypeId(), e.getProductId(), e.getQuantity());
         }
         exchangeTrans.get().setStatus(-1);
+        repository.save(exchangeTrans.get());
         return ResponseMessage.DELETE_SUCCESSFUL;
     }
 

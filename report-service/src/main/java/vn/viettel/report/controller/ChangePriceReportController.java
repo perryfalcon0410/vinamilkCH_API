@@ -52,10 +52,10 @@ public class ChangePriceReportController extends BaseController {
                                                                                     @RequestParam Date toTransDate, @RequestParam(required = false) Date fromOrderDate,  @RequestParam(required = false) Date toOrderDate,
                                                                                     @RequestParam(required = false) String productCodes, Pageable pageable, @RequestParam Boolean isPaging) throws ParseException {
 
-        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(),
+        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(request),
                 DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), productCodes);
         Object result = service.index(filter, pageable, isPaging);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_PRICE_CHANGED_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.SEARCH_PRICE_CHANGED_SUCCESS);
         return result;
     }
 
@@ -70,22 +70,22 @@ public class ChangePriceReportController extends BaseController {
                                                 @RequestParam(required = false) Date toOrderDate,
                                                 @RequestParam(required = false) String ids,
                                                 Pageable pageable) throws ParseException {
-        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(),
+        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(request),
                 DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), ids);
         ChangePricePrintDTO result = service.getAll(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_LIST_PRICE_CHANGED_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_LIST_PRICE_CHANGED_SUCCESS);
         return new Response<ChangePricePrintDTO>().withData(result);
     }
 
     @ApiOperation(value = "Api dùng để xuất excel cho báo cáo chênh lệch giá")
     @ApiResponse(code = 200, message = "Success")
     @GetMapping(value = { V1 + root + "/excel"})
-    public void exportToExcel( @RequestParam(required = false) String licenseNumber, @RequestParam Date fromTransDate, @RequestParam Date toTransDate,
+    public void exportToExcel(HttpServletRequest httpRequest, @RequestParam(required = false) String licenseNumber, @RequestParam Date fromTransDate, @RequestParam Date toTransDate,
                                @RequestParam(required = false) Date fromOrderDate, @RequestParam(required = false) Date toOrderDate, @RequestParam(required = false) String ids,
                                         HttpServletResponse response,Pageable pageable) throws IOException, ParseException {
-        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId(httpRequest)).getData();
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(),
+        ChangePriceFilter filter = new ChangePriceFilter(licenseNumber, this.getShopId(httpRequest),
                 DateUtils.convertFromDate(fromTransDate), DateUtils.convertFromDate(toTransDate), DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), ids);
 
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(filter, pageable, false);

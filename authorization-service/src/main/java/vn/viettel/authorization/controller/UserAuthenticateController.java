@@ -41,7 +41,7 @@ public class UserAuthenticateController extends BaseController {
     @PostMapping(value = { V1 + root + "/preLogin"})
     public Response<Object> preLogin(HttpServletRequest request, @Valid @RequestBody LoginRequest loginInfo) {
         Response<Object> result = userLoginService.preLogin(loginInfo);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return result;
     }
 
@@ -54,7 +54,7 @@ public class UserAuthenticateController extends BaseController {
     @PostMapping(value = { V1 + root + "/login"})
     public Response<Object> userLogin(HttpServletRequest request, @Valid @RequestBody LoginRequest loginInfo) {
         Response<Object> result = userLoginService.getRoleShop(loginInfo);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.LOGIN_SUCCESS);
         return result;
     }
 
@@ -67,7 +67,7 @@ public class UserAuthenticateController extends BaseController {
     @PutMapping(value = { V1 + root + "/change-password"})
     public Response<Object> changePassword(HttpServletRequest request, @Valid @RequestBody ChangePasswordRequest requestBody) {
         Response<Object> result = userLoginService.changePassword(requestBody);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PD);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.CHANGE_PD);
         return result;
     }
 
@@ -80,7 +80,7 @@ public class UserAuthenticateController extends BaseController {
     @PutMapping(value = { V1 + root + "/reload-captcha/{username}"})
     public Response<String> relloadCaptcha(HttpServletRequest request,@PathVariable String username) {
         String result = userLoginService.reloadCaptcha(username);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RELOAD_CAPTCHA_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.RELOAD_CAPTCHA_SUCCESS);
         return new Response<String>().withData(result);
     }
 

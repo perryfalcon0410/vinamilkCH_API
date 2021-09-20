@@ -41,7 +41,7 @@ public class OrderReturnController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(  @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
+    public Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> getAllOrderReturn(HttpServletRequest httpRequest, @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                                      @RequestParam(value = "customerPhone", required = false) String customerPhone,
                                                                                                      @RequestParam(value = "returnNumber", required = false) String returnNumber,
                                                                                                      @RequestParam(value = "fromDate") Date fromDate,
@@ -53,7 +53,7 @@ public class OrderReturnController extends BaseController {
                                                                                                      Pageable pageable) {
         SaleOrderFilter filter = new SaleOrderFilter(searchKeywords, customerPhone, returnNumber, null, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse>> response = new Response<>();
-        return response.withData(orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId()));
+        return response.withData(orderReturnService.getAllOrderReturn(filter, pageable, this.getShopId(httpRequest)));
     }
 
     @GetMapping(value = { V1 + root + "/detail/{id}"})
@@ -71,14 +71,14 @@ public class OrderReturnController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(@RequestParam(value = "orderNumber", required = false) String orderNumber,
+    public Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> selectForReturn(HttpServletRequest httpRequest, @RequestParam(value = "orderNumber", required = false) String orderNumber,
                                                                                         @RequestParam(value = "searchKeywords", required = false) String searchKeywords,
                                                                                         @RequestParam(value = "product", required = false) String product,
                                                                                         @RequestParam(value = "fromDate", required = false) Date fromDate,
                                                                                         @RequestParam(value = "toDate", required = false) Date toDate) {
         SaleOrderChosenFilter filter = new SaleOrderChosenFilter(orderNumber, searchKeywords, product, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate));
         Response<CoverResponse<List<SaleOrderDTO>,TotalOrderChoose>> response = new Response<>();
-        return response.withData(orderReturnService.getSaleOrderForReturn(filter, this.getShopId()));
+        return response.withData(orderReturnService.getSaleOrderForReturn(filter, this.getShopId(httpRequest)));
     }
 
     @GetMapping(value = { V1 + root + "/chosen/{id}"})
@@ -86,9 +86,9 @@ public class OrderReturnController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response<OrderReturnDetailDTO> orderSelected(@PathVariable Long id) {
+    public Response<OrderReturnDetailDTO> orderSelected(HttpServletRequest httpRequest, @PathVariable Long id) {
         Response<OrderReturnDetailDTO> response = new Response<>();
-        return response.withData(orderReturnService.getSaleOrderChosen(id, this.getShopId()));
+        return response.withData(orderReturnService.getSaleOrderChosen(id, this.getShopId(httpRequest)));
     }
 
     @PostMapping(value = { V1 + root})
@@ -98,8 +98,8 @@ public class OrderReturnController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public Response<SaleOrder> createOrderReturn(HttpServletRequest httpRequest,@Valid @RequestBody OrderReturnRequest request) {
         Response<SaleOrder> response = new Response<>();
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.CREATE_ORDER_RETURN_SUCCESS);
+        LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.CREATE_ORDER_RETURN_SUCCESS);
         response.setStatusValue("Tạo hóa đơn trả thành công");
-        return response.withData(orderReturnService.createOrderReturn(request, this.getShopId(), this.getUserName()));
+        return response.withData(orderReturnService.createOrderReturn(request, this.getShopId(httpRequest), this.getUsername(httpRequest)));
     }
 }
