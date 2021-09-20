@@ -45,9 +45,9 @@ public class    CustomerNotTradeReportController extends BaseController {
     private final String root = "/reports/customers";
 
     @GetMapping(V1 + root + "/not-trade")
-    public Object getCustomerNotTrade(@RequestParam Date fromDate, @RequestParam Date toDate,
+    public Object getCustomerNotTrade(HttpServletRequest httpRequest, @RequestParam Date fromDate, @RequestParam Date toDate,
                                       @RequestParam Boolean isPaging, Pageable pageable) {
-        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId());
+        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId(httpRequest));
         return service.index(filter, isPaging, pageable);
     }
 
@@ -55,9 +55,9 @@ public class    CustomerNotTradeReportController extends BaseController {
     public void exportToExcel(HttpServletRequest request, @RequestParam(required = false) Date fromDate,
                                         @RequestParam(required = false) Date toDate,
             HttpServletResponse response, Pageable pageable) throws IOException{
-        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId(request)).getData();
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
-        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId());
+        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId(request));
         Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(filter, false, pageable);
         CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, shop.getParentShop(), fromDate, toDate);
         this.closeStreamExcel(response, exportExcel.export(), "report_" + StringUtils.createExcelFileName());
@@ -70,9 +70,9 @@ public class    CustomerNotTradeReportController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @GetMapping(V1 + root + "/print")
-    public Response<CustomerNotTradePrintDTO> print(@RequestParam Date fromDate,
+    public Response<CustomerNotTradePrintDTO> print(HttpServletRequest httpRequest, @RequestParam Date fromDate,
                                                     @RequestParam Date toDate){
-        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId());
+        CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId(httpRequest));
         CustomerNotTradePrintDTO response = service.printCustomerNotTrade(filter);
         return new Response<CustomerNotTradePrintDTO>().withData(response);
     }
@@ -93,12 +93,12 @@ public class    CustomerNotTradeReportController extends BaseController {
                                                              @ApiParam("Tìm theo thời gian mua hàng nhỏ nhất") @RequestParam(required = false)  Date fromPurchaseDate,
                                                              @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false)  Date toPurchaseDate, Pageable pageable) {
 
-        CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
+        CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(request), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertFromDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertFromDate(toPurchaseDate));
 
         CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO> response = service.findCustomerTrades(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_CUSTOMER_TRADE_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_REPORT_CUSTOMER_TRADE_SUCCESS);
         return new Response<CoverResponse<Page<CustomerTradeDTO>, CustomerTradeTotalDTO>>().withData(response);
     }
 
@@ -117,11 +117,11 @@ public class    CustomerNotTradeReportController extends BaseController {
                                                                @ApiParam("Tìm theo thời gian tạo khách hàng lớn nhất") @RequestParam(required = false) Date toCreateDate,
                                                                @ApiParam("Tìm theo thời gian mua hàng nhỏ nhất") @RequestParam(required = false) Date fromPurchaseDate,
                                                                @ApiParam("Tìm theo thời gian mua hàng lớn nhất") @RequestParam(required = false) Date toPurchaseDate, HttpServletResponse response) throws IOException {
-        CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(), keySearch, areaCode, customerType,
+        CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(request), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertFromDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertFromDate(toPurchaseDate));
         this.closeStreamExcel(response, service.customerTradesExportExcel(filter), "filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS);
         response.getOutputStream().flush();
     }
 

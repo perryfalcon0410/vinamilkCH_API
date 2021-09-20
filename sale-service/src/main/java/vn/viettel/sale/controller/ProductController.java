@@ -44,7 +44,7 @@ public class ProductController extends BaseController {
                                                              @RequestParam(name = "type", required = false) Integer type,
                                                              Pageable pageable) {
         Page<ProductInfoDTO> response = productService.findAllProductInfo(status, type, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCT_INFOS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCT_INFOS_SUCCESS);
         return new Response<Page<ProductInfoDTO>>().withData(response);
     }
 
@@ -65,9 +65,9 @@ public class ProductController extends BaseController {
                                                         @RequestParam(name = "status", required = false) Integer status,
                                                         Pageable pageable) {
         if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        ProductFilter productFilter = new ProductFilter(this.getShopId(), keyWord, customerId, productInfoId, status);
+        ProductFilter productFilter = new ProductFilter(this.getShopId(request), keyWord, customerId, productInfoId, status);
         Page<OrderProductDTO> response = productService.findProducts(productFilter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
@@ -85,8 +85,8 @@ public class ProductController extends BaseController {
                                                                @ApiParam("Quét mã vạch ") @RequestParam(name = "checkBarcode", required = false) Boolean checkBarcode,
                                                                Pageable pageable) {
         if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(), keyWord, customerId, checkStocktotal,checkBarcode, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        Page<OrderProductDTO> response = productService.findProductsTopSale(this.getShopId(request), keyWord, customerId, checkStocktotal,checkBarcode, pageable);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
@@ -100,8 +100,8 @@ public class ProductController extends BaseController {
                                                                @ApiParam("Id khách hàng")
                                                                @RequestParam("customerId") Long customerId, Pageable pageable) {
         if (customerId == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
-        Page<OrderProductDTO> response = productService.findProductsMonth(this.getShopId(), customerId, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        Page<OrderProductDTO> response = productService.findProductsMonth(this.getShopId(request), customerId, pageable);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
@@ -113,8 +113,8 @@ public class ProductController extends BaseController {
     )
     public Response<Page<OrderProductDTO>> findProductsCustomerTopSale(HttpServletRequest request,
                                                                        @ApiParam("Id khách hàng") @PathVariable Long customerId, Pageable pageable) {
-        Page<OrderProductDTO> response = productService.findProductsCustomerTopSale(this.getShopId(), customerId, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        Page<OrderProductDTO> response = productService.findProductsCustomerTopSale(this.getShopId(request), customerId, pageable);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<OrderProductDTO>>().withData(response);
     }
 
@@ -130,8 +130,8 @@ public class ProductController extends BaseController {
                                                          @ApiParam("Danh sách sản phẩm cần đổi lại giá")
                                                          @RequestBody List<OrderProductRequest> products) {
         if(products.isEmpty()) throw new ValidateException(ResponseMessage.PRODUCT_ORDER_NOT_EMPTY);
-        OrderProductsDTO response = productService.changeCustomerType(customerTypeId, this.getShopId(), products);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.CHANGE_PRODUCTS_PRICE_SUCCESS);
+        OrderProductsDTO response = productService.changeCustomerType(customerTypeId, this.getShopId(request), products);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.CHANGE_PRODUCTS_PRICE_SUCCESS);
         return new Response<OrderProductsDTO>().withData(response);
     }
 
@@ -143,8 +143,8 @@ public class ProductController extends BaseController {
     )
     public Response<List<OrderProductDTO>> findProductsByKeyWord(HttpServletRequest request, @RequestParam(required = false) String keyWord,
             @RequestParam(required = false) Long customerId) {
-        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(), customerId, keyWord);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        List<OrderProductDTO> response = productService.findProductsByKeyWord(getShopId(request), customerId, keyWord);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<List<OrderProductDTO>>().withData(response);
     }
 
@@ -157,8 +157,8 @@ public class ProductController extends BaseController {
     public Response<Page<ProductDTO>> find(HttpServletRequest request, @RequestParam(value = "productCode", required = false) String productCode,
                                            @RequestParam(value = "productName", required = false) String productName,
                                            @RequestParam(value = "catId", required = false) Long catId, Pageable pageable) {
-        Page<ProductDTO> response = productService.findProduct(getShopId(), productCode, productName, catId, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        Page<ProductDTO> response = productService.findProduct(getShopId(request), productCode, productName, catId, pageable);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<Page<ProductDTO>>().withData(response);
     }
 
@@ -178,8 +178,8 @@ public class ProductController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     public Response<List<OrderProductDTO>> getByBarcode(HttpServletRequest request, @RequestParam String barcode, @RequestParam Long customerId) {
-        List<OrderProductDTO> response = productService.getByBarcode(this.getShopId(), barcode, customerId);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
+        List<OrderProductDTO> response = productService.getByBarcode(this.getShopId(request), barcode, customerId);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_PRODUCTS_SUCCESS);
         return new Response<List<OrderProductDTO>>().withData(response);
     }
 }

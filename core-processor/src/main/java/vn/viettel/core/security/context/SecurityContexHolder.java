@@ -13,7 +13,7 @@ public class SecurityContexHolder {
         return context;
     }
 
-    public void setContext(UserContext context) {
+    public void  setContext(UserContext context) {
         Assert.notNull(context, "Only non-null UserContext instances are permitted");
         this.context = context;
     }

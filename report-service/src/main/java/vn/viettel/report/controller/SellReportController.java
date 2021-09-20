@@ -58,9 +58,9 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Double fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Double toInvoiceSales,
             Pageable pageable) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         CoverResponse<Page<SellDTO>, SellTotalDTO> response = sellsReportService.getSellReport(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.SEARCH_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<Page<SellDTO>, SellTotalDTO>>().withData(response);
     }
 
@@ -84,9 +84,9 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "fromInvoiceSales", required = false) Double fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Double toInvoiceSales, HttpServletResponse response) throws IOException, InterruptedException {
 
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         this.closeStreamExcel(response, sellsReportService.exportExcel(filter), "Bao_Cao_Ban_Hang_Filled_\" + StringUtils.createExcelFileName()");
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SELLS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SELLS_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -108,9 +108,9 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
             @RequestParam(value = "fromInvoiceSales", required = false) Double fromInvoiceSales,
             @RequestParam(value = "toInvoiceSales", required = false) Double toInvoiceSales) {
-        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
+        SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
         CoverResponse<List<SellDTO>, ReportDateDTO> response = sellsReportService.getDataPrint(filter);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         return new Response<CoverResponse<List<SellDTO>, ReportDateDTO>>().withData(response);
     }
 
@@ -123,8 +123,8 @@ public class SellReportController extends BaseController {
     )
     public Response<List<UserDataResponse>> getDataUser(
             HttpServletRequest request) {
-        List<UserDataResponse> response = sellsReportService.getDataUser(this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
+        List<UserDataResponse> response = sellsReportService.getDataUser(this.getShopId(request));
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_DATA_PRINT_REPORT_SELLS_SUCCESS);
         return new Response<List<UserDataResponse>>().withData(response);
     }
 

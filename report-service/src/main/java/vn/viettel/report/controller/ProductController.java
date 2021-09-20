@@ -49,9 +49,9 @@ public class ProductController extends BaseController {
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException, CloneNotSupportedException {
 
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
         this.closeStreamExcel(response, promotionProductService.exportExcel(filter), "BC_hang_khuyen_mai_" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -69,9 +69,9 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, Pageable pageable) {
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
         CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO> response = promotionProductService.getReportPromotionProducts(filter, pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return new Response<CoverResponse<Page<PromotionProductDTO>, PromotionProductTotalDTO>>().withData(response);
     }
 
@@ -88,9 +88,9 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "toDate") Date toDate,
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes) throws ParseException {
-        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
+        PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
         PromotionProductReportDTO response = promotionProductService.getDataPrint(filter);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.RETURN_DATA_PRINT_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         return new Response<PromotionProductReportDTO>().withData(response);
     }
 

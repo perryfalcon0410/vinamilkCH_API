@@ -71,7 +71,7 @@ public class ExchangeTransControllerTest extends BaseTest {
 
         result.setData(data);
 
-        given(service.getAllExchange(any(), any(), any(), any(), any(), any(), any())).willReturn(result.getData());
+        given(service.getAllExchange(any(), any(), any(), any(), any(), any())).willReturn(result.getData());
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))

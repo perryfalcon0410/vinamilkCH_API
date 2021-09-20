@@ -49,9 +49,9 @@ public class ShopImportReportController extends BaseController {
                                                                                   @RequestParam(value = "fromDate",required = false) Date fromDate, @RequestParam(value = "toDate",required = false) Date toDate, @RequestParam(value = "productCodes",required = false) String productCodes,
                                                                                   @RequestParam(value = "importType",required = false) String importType, @RequestParam(value = "internalNumber",required = false)String internalNumber,
                                                                                   @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate, @RequestParam(value = "toOrderDate",required = false) Date toOrderDate, Pageable pageable) {
-        ShopImportFilter shopImportFilter = new ShopImportFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
+        ShopImportFilter shopImportFilter = new ShopImportFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId(request));
         CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO> response = shopImportReportService.find(shopImportFilter,pageable);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SHOP_IMPORT_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_SHOP_IMPORT_SUCCESS);
         return new Response<CoverResponse<Page<ShopImportDTO>, ShopImportTotalDTO>>().withData(response);
     }
     @GetMapping(value = { V1 + root+ "/excel"})
@@ -65,13 +65,13 @@ public class ShopImportReportController extends BaseController {
                                 @RequestParam(value = "importType",required = false) String importType, @RequestParam(value = "internalNumber",required = false)String internalNumber,
                                 @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate, @RequestParam(value = "toOrderDate",required = false) Date toOrderDate
                                 ,HttpServletResponse response) throws IOException, ParseException {
-        ShopImportFilter shopImportFilter = new ShopImportFilter( DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
-        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId()).getData();
+        ShopImportFilter shopImportFilter = new ShopImportFilter( DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId(request));
+        ShopDTO shop = shopClient.getShopByIdV1(this.getShopId(request)).getData();
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(shopImportFilter).getData();
         ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop.getParentShop(),shopImportFilter);
         this.closeStreamExcel(response, shopImportReport.export(), "report_" + StringUtils.createExcelFileName());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SHOP_IMPORT_SUCCESS);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SHOP_IMPORT_SUCCESS);
         response.getOutputStream().flush();
     }
 
@@ -84,9 +84,9 @@ public class ShopImportReportController extends BaseController {
                                               @RequestParam(value = "internalNumber",required = false, defaultValue = "")String internalNumber,
                                               @RequestParam(value = "fromOrderDate",required = false) Date fromOrderDate,
                                               @RequestParam(value = "toOrderDate",required = false) Date toOrderDate) {
-        ShopImportFilter shopImportFilter = new ShopImportFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId());
-        PrintShopImportDTO response = shopImportReportService.print(shopImportFilter, this.getShopId());
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.FIND_SHOP_IMPORT_SUCCESS);
+        ShopImportFilter shopImportFilter = new ShopImportFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes, importType,internalNumber,DateUtils.convertFromDate(fromOrderDate),DateUtils.convertFromDate(toOrderDate),this.getShopId(request));
+        PrintShopImportDTO response = shopImportReportService.print(shopImportFilter, this.getShopId(request));
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_SHOP_IMPORT_SUCCESS);
         return new Response<PrintShopImportDTO>().withData(response);
     }
 }

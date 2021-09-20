@@ -33,8 +33,8 @@ public class VoucherController extends BaseController {
     public Response<VoucherDTO> getVoucherBySerial(HttpServletRequest request, @RequestBody Map<String, String> voucher,
                                                  @ApiParam("Id khách hàng") @RequestParam("customerId") Long customerId,
                                                  @ApiParam("Id các  sản phẩm mua") @RequestParam("productIds") List<Long> productIds) {
-        VoucherDTO response = voucherService.getVoucherBySerial(voucher.get("serial"), this.getShopId(), customerId, productIds);
-        LogFile.logToFile(appName, getUserName(), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
+        VoucherDTO response = voucherService.getVoucherBySerial(voucher.get("serial"), this.getShopId(request), customerId, productIds);
+        LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.GET_VOUCHER_SUCCESS);
         return new Response<VoucherDTO>().withData(response);
     }
 

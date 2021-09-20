@@ -23,6 +23,9 @@ public class Constants {
 	public final static String REQUEST_FROM = "request-from";
 	public final static String CLIENT_REQUEST = "client-request";
 	public final static String SERVICE_REQUEST = "service-request";
+	public final static String CURRENT_SHOP_ID = "current-shop-id";
+	public final static String CURRENT_USER_ID = "curent-user-id";
+	public final static String CURRENT_USERNAME = "curent-username";
 
 	public final static String REQUEST_SECRET_MARK_AS_OUTSIDE_REQUEST = "request_secret_mark_as_outside_request";
 

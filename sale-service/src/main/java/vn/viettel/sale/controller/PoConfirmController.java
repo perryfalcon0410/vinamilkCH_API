@@ -30,16 +30,16 @@ public class PoConfirmController extends BaseController {
     )
     @GetMapping(value = { V1 + root + "/xml"})
     public Response<Boolean> updatePoCofirm(HttpServletRequest httpRequest){
-        PoConfirmXmlDTO result = poConfirmService.updatePoCofirm(this.getShopId());
+        PoConfirmXmlDTO result = poConfirmService.updatePoCofirm(this.getShopId(httpRequest));
         Response<Boolean> response = new Response<>();
         response.setStatusValue(result.getStatus());
         if(result.getResult() == true)
         {
             response.setStatusCode(200);
-            LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PO_CONFIRM_SUCCESS);
+            LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PO_CONFIRM_SUCCESS);
         }else{
             response.setStatusCode(201);
-            LogFile.logToFile(appName, getUserName(), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PO_CONFIRM_FAILED);
+            LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_PO_CONFIRM_FAILED);
         }
         return response.withData(result.getResult());
     }
