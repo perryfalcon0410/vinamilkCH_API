@@ -139,6 +139,9 @@ public class SellsReportServiceImpl extends BaseReportServiceImpl implements Sel
             if (filter.getFromInvoiceSales() > filter.getToInvoiceSales())
                 throw new ValidateException(ResponseMessage.SALES_FROM_CANNOT_BE_GREATER_THAN_SALES_TO);
         }
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+
         List<SellDTO> reportDTOS = this.callStoreProcedure(filter);
         if (reportDTOS.size() == 0)
             throw new ValidateException(ResponseMessage.SELL_REPORT_NOT_FOUND);
@@ -146,8 +149,6 @@ public class SellsReportServiceImpl extends BaseReportServiceImpl implements Sel
 
         if (!reportDTOS.isEmpty()) {
             SellDTO sellDTO = reportDTOS.get(reportDTOS.size() - 1);
-            ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-            if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             dto.setFromDate(filter.getFromDate());
             dto.setToDate(filter.getToDate());
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy -HH:mm:ss Z");
@@ -162,6 +163,7 @@ public class SellsReportServiceImpl extends BaseReportServiceImpl implements Sel
             dto.setTotalPromotionNotVat(sellDTO.getTotalPromotionNotVAT());
             dto.setTotalPromotion(sellDTO.getTotalPromotion());
             dto.setTotalPay(sellDTO.getTotalPay());
+            if(shopDTO.getParentShop()!=null) dto.setParentShop(shopDTO.getParentShop());
             this.removeDataList(reportDTOS);
 
         }

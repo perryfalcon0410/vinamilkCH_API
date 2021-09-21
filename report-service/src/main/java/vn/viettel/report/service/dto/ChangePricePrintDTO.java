@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "Báo cáo chênh lệch giá")
 public class ChangePricePrintDTO {
-
+    @ApiModelProperty(notes = "Thông tin cửa hàng")
     private ShopDTO shop;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_PATTERN)

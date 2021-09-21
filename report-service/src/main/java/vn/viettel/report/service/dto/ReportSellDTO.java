@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.ShopDTO;
 
 import java.time.LocalDateTime;
 
@@ -28,4 +29,5 @@ public class ReportSellDTO {
     private Double totalPromotionNotVat;
     private Double totalPromotion;
     private Double totalPay;
+    private ShopDTO parentShop;
 }

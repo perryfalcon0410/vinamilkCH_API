@@ -71,6 +71,7 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
         printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
         printDTO.setTotalInfo(totalInfo);
         printDTO.setDataByCat(dataByCat);
+        if(shopDTO.getParentShop()!=null) printDTO.setParentShop(shopDTO.getParentShop());
         return printDTO;
     }
 
