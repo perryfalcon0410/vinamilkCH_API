@@ -140,7 +140,7 @@ public class ShopImportReportServiceImpl extends BaseReportServiceImpl implement
         response.setTotalQuantity(totalQuantity);
         response.setTotalAmount(totalAmount);
         response.setTotalVat(totalAmount - totalAmountVAT);
-
+        if(shop.getParentShop()!=null) response.setParentShop(shop.getParentShop());
         return response;
     }
 
