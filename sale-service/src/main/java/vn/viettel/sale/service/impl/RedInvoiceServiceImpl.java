@@ -546,9 +546,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             throw new ValidateException(ResponseMessage.RED_INVOICE_NUMBER_IS_NULL);
         List<ProductDataResponse> productDTOS = new ArrayList<>();
         PrintDataRedInvoiceResponse response = new PrintDataRedInvoiceResponse();
-        Double amountNotVat = 0.0;
-        Double amount = 0.0;
-        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+
         RedInvoice redInvoice = redInvoiceRepository.findById(idRedInvoice).get();
         List<Product> productList = productRepository.findAll();
         if (redInvoice == null)
@@ -557,6 +555,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (redInvoiceDetailDTOS.size() == 0)
             throw new ValidateException(ResponseMessage.RED_INVOICE_DETAIL_NOT_EXISTS);
 
+        Double amountNotVat = 0.0;
+        Double amount = 0.0;
+        ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        Integer totalQuantity = 0;
         //Khách hàng có thể có hoặc không
         if(redInvoice.getCustomerId()!=null) {
             CustomerDTO customerDTO = customerClient.getCustomerByIdV1(redInvoice.getCustomerId()).getData();
@@ -587,9 +589,11 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             productDTOS.add(productDTO);
             amountNotVat += roundValue(detailDTO.getAmountNotVat().doubleValue());
             amount += productDTO.getIntoMoney();
+            totalQuantity += detailDTO.getQuantity()!=null?detailDTO.getQuantity():0;
         }
         response.setRedInvoiceNumber(redInvoice.getInvoiceNumber());
         response.setDatePrint(redInvoice.getPrintDate());
+        response.setShopCode(shopDTO.getShopCode());
         response.setShopName(shopDTO.getShopName());
         response.setShopAddress(shopDTO.getAddress());
         response.setShopTel(shopDTO.getPhone());
@@ -597,6 +601,15 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         response.setAmount(amountNotVat);
         response.setValueAddedTax(amount - amountNotVat);
         response.setTotalAmountString(convert(amount.intValue()));
+        response.setTotalQuantity(totalQuantity);
+
+        if(shopDTO.getParentShop() != null) {
+            ShopDTO parent = shopDTO.getParentShop();
+            response.setParentShopCode(parent.getShopCode());
+            response.setParentShopName(parent.getShopName());
+            response.setParentShopAddress(parent.getAddress());
+            response.setParentShopTel(parent.getPhone());
+        }
 
         return new CoverResponse<>(productDTOS, response);
     }
