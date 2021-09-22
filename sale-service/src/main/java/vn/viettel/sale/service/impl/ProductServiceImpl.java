@@ -28,10 +28,7 @@ import vn.viettel.sale.specification.ProductInfoSpecification;
 import vn.viettel.sale.specification.ProductSpecification;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -159,14 +156,18 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         OrderProductsDTO orderProductsDTO = new OrderProductsDTO();
         CustomerTypeDTO customerType = customerTypeClient.getCusTypeById(customerTypeId);
         if (customerType == null) throw new ValidateException(ResponseMessage.WARE_HOUSE_NOT_EXIST);
-        List<Long> productIds = productsRequest.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList());
+        List<Long> productIds = productsRequest.stream().map(item -> item.getProductId()).filter(Objects::nonNull).distinct().collect(Collectors.toList());
         List<Product> products = repository.getProducts(productIds,1);
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), productIds);
         List<Price> prices = productPriceRepo.findProductPriceWithType(productIds, customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
 
-        List<OrderProductOnlineDTO> productDTOS = productsRequest.stream().map(product ->
-                this.mapProductIdToProductDTO(product, products, prices, stockTotals, orderProductsDTO))
-                .collect(Collectors.toList());
+      /* Đơn online  khi load lên vẫn có thể load SP ko tồn tại, SP ko co gia hoac ton kho -> valid lại khi click thanh toán lấy KM */
+        List<OrderProductOnlineDTO> productDTOS = new ArrayList<>();
+        for(OrderProductRequest  productRq :productsRequest) {
+            OrderProductOnlineDTO product = this.mapProductIdToProductDTO(productRq, products, prices, stockTotals, orderProductsDTO);
+            productDTOS.add(product);
+        }
+
         orderProductsDTO.setProducts(productDTOS);
         return orderProductsDTO;
     }
@@ -278,15 +279,30 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         return productDTOS;
     }
 
+    private OrderProductOnlineDTO newProduct(OrderProductRequest productRequest) {
+        OrderProductOnlineDTO productOrder = new OrderProductOnlineDTO();
+        productOrder.setProductCode(productRequest.getProductCode());
+        productOrder.setProductName(productRequest.getProductName());
+        productOrder.setQuantity(productRequest.getQuantity());
+        productOrder.setStatus(0);
+        return productOrder;
+    }
+
+
+
+
     private OrderProductOnlineDTO mapProductIdToProductDTO(OrderProductRequest productRequest, List<Product> products, List<Price> prices,
                                                            List<StockTotal> stockTotals, OrderProductsDTO orderProductsDTO) {
+        if(productRequest.getProductId() == null) return this.newProduct(productRequest);
+
         Product product = null;
         for (Product p : products){
             if(p.getId().equals(productRequest.getProductId())){
                 product = p; break;
             }
         }
-        if(product == null) throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND, productRequest.getProductId() + "");
+        /*if(product == null) throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND, productRequest.getProductId() + "");*/
+        if(product == null) return this.newProduct(productRequest);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO dto = modelMapper.map(product, OrderProductOnlineDTO.class);
@@ -296,23 +312,22 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
             orderProductsDTO.addQuantity(productRequest.getQuantity());
         }
 
-        Price price = null;
+        double price = 0;
         for (Price p : prices){
             if(p.getProductId().equals(productRequest.getProductId())){
-                price = p; break;
+                price = p.getPrice(); break;
             }
         }
-        if(price == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED, product.getProductCode());
 
-        dto.setPrice(price.getPrice());
-        StockTotal stockTotal = null;
+        dto.setPrice(price);
+        int stockTotal = 0;
         for(StockTotal p : stockTotals){
             if(p.getProductId().equals(product.getId())){
-                stockTotal = p; break;
+                stockTotal = p.getQuantity(); break;
             }
         }
-        if(stockTotal == null) throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, product.getProductCode());
-        dto.setStockTotal(stockTotal.getQuantity());
+
+        dto.setStockTotal(stockTotal);
         orderProductsDTO.addTotalPrice(dto.getTotalPrice());
 
         return dto;
