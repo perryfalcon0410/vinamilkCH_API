@@ -22,6 +22,8 @@ public class PrintDataRedInvoiceResponse {
     private LocalDateTime datePrint;
     @ApiModelProperty(notes = "Số hóa đơn")
     private String saleOrderNumber;
+    @ApiModelProperty(notes = "Mã cửa hàng")
+    private String shopCode;
     @ApiModelProperty(notes = "Tên cửa hàng")
     private String shopName;
     @ApiModelProperty(notes = "Địa chỉ")
@@ -42,6 +44,17 @@ public class PrintDataRedInvoiceResponse {
     private Double totalAmountNumber;
     @ApiModelProperty(notes = "Tổng tiền phải trả chữ")
     private String totalAmountString;
+    @ApiModelProperty(notes = "Tổng số lượng các sản phẩm")
+    private Integer totalQuantity;
+
+    @ApiModelProperty(notes = "Mã cửa hàng cha")
+    private String parentShopCode;
+    @ApiModelProperty(notes = "Tên cửa hàng cha")
+    private String parentShopName;
+    @ApiModelProperty(notes = "Địa chỉ cửa hàng cha")
+    private String parentShopAddress;
+    @ApiModelProperty(notes = "Số điện thoại cửa hàng")
+    private String parentShopTel;
 
 }
 
