@@ -1393,7 +1393,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     private SalePromotionDTO getZV13ToZV18(PromotionProgramDTO program, ProductOrderDataDTO orderData, Long shopId, Long warehouseId, boolean forSaving) {
         if (program == null || orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
             return null;
-
         List<PromotionProgramDetailDTO> details = promotionClient.findPromotionProgramDetailV1(program.getId(), null).getData();
         if(details.isEmpty()) return null;
         updateUomProduct(details);
@@ -1559,9 +1558,9 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                         amountDiscountInTax = amountOrderInTax * (discountPercent/100);
                     }
                 }
-                totalAmountDiscountInTax += amountDiscountInTax;
-                totalAmountDiscountExTax += amountDiscountExTax;
-                totalAmountOrderInTax += amountOrderInTax;
+                totalAmountDiscountInTax += roundValue(amountDiscountInTax);
+                totalAmountDiscountExTax += roundValue(amountDiscountExTax);
+                totalAmountOrderInTax += roundValue(amountOrderInTax);
 
                 if(forSaving ) {
                     int cnt = 0;
