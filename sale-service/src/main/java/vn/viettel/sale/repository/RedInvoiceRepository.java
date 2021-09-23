@@ -12,7 +12,7 @@ import java.util.List;
 public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpecificationExecutor<RedInvoice> {
 
     @Query(value = "select invoiceNumber from RedInvoice WHERE invoiceNumber = ?1")
-    String checkRedInvoice(String redInvoiceCode);
+    List<String> checkRedInvoice(String redInvoiceCode);
 
     RedInvoice findRedInvoiceByIdAndShopId(Long Id, Long shopId);
 
