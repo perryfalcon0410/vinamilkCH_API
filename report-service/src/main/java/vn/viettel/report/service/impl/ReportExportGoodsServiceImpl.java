@@ -88,6 +88,7 @@ public class ReportExportGoodsServiceImpl extends BaseReportServiceImpl implemen
         this.removeDataList(shopExports);
 
         PrintShopExportDTO response = new PrintShopExportDTO(shop.getShopName(), shop.getAddress(), shop.getPhone());
+        if(shop.getParentShop()!=null) response.setParentShop(shop.getParentShop());
         response.setFromDate(filter.getFromDate());
         response.setToDate(filter.getToDate());
 

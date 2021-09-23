@@ -70,6 +70,7 @@ public class CustomerNotTradeServiceImpl extends BaseReportServiceImpl implement
             printDTO.setToDate(DateUtils.convertDateToLocalDateTime(filter.getToDate()));
             printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
             printDTO.setData(result);
+            if(shopDTO.getParentShop()!=null) printDTO.setParentShop(shopDTO.getParentShop());
             return printDTO;
         }
         return printDTO;

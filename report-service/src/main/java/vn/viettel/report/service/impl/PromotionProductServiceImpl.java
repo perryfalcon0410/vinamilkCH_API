@@ -101,6 +101,7 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
     public PromotionProductReportDTO getDataPrint(PromotionProductFilter filter) throws ParseException {
         List<PromotionProductDTO> promotions = this.callStoreProcedure(filter);
         ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         PromotionProductReportDTO reportDTO = new PromotionProductReportDTO(DateUtils.convertToDate(filter.getFromDate()), DateUtils.convertToDate(filter.getToDate()), shopDTO);
 
         if(!promotions.isEmpty()) {
@@ -124,7 +125,6 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
             Collections.sort(cats, Comparator.comparing(PromotionProductCatDTO::getProductCatName));
             reportDTO.setProductCats(cats);
         }
-
         return reportDTO;
     }
 
