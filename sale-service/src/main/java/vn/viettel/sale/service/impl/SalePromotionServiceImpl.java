@@ -753,13 +753,8 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         Double saveAmountExTax = amountExTax;
 //        double p = (amountInTax-amountExTax)/amountExTax*100;
         if(amountRemain < amountInTax - totalBeforeZV23InTax) {
-            if (isInclusiveTax(program.getDiscountPriceType())){
-                amountInTax = amountRemain;
-                amountExTax = 0;   //amountInTax / (( 100 + p ) / 100);
-            }else {
-                amountInTax = 0;
-                amountExTax = amountRemain;
-            }
+            amountInTax = amountRemain;
+            amountExTax = 0;
         }else {
             //trừ đi km chiết khấu zv01 - zv18 và zm
             if (isInclusiveTax(program.getDiscountPriceType())){
@@ -779,8 +774,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
             double ppInTax = calPercent(saveAmountInTax, amtInTax);
             double ppExTax = calPercent(saveAmountExTax, amtExTax);
+            boolean flag = isInclusiveTax(program.getDiscountPriceType());
+            if(amtInTax > 0 && amtExTax < 1) {
+                flag = true;
+            }
             List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(new ArrayList<>(lstProductHasPromotion.values()), 1,
-                    ppInTax, ppExTax, isInclusiveTax(program.getDiscountPriceType()), amtInTax, amtExTax);
+                    ppInTax, ppExTax, flag, amtInTax, amtExTax);
             amtInTax = 0;
             amtExTax = 0;
             for(SaleDiscountSaveDTO save: saveInfo) {
