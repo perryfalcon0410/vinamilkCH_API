@@ -160,6 +160,7 @@ public class SaleByCategoryImpl extends BaseReportServiceImpl implements SaleByC
         printDTO.setCategory(procedure.getCategory());
         printDTO.setTotal(procedure.getTotals());
         printDTO.setReportData(allDatas);
+        if(shopDTO.getParentShop()!=null) printDTO.setParentShop(shopDTO.getParentShop());
         return printDTO;
     }
 

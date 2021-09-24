@@ -91,6 +91,9 @@ public class EntryMenuDetailsServiceImpl extends BaseReportServiceImpl implement
 
     @Override
     public CoverResponse<List<EntryMenuDetailsDTO>, ReportDateDTO> getEntryMenuDetails(EntryMenuDetailsReportsRequest filter) {
+        ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
+        if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
+
         List<EntryMenuDetailsDTO> reportDTOS = this.callStoreProcedure(filter);
         ReportDateDTO dateDTO = new ReportDateDTO();
 
@@ -99,11 +102,12 @@ public class EntryMenuDetailsServiceImpl extends BaseReportServiceImpl implement
             dateDTO.setFromDate(filter.getFromDate());
             dateDTO.setToDate(filter.getToDate());
             dateDTO.setDateOfPrinting(DateUtils.formatDate2StringDate(LocalDate.now()));
-            ShopDTO shopDTO = shopClient.getShopByIdV1(filter.getShopId()).getData();
-            if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
             dateDTO.setShopName(shopDTO.getShopName());
             dateDTO.setAddress(shopDTO.getAddress());
+            dateDTO.setShopTel(shopDTO.getPhone());
             dateDTO.setTotalAmount(entryMenuDetailsDTO.getTotalAmount());
+            if(shopDTO.getParentShop()!=null) dateDTO.setParentShop(shopDTO.getParentShop());
+
             this.removeDataList(reportDTOS);
         }
         CoverResponse response = new CoverResponse(reportDTOS, dateDTO);

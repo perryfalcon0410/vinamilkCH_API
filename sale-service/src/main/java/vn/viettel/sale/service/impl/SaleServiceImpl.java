@@ -1128,6 +1128,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     orderComboDetail.setPromotionCode(item.getPromotionCode());
                     orderComboDetail.setPromotionName(item.getPromotionName());
                     orderComboDetail.setIsFreeItem(item.getIsFreeItem());
+                    orderComboDetail.setLevelNumber(item.getLevelNumber());
 
                     Price price = getPrice(productPrices, detail.getProductId(), true);
                     if(price != null) {

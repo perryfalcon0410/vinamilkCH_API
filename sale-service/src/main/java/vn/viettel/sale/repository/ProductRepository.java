@@ -51,7 +51,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( p.id, p.productName, p.productCode, st.quantity ) " +
             "FROM Product p " +
             "   JOIN StockTotal st ON st.productId = p.id " +
-            "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId " +
+            "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.status = 1" +
             "   WHERE p.id IN (:productIds) ")
     List<FreeProductDTO> findProductWithStock(Long shopId, Long warehouseId, List<Long> productIds);
 

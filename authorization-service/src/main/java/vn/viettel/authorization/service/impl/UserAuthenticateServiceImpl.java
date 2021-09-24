@@ -137,6 +137,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
         List<RoleDTO> roleDTOS = this.getAllRoles(user);
 
         //TH chỉ có 1 role + 1 shop -> login luôn (1 shop duy nhất có loại = 4)
+        this.loginSuccess(user.getUserAccount(), null, user.getId());
         if (roleDTOS.size() == 1 ) {
             RoleDTO usedRole = roleDTOS.get(0);
             if(usedRole.getShops() != null && usedRole.getShops().size() == 1) {
@@ -151,7 +152,6 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 resData.setUsedRole(usedRole);
                 resData.setForms(froms);
                 response.setToken(createToken(user, usedRole.getRoleName(), shopDTO.getId(), usedRole.getId()));
-                this.loginSuccess(user.getUserAccount(), shopDTO.getId(), user.getId());
                 saveLoginLog(shopDTO.getId(), user.getUserAccount(), loginInfo);
             }
         }
@@ -161,6 +161,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
 
         user.setWrongTime(0);
         user.setCaptcha(null);
+        user.setUpdatedBy(user.getUserAccount());
         repository.save(user);
         return response.withData(resData);
     }
@@ -555,6 +556,7 @@ public class UserAuthenticateServiceImpl extends BaseServiceImpl<User, UserRepos
                 new Response<>().withError(ResponseMessage.INVALID_PASSWORD_FORMAT);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void saveLoginLog(Long shopId, String userAccount, LoginRequest loginInfo) {
         UserLogOnTime log = new UserLogOnTime();
         log.setShopId(shopId);

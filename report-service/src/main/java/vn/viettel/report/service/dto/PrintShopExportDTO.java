@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.util.Constants;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,9 @@ public class PrintShopExportDTO {
 
     @ApiModelProperty(notes = "Số điện thoại")
     private String shopTel;
+
+    @ApiModelProperty(notes = "Cửa hàng cha")
+    private ShopDTO parentShop;
 
     private LocalDateTime fromDate;
     private LocalDateTime toDate;

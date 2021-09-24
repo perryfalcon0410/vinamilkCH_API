@@ -158,6 +158,7 @@ public class ReturnGoodsReportServiceImpl extends BaseReportServiceImpl implemen
         printDTO.setPrintDate(DateUtils.convertDateToLocalDateTime(new Date()));
         printDTO.setTotalInfo(totalInfo);
         printDTO.setData(dataByCat);
+        if(shopDTO.getParentShop()!=null) printDTO.setParentShop(shopDTO.getParentShop());
         return printDTO;
     }
 

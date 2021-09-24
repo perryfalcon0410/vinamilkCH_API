@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.viettel.core.dto.ShopDTO;
 
 import java.time.LocalDateTime;
 
@@ -20,5 +21,8 @@ public class ReportDateDTO {
     private String dateOfPrinting;
     private String shopName;
     private String address;
+    private String shopTel;
     private Float totalAmount;
+
+    private ShopDTO parentShop;
 }
