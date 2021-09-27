@@ -1,6 +1,5 @@
 package vn.viettel.core.validation.annotation;
 
-import vn.viettel.core.db.entity.role.UserRole;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.validator.NotNullValidator;
 
@@ -23,7 +22,7 @@ public @interface NotNull {
 
     ResponseMessage responseMessage();
 
-    UserRole[] includeRoles() default {};
+   /* UserRole[] includeRoles() default {};
 
-    UserRole[] excludeRoles() default {};
+    UserRole[] excludeRoles() default {};*/
 }

@@ -1,22 +1,33 @@
 package vn.viettel.core.validation.validator;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import vn.viettel.core.db.entity.role.UserRole;
 import vn.viettel.core.exception.ValidateException;
-import vn.viettel.core.security.context.SecurityContexHolder;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.validation.annotation.NotNull;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Arrays;
 
 public class NotNullValidator implements ConstraintValidator<NotNull, Object> {
 
     ResponseMessage message;
-    UserRole[] includeRoles;
-    UserRole[] excludeRoles;
+
+    @Override
+    public void initialize(NotNull constraintAnnotation) {
+        this.message = constraintAnnotation.responseMessage();
+        ConstraintValidator.super.initialize(constraintAnnotation);
+    }
+
+    @Override
+    public boolean isValid(Object value, ConstraintValidatorContext context) {
+        if (value == null) {
+            throw new ValidateException(message);
+        }
+        return true;
+    }
+
+   /*  UserRole[] includeRoles;
+
+   UserRole[] excludeRoles;
 
     @Autowired
     SecurityContexHolder context;
@@ -29,7 +40,7 @@ public class NotNullValidator implements ConstraintValidator<NotNull, Object> {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
-    @Override
+  @Override
     public boolean isValid(Object object, ConstraintValidatorContext context) {
         boolean valid;
         if (ArrayUtils.isNotEmpty(includeRoles)) {
@@ -75,5 +86,5 @@ public class NotNullValidator implements ConstraintValidator<NotNull, Object> {
     private boolean isValidAll(Object object) {
         return object != null;
     }
-
+*/
 }
