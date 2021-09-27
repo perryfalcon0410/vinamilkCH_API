@@ -786,6 +786,12 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             amtInTax = 0;
             amtExTax = 0;
             for(SaleDiscountSaveDTO save: saveInfo) {
+                // discount_price_type = 0 mà flag = true thì save.amount = sau thuế -> trước thuế
+                if (!isInclusiveTax(program.getDiscountPriceType())) {
+                    save.setAmount(save.getAmountExTax());
+                    save.setMaxAmount(save.getAmount());
+                }
+
                 amtInTax += save.getAmountInTax();
                 amtExTax += save.getAmountExTax();
             }
