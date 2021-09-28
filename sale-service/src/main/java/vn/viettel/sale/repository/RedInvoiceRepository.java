@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface RedInvoiceRepository extends BaseRepository<RedInvoice>, JpaSpecificationExecutor<RedInvoice> {
 
-    @Query(value = "select invoiceNumber from RedInvoice WHERE invoiceNumber = ?1")
-    List<String> checkRedInvoice(String redInvoiceCode);
+    @Query(value = "select invoiceNumber from RedInvoice WHERE invoiceNumber = ?1 AND shopId =?2")
+    List<String> checkRedInvoice(String redInvoiceCode, Long shopId);
 
     RedInvoice findRedInvoiceByIdAndShopId(Long Id, Long shopId);
 
