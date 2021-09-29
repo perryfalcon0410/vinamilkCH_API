@@ -67,6 +67,8 @@ public class RedInvoiceNewDataDTO extends BaseDTO {
     @ApiModelProperty(notes = "Người mua")
     private String buyerName;
 
+
+
     @ApiModelProperty(notes = "Danh sách sản phẩm")
     private List<ProductDataDTO> productDataDTOS;
 }
