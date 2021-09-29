@@ -70,7 +70,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     lấy thông tin OrderProductDTO
      */
     @Query("SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
-            "p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
+            "p.uom1, p.isCombo, p.comboProductId, mi.url, p.productNameText, p.barCode ) " +
             " FROM Product p " +
             " LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
             "   AND (" +
@@ -103,7 +103,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     Page<Long> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
 
     @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
-            " p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
+            " p.uom1, p.isCombo, p.comboProductId, mi.url, p.productNameText, p.barCode ) " +
             " FROM Product p " +
             " JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
             "   AND (" +
@@ -140,7 +140,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     List<Long> getProductFrees(List<Long> productIds, Integer status);
 
     @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
-            " p.uom1, p.isCombo, p.comboProductId, '' ) " +
+            " p.uom1, p.isCombo, p.comboProductId, '', p.productNameText, p.barCode ) " +
             " FROM Product p " +
             " JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
             "   AND (" +

@@ -39,8 +39,14 @@ public class OrderProductDTO extends BaseDTO {
     @ApiModelProperty(notes = "Tên hình")
     private String image;
 
+    @ApiModelProperty(notes = "Tên sản phẩm in hoa, bỏ dấu")
+    private String nameText;
+
+    @ApiModelProperty(notes = "Mã vạch sản phẩm")
+    private String barCode;
+
     public OrderProductDTO(Long id, String productName, String productCode, Double price, Integer stockTotal, Integer status, String uom1,
-                           Boolean isCombo, Long comboProductId, String image){
+                           Boolean isCombo, Long comboProductId, String image, String nameText, String barCode){
         this.setId(id);
         this.productName = productName;
         this.productCode = productCode;
@@ -51,6 +57,8 @@ public class OrderProductDTO extends BaseDTO {
         this.isCombo = isCombo;
         this.comboProductId = comboProductId;
         this.image = image;
+        this.nameText = nameText;
+        this.barCode = barCode;
     }
 
     public String getImage(){
