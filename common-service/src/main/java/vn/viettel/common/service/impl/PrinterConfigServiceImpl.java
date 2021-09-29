@@ -1,5 +1,7 @@
 package vn.viettel.common.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.viettel.common.entities.PrinterConfig;
@@ -11,6 +13,7 @@ import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.ResponseMessage;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -19,12 +22,24 @@ public class PrinterConfigServiceImpl extends BaseServiceImpl<PrinterConfig, Pri
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PrinterConfigDTO create(PrinterConfigRequest request) {
-        PrinterConfig printerConfig = repository.getByClientIp(request.getClientIp()).orElse(null);
-        if (printerConfig!=null) throw new ValidateException(ResponseMessage.CLIENT_IP_IS_EXITS);
-        PrinterConfig printer = modelMapper.map(request, PrinterConfig.class);
-        if(printer.getRemoveAccent() == null) printer.setRemoveAccent(false);
         if(request.getClientIp() == null) request.setClientIp("");
-        printer.setClientIp(request.getClientIp().toLowerCase() + "_" + request.getUserName().toLowerCase());
+        if(request.getRemoveAccent() == null) request.setRemoveAccent(false);
+        String clientIp = request.getClientIp().toLowerCase() + "_" + request.getUserName().toLowerCase();
+
+        Page<PrinterConfig> configs = repository.getPrinterConfigs(clientIp, PageRequest.of(0,1));
+        if (!configs.getContent().isEmpty()) {
+            PrinterConfig config = configs.getContent().get(0);
+            config.setClientIp(clientIp);
+            config.setBillPrinterName(request.getBillPrinterName());
+            config.setReportPrinterName(request.getReportPrinterName());
+            config.setDefaultPrinterName(request.getDefaultPrinterName());
+            config.setRemoveAccent(request.getRemoveAccent());
+            repository.save(config);
+            return modelMapper.map(config, PrinterConfigDTO.class);
+        }
+
+        PrinterConfig printer = modelMapper.map(request, PrinterConfig.class);
+        printer.setClientIp(clientIp);
         PrinterConfig printerDB = repository.save(printer);
         return modelMapper.map(printerDB, PrinterConfigDTO.class);
     }
@@ -43,8 +58,9 @@ public class PrinterConfigServiceImpl extends BaseServiceImpl<PrinterConfig, Pri
 
     @Override
     public PrinterConfigDTO getPrinter(String clientIp) {
-        PrinterConfig config = repository.getByClientIp(clientIp).orElse(null);
-        if(config == null) return null;
+        Page<PrinterConfig> configs = repository.getPrinterConfigs(clientIp, PageRequest.of(0,1));
+        if(configs.getContent().isEmpty()) return null;
+        PrinterConfig config = configs.getContent().get(0);
         if(config.getRemoveAccent() == null) config.setRemoveAccent(false);
         return modelMapper.map(config, PrinterConfigDTO.class);
     }
