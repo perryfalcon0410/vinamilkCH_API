@@ -16,7 +16,6 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.InOutAdjustmentFilter;
 import vn.viettel.report.service.InOutAdjustmentService;
 import vn.viettel.report.service.dto.InOutAdjusmentDTO;
@@ -62,7 +61,7 @@ public class InOutAdjustmentController extends BaseController {
         InOutAdjustmentFilter filter = new InOutAdjustmentFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes,this.getShopId(httpRequest));
         List<InOutAdjusmentDTO> data = inOutAdjustmentService.dataExcel(filter);
         InOutAdjustmentExcel inOutAdjustmentExcel = new InOutAdjustmentExcel(data,shop, shop.getParentShop(), filter);
-        this.closeStreamExcel(response, inOutAdjustmentExcel.export(), "BC_nhap_xuat_dieu_chinh_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, inOutAdjustmentExcel.export(), "BC_nhap_xuat_dieu_chinh_");
         response.getOutputStream().flush();
     }
 }

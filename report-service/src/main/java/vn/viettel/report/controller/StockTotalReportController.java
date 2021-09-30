@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.StockTotalFilter;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.StockTotalInfoDTO;
@@ -50,7 +49,7 @@ public class StockTotalReportController extends BaseController {
     @GetMapping(value = {V1 + root + "/excel"})
     public void exportToExcel(HttpServletRequest httpRequest, @RequestParam Date stockDate, @RequestParam(required = false) String productCodes,  @RequestParam Long warehouseTypeId, HttpServletResponse response) throws IOException {
         StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(httpRequest), warehouseTypeId);
-        this.closeStreamExcel(response, stockTotalReportService.exportExcel(filter), "BC-ton_kho_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, stockTotalReportService.exportExcel(filter), "BC-ton_kho_");
         response.getOutputStream().flush();
     }
 

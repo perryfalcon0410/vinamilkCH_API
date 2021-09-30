@@ -17,7 +17,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ReturnGoodsReportsRequest;
 import vn.viettel.report.service.ReturnGoodsReportService;
 import vn.viettel.report.service.dto.ReportPrintIndustryTotalDTO;
@@ -76,7 +75,7 @@ public class ReturnGoodsReportController extends BaseController {
 
         ReturnGoodsReportsRequest filter = new ReturnGoodsReportsRequest(this.getShopId(request),
                 reciept.toUpperCase(Locale.ROOT), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW.toUpperCase(Locale.ROOT));
-        this.closeStreamExcel(response, returnGoodsReportService.exportExcel(filter), "DB_Hang_tra_lai_Filled_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, returnGoodsReportService.exportExcel(filter), "DB_Hang_tra_lai_Filled_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_RETURN_GOODS_SUCCESS);
         response.getOutputStream().flush();
     }

@@ -14,7 +14,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.InventoryImportExportFilter;
 import vn.viettel.report.service.InventoryService;
 import vn.viettel.report.service.dto.ImportExportInventoryDTO;
@@ -49,7 +48,7 @@ public class InventoryController extends BaseController {
                                         @ApiParam("Tìm theo danh sách mã sản phẩm")
                                         @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException {
         InventoryImportExportFilter filter = new InventoryImportExportFilter(this.getShopId(request), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), warehouseTypeId, productCodes);
-        this.closeStreamExcel(response, inventoryService.exportImportExcel(filter), "Xuat_nhap_ton_Filled_" + StringUtils.createExcelFileName() );
+        this.closeStreamExcel(response, inventoryService.exportImportExcel(filter), "Xuat_nhap_ton_Filled_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_INVENTORY_SUCCESS);
         response.getOutputStream().flush();
     }

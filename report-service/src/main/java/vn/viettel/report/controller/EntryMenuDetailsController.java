@@ -18,7 +18,6 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.RoleAdmin;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.EntryMenuDetailsReportsRequest;
 import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.dto.EntryMenuDetailsDTO;
@@ -70,7 +69,7 @@ public class EntryMenuDetailsController extends BaseController {
             @RequestParam(value = "toDate") Date toDate, HttpServletResponse response) throws IOException {
 
         EntryMenuDetailsReportsRequest filter = new EntryMenuDetailsReportsRequest(this.getShopId(request), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate));
-        this.closeStreamExcel(response,entryMenuDetailsReportService.exportExcel(filter), "DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response,entryMenuDetailsReportService.exportExcel(filter), "DB_Bang_ke_chi_tiet_hoa_don-nhap_hang_Filled_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_ENTRY_MENU_DETAILS_SUCCESS);
         response.getOutputStream().flush();
     }

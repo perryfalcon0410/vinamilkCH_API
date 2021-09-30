@@ -98,7 +98,7 @@ public class ReturnGoodsExcel extends ExcelPoiUtils {
     }
 
     private void writeDataLines() {
-        int stt = 1, col, row = 0;
+        int stt = 0, col, row = 0;
         int rowMerge = 10;
         Map<String, CellStyle> style = ExcelPoiUtils.createStyles(workbook);
 
@@ -117,7 +117,7 @@ public class ReturnGoodsExcel extends ExcelPoiUtils {
         ExcelPoiUtils.addCell(sheet1, 12, 8, "THÔNG TIN PHẢN HỒI", style.get(ExcelPoiUtils.BOLD_10_CL192_192_192));
         ExcelPoiUtils.autoSizeAllColumns(sheet1, 12);
 
-        ExcelPoiUtils.addCell(sheet1, 0, 9, stt, style.get(ExcelPoiUtils.DATA));
+        ExcelPoiUtils.addCell(sheet1, 0, 9, null, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 1, 9, null, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 2, 9, null, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 3, 9, null, style.get(ExcelPoiUtils.DATA));
@@ -152,8 +152,7 @@ public class ReturnGoodsExcel extends ExcelPoiUtils {
                 col = 0;
                 row++;
                 rowMerge++;
-                stt++;
-                ExcelPoiUtils.addCell(sheet1, col++, row, stt, style.get(ExcelPoiUtils.DATA));
+                ExcelPoiUtils.addCell(sheet1, col++, row, null, style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, rowMerge, 1, style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getIndustry(), style.get(ExcelPoiUtils.DATA));
                 ExcelPoiUtils.addCell(sheet1, col++, row, data.getProductCode(), style.get(ExcelPoiUtils.DATA));
@@ -169,7 +168,7 @@ public class ReturnGoodsExcel extends ExcelPoiUtils {
             }
             rowMerge = row + 1;
         }
-        ExcelPoiUtils.addCell(sheet1, 0, dataSize + 10, stt + 1, style.get(ExcelPoiUtils.DATA));
+        ExcelPoiUtils.addCell(sheet1, 0, dataSize + 10, null, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 1, dataSize + 10, 2, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 2, dataSize + 10, null, style.get(ExcelPoiUtils.DATA));
         ExcelPoiUtils.addCell(sheet1, 3, dataSize + 10, null, style.get(ExcelPoiUtils.DATA));

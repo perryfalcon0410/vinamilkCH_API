@@ -15,7 +15,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.ReportVoucherService;
 import vn.viettel.report.service.dto.ReportVoucherDTO;
@@ -74,7 +73,7 @@ public class ReportVoucherController extends BaseController {
 
         ReportVoucherFilter filter = new ReportVoucherFilter(DateUtils.convertFromDate(fromProgramDate), DateUtils.convertFromDate(toProgramDate), DateUtils.convertFromDate(fromUseDate), DateUtils.convertFromDate(toUseDate), voucherProgramName,
                 voucherKeywords, customerKeywords, customerMobiPhone, this.getShopId(httpRequest));
-        this.closeStreamExcel(response, reportVoucherService.exportExcel(filter), "BC_voucher" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, reportVoucherService.exportExcel(filter), "BC_voucher");
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_VOUCHER_SUCCESS);
         response.getOutputStream().flush();
     }
