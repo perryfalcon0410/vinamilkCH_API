@@ -17,7 +17,6 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.CustomerNotTradeFilter;
 import vn.viettel.report.messaging.CustomerTradeFilter;
 import vn.viettel.report.service.CustomerNotTradeService;
@@ -60,7 +59,7 @@ public class    CustomerNotTradeReportController extends BaseController {
         CustomerNotTradeFilter filter = new CustomerNotTradeFilter(fromDate, toDate, this.getShopId(request));
         Response<List<CustomerReportDTO>> listData = (Response<List<CustomerReportDTO>>) service.index(filter, false, pageable);
         CustomerNotTradeExcel exportExcel = new CustomerNotTradeExcel(listData.getData(), shop, shop.getParentShop(), fromDate, toDate);
-        this.closeStreamExcel(response, exportExcel.export(), "report_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, exportExcel.export(), "report_");
         response.getOutputStream().flush();
     }
 
@@ -120,7 +119,7 @@ public class    CustomerNotTradeReportController extends BaseController {
         CustomerTradeFilter filter = new CustomerTradeFilter(this.getShopId(request), keySearch, areaCode, customerType,
                 customerStatus, customerPhone).withCreateAt(DateUtils.convertFromDate(fromCreateDate), DateUtils.convertFromDate(toCreateDate))
                 .withPurchaseAt(DateUtils.convertFromDate(fromPurchaseDate), DateUtils.convertFromDate(toPurchaseDate));
-        this.closeStreamExcel(response, service.customerTradesExportExcel(filter), "filename=Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, service.customerTradesExportExcel(filter), "filename=Danh_sach_khach_hang_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_CUSTOMER_TRADE_SUCCESS);
         response.getOutputStream().flush();
     }

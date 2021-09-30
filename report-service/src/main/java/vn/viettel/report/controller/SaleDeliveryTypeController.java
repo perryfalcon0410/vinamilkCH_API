@@ -17,7 +17,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.SaleDeliveryTypeFilter;
 import vn.viettel.report.service.SaleDeliveryTypeService;
 import vn.viettel.report.service.dto.SaleByDeliveryTypeDTO;
@@ -54,7 +53,7 @@ public class SaleDeliveryTypeController extends BaseController {
     ) throws Exception {
         SaleDeliveryTypeFilter filter =
                 new SaleDeliveryTypeFilter(DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), this.getShopId(request), orderNumber, apValue, customerKW, phoneText, fromTotal, toTotal);
-        this.closeStreamExcel(response, saleDeliveryTypeService.exportExcel(filter), "BC_doanh_so_theo_loai_giao_hang_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, saleDeliveryTypeService.exportExcel(filter), "BC_doanh_so_theo_loai_giao_hang_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_DATA_EXCEL_REPORT_SALE_DELIVERY_TYPE_SUCCESS);
         response.getOutputStream().flush();
     }

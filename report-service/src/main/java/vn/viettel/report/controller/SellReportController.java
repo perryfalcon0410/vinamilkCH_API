@@ -85,7 +85,7 @@ public class SellReportController extends BaseController {
             @RequestParam(value = "toInvoiceSales", required = false) Double toInvoiceSales, HttpServletResponse response) throws IOException, InterruptedException {
 
         SellsReportsRequest filter = new SellsReportsRequest(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productKW, collecter, salesChannel, customerKW, phoneNumber, fromInvoiceSales, toInvoiceSales);
-        this.closeStreamExcel(response, sellsReportService.exportExcel(filter), "Bao_Cao_Ban_Hang_Filled_\" + StringUtils.createExcelFileName()");
+        this.closeStreamExcel(response, sellsReportService.exportExcel(filter), "Bao_Cao_Ban_Hang_Filled_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SELLS_SUCCESS);
         response.getOutputStream().flush();
     }

@@ -120,7 +120,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")})
     public void stockCountingExport(HttpServletRequest httpRequest, @RequestParam (value = "id") Long id, HttpServletResponse response) throws IOException {
-        this.closeStreamExcel(response,inventoryService.exportExcel(id, this.getShopId(httpRequest)), "Kiem_ke_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response,inventoryService.exportExcel(id, this.getShopId(httpRequest)), "Kiem_ke_");
         response.getOutputStream().flush();
     }
 
@@ -135,7 +135,7 @@ public class InventoryController extends BaseController {
                                                   @PageableDefault(value = 2000)Pageable pageable, HttpServletResponse response) throws IOException {
         CoverResponse<StockCountingImportDTO, InventoryImportInfo> data = inventoryService.importExcel(getShopId(httpRequest), file, pageable, searchKeywords,wareHouseTypeId);
         StockCountingFailExcel stockCountingFailExcel = new StockCountingFailExcel(data.getResponse().getImportFails(), LocalDateTime.now());
-        this.closeStreamExcel(response, stockCountingFailExcel.export(), "stock_counting_fail" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, stockCountingFailExcel.export(), "stock_counting_fail");
         response.getOutputStream().flush();
     }
 
@@ -149,7 +149,7 @@ public class InventoryController extends BaseController {
         CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting> data = (CoverResponse<List<StockCountingDetailDTO>, TotalStockCounting>) inventoryService.getAll(getShopId(httpRequest),null,null);
         List<StockCountingDetailDTO> listAll = data.getResponse();
         StockCountingAllExcel stockCountingAll = new StockCountingAllExcel(listAll, shop, shop.getParentShop(), LocalDateTime.now());
-        this.closeStreamExcel(response, stockCountingAll.export(), "stock_counting_all" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, stockCountingAll.export(), "stock_counting_all");
         response.getOutputStream().flush();
     }
     @GetMapping(value = { V1 + root + "/inventory/sample-excel"})
@@ -159,7 +159,7 @@ public class InventoryController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void ExportSampleExcel(HttpServletResponse response) throws IOException {
         SampleExcel sampleExcel = new SampleExcel(LocalDateTime.now());
-        this.closeStreamExcel(response, sampleExcel.export(), "Nhap_kiem_ke_mau_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, sampleExcel.export(), "Nhap_kiem_ke_mau_");
         response.getOutputStream().flush();
     }
 

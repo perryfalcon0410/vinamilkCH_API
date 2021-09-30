@@ -14,7 +14,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.PromotionProductFilter;
 import vn.viettel.report.service.PromotionProductService;
 import vn.viettel.report.service.dto.PromotionProductDTO;
@@ -50,7 +49,7 @@ public class ProductController extends BaseController {
                                         @RequestParam(value = "productCodes", required = false) String productCodes, HttpServletResponse response) throws IOException, CloneNotSupportedException {
 
         PromotionProductFilter filter = new PromotionProductFilter(this.getShopId(request), orderNumber, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), productCodes);
-        this.closeStreamExcel(response, promotionProductService.exportExcel(filter), "BC_hang_khuyen_mai_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, promotionProductService.exportExcel(filter), "BC_hang_khuyen_mai_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_PROMOTION_PRODUCTS_SUCCESS);
         response.getOutputStream().flush();
     }
