@@ -279,7 +279,7 @@ public class ReceiptImportController extends BaseController {
         List<PoDetailDTO> list2 = soConfirmList2.getResponse();
         ShopDTO shop = shopClient.getByIdV1(this.getShopId(httpRequest)).getData();
         ExportExcel exportExcel = new ExportExcel(list1,list2, shop.getParentShop());
-        this.closeStreamExcel(response, exportExcel.export(), "Phieu_mua_hang_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, exportExcel.export(), "Phieu_mua_hang_");
         response.getOutputStream().flush();
     }
 }

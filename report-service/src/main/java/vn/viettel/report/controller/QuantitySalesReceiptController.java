@@ -12,7 +12,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
 import vn.viettel.report.service.QuantitySalesReceiptService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
@@ -67,7 +66,7 @@ public class QuantitySalesReceiptController extends BaseController{
                                   @ApiParam("Số hóa đơn tối đa") @RequestParam(value = "toQuantity", required = false) Long toQuantity,
                                   HttpServletResponse response) throws IOException {
         QuantitySalesReceiptFilter filter = new QuantitySalesReceiptFilter(this.getShopId(request), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromQuantity, toQuantity);
-        this.closeStreamExcel(response, quantitySalesReceiptService.exportExcel(filter), "report_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, quantitySalesReceiptService.exportExcel(filter), "report_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         response.getOutputStream().flush();
     }

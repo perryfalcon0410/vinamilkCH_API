@@ -19,7 +19,6 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.service.ShopImportReportService;
 import vn.viettel.report.service.dto.PrintShopImportDTO;
@@ -70,7 +69,7 @@ public class ShopImportReportController extends BaseController {
         if(shop == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         CoverResponse<List<ShopImportDTO>, ShopImportTotalDTO> data = shopImportReportService.dataExcel(shopImportFilter).getData();
         ShopImportExcel shopImportReport = new ShopImportExcel(data,shop,shop.getParentShop(),shopImportFilter);
-        this.closeStreamExcel(response, shopImportReport.export(), "report_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, shopImportReport.export(), "report_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SHOP_IMPORT_SUCCESS);
         response.getOutputStream().flush();
     }

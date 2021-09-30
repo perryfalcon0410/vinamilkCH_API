@@ -12,7 +12,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.SaleOrderAmountFilter;
 import vn.viettel.report.service.SaleOrderAmountService;
 import vn.viettel.report.service.dto.TableDynamicDTO;
@@ -66,7 +65,7 @@ public class SaleOrderController extends BaseController {
                     @ApiParam("Doanh số tối đa") @RequestParam(value = "toAmount", required = false) Double toAmount,
                                                                         HttpServletResponse response) throws IOException {
         SaleOrderAmountFilter filter = new SaleOrderAmountFilter(this.getShopId(request), DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), customerTypeId, nameOrCodeCustomer, phoneNumber, fromAmount, toAmount);
-        this.closeStreamExcel(response, saleOrderAmountService.exportExcel(filter), "report_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, saleOrderAmountService.exportExcel(filter), "report_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_ORDER_AMOUNT_SUCCESS);
         response.getOutputStream().flush();
     }

@@ -18,7 +18,6 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ChangePriceFilter;
 import vn.viettel.report.messaging.ChangePriceReportRequest;
 import vn.viettel.report.service.ChangePriceReportService;
@@ -91,7 +90,7 @@ public class ChangePriceReportController extends BaseController {
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> listData = (Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>>) service.index(filter, pageable, false);
         ChangePriceReportRequest input = new ChangePriceReportRequest(listData.getData().getInfo(), listData.getData().getResponse());
         ChangePriceReportExcel exportExcel = new ChangePriceReportExcel(input, shop, shop.getParentShop(), DateUtils.convert2Local(fromTransDate), DateUtils.convert2Local(toTransDate));
-        this.closeStreamExcel(response, exportExcel.export(), "BC_chenh_lech_gia_" + StringUtils.createExcelFileName() );
+        this.closeStreamExcel(response, exportExcel.export(), "BC_chenh_lech_gia_");
         response.getOutputStream().flush();
     }
 }

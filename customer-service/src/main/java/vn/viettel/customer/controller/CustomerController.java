@@ -162,7 +162,7 @@ public class CustomerController extends BaseController {
                                                ) throws IOException {
         if(isShop == null) isShop = false;
         CustomerFilter customerFilter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, this.getShopId(httpRequest),isShop);
-        this.closeStreamExcel(response, service.exportExcel(customerFilter), "Danh_sach_khach_hang_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, service.exportExcel(customerFilter), "Danh_sach_khach_hang_");
         response.getOutputStream().flush();
     }
 
