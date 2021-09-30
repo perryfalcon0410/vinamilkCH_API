@@ -266,6 +266,13 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
         }
 
+        float totalMoney = 0;
+        for (ProductDataDTO productDataDTO : productDataDTOS) {
+            totalMoney += Math.round((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
+        }
+
+        if(totalMoney <= 0) throw new ValidateException(ResponseMessage.RED_INVOICE_TOTAL_MONEY_MUST_BE_GREATER_THAN_ZERO);
+
         RedInvoiceDTO redInvoiceDTO = null;
 
         UserDTO userDTO = userClient.getUserByIdV1(userId);
@@ -308,10 +315,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 saleOrderRepository.save(saleOrder);
             }
         }
-        Float totalMoney = 0F;
-        for (ProductDataDTO productDataDTO : productDataDTOS) {
-            totalMoney += Math.round((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
-        }
+
         redInvoiceRecord.setShopId(shopId);
         redInvoiceRecord.setTotalMoney(totalMoney);
         redInvoiceRecord.setNote(redInvoiceNewDataDTO.getNoteRedInvoice());
