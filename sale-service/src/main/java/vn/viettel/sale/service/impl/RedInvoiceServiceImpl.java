@@ -236,34 +236,42 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
     @Transactional(rollbackFor = Exception.class)
     public RedInvoiceDTO create(RedInvoiceNewDataDTO redInvoiceNewDataDTO, Long userId, Long shopId) {
 
-        for (int i = 0; i < redInvoiceNewDataDTO.getProductDataDTOS().size(); i++) {
-            if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getPriceNotVat() == null) {
-                Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(i).getProductId();
-                Product product = productRepository.getById(id);
+        List<ProductDataDTO> productDataDTOS = redInvoiceNewDataDTO.getProductDataDTOS().stream().filter(e -> e.getQuantity()!=null && e.getQuantity() > 0).collect(Collectors.toList());
+        if(productDataDTOS.isEmpty()) throw new ValidateException(ResponseMessage.RED_INVOICE_PRODUCT_BUY_NOT_EMPTY);
+
+        for (int i = 0; i <productDataDTOS.size(); i++) {
+            if (productDataDTOS.get(i).getPriceNotVat() == null) {
+                Product product = productRepository.getById(productDataDTOS.get(i).getProductId());
                 throw new ValidateException(ResponseMessage.PRODUCT_PRICE_RED_INVOICE_NOT_FOUND, product.getProductCode() + " - " + product.getProductName());
             }
 
-            if (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getVat() == null) {
-                Long id = redInvoiceNewDataDTO.getProductDataDTOS().get(i).getProductId();
-                Product product = productRepository.getById(id);
+            if (productDataDTOS.get(i).getVat() == null) {
+                Product product = productRepository.getById(productDataDTOS.get(i).getProductId());
                 throw new ValidateException(ResponseMessage.PRODUCT_VAT_RED_INVOICE_NOT_FOUND, product.getProductCode() + " - " + product.getProductName());
             }
 
-            for (int j = 1; j < redInvoiceNewDataDTO.getProductDataDTOS().size(); j++) {
-                if(redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat() == null && redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat() == null)
+            for (int j = 1; j < productDataDTOS.size(); j++) {
+                if(productDataDTOS.get(i).getGroupVat() == null && productDataDTOS.get(j).getGroupVat() == null)
                     continue;
 
-                if((redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat() != null && redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat() == null)
+                if((productDataDTOS.get(i).getGroupVat() != null && productDataDTOS.get(j).getGroupVat() == null)
                     ||
-                    (redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat() == null && redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat() != null)
+                    (productDataDTOS.get(i).getGroupVat() == null && productDataDTOS.get(j).getGroupVat() != null)
                 )
                     throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
 
-                if (!redInvoiceNewDataDTO.getProductDataDTOS().get(i).getGroupVat().equals(redInvoiceNewDataDTO.getProductDataDTOS().get(j).getGroupVat()))
+                if (!productDataDTOS.get(i).getGroupVat().equals(productDataDTOS.get(j).getGroupVat()))
                     throw new ValidateException(ResponseMessage.INDUSTRY_ARE_NOT_DIFFERENT);
 
             }
         }
+
+        float totalMoney = 0;
+        for (ProductDataDTO productDataDTO : productDataDTOS) {
+            totalMoney += Math.round((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
+        }
+
+        if(totalMoney <= 0) throw new ValidateException(ResponseMessage.RED_INVOICE_TOTAL_MONEY_MUST_BE_GREATER_THAN_ZERO);
 
         RedInvoiceDTO redInvoiceDTO = null;
 
@@ -275,7 +283,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if ((redInvoiceNewDataDTO.getRedInvoiceNumber() == null) || (redInvoiceNewDataDTO.getRedInvoiceNumber().equals(""))) {
             String redInvoiceCode = this.createRedInvoiceCode();
             for (int i = 0; ;i++) {
-                if (this.checkRedInvoiceNumber(redInvoiceCode)) {
+                if (this.checkRedInvoiceNumber(redInvoiceCode, shopId)) {
                     redInvoiceCode = this.createRedInvoiceCode();
                 }else{
                     break;
@@ -283,13 +291,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             }
             redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
 
-            /*if (this.checkRedInvoiceNumber(redInvoiceCode)) {
-                throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
-            } else {
-                redInvoiceRecord.setInvoiceNumber(redInvoiceCode);
-            }*/
         } else {
-            if (this.checkRedInvoiceNumber(redInvoiceNewDataDTO.getRedInvoiceNumber())) {
+            if (this.checkRedInvoiceNumber(redInvoiceNewDataDTO.getRedInvoiceNumber(), shopId)) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED);
             } else {
                 redInvoiceRecord.setInvoiceNumber(redInvoiceNewDataDTO.getRedInvoiceNumber());
@@ -312,17 +315,14 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
                 saleOrderRepository.save(saleOrder);
             }
         }
-        Float totalMoney = 0F;
-        for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
-            totalMoney += Math.round((((productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()) * productDataDTO.getVat()) / 100) + (productDataDTO.getPriceNotVat() * productDataDTO.getQuantity()));
-        }
+
         redInvoiceRecord.setShopId(shopId);
         redInvoiceRecord.setTotalMoney(totalMoney);
         redInvoiceRecord.setNote(redInvoiceNewDataDTO.getNoteRedInvoice());
         redInvoiceRecord.setOrderNumbers(orderNumber);
         RedInvoice redInvoice = redInvoiceRepository.save(redInvoiceRecord);
         redInvoiceDTO = modelMapper.map(redInvoice, RedInvoiceDTO.class);
-        for (ProductDataDTO productDataDTO : redInvoiceNewDataDTO.getProductDataDTOS()) {
+        for (ProductDataDTO productDataDTO : productDataDTOS) {
             RedInvoiceDetail redInvoiceDetailRecord = modelMapper.map(redInvoiceNewDataDTO, RedInvoiceDetail.class);
             redInvoiceDetailRecord.setRedInvoiceId(redInvoiceRecord.getId());
             redInvoiceDetailRecord.setShopId(shopId);
@@ -350,8 +350,8 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         return redInvoiceDTO;
     }
 
-    public Boolean checkRedInvoiceNumber(String redInvoiceNumber) {
-        List<String> checkRedInvoice = redInvoiceRepository.checkRedInvoice(redInvoiceNumber);
+    public Boolean checkRedInvoiceNumber(String redInvoiceNumber, Long shopId) {
+        List<String> checkRedInvoice = redInvoiceRepository.checkRedInvoice(redInvoiceNumber, shopId);
         if (!checkRedInvoice.isEmpty()) {
             return true;
         } else {
@@ -529,7 +529,7 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
             RedInvoice redInvoice = redInvoiceRepository.findRedInvoiceByIdAndShopId(red.getId(), shopId);
             if(redInvoice == null) throw new ValidateException(ResponseMessage.RED_INVOICE_NOT_FOUND);
 
-            List<String> checkRedInvoices = redInvoiceRepository.checkRedInvoice(red.getInvoiceNumber());
+            List<String> checkRedInvoices = redInvoiceRepository.checkRedInvoice(red.getInvoiceNumber(), shopId);
             if (checkRedInvoices != null && !checkRedInvoices.isEmpty() && !red.getInvoiceNumber().equals(redInvoice.getInvoiceNumber())) {
                 throw new ValidateException(ResponseMessage.RED_INVOICE_CODE_HAVE_EXISTED, red.getInvoiceNumber());
             }
