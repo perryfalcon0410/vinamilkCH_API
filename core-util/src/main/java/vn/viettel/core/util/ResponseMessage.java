@@ -342,7 +342,7 @@ public enum ResponseMessage {
     PAYMENT_UPDATE_RPT_ZV23_FAIL(9107, "Thanh toán không thành công. Cập nhật zpt_zv23 chương trình %s thất bại."),
     SAVE_FAIL(9108, "Có lỗi trong quá trình lưu, xin vui lòng thử lại."),
     RED_INVOICE_PRODUCT_BUY_NOT_EMPTY(9109, "Hóa đơn cần ít nhất một sản phẩm mua."),
-
+    RED_INVOICE_TOTAL_MONEY_MUST_BE_GREATER_THAN_ZERO(9110, "Tổng giá trị hóa đơn phải lớn hơn 0."),
     /*
      * MANAGEMENT USER MESSAGE 10000 -> 10999
      */
