@@ -153,12 +153,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Long shop = null;
         Page<CustomerDTO> response = null;
+        List<Long> shopIdDecode = new ArrayList<>();
+        shopIdDecode.add(shopId);
+        shopIdDecode.add(0L);
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
-            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
+            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), shopIdDecode, pageable);
         else {
             response = repository.searchForSale(shop, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
-                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), shopIdDecode, pageable);
         }
         return response;
     }
