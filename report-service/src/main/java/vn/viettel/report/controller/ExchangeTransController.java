@@ -15,7 +15,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
@@ -46,7 +45,7 @@ public class ExchangeTransController extends BaseController {
                                         @RequestParam(value = "productKW", required = false) String productKW
             , HttpServletResponse response) throws IOException {
         ExchangeTransFilter filter = new ExchangeTransFilter(transCode, DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate), reason, productKW, this.getShopId(request));
-        this.closeStreamExcel(response, exchangeTransReportService.exportExcel(filter), "BC_doi_tra_hang_hong_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, exchangeTransReportService.exportExcel(filter), "BC_doi_tra_hang_hong_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_EXCHANGETRANS_SUCCESS);
         response.getOutputStream().flush();
     }

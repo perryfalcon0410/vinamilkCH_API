@@ -14,7 +14,6 @@ import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.SaleCategoryFilter;
 import vn.viettel.report.service.SaleByCategoryReportService;
 import vn.viettel.report.service.dto.SaleByCategoryPrintDTO;
@@ -44,7 +43,7 @@ public class SaleByCategoryController extends BaseController {
                                       @RequestParam(value = "toDate", required = false) Date toDate,
                                       @RequestParam(value = "customerType", required = false) Long customerType, HttpServletResponse response) throws IOException {
         SaleCategoryFilter filter = new SaleCategoryFilter(customerKW,customerPhone,DateUtils.convertFromDate(fromDate), DateUtils.convertFromDate(toDate),customerType,this.getShopId(request));
-        this.closeStreamExcel(response, saleByCategoryReportService.exportExcel(filter), "BC_doanh_so_theo_nganh_hang_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, saleByCategoryReportService.exportExcel(filter), "BC_doanh_so_theo_nganh_hang_");
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.EXPORT_EXCEL_REPORT_SALE_BY_CATEGORY_SUCCESS);
         response.getOutputStream().flush();
     }

@@ -70,7 +70,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     lấy thông tin OrderProductDTO
      */
     @Query("SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
-            "p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
+            "p.uom1, p.isCombo, p.comboProductId, mi.url, p.productNameText, p.barCode ) " +
             " FROM Product p " +
             " LEFT JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
             "   AND (" +
@@ -103,7 +103,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     Page<Long> findProductsCustomerTopSale(Long shopId, Long customerId, Pageable pageable);
 
     @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
-            " p.uom1, p.isCombo, p.comboProductId, mi.url ) " +
+            " p.uom1, p.isCombo, p.comboProductId, mi.url, p.productNameText, p.barCode ) " +
             " FROM Product p " +
             " JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
             "   AND (" +
@@ -125,7 +125,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             "   AND od.shopId = :shopId AND(:customerId IS NULL OR od.customerId =:customerId) AND od.type = 1 AND ods.isFreeItem = false " +
             "   AND ( od.orderDate IS NULL OR (od.orderDate BETWEEN :fromDate AND :toDate) )" +
             " WHERE p.status = 1 AND ( :keyUpper IS NULL OR p.productNameText LIKE %:keyUpper% OR UPPER(p.productCode) LIKE %:keyUpper%  OR UPPER(p.barCode) LIKE %:keyUpper% ) " +
-            " GROUP BY p.id, p.productName, p.productCode, price.price, st.quantity, p.status, p.uom1, p.isCombo, p.comboProductId, mi.url " +
+            " GROUP BY p.id, p.productName, p.productCode, price.price, st.quantity, p.status, p.uom1, p.isCombo, p.comboProductId, mi.url, p.productNameText, p.barCode " +
             " ORDER BY p.productCode, p.productName, coalesce(SUM(ods.quantity), 0) DESC ")
     Page<OrderProductDTO> findOrderProductTopSale(Long shopId, Long customerTypeId, Long warehouseId, Long customerId, String keyUpper,
                             LocalDateTime fromDate, LocalDateTime toDate, Boolean hasQty, Pageable pageable);
@@ -140,7 +140,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     List<Long> getProductFrees(List<Long> productIds, Integer status);
 
     @Query(" SELECT NEW vn.viettel.sale.service.dto.OrderProductDTO (p.id, p.productName, p.productCode, price.price, st.quantity, p.status, " +
-            " p.uom1, p.isCombo, p.comboProductId, '' ) " +
+            " p.uom1, p.isCombo, p.comboProductId, '', p.productNameText, p.barCode ) " +
             " FROM Product p " +
             " JOIN Price price ON price.productId = p.id AND price.status = 1 AND price.priceType = -1 " +
             "   AND (" +

@@ -16,7 +16,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.report.messaging.ShopExportFilter;
 import vn.viettel.report.messaging.TotalReport;
 import vn.viettel.report.service.ReportExportGoodsService;
@@ -73,7 +72,7 @@ public class ReportExportGoodsController extends BaseController {
                               @RequestParam(value = "toOrderDate", required = false) Date toOrderDate, HttpServletResponse response) throws IOException {
         ShopExportFilter shopExportFilter = new ShopExportFilter(DateUtils.convertFromDate(fromExportDate), DateUtils.convertFromDate(toExportDate), productCodes, importType, searchKeywords,
                 DateUtils.convertFromDate(fromOrderDate), DateUtils.convertFromDate(toOrderDate), this.getShopId(httpRequest));
-        this.closeStreamExcel(response, reportExportGoodsService.exportExcel(shopExportFilter), "BC_xuat_hang_" + StringUtils.createExcelFileName());
+        this.closeStreamExcel(response, reportExportGoodsService.exportExcel(shopExportFilter), "BC_xuat_hang_");
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.EXPORT_EXCEL_REPORT_EXPORT_GOODS_SUCCESS);
         response.getOutputStream().flush();
     }
