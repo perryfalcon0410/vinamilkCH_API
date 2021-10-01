@@ -19,12 +19,18 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
 
     List<Customer> getAllByMobiPhoneAndStatus(String mobiPhone, Integer status);
 
-    @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.customerCode, c.mobiPhone) " +
-            " FROM Customer c WHERE (:status IS NULL OR c.status = :status) AND c.id IN (:customerIds)")
-    Page<CustomerDTO> getCustomerInfo(Integer status, List<Long> customerIds, Pageable pageable);
-
-    @Query(value = "SELECT c FROM Customer c WHERE c.id IN (:customerIds)")
-    List<Customer> getCustomersByIds(List<Long> customerIds);
+    @Query(value = "SELECT c FROM Customer c " +
+            " WHERE (:status is null Or c.status = :status)" +
+            " AND (:nameCode is null Or c.nameText like %:nameCode% Or c.customerCode like %:nameCode%) " +
+            " AND (:phone is null Or c.mobiPhone like %:phone)" +
+            " AND (:idNo is null Or c.idNo like %:idNo%)" +
+            " AND (:genderId is null Or c.genderId = :genderId)" +
+            " AND (:customerTypeId is null Or c.customerTypeId = :customerTypeId)" +
+            " AND (COALESCE(:areaIds, NULL) is null Or c.areaId in :areaIds)" +
+            " AND (:isShop is null Or :isShop is false Or c.shopId = :shopId)" +
+            " ORDER BY decode(c.shopId, :shopIdDecode) " +
+            "")
+    Page<Customer> findAllBy(Integer status, String nameCode, String phone, String idNo, Long genderId, Long customerTypeId, List<Long> areaIds, Long shopId, Boolean isShop, List<Long> shopIdDecode, Pageable pageable);
 
     @Query(value = "SELECT c FROM Customer c WHERE c.shopId =:shopId AND c.customerCode NOT LIKE '%.KA___' ORDER BY c.customerCode desc ")
     Page<Customer> getLastCustomerNumber(@Param("shopId") Long shopId,  Pageable pageable);
