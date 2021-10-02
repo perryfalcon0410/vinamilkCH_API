@@ -14,7 +14,12 @@ import vn.viettel.core.messaging.BaseRequest;
 public class OrderProductRequest extends BaseRequest {
     @ApiModelProperty(notes = "Id sản phẩm")
     private Long productId;
+    @ApiModelProperty(notes = "Mã sản phẩm")
+    private String productCode;
+    @ApiModelProperty(notes = "Tên sản phẩm")
+    private String productName;
     @ApiModelProperty(notes = "Số lượng")
     private Integer quantity;
+    
 
 }

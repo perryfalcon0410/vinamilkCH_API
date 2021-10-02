@@ -3,8 +3,6 @@ package vn.viettel.sale.service.impl;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.SneakyThrows;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.poi.util.IOUtils;
 import org.modelmapper.convention.MatchingStrategies;
@@ -45,7 +43,6 @@ import vn.viettel.sale.util.ConnectFTP;
 import vn.viettel.sale.xml.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -54,7 +51,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineOrderRepository> implements OnlineOrderService {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     @Autowired
     OnlineOrderDetailRepository onlineOrderDetailRepo;
 
@@ -155,11 +151,31 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         List<Price> prices = productPriceRepo.findProductPriceWithType(productIds, customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()));
         List<StockTotal> stockTotals = stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), productIds);
 
+        /*Cửa hàng có quyền chính sửa đơn thì vẫn load lên SP ko tồn tai || ko có gia || ko có tồn kho */
+        boolean isEditable = shopClient.isEditableOnlineOrderV1(shopId).getData();
         for (OnlineOrderDetail detail: orderDetails) {
-            OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, products, prices, stockTotals);
-            orderLines.add(productOrder);
-            onlineOrderDTO.addQuantity(productOrder.getQuantity());
-            onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());
+            Product product = null;
+            for(Product p : products){
+                if(p.getProductCode().equalsIgnoreCase(detail.getSku())){
+                    product = p; break;
+                }
+            }
+            if(product!=null) {
+                OrderProductOnlineDTO productOrder = this.mapOnlineOrderDetailToProductDTO(detail, product, prices, stockTotals, isEditable);
+                orderLines.add(productOrder);
+                onlineOrderDTO.addQuantity(productOrder.getQuantity());
+                onlineOrderDTO.addTotalPrice(productOrder.getTotalPrice());
+            }else if(product == null && isEditable) {
+                OrderProductOnlineDTO productOrder = new OrderProductOnlineDTO();
+                productOrder.setProductCode(detail.getSku());
+                productOrder.setProductName(detail.getProductName());
+                productOrder.setQuantity(detail.getQuantity());
+                productOrder.setStatus(0);
+                orderLines.add(productOrder);
+                onlineOrderDTO.addQuantity(detail.getQuantity());
+            }else {
+                throw new ValidateException(ResponseMessage.PRODUCT_NOT_EXISTS, detail.getSku());
+            }
         }
 
         onlineOrderDTO.setProducts(orderLines);
@@ -476,37 +492,29 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
         return new ConnectFTP(server, portStr, userName, password);
     }
 */
-    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, List<Product> products, List<Price> prices, List<StockTotal> stockTotals) {
-        Product product = null;
-        for(Product p : products){
-            if(p.getProductCode().equalsIgnoreCase(detail.getSku())){
-                product = p; break;
-            }
-        }
-        if(product == null) throw new ValidateException(ResponseMessage.PRODUCT_NOT_EXISTS, detail.getSku());
-
+    private OrderProductOnlineDTO mapOnlineOrderDetailToProductDTO(OnlineOrderDetail detail, Product product, List<Price> prices, List<StockTotal> stockTotals, boolean isEditable) {
         double price = 0;
         for(Price p : prices){
             if(p.getProductId().equals(product.getId())){
                 price = p.getPrice(); break;
             }
         }
-        if(price < 1) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED, detail.getSku());
+        if(price < 1 && !isEditable) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED, detail.getSku());
 
-        StockTotal stockTotal = null;
+        int stockTotal = 0;
         for(StockTotal p : stockTotals){
             if(p.getProductId().equals(product.getId())){
-                stockTotal = p; break;
+                stockTotal = p.getQuantity(); break;
             }
         }
-        if(stockTotal == null) throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, detail.getSku());
+        if(stockTotal < 1 && !isEditable) throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, detail.getSku());
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderProductOnlineDTO productOrder = modelMapper.map(product, OrderProductOnlineDTO.class);
         productOrder.setProductId(product.getId());
         productOrder.setQuantity(detail.getQuantity());
         productOrder.setPrice(price);
-        productOrder.setStockTotal(stockTotal.getQuantity());
+        productOrder.setStockTotal(stockTotal);
 
         return productOrder;
     }

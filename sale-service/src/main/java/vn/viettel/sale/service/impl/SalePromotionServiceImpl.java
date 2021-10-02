@@ -85,6 +85,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
 
         ProductOrderDataDTO orderData = null;
         if(request.getProducts()!=null && !request.getProducts().isEmpty()) {
+            // Đơn online  khi load lên vẫn có thể load SP ko tồn tại,giá,kho
             orderData = this.getProductOrderData(request, customer);
             if (orderData == null || orderData.getProducts() == null || orderData.getProducts().isEmpty())
                 return null;
@@ -92,19 +93,21 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             //kiem tra ton kho co du
             List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(),
                     request.getProducts().stream().map(ProductOrderRequest::getProductId).distinct().collect(Collectors.toList()));
-            for (FreeProductDTO freeProductDTO : freeProductDTOs){
-                int qty =  0;
-                for(ProductOrderDetailDataDTO product: orderData.getProducts()) {
-                     if(freeProductDTO.getProductId().equals(product.getProductId())) {
-                         qty = product.getQuantity();
-                         break;
-                     }
+            for(ProductOrderDetailDataDTO product: orderData.getProducts()) {
+                boolean flag = false;
+                for (FreeProductDTO freeProductDTO : freeProductDTOs){
+                    if(freeProductDTO.getProductId().equals(product.getProductId())) {
+                        int qty = product.getQuantity()!=null?product.getQuantity():0;
+                        if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < qty))
+                            throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " +
+                                    freeProductDTO.getProductName(), this.withLargeIntegers(freeProductDTO.getStockQuantity()) + "");
+                        flag = true;
+                        break;
+                    }
                 }
-
-                if(freeProductDTO == null || (freeProductDTO.getStockQuantity() != null && freeProductDTO.getStockQuantity() < qty))
-                    throw new ValidateException(ResponseMessage.PRODUCT_OUT_OF_STOCK, freeProductDTO.getProductCode() + " - " +
-                            freeProductDTO.getProductName(), this.withLargeIntegers(freeProductDTO.getStockQuantity()) + "");
+                if(!flag) throw new ValidateException(ResponseMessage.PRODUCT_STOCK_TOTAL_NOT_FOUND, product.getProductCode());
             }
+
         }
 
         //key PromotionProgramDTO, value tính trước zv23 = true, sau zv23 = false
@@ -2358,6 +2361,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         // Gộp những sp trùng
         Map<Long, ProductOrderRequest> productsMap = new HashMap<>();
         for(ProductOrderRequest product: request.getProducts()) {
+            if(product.getProductId() == null) throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND, product.getProductCode());
             if(productsMap.containsKey(product.getProductId())){
                 ProductOrderRequest pRequest = productsMap.get(product.getProductId());
                 pRequest.setQuantity(pRequest.getQuantity() + product.getQuantity());
@@ -2376,7 +2380,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                     price = p; break;
                 }
             }
-            if(price == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED);
+            if(price == null) throw new ValidateException(ResponseMessage.NO_PRICE_APPLIED, product.getProductCode());
             ProductOrderDetailDataDTO detail = new ProductOrderDetailDataDTO();
             detail.setProductId(product.getProductId());
             detail.setProductCode(product.getProductCode());
