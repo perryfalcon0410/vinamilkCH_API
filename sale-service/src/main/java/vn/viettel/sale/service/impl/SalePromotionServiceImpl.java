@@ -71,7 +71,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     @Override
     public SalePromotionCalculationDTO getSaleItemPromotions(OrderPromotionRequest request, Long shopId,
                                                              HashMap<Long,Double> mapMoneys, boolean forSaving) {
-        forSaving = true;
         List<SalePromotionDTO> results = new ArrayList<>();
         CustomerDTO customer = customerClient.getCustomerByIdV1(request.getCustomerId()).getData();
         if(customer == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
@@ -2154,12 +2153,14 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
                 SalePromotionDiscountDTO discountDTO = new SalePromotionDiscountDTO();
                 SalePromotionDTO salePromotion = new SalePromotionDTO();
 
-                double amtInTax = totalAmountInTax * percent / 100;
+                double p = (totalAmountInTax-totalAmountExTax)/totalAmountExTax*100;
                 double amtExTax = totalAmountExTax * percent / 100;
-              /*  if(isInclusiveTax){
+                double amtInTax = amtExTax * (( 100 + p ) / 100);
+
+                if(isInclusiveTax){
                      amtInTax = totalAmountInTax * percent / 100;
-                     amtExTax = 0;
-                }*/
+                     amtExTax =  amtInTax / (( 100 + p ) / 100);
+                }
 
                 double pcInTax = calPercent(orderData.getTotalPrice(), amtInTax);
                 double pcExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
