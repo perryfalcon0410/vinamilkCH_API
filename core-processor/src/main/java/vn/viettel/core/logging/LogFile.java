@@ -14,17 +14,18 @@ public class LogFile {
 			String ipAddress = "Not.Get.IP";
 			String uri = "Not.Get.URI";
 
-			String username = (String) request.getAttribute(Constants.CURRENT_USERNAME);
-			if(username !=null && !username.isEmpty())  username = userName;
-			if (username == null) username = "Not login";
-
+			String username = null;
 			if (request != null) {
+				username = (String) request.getAttribute(Constants.CURRENT_USERNAME);
 				ipAddress = request.getHeader("X-FORWARDED-FOR");
 				if (ipAddress == null) {
 					ipAddress = request.getRemoteAddr();
 				}
 				uri = request.getRequestURI();
 			}
+
+			if(username ==null || username.isEmpty())  username = userName;
+			if(username == null || username.isEmpty()) username = "Not login";
 
 			message = "[" + ipAddress + " - " + uri + " - " + username + "] " + getSource() + " - " + message;
 			Logger logger = LoggerFactory.getLogger(logFile);
