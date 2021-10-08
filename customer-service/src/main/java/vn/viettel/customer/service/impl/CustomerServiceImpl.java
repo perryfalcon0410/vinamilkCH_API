@@ -42,7 +42,10 @@ import vn.viettel.customer.service.MemberCustomerService;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -114,22 +117,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable) {
 
-        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
+        String nameCode = VNCharacterUtils.removeAccent(StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY)).toUpperCase();
 
-        List<AreaDTO> precincts = null;
+        List<Long> areaIds = null;
         if (filter.getAreaId() != null) {
-            precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
+            List<AreaDTO> precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
+            areaIds = precincts.stream().map(AreaDTO::getId).collect(Collectors.toList());
         }
-
-        Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCode(searchKeywords.trim())
-                        .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
-                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
-                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
-                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
-                        .and(CustomerSpecification.hasAreaId(precincts))
-                        .and(CustomerSpecification.hasPhoneToCustomer(filter.getPhone()))
-                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
+        List<Long> shopIdDecode = new ArrayList<>();
+        shopIdDecode.add(filter.getShopId());
+        shopIdDecode.add(0L);
+        Page<Customer> customers = repository.findAllBy(filter.getStatus(), nameCode,
+                filter.getPhone(), filter.getIdNo(), filter.getGenderId(), filter.getCustomerTypeId(), areaIds, filter.getShopId(), filter.getIsShop(),shopIdDecode, pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<CategoryDataDTO> genders =  categoryDataClient.getGendersV1().getData();
@@ -154,12 +153,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Long shop = null;
         Page<CustomerDTO> response = null;
+        List<Long> shopIdDecode = new ArrayList<>();
+        shopIdDecode.add(shopId);
+        shopIdDecode.add(0L);
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
-            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
+            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), shopIdDecode, pageable);
         else {
             response = repository.searchForSale(shop, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
-                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), shopIdDecode, pageable);
         }
         return response;
     }
