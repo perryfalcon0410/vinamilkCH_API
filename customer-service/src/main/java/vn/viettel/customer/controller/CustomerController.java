@@ -81,7 +81,7 @@ public class CustomerController extends BaseController {
                                                               @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
                                                               @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
                                                       }) Pageable pageable) {
-        Page<CustomerDTO> customerDTOS = service.getCustomerForAutoComplete(searchKeywords, pageable);
+        Page<CustomerDTO> customerDTOS = service.getCustomerForAutoComplete(searchKeywords, this.getShopId(httpRequest), pageable);
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
@@ -274,7 +274,7 @@ public class CustomerController extends BaseController {
 
         CusRedInvoiceFilter filter = new CusRedInvoiceFilter(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase(), mobiphone.trim(), workingOffice, officeAddress, taxCode);
 
-        return new Response<Page<CustomerDTO>>().withData(service.findCustomerForRedInvoice(filter, pageable));
+        return new Response<Page<CustomerDTO>>().withData(service.findCustomerForRedInvoice(filter, this.getShopId(httpRequest), pageable));
     }
 
 

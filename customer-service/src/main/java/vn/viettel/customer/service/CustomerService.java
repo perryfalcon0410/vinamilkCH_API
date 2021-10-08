@@ -29,7 +29,7 @@ public interface CustomerService extends BaseService {
 
     Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable);
 
-   Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable);
+   Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Long shopId, Pageable pageable);
 
     List<Long> getIdCustomerBySearchKeyWords(String searchKeywords);
 
@@ -73,7 +73,7 @@ public interface CustomerService extends BaseService {
     /*
    Lấy thông tin khách hàng cho màn hình tạo mới hóa đơn đỏ
     */
-    Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable);
+    Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Long shopId, Pageable pageable);
 
 
 }
