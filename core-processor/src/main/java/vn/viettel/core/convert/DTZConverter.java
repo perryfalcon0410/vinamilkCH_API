@@ -18,6 +18,7 @@ public class DTZConverter extends AbstractSingleValueConverter {
 
     @Override
     public Object fromString(String dtz) {
+        if(dtz == null || dtz.isEmpty()) return null;
         try {
             DateFormat formatter;
             formatter = new SimpleDateFormat("dd/MM/yyyy");
