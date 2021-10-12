@@ -124,11 +124,8 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             List<AreaDTO> precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
             areaIds = precincts.stream().map(AreaDTO::getId).collect(Collectors.toList());
         }
-        List<Long> shopIdDecode = new ArrayList<>();
-        shopIdDecode.add(filter.getShopId());
-        shopIdDecode.add(0L);
         Page<Customer> customers = repository.findAllBy(filter.getStatus(), nameCode,
-                filter.getPhone(), filter.getIdNo(), filter.getGenderId(), filter.getCustomerTypeId(), areaIds, filter.getShopId(), filter.getIsShop(),shopIdDecode, pageable);
+                filter.getPhone(), filter.getIdNo(), filter.getGenderId(), filter.getCustomerTypeId(), areaIds, filter.getShopId(), filter.getIsShop(), this.getShopIdDecode(filter.getShopId()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<CategoryDataDTO> genders =  categoryDataClient.getGendersV1().getData();
@@ -153,23 +150,20 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
         Long shop = null;
         Page<CustomerDTO> response = null;
-        List<Long> shopIdDecode = new ArrayList<>();
-        shopIdDecode.add(shopId);
-        shopIdDecode.add(0L);
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
-            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), shopIdDecode, pageable);
+            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), this.getShopIdDecode(shopId), pageable);
         else {
             response = repository.searchForSale(shop, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
-                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), shopIdDecode, pageable);
+                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), this.getShopIdDecode(shopId), pageable);
         }
         return response;
     }
 
     @Override
-    public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
+    public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Long shopId, Pageable pageable) {
         Page<CustomerDTO> response = repository.searchForRedInvoice(
-                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
+                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), this.getShopIdDecode(shopId), pageable);
         return response;
     }
 
@@ -605,11 +599,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 */
 
     @Override
-    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Long shopId, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
         String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
         //hạn chế request vào db
-        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, pageable);
+        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, this.getShopIdDecode(shopId), pageable);
     }
 
 
@@ -702,12 +696,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return customerDB.stream().map(e -> modelMapper.map(e, CustomerDTO.class)).collect(Collectors.toList());
     }
 
-/*    @Override
-    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
-        List<Customer> customers = repository.getCustomersByIds(customerIds);
-       List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-       return customerDTOS;
-    }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -719,6 +707,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
+    }
+
+    private List<Long> getShopIdDecode(Long shopId) {
+        List<Long> shopIdDecode = new ArrayList<>();
+        shopIdDecode.add(shopId);
+        shopIdDecode.add(0L);
+        return shopIdDecode;
     }
 
 }

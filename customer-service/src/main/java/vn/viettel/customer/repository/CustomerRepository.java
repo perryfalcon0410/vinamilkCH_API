@@ -68,8 +68,8 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             "   AND (:workingOffice is null OR c.workingOfficeText like %:workingOffice%) " +
             "   AND (:officeAddress is null OR c.officeAddressText like %:officeAddress%)  " +
             "   AND (:taxCode is null OR upper(c.taxCode) like %:taxCode%)  " +
-            " ORDER BY c.customerCode, c.nameText")
-    Page<CustomerDTO> searchForRedInvoice(String searchKeywords, String mobiphone, String workingOffice, String officeAddress, String taxCode, Pageable pageable);
+            " ORDER BY decode(c.shopId, :shopIdDecode), c.customerCode, c.nameText")
+    Page<CustomerDTO> searchForRedInvoice(String searchKeywords, String mobiphone, String workingOffice, String officeAddress, String taxCode, List<Long> shopIdDecode, Pageable pageable);
 
     @Modifying()
     @Query(value = "Update Customer SET dayOrderNumber = 0 , dayOrderAmount = 0 , updatedAt = sysdate, updatedBy= 'schedule' ")
@@ -93,9 +93,9 @@ public interface CustomerRepository extends BaseRepository<Customer>, JpaSpecifi
             " FROM Customer c WHERE c.status = 1 " +
             " AND ( c.nameText like %:name% OR c.customerCode like %:code% " +
             "   OR c.phone like %:phone OR c.mobiPhone like %:phone ) " +
-            " ORDER BY c.customerCode, c.nameText, c.mobiPhone"
+            " ORDER BY decode(c.shopId, :shopIdDecode), c.customerCode, c.nameText, c.mobiPhone"
     )
-    Page<CustomerDTO> searchCustomer(String name, String code, String phone, Pageable pageable);
+    Page<CustomerDTO> searchCustomer(String name, String code, String phone, List<Long> shopIdDecode, Pageable pageable);
 
     @Query(value = "SELECT new vn.viettel.core.dto.customer.CustomerDTO(c.id, c.firstName, c.lastName, c.nameText, c.customerCode, c.mobiPhone," +
             " c.customerTypeId, c.street, c.address, c.shopId, c.phone, c.workingOffice, c.officeAddress, c.taxCode, c.totalBill, c.dob) " +
