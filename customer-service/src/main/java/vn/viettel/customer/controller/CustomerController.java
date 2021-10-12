@@ -1,14 +1,12 @@
 package vn.viettel.customer.controller;
 
 import io.swagger.annotations.*;
-import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.SortDTO;
@@ -21,7 +19,6 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.entities.MemoryStats;
@@ -33,7 +30,6 @@ import vn.viettel.customer.service.CustomerService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -92,7 +88,7 @@ public class CustomerController extends BaseController {
                                                               @SortDefault(sort = "nameText", direction = Sort.Direction.ASC),
                                                               @SortDefault(sort = "mobiPhone", direction = Sort.Direction.ASC)
                                                       }) Pageable pageable) {
-        Page<CustomerDTO> customerDTOS = service.getCustomerForAutoComplete(searchKeywords, pageable);
+        Page<CustomerDTO> customerDTOS = service.getCustomerForAutoComplete(searchKeywords, this.getShopId(httpRequest), pageable);
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.SEARCH_CUSTOMER_SUCCESS);
         return new Response<Page<CustomerDTO>>().withData(customerDTOS);
     }
@@ -301,7 +297,7 @@ public class CustomerController extends BaseController {
 
         CusRedInvoiceFilter filter = new CusRedInvoiceFilter(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase(), mobiphone.trim(), workingOffice, officeAddress, taxCode);
 
-        return new Response<Page<CustomerDTO>>().withData(service.findCustomerForRedInvoice(filter, pageable));
+        return new Response<Page<CustomerDTO>>().withData(service.findCustomerForRedInvoice(filter, this.getShopId(httpRequest), pageable));
     }
 
 

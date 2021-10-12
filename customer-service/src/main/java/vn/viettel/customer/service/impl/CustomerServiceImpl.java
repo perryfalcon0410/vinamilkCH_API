@@ -43,7 +43,10 @@ import vn.viettel.customer.service.MemberCustomerService;
 import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.specification.CustomerSpecification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -115,22 +118,15 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Page<CustomerDTO> index(CustomerFilter filter, Pageable pageable) {
 
-        String searchKeywords = StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY);
+        String nameCode = VNCharacterUtils.removeAccent(StringUtils.defaultIfBlank(filter.getSearchKeywords(), StringUtils.EMPTY)).toUpperCase();
 
-        List<AreaDTO> precincts = null;
+        List<Long> areaIds = null;
         if (filter.getAreaId() != null) {
-            precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
+            List<AreaDTO> precincts = areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()).getData();
+            areaIds = precincts.stream().map(AreaDTO::getId).collect(Collectors.toList());
         }
-
-        Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.hasFullNameOrCode(searchKeywords.trim())
-                        .and(CustomerSpecification.hasShopId(filter.getShopId(), filter.getIsShop()))
-                        .and(CustomerSpecification.hasStatus(filter.getStatus()))
-                        .and(CustomerSpecification.hasCustomerTypeId(filter.getCustomerTypeId()))
-                        .and(CustomerSpecification.hasGenderId(filter.getGenderId()))
-                        .and(CustomerSpecification.hasAreaId(precincts))
-                        .and(CustomerSpecification.hasPhoneToCustomer(filter.getPhone()))
-                        .and(CustomerSpecification.hasIdNo(filter.getIdNo()))), pageable);
+        Page<Customer> customers = repository.findAllBy(filter.getStatus(), nameCode,
+                filter.getPhone(), filter.getIdNo(), filter.getGenderId(), filter.getCustomerTypeId(), areaIds, filter.getShopId(), filter.getIsShop(), this.getShopIdDecode(filter.getShopId()), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<CategoryDataDTO> genders =  categoryDataClient.getGendersV1().getData();
@@ -157,18 +153,18 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Page<CustomerDTO> response = null;
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
-            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
+            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), this.getShopIdDecode(shopId), pageable);
         else {
             response = repository.searchForSale(shop, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
-                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
+                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), this.getShopIdDecode(shopId), pageable);
         }
         return response;
     }
 
     @Override
-    public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Pageable pageable) {
+    public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Long shopId, Pageable pageable) {
         Page<CustomerDTO> response = repository.searchForRedInvoice(
-                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), pageable);
+                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), this.getShopIdDecode(shopId), pageable);
         return response;
     }
 
@@ -604,11 +600,11 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 */
 
     @Override
-    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
+    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Long shopId, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
         String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
         //hạn chế request vào db
-        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, pageable);
+        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, this.getShopIdDecode(shopId), pageable);
     }
 
 
@@ -701,12 +697,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return customerDB.stream().map(e -> modelMapper.map(e, CustomerDTO.class)).collect(Collectors.toList());
     }
 
-/*    @Override
-    public List<CustomerDTO> getAllCustomerToRedInvoice(List<Long> customerIds) {
-        List<Customer> customers = repository.getCustomersByIds(customerIds);
-       List<CustomerDTO> customerDTOS =  customers.stream().map(customer -> modelMapper.map(customer, CustomerDTO.class)).collect(Collectors.toList());
-       return customerDTOS;
-    }*/
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -718,6 +708,13 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
+    }
+
+    private List<Long> getShopIdDecode(Long shopId) {
+        List<Long> shopIdDecode = new ArrayList<>();
+        shopIdDecode.add(shopId);
+        shopIdDecode.add(0L);
+        return shopIdDecode;
     }
 
 }
