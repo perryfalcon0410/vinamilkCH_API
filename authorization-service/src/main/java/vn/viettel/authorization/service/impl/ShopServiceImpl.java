@@ -184,6 +184,7 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
     @Override
     public List<ShopDTO> getAllShopToRedInvoice(List<Long> shopIds) {
+        if(shopIds == null || shopIds.isEmpty()) return new ArrayList<>();
         List<Shop> shops = repository.getShopByIds(shopIds);
         List<ShopDTO> shopDTOS =  shops.stream().map(s -> modelMapper.map(s, ShopDTO.class)).collect(Collectors.toList());
 

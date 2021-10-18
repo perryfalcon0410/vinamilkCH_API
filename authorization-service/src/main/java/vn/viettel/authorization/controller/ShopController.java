@@ -52,8 +52,8 @@ public class ShopController extends BaseController {
         return new Response<Boolean>().withData(response);
     }
 
-    @GetMapping(value = V1 + root + "/feign/shops")
-    public Response<List<ShopDTO>> getAllShopToRedInvoice(@RequestParam List<Long> shopIds) {
+    @PostMapping(value = V1 + root + "/feign/shops")
+    public Response<List<ShopDTO>> getAllShopToRedInvoice(@RequestBody List<Long> shopIds) {
         List<ShopDTO> shopDTOS = shopService.getAllShopToRedInvoice(shopIds);
         return new Response<List<ShopDTO>>().withData(shopDTOS);
     }

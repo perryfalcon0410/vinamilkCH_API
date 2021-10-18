@@ -646,6 +646,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
 
     @Override
     public List<Long> getIdCustomerBy(String searchKeywords, String customerPhone, List<Long> ids) {
+        if(ids == null  || ids.isEmpty()) return null;
         String keyUpper =  VNCharacterUtils.removeAccent(searchKeywords).toUpperCase(Locale.ROOT);
             List<Long> customers = new ArrayList<>();
             double count = Math.ceil(ids.size()/1000.0) - 1;

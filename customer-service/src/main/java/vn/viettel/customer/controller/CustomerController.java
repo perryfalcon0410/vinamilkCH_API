@@ -197,10 +197,10 @@ public class CustomerController extends BaseController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
     )
-    @GetMapping(value = { V1 + root + "/ids-customer"})
+    @PostMapping(value = { V1 + root + "/ids-customer"})
     public Response<List<Long>> getIdCustomerBy(@RequestParam(value = "searchKeywords", required = false, defaultValue ="") String searchKeywords,
                                                 @RequestParam(value = "customerPhone", required = false, defaultValue = "") String customerPhone,
-                                                @RequestParam(value = "ids") List<Long> ids) {
+                                                @RequestBody List<Long> ids) {
         return new Response<List<Long>>().withData(service.getIdCustomerBy(searchKeywords, customerPhone, ids));
     }
 
