@@ -31,9 +31,14 @@ public class AuditingConfig {
         public Optional<String> getCurrentAuditor(){
 
             if(securityContexHolder != null && securityContexHolder.getContext() != null && securityContexHolder.getContext().getUserName() != null ) {
-                String username = (String) request.getAttribute(Constants.CURRENT_USERNAME);
-                if(username ==null  || username.isEmpty())  return Optional.of(securityContexHolder.getContext().getUserName());
-                return Optional.of(username);
+                try {
+                    String username = (String) request.getAttribute(Constants.CURRENT_USERNAME);
+                    if(username ==null  || username.isEmpty())  return Optional.of(securityContexHolder.getContext().getUserName());
+                    return Optional.of(username);
+                }catch (IllegalStateException ex){
+                    //request attributes outside
+                    return Optional.of("schedule");
+                }
             }
             else  return Optional.of("NOT_LOGIN");
         }
