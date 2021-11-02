@@ -237,8 +237,9 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean returnMGG(String orderCode, Long shopId) {
+    public List<Long> returnMGG(String orderCode, Long shopId) {
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
+        List<Long> lstPromotionShopMapIds = new ArrayList<Long>();
         List<PromotionProgramDiscount> discounts = promotionDiscountRepository.getPromotionProgramDiscountByOrderNumber(orderCode);
         for(PromotionProgramDiscount discount: discounts) {
             List<PromotionShopMap> shopMapDB = promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getId());
@@ -248,6 +249,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
                 PromotionShopMap shopMap = shopMapDB.get(0);
                 Long qtyRecived = shopMap.getQuantityReceived()!=null?shopMap.getQuantityReceived():0;
                 shopMap.setQuantityReceived(qtyRecived - discount.getActualDiscountAmount().longValue());
+                lstPromotionShopMapIds.add(shopMap.getId());
                 promotionShopMapRepository.save(shopMap);
             }
 
@@ -262,7 +264,7 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
 
         }
 
-        return true;
+        return lstPromotionShopMapIds;
     }
 
     @Override

@@ -488,9 +488,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         //update MGG + update số xuất
+        List<Long> lstPromotionShopMapIds = new ArrayList<Long>();
         if(saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
             try {
-                promotionClient.returnMGG(saleOrder.getOrderNumber());
+                lstPromotionShopMapIds = promotionClient.returnMGG(saleOrder.getOrderNumber()).getData();
             }catch (Exception e){
                 throw new ValidateException(ResponseMessage.UPDATE_PROMOTION_DISCOUNT_CODE_FAILED);
             }
@@ -515,6 +516,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         HashMap<String,Object> syncmap = new HashMap<>();
         syncmap.put(JMSType.sale_order , newOrderReturn);
         syncmap.put(JMSType.member_customer, memberCustomerId);
+        syncmap.put(JMSType.promotion_shop_map, lstPromotionShopMapIds);
         return syncmap;
     }
 

@@ -116,6 +116,7 @@ public class OrderReturnController extends BaseController {
         if(memberCustomerId != null) {
         	sendSynRequest(JMSType.member_customer, Arrays.asList(memberCustomerId));
         }
+        sendSynRequest(JMSType.promotion_shop_map, (List<Long>) mapResult.get(JMSType.promotion_shop_map));
         return response.withData(newOrderReturn);
     }
     

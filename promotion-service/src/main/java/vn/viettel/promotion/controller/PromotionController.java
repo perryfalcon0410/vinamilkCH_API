@@ -260,9 +260,9 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @PutMapping(value = { V1 + root + "/mgg/return"})
-    public Response<Boolean> returnMGG(HttpServletRequest httpRequest, @RequestParam String orderNumber) {
-        Boolean result = promotionProgramService.returnMGG(orderNumber, this.getShopId(httpRequest));
-        return new Response<Boolean>().withData(result);
+    public Response<List<Long>> returnMGG(HttpServletRequest httpRequest, @RequestParam String orderNumber) {
+    	List<Long> result = promotionProgramService.returnMGG(orderNumber, this.getShopId(httpRequest));
+        return new Response<List<Long>>().withData(result);
     }
 
     @ApiOperation(value = "Update Shop Map cho đơn trả")

@@ -98,7 +98,7 @@ public interface PromotionClient {
     Response<Boolean> returnVoucher(@RequestParam Long saleOrderId);
 
     @PutMapping("api/v1/promotions/mgg/return")
-    Response<Boolean> returnMGG(@RequestParam String orderNumber);
+    Response<List<Long>> returnMGG(@RequestParam String orderNumber);
 
     @PutMapping("api/v1/promotions/promotion-shop-map/return")
     Response<Boolean> returnPromotionShopmap(@RequestBody Map<String, Double> shopMaps);

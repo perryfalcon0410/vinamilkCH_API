@@ -467,10 +467,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update combo discount
         updateComboDiscount(saleOrder, listOrderComboDiscounts);
 
+        List<Long> lstProShopMapIds = new ArrayList<Long>();
         //update số suât
         for(PromotionShopMapDTO item : promotionShopMaps){
             try {
                 promotionClient.updatePromotionShopMapV1(item);
+                lstProShopMapIds.add(item.getId());
             }catch (Exception ex) {
                 throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_P_SHOP_MAP_FAIL);
             }
@@ -492,6 +494,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
         }
         syncMap.put(JMSType.promotion_program_discount, programDiscountIds);
+        syncMap.put(JMSType.promotion_shop_map, lstProShopMapIds);
 
         this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );
 

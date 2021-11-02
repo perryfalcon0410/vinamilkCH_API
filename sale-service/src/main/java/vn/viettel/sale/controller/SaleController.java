@@ -80,6 +80,7 @@ public class SaleController extends BaseController {
         sendSynRequest(JMSType.promotion_program_discount, syncmap.get(JMSType.promotion_program_discount));
         sendSynRequest(JMSType.sale_order, saleOrderIds);
         sendSynRequest(JMSType.member_customer, syncmap.get(JMSType.member_customer));
+        sendSynRequest(JMSType.promotion_shop_map, syncmap.get(JMSType.promotion_shop_map));
         
         //Logs theo dõi nhầm shop
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.ERROR, httpRequest, "[CHECK-PAYMENT - " + LocalDateTime.now() + "]" +
