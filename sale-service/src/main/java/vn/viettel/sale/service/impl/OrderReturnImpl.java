@@ -500,7 +500,10 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update shopmap
         if(!shopMapNeedUpdates.isEmpty()){
             try {
-                promotionClient.returnPromotionShopmap(shopMapNeedUpdates);
+                List<Long> lstPromotionShopMap = promotionClient.returnPromotionShopmap(shopMapNeedUpdates).getData();
+                for(Long id :lstPromotionShopMap ) {
+                	lstPromotionShopMapIds.add(id);
+                }
             }catch (Exception e) {
                 throw new ValidateException(ResponseMessage.UPDATE_PROMOTION_SHOP_MAP_FAILED);
             }

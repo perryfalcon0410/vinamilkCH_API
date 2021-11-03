@@ -101,6 +101,6 @@ public interface PromotionClient {
     Response<List<Long>> returnMGG(@RequestParam String orderNumber);
 
     @PutMapping("api/v1/promotions/promotion-shop-map/return")
-    Response<Boolean> returnPromotionShopmap(@RequestBody Map<String, Double> shopMaps);
+    Response<List<Long>> returnPromotionShopmap(@RequestBody Map<String, Double> shopMaps);
 
 }

@@ -271,9 +271,9 @@ public class PromotionController extends BaseController {
             @ApiResponse(code = 500, message = "Internal server error")}
     )
     @PutMapping(value = { V1 + root + "/promotion-shop-map/return"})
-    public Response<Boolean> returnPromotionShopmap(HttpServletRequest httpRequest, @RequestBody Map<String, Double> shopMaps) {
-        Boolean result = promotionProgramService.returnPromotionShopmap(shopMaps, this.getShopId(httpRequest));
-        return new Response<Boolean>().withData(result);
+    public Response<List<Long>> returnPromotionShopmap(HttpServletRequest httpRequest, @RequestBody Map<String, Double> shopMaps) {
+        List<Long> result = promotionProgramService.returnPromotionShopmap(shopMaps, this.getShopId(httpRequest));
+        return new Response<List<Long>>().withData(result);
     }
 
 

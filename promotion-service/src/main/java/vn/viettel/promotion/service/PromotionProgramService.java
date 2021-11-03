@@ -47,5 +47,5 @@ public interface PromotionProgramService {
     /*
         Update số xuất cho đơn trả
      */
-    Boolean returnPromotionShopmap(Map<String, Double> shopMaps, Long shopId);
+    List<Long> returnPromotionShopmap(Map<String, Double> shopMaps, Long shopId);
 }
