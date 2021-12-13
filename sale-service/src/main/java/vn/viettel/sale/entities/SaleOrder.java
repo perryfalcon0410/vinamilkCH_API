@@ -14,68 +14,95 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "SALE_ORDERS")
 public class SaleOrder extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false)
     private Long id;
+
     @Column(name = "ORDER_NUMBER")
     private String orderNumber;
+
     //Lưu số hóa đơn (ORDER_NUMBER) của đơn bán (trường hợp SALE_ORDER có type=2 đơn trả)
     @Column(name = "ORIGIN_ORDER_NUMBER")
     private String originOrderNumber;
+
     @Column(name = "ORDER_DATE")
     private LocalDateTime orderDate;
+
     @Column(name = "SHOP_ID")
     private Long shopId;
+
     @Column(name = "SALESMAN_ID")
     private Long salemanId;
+
     @Column(name = "CUSTOMER_ID")
     private Long customerId;
+
     @Column(name = "WAREHOUSE_TYPE_ID")
     private Long wareHouseTypeId;
+
     //tổng tiền trước chiết khấu
     @Column(name = "AMOUNT")
     private Double amount;
+
     @Column(name = "TOTAL_PROMOTION")
     private Double totalPromotion;
+
     //tổng tiền phải thanh toán sau chiết khấu
     @Column(name = "TOTAL")
     private Double total;
+
     //số tiền kh đưa
     @Column(name = "TOTAL_PAID")
     private Double totalPaid;
+
     //số tiền trả lại kh
     @Column(name = "BALANCE")
     private Double balance;
+
     @Column(name = "NOTE")
     private String note;
-    @Column(name = "TYPE")
+
     //1 đơn bán, 2 đơn trả
+    @Column(name = "TYPE")
     private Integer type;
 
     @Column(name = "FROM_SALE_ORDER_ID")
     private Long fromSaleOrderId;
+
     //tiền tích lũy
     @Column(name = "MEMBERCARD_AMOUNT")
     private Double memberCardAmount;
 
     @Column(name = "TOTAL_VOUCHER")
     private Double totalVoucher;
+
     @Column(name = "PAYMENT_TYPE")
     private Integer paymentType;
+
     @Column(name = "DELIVERY_TYPE")
     private Integer deliveryType;
+
     //tổng tiền tích lũy trước khi mua
     @Column(name = "TOTAL_CUS_PURCHASE")
     private Double totalCustomerPurchase;
+
     @Column(name = "ORDER_TYPE")
     private Integer orderType;
+
+    @Formula("(SELECT a.ap_param_name FROM ap_param a WHERE a.value = ORDER_TYPE AND a.type = 'SALEMT_PROMOTION_OBJECT' AND status = 1 )")
+    private String orderTypeName;
+
     @Column(name = "ONLINE_NUMBER")
     private String onlineNumber;
+
     @Column(name = "AUTO_PROMOTION_NOT_VAT")
     private Double autoPromotionNotVat;
+
     @Column(name = "AUTO_PROMOTION_VAT")
     private Double autoPromotionVat;
+
     @Column(name = "AUTO_PROMOTION")
     private Double autoPromotion;
     @Column(name = "ZM_PROMOTION")

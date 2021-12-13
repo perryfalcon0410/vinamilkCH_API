@@ -88,14 +88,24 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
         if(promotionShopMap.isEmpty() && shopDTO.getParentShopId()!=null)
             promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId());
         if (promotionShopMap.isEmpty()) return null;
+        entityManager.refresh(promotionShopMap.get(0));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(promotionShopMap.get(0), PromotionShopMapDTO.class);
     }
 
     @Override
     public PromotionShopMapDTO updatePromotionShopMap(PromotionShopMapDTO shopMap) {
-        promotionShopMapRepository.findById(shopMap.getId())
+        PromotionShopMap promotionShopMap = promotionShopMapRepository.findById(shopMap.getId())
             .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_CANNOT_BE_NULL));
+        entityManager.refresh(promotionShopMap.get(0));
+        if(shopMap.getQuantityAdd() > 0) {
+            double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+            if (promotionShopMap.getQuantityMax() < (quantityReceive + shopMap.getQuantityAdd()))
+                return null;
+            promotionShopMap.setQuantityReceived(quantityReceive + shopMap.getQuantityAdd());
+            PromotionShopMap shopMapDB =  promotionShopMapRepository.save(promotionShopMap);
+            return modelMapper.map(shopMapDB, PromotionShopMapDTO.class);
+        }
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PromotionShopMap shopMapNew = modelMapper.map(shopMap, PromotionShopMap.class);
         PromotionShopMap shopMapDB =  promotionShopMapRepository.save(shopMapNew);

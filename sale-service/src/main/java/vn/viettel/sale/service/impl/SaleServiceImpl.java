@@ -195,7 +195,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
 
-        //kiểm tra xem tổng sản phẩm mua có vượt quá tôn kho
+            //kiểm tra xem tổng sản phẩm mua có vượt quá tồn kho
             List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(),
                     new ArrayList<>(mapProductWithQty.keySet()));
             for (FreeProductDTO freeProductDTO : freeProductDTOs){
@@ -322,6 +322,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 if (product.getQuantity() != null){
                                     Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
                                     promotionShopMap.setQuantityReceived(received + product.getQuantity());
+                                    promotionShopMap.setQuantityAdd(product.getQuantity());
                                     promotionShopMaps.add(promotionShopMap);
                                 }
                             }
@@ -353,6 +354,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                         Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
                         promotionShopMap.setQuantityReceived(received + (dbPro.getAmount().getAmount() == null ? 0.0 : dbPro.getAmount().getAmount()));
+                        promotionShopMap.setQuantityAdd(dbPro.getAmount().getAmount() == null ? 0.0 : dbPro.getAmount().getAmount());
                         promotionShopMaps.add(promotionShopMap);
                     }
                     if(dbPro.getDiscountDTOs() != null && !dbPro.getDiscountDTOs().isEmpty()) discountDTOs.addAll(dbPro.getDiscountDTOs());
@@ -421,12 +423,36 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             return saleOrderService.createPrintSaleOrderDTO(shopId, customer, saleOrder, saleOrderDetails, saleOrderDiscounts);
         }
 
-       /* saleOrder.setOrderNumber(createOrderNumber(shop));*/
-        /*repository.save(saleOrder);*/
         try{
             this.safeSave(saleOrder, shop);
         }catch (Exception ex) {
             throw new ValidateException(ResponseMessage.SAVE_FAIL);
+        }
+
+        //update discount
+        if(discountNeedSave != null && saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
+            discountNeedSave.setIsUsed(1);
+            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
+            discountNeedSave.setActualDiscountAmount(saleOrder.getDiscountCodeAmount());
+            discountNeedSave.setOrderShopCode(shop.getShopCode());
+
+            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
+            Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+            promotionShopMap.setQuantityReceived(received + saleOrder.getDiscountCodeAmount());
+            promotionShopMap.setQuantityAdd(saleOrder.getDiscountCodeAmount());
+            promotionShopMaps.add(promotionShopMap);
+            updatePromotionProgramDiscount(saleOrder, discountNeedSave);
+        }
+
+        //update số suât
+        for(PromotionShopMapDTO item : promotionShopMaps){
+            try {
+                PromotionShopMapDTO dto = promotionClient.updatePromotionShopMapV1(item);
+                if(dto == null)
+                    throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE);
+            }catch (Exception ex) {
+                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_P_SHOP_MAP_FAIL);
+            }
         }
 
         updateOnlineOrder(saleOrder, onlineOrder);
@@ -439,34 +465,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update voucher
         updateVoucher(saleOrder, lstVoucherNeedSave);
 
-        //update discount
-        if(discountNeedSave != null && saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
-            discountNeedSave.setIsUsed(1);
-            discountNeedSave.setOrderCustomerCode(customer.getCustomerCode());
-            discountNeedSave.setActualDiscountAmount(saleOrder.getDiscountCodeAmount());
-            discountNeedSave.setOrderShopCode(shop.getShopCode());
-
-            PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
-            Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
-            promotionShopMap.setQuantityReceived(received + saleOrder.getDiscountCodeAmount());
-            promotionShopMaps.add(promotionShopMap);
-            updatePromotionProgramDiscount(saleOrder, discountNeedSave);
-        }
-
         //update combo
         updateComboDetail(saleOrder, listOrderComboDetails);
 
         //update combo discount
         updateComboDiscount(saleOrder, listOrderComboDiscounts);
-
-        //update số suât
-        for(PromotionShopMapDTO item : promotionShopMaps){
-            try {
-                promotionClient.updatePromotionShopMapV1(item);
-            }catch (Exception ex) {
-                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_P_SHOP_MAP_FAIL);
-            }
-        }
 
         //update zm with given type = 3
         for(PromotionProgramDiscountDTO item : discountDTOs){
@@ -562,7 +565,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 if((totalQty < 1 || totalQty != lstMax.get(0)) && allStockQty >= lstMax.get(0) )
                                     throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                             }else{ // được tặng số lượng nhỏ hơn số cơ cấu
-                                //TODO
+                                /*if((totalQty < 1 || totalQty != lstMax.get(0)) && allStockQty >= lstMax.get(0) )
+                                    throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());*/
                             }
                         }else{ // khác max value
                             // Nếu tất cả các SP của KM của mức đều thiếu tồn khi thì cho phép sửa lại SLKM = 0,

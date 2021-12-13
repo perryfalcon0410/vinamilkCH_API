@@ -1101,7 +1101,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         return new LimitDto(false, 0.0);
     }
 
-
     private PromotionShopMapDTO getPromotionShopMap(Long programId, Long shopId) {
         if(programId != null && shopId != null) {
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(programId, shopId).getData();
@@ -1112,7 +1111,6 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
         }
         return null;
     }
-
 
     /*
      *ZV01 to zv06
