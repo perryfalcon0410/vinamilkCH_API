@@ -45,20 +45,4 @@ public class PromotionShopMap extends BaseEntity {
     @Column(name ="IS_QUANTITY_MAX_EDIT")
     private Integer isQuantityMaxEdit;
 
-    @CreatedDate
-    @Column(name = "CREATED_AT", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Version
-    @LastModifiedDate
-    @Column(name = "UPDATED_AT", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @CreatedBy
-    @Column(name = "CREATED_BY", updatable = false)
-    private String createdBy;
-
-    @LastModifiedBy
-    @Column(name = "UPDATED_BY")
-    private String updatedBy;
 }

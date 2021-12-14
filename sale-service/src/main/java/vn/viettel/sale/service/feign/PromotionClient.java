@@ -9,6 +9,7 @@ import vn.viettel.core.messaging.RPT_ZV23Request;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.security.anotation.FeignClientAuthenticate;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -103,4 +104,6 @@ public interface PromotionClient {
     @PutMapping("api/v1/promotions/promotion-shop-map/return")
     Response<Boolean> returnPromotionShopmap(@RequestBody Map<String, Double> shopMaps);
 
+    @GetMapping("api/v1/promotions//program/{code}")
+    Response<PromotionProgramDTO> getByCode(@PathVariable String code);
 }

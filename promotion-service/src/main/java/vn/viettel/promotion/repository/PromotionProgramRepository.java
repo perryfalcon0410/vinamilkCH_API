@@ -76,4 +76,7 @@ public interface PromotionProgramRepository extends BaseRepository<PromotionProg
             "")
     List<PromotionProgramDTO> findProgramWithConditions(List<Long> shopIds, Long orderType, Long customerTypeId, Long memberCardId, Long cusCloselyTypeId
             , Long cusCardTypeId, LocalDateTime firstDay, LocalDateTime lastDay);
+
+    @Query(value = "SELECT pp FROM PromotionProgram pp WHERE pp.promotionProgramCode = :code and pp.status = :status")
+    PromotionProgram findByCodeAndStatus(String code, Integer status);
 }
