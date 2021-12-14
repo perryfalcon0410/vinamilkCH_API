@@ -322,7 +322,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 if (product.getQuantity() != null){
                                     Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
                                     promotionShopMap.setQuantityReceived(received + product.getQuantity());
-                                    promotionShopMap.setQuantityAdd(product.getQuantity());
+                                    promotionShopMap.setQuantityAdd((double)product.getQuantity());
                                     promotionShopMaps.add(promotionShopMap);
                                 }
                             }
@@ -447,7 +447,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         //update số suât
         for(PromotionShopMapDTO item : promotionShopMaps){
             try {
-                PromotionShopMapDTO dto = promotionClient.updatePromotionShopMapV1(item);
+                PromotionShopMapDTO dto = promotionClient.updatePromotionShopMapV1(item).getData();
                 if(dto == null)
                     throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE);
             }catch (Exception ex) {

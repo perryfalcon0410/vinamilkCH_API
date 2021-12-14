@@ -3,6 +3,7 @@ package vn.viettel.sale.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -91,7 +92,7 @@ public class SaleOrder extends BaseEntity {
     @Column(name = "ORDER_TYPE")
     private Integer orderType;
 
-    @Formula("(SELECT a.ap_param_name FROM ap_param a WHERE a.value = ORDER_TYPE AND a.type = 'SALEMT_PROMOTION_OBJECT' AND status = 1 )")
+    @Formula("(SELECT a.ap_param_name FROM common.ap_param a WHERE a.value = ORDER_TYPE AND a.type = 'SALEMT_PROMOTION_OBJECT' AND a.status = 1 )")
     private String orderTypeName;
 
     @Column(name = "ONLINE_NUMBER")

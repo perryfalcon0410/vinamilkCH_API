@@ -27,9 +27,9 @@ public class PromotionShopMap extends BaseEntity {
     @Column(name ="SHOP_ID")
     private Long shopId;
     @Column(name ="QUANTITY_MAX")
-    private Long quantityMax;
+    private Double quantityMax;
     @Column(name ="QUANTITY_RECEIVED")
-    private Long quantityReceived;
+    private Double quantityReceived;
     @Column(name ="QUANTITY_CUSTOMER")
     private Integer quantityCustomer;
     @Column(name ="AMOUNT_MAX")

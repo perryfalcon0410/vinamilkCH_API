@@ -1104,6 +1104,7 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
     private PromotionShopMapDTO getPromotionShopMap(Long programId, Long shopId) {
         if(programId != null && shopId != null) {
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(programId, shopId).getData();
+            if(promotionShopMap == null) return null;
             //Mong muốn trường hợp nếu promotion_shop_map.quantity_received >= quantity_max rồi thì không hiển thị khuyến mãi đó lên popup thanh toán nữa - không đủ suất vẫn để
             double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
             if (promotionShopMap.getQuantityMax() != null && quantityReceive >= promotionShopMap.getQuantityMax()) return null;
