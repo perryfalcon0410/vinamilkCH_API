@@ -403,6 +403,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             }
         }
 
+        //check age > 200
+        LocalDateTime dob = request.getDob();
+        if( LocalDateTime.now().getYear() - dob.getYear()  > 200) {
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOB_LESS_THAN_200);
+        }
+
         //checkphone
         if (!request.getMobiPhone().equals(customerDb.getMobiPhone())) {
             List<Customer> checkPhone = repository.getAllByMobiPhoneAndStatus(request.getMobiPhone(), 1);
