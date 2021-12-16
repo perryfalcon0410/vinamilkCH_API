@@ -1,5 +1,6 @@
 package vn.viettel.core.dto.promotion;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,4 +26,7 @@ public class PromotionShopMapDTO extends BaseDTO {
     private LocalDateTime toDate;
     private Integer status;
     private Integer isQuantityMaxEdit;
+
+    @ApiModelProperty(notes = "Số lượng thêm vào")
+    private Double quantityAdd;
 }

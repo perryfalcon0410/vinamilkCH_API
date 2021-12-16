@@ -3,6 +3,10 @@ package vn.viettel.promotion.entities;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import vn.viettel.core.db.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -23,9 +27,9 @@ public class PromotionShopMap extends BaseEntity {
     @Column(name ="SHOP_ID")
     private Long shopId;
     @Column(name ="QUANTITY_MAX")
-    private Long quantityMax;
+    private Double quantityMax;
     @Column(name ="QUANTITY_RECEIVED")
-    private Long quantityReceived;
+    private Double quantityReceived;
     @Column(name ="QUANTITY_CUSTOMER")
     private Integer quantityCustomer;
     @Column(name ="AMOUNT_MAX")
@@ -40,4 +44,5 @@ public class PromotionShopMap extends BaseEntity {
     private Integer status;
     @Column(name ="IS_QUANTITY_MAX_EDIT")
     private Integer isQuantityMaxEdit;
+
 }

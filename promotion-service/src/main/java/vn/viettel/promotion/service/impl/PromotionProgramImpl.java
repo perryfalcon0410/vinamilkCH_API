@@ -81,25 +81,33 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PromotionShopMapDTO getPromotionShopMap(Long promotionProgramId, Long shopId) {
         ShopDTO shopDTO = shopClient.getByIdV1(shopId).getData();
-
         List<PromotionShopMap> promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopId);
         if(promotionShopMap.isEmpty() && shopDTO.getParentShopId()!=null)
             promotionShopMap = promotionShopMapRepository.findByPromotionProgramIdAndShopId(promotionProgramId, shopDTO.getParentShopId());
         if (promotionShopMap.isEmpty()) return null;
+        entityManager.refresh(promotionShopMap.get(0));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(promotionShopMap.get(0), PromotionShopMapDTO.class);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PromotionShopMapDTO updatePromotionShopMap(PromotionShopMapDTO shopMap) {
-        promotionShopMapRepository.findById(shopMap.getId())
+        PromotionShopMap promotionShopMap = promotionShopMapRepository.findById(shopMap.getId())
             .orElseThrow(() -> new ValidateException(ResponseMessage.PROMOTION_SHOP_MAP_CANNOT_BE_NULL));
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        PromotionShopMap shopMapNew = modelMapper.map(shopMap, PromotionShopMap.class);
-        PromotionShopMap shopMapDB =  promotionShopMapRepository.save(shopMapNew);
-        return modelMapper.map(shopMapDB, PromotionShopMapDTO.class);
+        entityManager.refresh(promotionShopMap);
+        if(shopMap.getQuantityAdd() > 0) {
+            double quantityReceive = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
+            if (promotionShopMap.getQuantityMax() != null &&  promotionShopMap.getQuantityMax() < (quantityReceive + shopMap.getQuantityAdd()))
+                return null;
+            promotionShopMap.setQuantityReceived(quantityReceive + shopMap.getQuantityAdd());
+            PromotionShopMap shopMapDB =  promotionShopMapRepository.save(promotionShopMap);
+            return modelMapper.map(shopMapDB, PromotionShopMapDTO.class);
+        }
+        return modelMapper.map(shopMap, PromotionShopMapDTO.class);
     }
 
     @Override
@@ -246,11 +254,13 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
                 shopMapDB = promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getParentShopId());
             if(!shopMapDB.isEmpty()) {
                 PromotionShopMap shopMap = shopMapDB.get(0);
-                Long qtyRecived = shopMap.getQuantityReceived()!=null?shopMap.getQuantityReceived():0;
-                shopMap.setQuantityReceived(qtyRecived - discount.getActualDiscountAmount().longValue());
-                promotionShopMapRepository.save(shopMap);
+                entityManager.refresh(shopMap);
+                Double qtyRecived = shopMap.getQuantityReceived()!=null?shopMap.getQuantityReceived():0;
+                if(qtyRecived - discount.getActualDiscountAmount() >= 0) {
+                    shopMap.setQuantityReceived(qtyRecived - discount.getActualDiscountAmount());
+                    promotionShopMapRepository.save(shopMap);
+                }
             }
-
             discount.setIsUsed(0);
             discount.setOrderDate(null);
             discount.setOrderCustomerCode(null);
@@ -275,12 +285,23 @@ public class PromotionProgramImpl extends BaseServiceImpl<PromotionProgram, Prom
             if(shopMapDB == null && shopDTO.getParentShop() !=null)
                 shopMapDB = promotionShopMapRepository.findByPromotionProgramCode(entry.getKey(), shopDTO.getParentShop().getId());
             if(shopMapDB!=null) {
-                Long qtyRecived = shopMapDB.getQuantityReceived()!=null?shopMapDB.getQuantityReceived():0;
-                shopMapDB.setQuantityReceived(qtyRecived - entry.getValue().longValue());
-                promotionShopMapRepository.save(shopMapDB);
+                entityManager.refresh(shopMapDB);
+                Double qtyRecived = shopMapDB.getQuantityReceived()!=null?shopMapDB.getQuantityReceived():0;
+                if(qtyRecived - entry.getValue() >= 0) {
+                    shopMapDB.setQuantityReceived(qtyRecived - entry.getValue().longValue());
+                    promotionShopMapRepository.save(shopMapDB);
+                }
             }
         }
 
         return true;
+    }
+
+    @Override
+    public PromotionProgramDTO getPromotionProgram(String code) {
+        if(code == null || code.isEmpty()) return null;
+        PromotionProgram program = repository.findByCodeAndStatus(code, 1);
+        if(program!=null) return modelMapper.map(program, PromotionProgramDTO.class);
+        return null;
     }
 }
