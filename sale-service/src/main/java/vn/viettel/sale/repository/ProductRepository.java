@@ -38,7 +38,7 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     /*
     lấy thông tin sản phẩm và tồn kho
      */
-    @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( p.id, p.productName, p.productCode, st.quantity ) " +
+    @Query("SELECT NEW vn.viettel.sale.service.dto.FreeProductDTO ( p.id, p.productName, p.productCode, case when st.quantity is null then 0 else st.quantity end ) " +
             "FROM Product p " +
             "LEFT JOIN StockTotal st ON st.productId = p.id " +
             "   AND st.shopId =:shopId AND st.wareHouseTypeId =:warehouseId AND st.quantity >= 0 AND st.status = 1 " +
