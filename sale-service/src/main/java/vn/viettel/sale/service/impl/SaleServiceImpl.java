@@ -35,10 +35,6 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -196,7 +192,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             }
 
 
-        //kiểm tra xem tổng sản phẩm mua có vượt quá tôn kho
+            //kiểm tra xem tổng sản phẩm mua có vượt quá tồn kho
             List<FreeProductDTO> freeProductDTOs = productRepository.findProductWithStock(shopId, customerType.getWareHouseTypeId(),
                     new ArrayList<>(mapProductWithQty.keySet()));
             for (FreeProductDTO freeProductDTO : freeProductDTOs){
@@ -323,6 +319,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 if (product.getQuantity() != null){
                                     Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
                                     promotionShopMap.setQuantityReceived(received + product.getQuantity());
+                                    promotionShopMap.setQuantityAdd((double)product.getQuantity());
                                     promotionShopMaps.add(promotionShopMap);
                                 }
                             }
@@ -354,6 +351,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
                         Double received = promotionShopMap.getQuantityReceived()!=null?promotionShopMap.getQuantityReceived():0;
                         promotionShopMap.setQuantityReceived(received + (dbPro.getAmount().getAmount() == null ? 0.0 : dbPro.getAmount().getAmount()));
+                        promotionShopMap.setQuantityAdd(dbPro.getAmount().getAmount() == null ? 0.0 : dbPro.getAmount().getAmount());
                         promotionShopMaps.add(promotionShopMap);
                     }
                     if(dbPro.getDiscountDTOs() != null && !dbPro.getDiscountDTOs().isEmpty()) discountDTOs.addAll(dbPro.getDiscountDTOs());
@@ -422,30 +420,12 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             return saleOrderService.createPrintSaleOrderDTO(shopId, customer, saleOrder, saleOrderDetails, saleOrderDiscounts);
         }
 
-       /* saleOrder.setOrderNumber(createOrderNumber(shop));*/
-        /*repository.save(saleOrder);*/
         try{
             this.safeSave(saleOrder, shop);
         }catch (Exception ex) {
             throw new ValidateException(ResponseMessage.SAVE_FAIL);
         }
 
-        updateOnlineOrder(saleOrder, onlineOrder);
-
-        //update sale detail
-        saveOrderDetail(saleOrder, saleOrderDetails);
-
-        updateOrderDiscount(saleOrder, saleOrderDiscounts);
-
-        //update voucher
-        updateVoucher(saleOrder, lstVoucherNeedSave);
-        if(!lstVoucherNeedSave.isEmpty()) {
-            List<Long> voucherIds = lstVoucherNeedSave.stream().map(vc -> vc.getId()).collect(Collectors.toList());
-            syncMap.put(JMSType.vouchers, voucherIds);
-        }
-
-        
-        List<Long> programDiscountIds = new ArrayList<Long>();
         //update discount
         if(discountNeedSave != null && saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
             discountNeedSave.setIsUsed(1);
@@ -456,64 +436,83 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(discountNeedSave.getPromotionProgramId(), shopId).getData();
             Double received = promotionShopMap.getQuantityReceived() != null ? promotionShopMap.getQuantityReceived() : 0;
             promotionShopMap.setQuantityReceived(received + saleOrder.getDiscountCodeAmount());
+            promotionShopMap.setQuantityAdd(saleOrder.getDiscountCodeAmount());
             promotionShopMaps.add(promotionShopMap);
-            updatePromotionProgramDiscount(saleOrder, discountNeedSave);
-            programDiscountIds.add(discountNeedSave.getId());
         }
 
-        //update combo
-        updateComboDetail(saleOrder, listOrderComboDetails);
-
-        //update combo discount
-        updateComboDiscount(saleOrder, listOrderComboDiscounts);
-
+        List<Long> programDiscountIds = new ArrayList<Long>();
         List<Long> lstProShopMapIds = new ArrayList<Long>();
-        //update số suât
-        for(PromotionShopMapDTO item : promotionShopMaps){
-            try {
-                promotionClient.updatePromotionShopMapV1(item);
-                lstProShopMapIds.add(item.getId());
-            }catch (Exception ex) {
-                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_P_SHOP_MAP_FAIL);
-            }
-        }
 
-        //update zm with given type = 3
-        for(PromotionProgramDiscountDTO item : discountDTOs){
-            item.setIsUsed(1);
-            item.setOrderDate(saleOrder.getOrderDate());
-            item.setOrderNumber(saleOrder.getOrderNumber());
-            item.setOrderShopCode(shop.getShopCode());
-            item.setOrderCustomerCode(customer.getCustomerCode());
-            item.setOrderAmount(saleOrder.getTotal());
-            try{
+        try{
+            //update số suât
+            for(PromotionShopMapDTO item : promotionShopMaps){
+                try {
+                    PromotionShopMapDTO dto = promotionClient.updatePromotionShopMapV1(item).getData();
+                    if(dto == null)
+                        throw new ValidateException(ResponseMessage.PROMOTION_NOT_ENOUGH_VALUE);
+                    lstProShopMapIds.add(item.getId());
+                }catch (Exception ex) {
+                    throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_P_SHOP_MAP_FAIL);
+                }
+            }
+
+            updateOnlineOrder(saleOrder, onlineOrder);
+
+            //update sale detail
+            saveOrderDetail(saleOrder, saleOrderDetails);
+
+            updateOrderDiscount(saleOrder, saleOrderDiscounts);
+
+            //update voucher
+            updateVoucher(saleOrder, lstVoucherNeedSave);
+
+            //update combo
+            updateComboDetail(saleOrder, listOrderComboDetails);
+
+            //update combo discount
+            updateComboDiscount(saleOrder, listOrderComboDiscounts);
+
+            //update discount
+            if(discountNeedSave != null && saleOrder.getDiscountCodeAmount() != null && saleOrder.getDiscountCodeAmount() > 0) {
+                 updatePromotionProgramDiscount(saleOrder, discountNeedSave);
+                 programDiscountIds.add(discountNeedSave.getId());
+            }
+
+            //update zm with given type = 3
+            for(PromotionProgramDiscountDTO item : discountDTOs){
+                item.setIsUsed(1);
+                item.setOrderDate(saleOrder.getOrderDate());
+                item.setOrderNumber(saleOrder.getOrderNumber());
+                item.setOrderShopCode(shop.getShopCode());
+                item.setOrderCustomerCode(customer.getCustomerCode());
+                item.setOrderAmount(saleOrder.getTotal());
                 promotionClient.updatePromotionProgramDiscountV1(item);
                 programDiscountIds.add(item.getId());
-            }catch (Exception ex) {
-                throw new ValidateException(ResponseMessage.PAYMENT_UPDATE_PROMOTION_DISCOUNT_TYPE3_FAIL);
             }
+
+            this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );
+
+            //update doanh số tích lũy và tiền tích lũy cho customer, số đơn mua trong ngày...
+            updateCustomer(saleOrder, customer, false);
+
+            //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
+            updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
+            // update RPT_ZV23: nếu có km zv23
+
+            if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()) {
+                for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
+                    if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
+                }
+            }
+
+        }catch (Exception ex) {
+            this.removeSafeSaleOrder(saleOrder.getId());
+            throw ex;
         }
         syncMap.put(JMSType.promotion_program_discount, programDiscountIds);
         syncMap.put(JMSType.promotion_shop_map, lstProShopMapIds);
-
-        this.updateStockTotal(mapProductWithQty, shopId, customerType.getWareHouseTypeId() );
-
-        //update doanh số tích lũy và tiền tích lũy cho customer, số đơn mua trong ngày...
-        updateCustomer(saleOrder, customer, false);
-
-        //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
-        Long memberCustomerId = updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
-        if(memberCustomerId != null) {
-        	syncMap.put(JMSType.member_customer , Arrays.asList(memberCustomerId));
-        }
-        // update RPT_ZV23: nếu có km zv23
-
-        if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()) {
-            for (SalePromotionDTO inputPro : request.getPromotionInfo()) {
-                if ("zv23".equalsIgnoreCase(inputPro.getProgramType())) this.updateRPTZV23(inputPro, customer, shopId);
-            }
-        }
         syncMap.put(JMSType.sale_order, Arrays.asList(saleOrder.getId()));
+
         return syncMap;
     }
 
@@ -578,7 +577,8 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                                 if((totalQty < 1 || totalQty != lstMax.get(0)) && allStockQty >= lstMax.get(0) )
                                     throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());
                             }else{ // được tặng số lượng nhỏ hơn số cơ cấu
-                                //TODO
+                                /*if((totalQty < 1 || totalQty != lstMax.get(0)) && allStockQty >= lstMax.get(0) )
+                                    throw new ValidateException(ResponseMessage.NO_PRODUCT, inputPro.getPromotionProgramName());*/
                             }
                         }else{ // khác max value
                             // Nếu tất cả các SP của KM của mức đều thiếu tồn khi thì cho phép sửa lại SLKM = 0,
@@ -1416,5 +1416,21 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         return saleOrder;
     }
 
+
+    public void removeSafeSaleOrder(Long id){
+        EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
+        try {
+            SaleOrder saleOrder = newEntityM.find(SaleOrder.class, id);
+            if(saleOrder == null) return;
+            newEntityM.getTransaction().begin();
+            newEntityM.remove(saleOrder);
+            newEntityM.getTransaction().commit();
+        }catch (Exception ex ){
+            newEntityM.getTransaction().rollback();
+            throw ex;
+        }finally {
+            newEntityM.close();
+        }
+    }
 }
 

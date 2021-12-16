@@ -13,6 +13,7 @@ import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -411,12 +412,20 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         List<SaleOrderDiscount> orderReturnDiscount = saleDiscount.findAllBySaleOrderId(saleOrder.getId());
         if (orderReturnDiscount.size() > 0) {
             for (SaleOrderDiscount discount : orderReturnDiscount) {
-                if(!shopMapNeedUpdates.containsKey(discount.getPromotionCode())) {
-                    shopMapNeedUpdates.put(discount.getPromotionCode(), discount.getDiscountAmountVat());
-                }else {
-                    double qty = shopMapNeedUpdates.get(discount.getPromotionCode()) + discount.getDiscountAmountVat();
-                    shopMapNeedUpdates.put(discount.getPromotionCode(), qty);
+                PromotionProgramDTO programDTO = promotionClient.getByCode(discount.getPromotionCode()).getData();
+                if(programDTO!=null) {
+                    Double discountValue = discount.getDiscountAmountVat();
+                    if(programDTO.getDiscountPriceType() != null && programDTO.getDiscountPriceType() == 0) {
+                        discountValue = discount.getDiscountAmountNotVat();
+                    }
+                    if(!shopMapNeedUpdates.containsKey(discount.getPromotionCode())) {
+                        shopMapNeedUpdates.put(discount.getPromotionCode(), discountValue);
+                    }else {
+                        double qty = shopMapNeedUpdates.get(discount.getPromotionCode()) + discountValue;
+                        shopMapNeedUpdates.put(discount.getPromotionCode(), qty);
+                    }
                 }
+
                 OrderDiscountReturnDTO returnDiscountDTO = modelMapper.map(discount, OrderDiscountReturnDTO.class);
                 SaleOrderDiscount returnDiscount = modelMapper.map(returnDiscountDTO, SaleOrderDiscount.class);
                 returnDiscount.setDiscountAmount(discount.getDiscountAmount() * -1);

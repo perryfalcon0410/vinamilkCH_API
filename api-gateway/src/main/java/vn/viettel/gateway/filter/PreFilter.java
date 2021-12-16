@@ -98,30 +98,6 @@ public class PreFilter extends ZuulFilter {
         return token.trim();
     }
 
-    public boolean checkUserPermission(String url, List<PermissionDTO> permissionList, Long formId, Long controlId) {
-        for (PermissionDTO permission : permissionList) {
-            List<ControlDTO> controlList = permission.getControls();
-            if (permission.getId().equals(formId)) {
-                if (controlId == null) {
-                    if (!checkFormControlPermission(url, permission, null))
-                        return false;
-                    else
-                        return true;
-                } else {
-                    for (ControlDTO ctrl : controlList) {
-                        if (ctrl.getId().equals(controlId)) {
-                            if (!checkFormControlPermission(url, permission, ctrl))
-                                return false;
-                            else
-                                return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     public boolean checkFormControlPermission(String url, PermissionDTO form, ControlDTO control) {
         String[] apiPart = url.split("v1/");
         System.out.println(url);

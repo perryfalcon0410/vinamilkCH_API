@@ -276,5 +276,12 @@ public class PromotionController extends BaseController {
         return new Response<List<Long>>().withData(result);
     }
 
+    @ApiOperation(value = "Api dùng khi chương trình khuyến mãi theo mã")
+    @ApiResponse(code = 200, message = "Success")
+    @GetMapping(value = { V1 + root + "/program/{code}"})
+    Response<PromotionProgramDTO> getByCode(HttpServletRequest request, @PathVariable String code) {
+        PromotionProgramDTO response = promotionProgramService.getPromotionProgram(code);
+        return new Response<PromotionProgramDTO>().withData(response);
+    }
 
 }

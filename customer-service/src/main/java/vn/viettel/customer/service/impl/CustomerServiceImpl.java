@@ -183,6 +183,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public CustomerDTO create(CustomerRequest request, Long userId, Long shopId) {
 
+        //check age > 200
+        LocalDateTime dob = request.getDob();
+        if( LocalDateTime.now().getYear() - dob.getYear()  > 200) {
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOB_LESS_THAN_200);
+        }
+
         //checkphone
         List<Customer> checkPhone = repository.getAllByMobiPhoneAndStatus(request.getMobiPhone(), 1);
         if (checkPhone.size() > 0) {
@@ -196,6 +202,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             }
             throw new ValidateException(ResponseMessage.CUSTOMERS_EXIST_FONE,customerInfo );
         }
+
 
         if (request.getIdNo() != null) {
             Optional<Customer> checkIdNo = repository.getCustomerByIdNo(request.getIdNo());
@@ -395,6 +402,12 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             if(level == 0L && checkUpdate){
                 throw new ValidateException(ResponseMessage.CUSTOMER_CAN_NOT_UPDATE);
             }
+        }
+
+        //check age > 200
+        LocalDateTime dob = request.getDob();
+        if( LocalDateTime.now().getYear() - dob.getYear()  > 200) {
+            throw new ValidateException(ResponseMessage.CUSTOMER_DOB_LESS_THAN_200);
         }
 
         //checkphone

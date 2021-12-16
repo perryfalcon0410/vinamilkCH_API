@@ -48,4 +48,6 @@ public interface PromotionProgramService {
         Update số xuất cho đơn trả
      */
     List<Long> returnPromotionShopmap(Map<String, Double> shopMaps, Long shopId);
+
+    PromotionProgramDTO getPromotionProgram(String code);
 }
