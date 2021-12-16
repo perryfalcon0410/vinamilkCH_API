@@ -33,4 +33,7 @@ public interface ApparamClient {
 
     @GetMapping(value = {"api/v1/commons/apparams/code-type/{code}"})
     Response<ApParamDTO> getApParamByCodeTypeV1(@PathVariable String code, @RequestParam String type);
+
+    @GetMapping(value = {"api/v1/commons/apparams/get-by-value/{type}"})
+    Response<List<ApParamDTO>> getApParams(@PathVariable String type, @RequestParam List<String> values);
 }
