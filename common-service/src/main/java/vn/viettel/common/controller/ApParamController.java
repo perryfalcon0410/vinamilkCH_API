@@ -183,5 +183,16 @@ public class ApParamController extends BaseController {
         return new Response<ApParamDTO>().withData(apParamDTO);
     }
 
+    @ApiOperation(value = "Ap param theo mã và value")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(value = {V1 + root + "/get-by-value/{type}"})
+    public Response<List<ApParamDTO>> getApParams(@PathVariable String type, @RequestParam List<String> values) {
+        List<ApParamDTO> apParamDTO = apParamService.getApParams(values, type);
+        return new Response<List<ApParamDTO>>().withData(apParamDTO);
+    }
+
 }
 

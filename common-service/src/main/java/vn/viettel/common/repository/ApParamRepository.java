@@ -32,5 +32,8 @@ public interface ApParamRepository extends BaseRepository<ApParam> {
     @Query(value = "SELECT a FROM ApParam a WHERE a.apParamCode = :CODE AND a.type =:TYPE AND a.status = 1 ORDER BY a.status desc ")
     List<ApParam> findByCode(String CODE, String TYPE);
 
+    @Query(value = "SELECT distinct a FROM ApParam a WHERE a.value in (:values) AND a.type = :type AND a.status = 1 ")
+    List<ApParam> getApParams(List<String> values, String type);
+
 }
 
