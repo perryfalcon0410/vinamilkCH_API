@@ -285,6 +285,16 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
                     PromotionShopMapDTO promotionShopMap = promotionClient.getPromotionShopMapV1(inputPro.getProgramId(), shopId).getData();
                     // kiểm tra tồn kho có đủ
                     if (inputPro.getProducts() != null && !inputPro.getProducts().isEmpty()){
+                        //Loại các sp KM không đủ tồn kho
+                        List<FreeProductDTO> products = new ArrayList<>();
+                        for(int i = 0; i< inputPro.getProducts().size(); i++) {
+                            if(inputPro.getProducts().get(i).getStockQuantity() > 0) {
+                                products.add(inputPro.getProducts().get(i));
+                            }
+                        }
+                        if(products.isEmpty()) continue;
+                        inputPro.setProducts(products);
+
                         checkFreeProduct(inputPro, dbPro, mapProductWithQty, lstSalePromotions);
 
                         List<Long> productIds = inputPro.getProducts().stream().map(item -> item.getProductId()).collect(Collectors.toList());
