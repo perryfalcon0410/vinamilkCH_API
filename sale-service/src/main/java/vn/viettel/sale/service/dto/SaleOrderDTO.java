@@ -21,6 +21,13 @@ public class SaleOrderDTO extends BaseDTO {
     private String orderNumber;
     @ApiModelProperty(notes = "Mã khách hàng")
     private String customerNumber;
+
+    @ApiModelProperty(notes = "Loại đơn hàng")
+    private String orderTypeName;
+
+    @ApiModelProperty(notes = "Số đơn hàng")
+    private String onlineNumber;
+
     @ApiModelProperty(notes = "Tên khách hàng")
     private String customerName;
     @ApiModelProperty(notes = "Tổng tiền trước chiết khấu")
