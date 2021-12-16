@@ -158,6 +158,14 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
         if (apParam.isEmpty()) return null;
         return modelMapper.map(apParam.get(0), ApParamDTO.class);
     }
+
+    @Override
+    public List<ApParamDTO> getApParams(List<String> values, String type) {
+        if(values == null  || values.isEmpty()) return null;
+        List<ApParam> apParams = repository.getApParams(values, type);
+        List<ApParamDTO> apParamDTOS = apParams.stream().map(a -> modelMapper.map(a , ApParamDTO.class)).collect(Collectors.toList());
+        return apParamDTOS;
+    }
 }
 
 
