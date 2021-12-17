@@ -33,4 +33,6 @@ public interface ApParamService extends BaseService {
 
     ApParamDTO getByCode(String code, String type);
 
+    List<ApParamDTO> getApParams(List<String>  values, String type);
+
 }

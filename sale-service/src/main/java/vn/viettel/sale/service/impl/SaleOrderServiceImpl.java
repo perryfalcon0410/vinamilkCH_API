@@ -66,6 +66,9 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
     @Value( "${sale.delivery.type.apparam}" )
     private String apParamDeliveryType;
 
+    @Value( "${apparam.order.type.code}" )
+    private String orderType;
+
     @Override
     public CoverResponse<Page<SaleOrderDTO>, SaleOrderTotalResponse> getAllSaleOrder(SaleOrderFilter saleOrderFilter, Pageable pageable, Long shopId) {
         List<Long> customerIds = null;
@@ -130,14 +133,23 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
                 fromDate, toDate);
         List<UserDTO> users = userClient.getUserByIdsV1(findAll.getContent().stream().map(item -> item.getSalemanId())
                 .distinct().filter(Objects::nonNull).collect(Collectors.toList()));
-        Page<SaleOrderDTO> saleOrderDTOS = findAll.map(item -> mapSaleOrderDTO(item, customers, users));
+
+        List<ApParamDTO> apParamDTOS = apparamClient.getApParams(orderType, findAll.getContent().stream().map(item -> {
+                    if(item.getOrderType()!=null) {
+                        return  item.getOrderType().toString();
+                    }else {
+                        return null;
+                    }
+                }).distinct().filter(Objects::nonNull).collect(Collectors.toList())).getData();
+
+        Page<SaleOrderDTO> saleOrderDTOS = findAll.map(item -> mapSaleOrderDTO(item, customers, users, apParamDTOS));
 
         CoverResponse coverResponse = new CoverResponse(saleOrderDTOS, totalResponse);
 
         return coverResponse;
     }
 
-    private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder, List<CustomerDTO> customers, List<UserDTO> users) {
+    private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder, List<CustomerDTO> customers, List<UserDTO> users, List<ApParamDTO> apParamDTOS) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         SaleOrderDTO dto = modelMapper.map(saleOrder, SaleOrderDTO.class);
         dto.setCustomerPurchase(saleOrder.getMemberCardAmount());
@@ -155,6 +167,15 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
             for(UserDTO user : users){
                 if(user.getId().equals(saleOrder.getSalemanId())){
                     dto.setSalesManName(user.getFullName());
+                    break;
+                }
+            }
+        }
+
+        if(apParamDTOS != null && saleOrder.getOrderType() != null) {
+            for(ApParamDTO apParam : apParamDTOS){
+                if(apParam.getValue().equals(saleOrder.getOrderType().toString())){
+                    dto.setOrderTypeName(apParam.getApParamName());
                     break;
                 }
             }
