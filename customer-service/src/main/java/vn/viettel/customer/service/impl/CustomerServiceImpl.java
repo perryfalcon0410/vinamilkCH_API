@@ -125,7 +125,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             areaIds = precincts.stream().map(AreaDTO::getId).collect(Collectors.toList());
         }
         Page<Customer> customers = repository.findAllBy(filter.getStatus(), nameCode,
-                filter.getPhone(), filter.getIdNo(), filter.getGenderId(), filter.getCustomerTypeId(), areaIds, filter.getShopId(), filter.getIsShop(), this.getShopIdDecode(filter.getShopId()), pageable);
+                filter.getPhone(), filter.getIdNo(), filter.getGenderId(), filter.getCustomerTypeId(), areaIds, filter.getShopId(), filter.getIsShop(), pageable);
 
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         List<CategoryDataDTO> genders =  categoryDataClient.getGendersV1().getData();
@@ -137,7 +137,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
                     break;
                 }
             }
-
             return  dto;
         });
        return response;
@@ -152,10 +151,10 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         Page<CustomerDTO> response = null;
         if(customerFilter.isCustomerOfShop()) shop = shopId;
         if(customerFilter.isSearchPhoneOnly())
-            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), this.getShopIdDecode(shopId), pageable);
+            response =  repository.searchForSaleFone(shop, customerFilter.getSearchKeywords(), pageable);
         else {
             response = repository.searchForSale(shop, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
-                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), this.getShopIdDecode(shopId), pageable);
+                    customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable);
         }
         return response;
     }
