@@ -162,7 +162,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Override
     public Page<CustomerDTO> findCustomerForRedInvoice(CusRedInvoiceFilter filter, Long shopId, Pageable pageable) {
         Page<CustomerDTO> response = repository.searchForRedInvoice(
-                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), this.getShopIdDecode(shopId), pageable);
+                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), shopId, pageable);
         return response;
     }
 
@@ -602,7 +602,7 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
         String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
         //hạn chế request vào db
-        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, this.getShopIdDecode(shopId), pageable);
+        return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, shopId, pageable);
     }
 
 
