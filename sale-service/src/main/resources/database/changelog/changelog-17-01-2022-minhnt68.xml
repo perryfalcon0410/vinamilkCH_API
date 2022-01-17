@@ -1,0 +1,240 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-sale-day-for-purchases" >
+        <createTable tableName="SALE_DAY">
+            <column name="ID" type="bigint" autoIncrement="true" remarks="Id bảng">
+                <constraints primaryKeyName="SALE_DAY_KEY" primaryKey="true"/>
+            </column>
+            <column name="MONTH" type="date" remarks="lưu ngày đầu tháng"></column>
+            <column name="DAY_NUMBER" type="int" remarks="Giá trị ngày trong tháng"></column>
+            <column name="SHOP_ID" type="bigint" remarks="Id đơn vị"></column>
+            <column name="STATUS" type="tinyint" ></column>
+            <column name="CREATED_AT" type="datetime" ></column>
+            <column name="UPDATED_AT" type="datetime" ></column>
+            <column name="UPDATED_BY" type="varchar(80)" ></column>
+            <column name="CREATED_BY" type="varchar(80)" ></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="SALE_DAY"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-sale-plan-for-purchases" >
+        <createTable tableName="SALE_PLAN">
+            <column name="ID" type="bigint" autoIncrement="true" >
+                <constraints primaryKeyName="SALE_PLAN_KEY" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint" ></column>
+            <column name="PRODUCT_ID" type="bigint" ></column>
+            <column name="MONTH" type="date" remarks="Ngày đầu tháng"></column>
+            <column name="QUANTITY" type="bigint" remarks="Số lượng phân bổ"></column>
+            <column name="CREATED_AT" type="datetime" ></column>
+            <column name="UPDATED_AT" type="datetime" ></column>
+            <column name="UPDATED_BY" type="varchar(80)" ></column>
+            <column name="CREATED_BY" type="varchar(80)" ></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="SALE_PLAN"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-moq-shop-product-for-purchases" >
+        <createTable tableName="MOQ_SHOP_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true" >
+                <constraints primaryKeyName="MOQ_SHOP_PRODUCT_KEY" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint" ></column>
+            <column name="PRODUCT_ID" type="bigint" ></column>
+            <column name="MOQVALUE" type="bigint" remarks="giá trị MOQ"></column>
+            <column name="CREATED_AT" type="datetime" ></column>
+            <column name="UPDATED_AT" type="datetime" ></column>
+            <column name="UPDATED_BY" type="varchar(80)" ></column>
+            <column name="CREATED_BY" type="varchar(80)" ></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="MOQ_SHOP_PRODUCT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-pallet-shop-product-for-purchases" >
+        <createTable tableName="PALLET_SHOP_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true" >
+                <constraints primaryKeyName="PALLET_SHOP_PRODUCT_KEY" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint" ></column>
+            <column name="PRODUCT_ID" type="bigint" ></column>
+            <column name="CONVFACT2" type="bigint" remarks="Quy đổi pallet"></column>
+            <column name="PALLETVALUE" type="bigint" remarks="Làm tròn pallet"></column>
+            <column name="PALLETTOVALUE" type="bigint" remarks="Giới hạn trên pallet"></column>
+            <column name="TYPE" type="tinyint" remarks="1: PALLET, 0: Lớp"></column>
+            <column name="CREATED_AT" type="datetime" ></column>
+            <column name="UPDATED_AT" type="datetime" ></column>
+            <column name="UPDATED_BY" type="varchar(80)" ></column>
+            <column name="CREATED_BY" type="varchar(80)" ></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="PALLET_SHOP_PRODUCT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-poauto-core-shop-product-for-purchases" >
+        <createTable tableName="POAUTO_CORE_SHOP_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="POAUTO_CORE_SHOP_PRODUCT_KEY" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint" ></column>
+            <column name="PRODUCT_ID" type="bigint" ></column>
+            <column name="CONVFACT2" type="bigint" remarks="Hệ số core"></column>
+            <column name="PALLETVALUE" type="bigint" ></column>
+            <column name="CREATED_AT" type="datetime" ></column>
+            <column name="UPDATED_AT" type="datetime" ></column>
+            <column name="UPDATED_BY" type="varchar(80)" ></column>
+            <column name="CREATED_BY" type="varchar(80)" ></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="POAUTO_CORE_SHOP_PRODUCT"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-po-auto-for-purchases" >
+        <createTable tableName="PO_AUTO">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="PO_AUTO_KEY" primaryKey="true"/>
+             </column>
+            <column name="PO_AUTO_NUMBER" type="varchar(50)" remarks="PO number"></column>
+            <column name="PO_AUTO_DATE" type="date" remarks="Ngày tạo đơn hàng"></column>
+            <column name="SHOP_ID" type="bigint" ></column>
+            <column name="STAFF_ID" type="bigint" remarks="ID nhân viên thực hiện"></column>
+            <column name="AMOUNT" type="bigint" remarks="Tổng tiền"></column>
+            <column name="DISCOUNT" type="bigint" remarks="Chiết khấu"></column>
+            <column name="TOTAL" type="bigint" remarks="Tổng tiền phải trả"></column>
+            <column name="STATUS" type="tinyint" remarks="Trạng thái: 0: chưa duyệt ở CH; 1: đã duyệt ở CH; 2: đã huỷ ở CH; 3: bị từ chối bởi NCC; 4: đã được duyệt bởi NCC"></column>
+            <column name="BILLTOLOCATION" type="varchar(250)" remarks="Địa chỉ hoá đơn"></column>
+            <column name="SHIPTOLOCATION" type="varchar(250)" remarks="Địa chỉ giao hàng"></column>
+            <column name="PAYMENTTERM" type="varchar(200)" remarks="Hạn thanh toán"></column>
+            <column name="DESCRIPTION" type="varchar(250)" remarks="Lý do NCC không duyệt/ duyệt"></column>
+            <column name="IS_SYNC_FTP" type="tinyint" remarks="Trạng thái đồng bộ XML: null/ 0: chưa xuất; 1: đã xuất"></column>
+            <column name="APPROVED_DATE" type="date" remarks="Ngày duyệt"></column>
+            <column name="GROUP_CODE" type="varchar(100)" remarks="Nhóm PO Auto"></column>
+            <column name="CREATED_AT" type="datetime" ></column>
+            <column name="UPDATED_AT" type="datetime" ></column>
+            <column name="UPDATED_BY" type="varchar(80)" ></column>
+            <column name="CREATED_BY" type="varchar(80)" ></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="PO_AUTO"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-po-auto-detail-for-purchases" >
+        <createTable tableName="PO_AUTO_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="PO_AUTO_DETAIL_KEY" primaryKey="true"/>
+            </column>
+            <column name="PO_AUTO_ID" type="bigint" remarks="ID PO Auto"></column>
+            <column name="PRODUCT_ID" type="bigint" ></column>
+            <column name="PRICE_ID" type="bigint" remarks="ID giá"></column>
+            <column name="PRICE" type="bigint" remarks="Giá"></column>
+            <column name="PO_AUTO_DATE" type="date" remarks="Ngày tạo đơn hàng"></column>
+            <column name="OPEN_STOCK" type="bigint" remarks="Tồn đầu kỳ"></column>
+            <column name="IMPORT" type="bigint" remarks="Nhập"></column>
+            <column name="EXPORT" type="bigint" remarks="Xuất"></column>
+            <column name="STOCK" type="bigint" remarks="Tồn kho hiện tại"></column>
+            <column name="MONTH_CUMULATE" type="bigint" remarks="Luỹ kế tiêu thụ tháng"></column>
+            <column name="MONTH_PLAN" type="bigint" remarks="Kế hoạch tiêu thụ tháng"></column>
+            <column name="DAY_PLAN" type="bigint" remarks="Định mức kế hoạch"></column>
+            <column name="DAY_RESERVE_REAL" type="bigint" remarks="Ngày dự trữ thực tế"></column>
+            <column name="SAFETY_STOCK_MIN" type="int" remarks="Ngày tồn kho an toàn min"></column>
+            <column name="LEAD" type="int" remarks="Thời gian giao hàng"></column>
+            <column name="NEXT" type="int" remarks="Khoảng cách ngày giao hàng"></column>
+            <column name="REQUIMENT_STOCK" type="int" remarks="Yêu cầu tồn kho"></column>
+            <column name="STOCK_PO_CONFIRM" type="int" remarks="Số hàng đang vận chuyển"></column>
+            <column name="STOCK_PO_DVKH" type="int" remarks="Số hàng chờ vận chuyển"></column>
+            <column name="CONVFACT" type="int" remarks="Quy cách"></column>
+            <column name="QUANTITY" type="int" remarks="Số lượng lẻ"></column>
+            <column name="AMOUNT" type="bigint" remarks="Tổng tiền"></column>
+            <column name="WARNING" type="varchar(40)" remarks="Cảnh báo"></column>
+            <column name="DAY_RESERVE_PLAN" type="float" remarks="Dự trữ kế hoạch"></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(80)"></column>
+            <column name="CREATED_BY" type="varchar(80)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="PO_AUTO_DETAIL"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-po-auto-group-shop-map-for-purchases" >
+        <createTable tableName="PO_AUTO_GROUP_SHOP_MAP">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="PO_AUTO_GROUP_SHOP_MAP_KEY" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint"></column>
+            <column name="STATUS" type="tinyint" remarks="Trạng thái: 1-Hoạt động; 0-Tạm ngưng"></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(80)"></column>
+            <column name="CREATED_BY" type="varchar(80)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="PO_AUTO_GROUP_SHOP_MAP"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-po-auto-group-for-purchases" >
+        <createTable tableName="PO_AUTO_GROUP">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="PO_AUTO_GROUP_KEY" primaryKey="true"/>
+            </column>
+            <column name="GROUP_NAME" type="varchar(250)" ></column>
+            <column name="STATUS" type="tinyint" remarks="0: tạm ngưng, 1: hoạt động"></column>
+            <column name="GROUP_CODE" type="varchar(50)" ></column>
+            <column name="PO_AUTO_GROUP_SHOP_MAP_ID" type="bigint" ></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(80)"></column>
+            <column name="CREATED_BY" type="varchar(80)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="PO_AUTO_GROUP"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="minhnt68" id="17-01-2022-create-table-po-auto-group-detail-for-purchases" >
+        <createTable tableName="PO_AUTO_GROUP_DETAIL">
+            <column name="ID" type="bigint" autoIncrement="true">
+                <constraints primaryKeyName="PO_AUTO_GROUP_DETAIL_KEY" primaryKey="true"/>
+            </column>
+            <column name="PO_AUTO_GROUP_ID" type="bigint" ></column>
+            <column name="OBJECT_TYPE" type="tinyint" remarks="0: CAT, 1: SUBCAT, 2: MẶT HÀNG"></column>
+            <column name="OBJECT_ID" type="bigint" remarks="ID Cat, subcat, mặt hàng"></column>
+            <column name="STATUS" type="tinyint" remarks="Trạng thái: 1-Hoạt động, 0-Tạm ngưng"></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(80)"></column>
+            <column name="CREATED_BY" type="varchar(80)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="PO_AUTO_GROUP_DETAIL"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet  author="minhnt68" id="17-01-2022-add-column-for-table-shop-product-for-purchases">
+        <addColumn tableName="SHOP_PRODUCT">
+            <column name="LEAD" type="bigint" remarks="Ngày đi đường (LEAD) (NEXT cũ --> LEAD)"/>
+            <column name="CALENDAR_D" type="bigint" remarks="Ngày bán hàng,ví dụ bán thứ 3, 5, 7 thì lưu 0000357"/>
+            <column name="PERCENTAGE" type="bigint"  remarks="Tỉ lệ tăng trưởng, vd: 126% --> lưu là 1,26"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="SHOP_PRODUCT" columnName="PROMOTION_TYPE"/>
+            <dropColumn tableName="SHOP_PRODUCT" columnName="CALENDAR_D"/>
+            <dropColumn tableName="SHOP_PRODUCT" columnName="PERCENTAGE"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
