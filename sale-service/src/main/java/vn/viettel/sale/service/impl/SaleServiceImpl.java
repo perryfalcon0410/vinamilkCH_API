@@ -475,6 +475,10 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
             //update voucher
             updateVoucher(saleOrder, lstVoucherNeedSave);
+            if(!lstVoucherNeedSave.isEmpty()) {
+                List<Long> voucherIds = lstVoucherNeedSave.stream().map(vc -> vc.getId()).collect(Collectors.toList());
+                syncMap.put(JMSType.vouchers, voucherIds);
+            }
 
             //update combo
             updateComboDetail(saleOrder, listOrderComboDetails);
@@ -506,7 +510,11 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             updateCustomer(saleOrder, customer, false);
 
             //update AccumulatedAmount (bảng RPT_CUS_MEM_AMOUNT) (tiền tích lũy) = tiền tích lũy hiện tại - saleOrder.getMemberCardAmount()
-            updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
+            Long memberCustomerId = updateAccumulatedAmount(saleOrder.getMemberCardAmount(), customer.getId());
+            
+            if(memberCustomerId != null) {
+            	syncMap.put(JMSType.member_customer , Arrays.asList(memberCustomerId));
+            }
             // update RPT_ZV23: nếu có km zv23
 
             if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()) {
