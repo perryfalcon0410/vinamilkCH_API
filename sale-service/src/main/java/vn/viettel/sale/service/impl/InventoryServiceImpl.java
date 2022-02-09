@@ -1,9 +1,23 @@
 package vn.viettel.sale.service.impl;
 
-import com.poiji.bind.Poiji;
-import com.poiji.exception.PoijiExcelType;
-import com.poiji.option.PoijiOptions;
-import oracle.security.crypto.cert.ValidationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.IsoFields;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +25,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.poiji.bind.Poiji;
+import com.poiji.exception.PoijiExcelType;
+import com.poiji.option.PoijiOptions;
+
+import oracle.security.crypto.cert.ValidationException;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
@@ -23,26 +43,28 @@ import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.excel.StockCountingFilledExcel;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.repository.ProductInfoRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.StockCountingDetailRepository;
+import vn.viettel.sale.repository.StockCountingRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
+import vn.viettel.sale.repository.WareHouseTypeRepository;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.ReceiptImportService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.InventoryImportInfo;
+import vn.viettel.sale.service.dto.StockCountingDTO;
+import vn.viettel.sale.service.dto.StockCountingDetailDTO;
+import vn.viettel.sale.service.dto.StockCountingExcel;
+import vn.viettel.sale.service.dto.StockCountingExcelDTO;
+import vn.viettel.sale.service.dto.StockCountingImportDTO;
+import vn.viettel.sale.service.dto.StockCountingUpdateDTO;
+import vn.viettel.sale.service.dto.TotalStockCounting;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.util.CreateCodeUtils;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.IsoFields;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCountingRepository> implements InventoryService {
@@ -540,12 +562,9 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             dtos.add(dto);
         }
 
-
-
         CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = new CoverResponse(dtos, totalStockCounting);
         return response;
     }
-
 
     public List<StockCountingExcel> readDataExcel(MultipartFile file) throws IOException {
         String path = file.getOriginalFilename();

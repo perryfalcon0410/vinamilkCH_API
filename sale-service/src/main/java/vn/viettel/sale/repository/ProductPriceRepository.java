@@ -1,13 +1,12 @@
 package vn.viettel.sale.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import vn.viettel.sale.entities.Price;
-import vn.viettel.core.repository.BaseRepository;
-
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.data.jpa.repository.Query;
+
+import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.entities.Price;
 
 public interface ProductPriceRepository extends BaseRepository<Price> {
 

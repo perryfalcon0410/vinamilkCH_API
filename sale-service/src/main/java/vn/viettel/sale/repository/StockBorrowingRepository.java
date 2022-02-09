@@ -1,13 +1,13 @@
 package vn.viettel.sale.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import vn.viettel.sale.entities.StockAdjustment;
-import vn.viettel.sale.entities.StockBorrowing;
-import vn.viettel.core.repository.BaseRepository;
-import vn.viettel.sale.service.dto.StockBorrowingDTO;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+
+import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.entities.StockBorrowing;
+import vn.viettel.sale.service.dto.StockBorrowingDTO;
 
 public interface StockBorrowingRepository extends BaseRepository<StockBorrowing> {
 

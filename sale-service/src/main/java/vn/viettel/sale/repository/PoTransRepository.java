@@ -1,24 +1,20 @@
 package vn.viettel.sale.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
-import org.springframework.stereotype.Repository;
-import vn.viettel.sale.entities.PoTrans;
-import vn.viettel.core.repository.BaseRepository;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.messaging.TotalResponse;
-import vn.viettel.sale.service.dto.ReceiptImportDTO;
-import vn.viettel.sale.service.dto.ReceiptImportListDTO;
-
-import javax.persistence.LockModeType;
-import javax.persistence.QueryHint;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.entities.PoTrans;
+import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.service.dto.ReceiptImportDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
 
 @Repository
 public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecificationExecutor<PoTrans> {

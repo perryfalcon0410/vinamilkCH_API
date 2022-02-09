@@ -1,13 +1,19 @@
 package vn.viettel.sale.service.impl;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.poi.util.IOUtils;
 import org.modelmapper.convention.MatchingStrategies;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -17,6 +23,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
@@ -31,23 +41,34 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.OnlineOrder;
+import vn.viettel.sale.entities.OnlineOrderDetail;
+import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.repository.OnlineOrderDetailRepository;
+import vn.viettel.sale.repository.OnlineOrderRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
-import vn.viettel.sale.service.feign.*;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.AreaClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 import vn.viettel.sale.util.ConnectFTP;
-import vn.viettel.sale.xml.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import vn.viettel.sale.xml.DataSet;
+import vn.viettel.sale.xml.Header;
+import vn.viettel.sale.xml.Line;
+import vn.viettel.sale.xml.NewData;
+import vn.viettel.sale.xml.NewDataSet;
 
 @Service
 public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineOrderRepository> implements OnlineOrderService {
@@ -546,6 +567,5 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
             }
         }
     }
-
 
 }

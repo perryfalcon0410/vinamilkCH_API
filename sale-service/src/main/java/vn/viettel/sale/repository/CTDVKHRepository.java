@@ -1,11 +1,11 @@
 package vn.viettel.sale.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.sale.entities.CTDVKH;
-import vn.viettel.sale.entities.HddtExcel;
 
-import java.util.List;
+import vn.viettel.sale.entities.CTDVKH;
 
 public interface CTDVKHRepository extends JpaRepository<CTDVKH, Long> {
     @Query(value =  "SELECT  NEW vn.viettel.sale.entities.CTDVKH(detail.id, detail.shopId, red_in.invoiceNumber, pro.productCode, pro.uom1, detail.quantity )" +

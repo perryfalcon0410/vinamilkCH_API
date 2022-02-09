@@ -1,18 +1,17 @@
 package vn.viettel.sale.excel;
 
 
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.util.IOUtils;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import vn.viettel.core.utils.ExcelPoiUtils;
-import vn.viettel.core.utils.NameHeader;
-
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+
+import vn.viettel.core.utils.ExcelPoiUtils;
+import vn.viettel.core.utils.NameHeader;
 
 public class SampleExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;

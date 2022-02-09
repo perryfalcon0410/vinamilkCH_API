@@ -1,5 +1,25 @@
 package vn.viettel.sale.service.impl;
 
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.util.Strings;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +30,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
-import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
@@ -20,28 +40,56 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.PoTrans;
+import vn.viettel.sale.entities.PoTransDetail;
+import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.StockAdjustment;
+import vn.viettel.sale.entities.StockAdjustmentDetail;
+import vn.viettel.sale.entities.StockAdjustmentTrans;
+import vn.viettel.sale.entities.StockAdjustmentTransDetail;
+import vn.viettel.sale.entities.StockBorrowing;
+import vn.viettel.sale.entities.StockBorrowingDetail;
+import vn.viettel.sale.entities.StockBorrowingTrans;
+import vn.viettel.sale.entities.StockBorrowingTransDetail;
+import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
 import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.repository.PoConfirmRepository;
+import vn.viettel.sale.repository.PoDetailRepository;
+import vn.viettel.sale.repository.PoTransDetailRepository;
+import vn.viettel.sale.repository.PoTransRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.StockAdjustmentDetailRepository;
+import vn.viettel.sale.repository.StockAdjustmentRepository;
+import vn.viettel.sale.repository.StockAdjustmentTransDetailRepository;
+import vn.viettel.sale.repository.StockAdjustmentTransRepository;
+import vn.viettel.sale.repository.StockBorrowingDetailRepository;
+import vn.viettel.sale.repository.StockBorrowingRepository;
+import vn.viettel.sale.repository.StockBorrowingTransDetailRepository;
+import vn.viettel.sale.repository.StockBorrowingTransRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
+import vn.viettel.sale.repository.WareHouseTypeRepository;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
-import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.*;
+import vn.viettel.sale.service.dto.PoTransDTO;
+import vn.viettel.sale.service.dto.ReceiptImportDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
+import vn.viettel.sale.service.dto.StockAdjustmentDTO;
+import vn.viettel.sale.service.dto.StockBorrowingDTO;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.ReceiptSpecification;
 import vn.viettel.sale.util.CreateCodeUtils;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 
 @Service
 public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRepository> implements ReceiptExportService {
