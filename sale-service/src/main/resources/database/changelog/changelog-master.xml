@@ -27,4 +27,5 @@
     <include file="src/main/resources/database/changelog/changelog-03-08-2021-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-13-09-2021-thaitt.xml"/>
     <include file="src/main/resources/database/changelog/changelog-17-01-2022-minhnt68.xml"/>
+    <include file="src/main/resources/database/changelog/changelog-20-01-2022-minhnt68.xml"/>
 </databaseChangeLog>
