@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="2022-01-20-change-data-type-in-table-shop-product" author="minhnt68">
+
+        <modifyDataType columnName="CALENDAR_D" newDataType="varchar(50)" tableName="SHOP_PRODUCT"/>
+        <modifyDataType columnName="PERCENTAGE" newDataType="float" tableName="SHOP_PRODUCT"/>
+
+        <rollback>
+            <modifyDataType columnName="CALENDAR_D" newDataType="bigint" tableName="SHOP_PRODUCT"/>
+            <modifyDataType columnName="PERCENTAGE" newDataType="bigint" tableName="SHOP_PRODUCT"/>
+        </rollback>
+    </changeSet>
+    
+    <changeSet author="minhnt68" id="2022-01-20-add-column-for-table-po-auto-for-purchases">
+        <addColumn tableName="PO_AUTO">
+            <column name="TYPE" type="tinyint" remarks="Loại đơn PO : 0 - Đơn auto; 1 - Đơn thủ công"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="PO_AUTO" columnName="TYPE"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

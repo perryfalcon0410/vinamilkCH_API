@@ -1,16 +1,20 @@
 package vn.viettel.sale.service;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.sale.messaging.*;
+import vn.viettel.sale.messaging.OrderReturnRequest;
+import vn.viettel.sale.messaging.SaleOrderChosenFilter;
+import vn.viettel.sale.messaging.SaleOrderFilter;
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
+import vn.viettel.sale.messaging.TotalOrderChoose;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
-
-import java.util.HashMap;
-import java.util.List;
 
 public interface OrderReturnService {
     CoverResponse<Page<OrderReturnDTO>, SaleOrderTotalResponse> getAllOrderReturn(SaleOrderFilter saleOrderFilter, Pageable pageable, Long id);

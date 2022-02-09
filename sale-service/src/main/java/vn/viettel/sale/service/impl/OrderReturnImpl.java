@@ -1,5 +1,15 @@
 package vn.viettel.sale.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
@@ -22,18 +33,47 @@ import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.utils.JMSType;
-import vn.viettel.sale.entities.*;
-import vn.viettel.sale.messaging.*;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderComboDetail;
+import vn.viettel.sale.entities.SaleOrderComboDiscount;
+import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.SaleOrderDiscount;
+import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.messaging.OrderReturnRequest;
+import vn.viettel.sale.messaging.SaleOrderChosenFilter;
+import vn.viettel.sale.messaging.SaleOrderFilter;
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
+import vn.viettel.sale.messaging.TotalOrderChoose;
+import vn.viettel.sale.messaging.TotalOrderReturnDetail;
+import vn.viettel.sale.repository.ComboProductDetailRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderComboDetailRepository;
+import vn.viettel.sale.repository.SaleOrderComboDiscountRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.SaleOrderDiscountRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
-import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.*;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import vn.viettel.sale.service.dto.InfosReturnDetailDTO;
+import vn.viettel.sale.service.dto.NewOrderReturnDTO;
+import vn.viettel.sale.service.dto.NewOrderReturnDetailDTO;
+import vn.viettel.sale.service.dto.OrderDiscountReturnDTO;
+import vn.viettel.sale.service.dto.OrderReturnDTO;
+import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
+import vn.viettel.sale.service.dto.ProductReturnDTO;
+import vn.viettel.sale.service.dto.PromotionReturnDTO;
+import vn.viettel.sale.service.dto.ReasonReturnDTO;
+import vn.viettel.sale.service.dto.SaleComboDetailDTO;
+import vn.viettel.sale.service.dto.SaleComboDiscountDTO;
+import vn.viettel.sale.service.dto.SaleOrderDTO;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.UserClient;
 
 @Service
 public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements OrderReturnService {
@@ -571,7 +611,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
         CoverResponse coverResponse = new CoverResponse(list, totalResponse);
         return coverResponse;
-
     }
 
     private SaleOrderDTO mapSaleOrderDTO(SaleOrder saleOrder, List<UserDTO> users, List<CustomerDTO> customers) {
@@ -673,7 +712,6 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
     }
-
 
     private double roundValue(Double value){
         if(value == null) return 0;

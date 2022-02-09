@@ -1,21 +1,26 @@
 package vn.viettel.sale.excel;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.util.IOUtils;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.StockCountingExcel;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class StockCountingFailExcel extends ExcelPoiUtils{
     private SXSSFWorkbook workbook;

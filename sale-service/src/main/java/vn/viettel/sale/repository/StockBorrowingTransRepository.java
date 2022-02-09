@@ -1,21 +1,19 @@
 package vn.viettel.sale.repository;
 
+import java.time.LocalDateTime;
+
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
-import vn.viettel.sale.entities.PoTrans;
-import vn.viettel.sale.entities.StockBorrowingTrans;
-import vn.viettel.core.repository.BaseRepository;
 
-import javax.persistence.LockModeType;
-import javax.persistence.QueryHint;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.entities.StockBorrowingTrans;
 
 public interface StockBorrowingTransRepository extends BaseRepository<StockBorrowingTrans>, JpaSpecificationExecutor<StockBorrowingTrans> {
 

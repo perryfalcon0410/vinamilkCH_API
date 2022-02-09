@@ -1,5 +1,21 @@
 package vn.viettel.sale.service.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -7,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -19,27 +36,43 @@ import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.CTDVKH;
+import vn.viettel.sale.entities.HddtExcel;
+import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.RedInvoice;
+import vn.viettel.sale.entities.RedInvoiceDetail;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderDetail;
 import vn.viettel.sale.excel.HDDTExcel;
 import vn.viettel.sale.excel.HVKHExcel;
-import vn.viettel.sale.messaging.*;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.messaging.PrintDataRedInvoiceResponse;
+import vn.viettel.sale.messaging.ProductDataResponse;
+import vn.viettel.sale.messaging.RedInvoiceRequest;
+import vn.viettel.sale.messaging.TotalRedInvoice;
+import vn.viettel.sale.messaging.TotalRedInvoiceResponse;
+import vn.viettel.sale.repository.CTDVKHRepository;
+import vn.viettel.sale.repository.HDDTExcelRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.RedInvoiceDetailRepository;
+import vn.viettel.sale.repository.RedInvoiceRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.service.RedInvoiceDetailService;
 import vn.viettel.sale.service.RedInvoiceService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.CTDTO;
+import vn.viettel.sale.service.dto.HDDTExcelDTO;
+import vn.viettel.sale.service.dto.HDDTO;
+import vn.viettel.sale.service.dto.ProductDataDTO;
+import vn.viettel.sale.service.dto.ProductDetailDTO;
+import vn.viettel.sale.service.dto.RedInvoiceDTO;
+import vn.viettel.sale.service.dto.RedInvoiceDataDTO;
+import vn.viettel.sale.service.dto.RedInvoiceNewDataDTO;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.specification.RedInvoiceSpecification;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoiceRepository> implements RedInvoiceService {

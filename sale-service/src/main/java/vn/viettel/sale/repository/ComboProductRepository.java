@@ -1,13 +1,13 @@
 package vn.viettel.sale.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.ComboProduct;
-import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.service.dto.ComboProductDetailDTO;
-
-import java.util.List;
 
 public interface ComboProductRepository extends BaseRepository<ComboProduct>, JpaSpecificationExecutor<ComboProduct> {
     @Query("SELECT NEW vn.viettel.sale.service.dto.ComboProductDetailDTO ( cbPro.id, p.id, p.productCode, cbPro.numProduct, " +

@@ -1,38 +1,48 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.entities.SaleOrder;
-import vn.viettel.core.messaging.Response;
-import vn.viettel.sale.messaging.*;
+import vn.viettel.sale.messaging.OrderReturnRequest;
+import vn.viettel.sale.messaging.SaleOrderChosenFilter;
+import vn.viettel.sale.messaging.SaleOrderFilter;
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
+import vn.viettel.sale.messaging.TotalOrderChoose;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @Api(tags = "API sử dụng cho quản lý hóa đơn trả lại")

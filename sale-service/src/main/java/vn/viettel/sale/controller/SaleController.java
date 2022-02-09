@@ -1,42 +1,49 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.apache.commons.lang.StringUtils;
 import org.mapstruct.Context;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import vn.viettel.core.controller.BaseController;
-import vn.viettel.core.dto.promotion.PromotionProgramDiscountDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.jms.JMSSender;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.logging.LogFile;
-import vn.viettel.core.logging.LogLevel;
-import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.utils.JMSType;
-import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
-import vn.viettel.sale.service.dto.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.security.Principal;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
+import vn.viettel.sale.service.dto.FreeProductDTO;
+import vn.viettel.sale.service.dto.OnlineOrderValidDTO;
+import vn.viettel.sale.service.dto.PriceDTO;
+import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
+import vn.viettel.sale.service.dto.SalePromotionCalculationDTO;
+import vn.viettel.sale.service.dto.SalePromotionDTO;
 
 @RestController
 @Api(tags = "Api sử dụng cho tạo đơn bán hàng")

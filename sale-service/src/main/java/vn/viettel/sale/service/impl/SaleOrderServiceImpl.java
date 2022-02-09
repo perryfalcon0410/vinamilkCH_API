@@ -1,5 +1,17 @@
 package vn.viettel.sale.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
@@ -29,15 +42,28 @@ import vn.viettel.sale.messaging.OrderDetailTotalResponse;
 import vn.viettel.sale.messaging.RedInvoiceFilter;
 import vn.viettel.sale.messaging.SaleOrderFilter;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.SaleOrderDiscountRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
 import vn.viettel.sale.service.SaleOrderService;
-import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import vn.viettel.sale.service.dto.DiscountDTO;
+import vn.viettel.sale.service.dto.InfosOrderDetailDTO;
+import vn.viettel.sale.service.dto.OrderDetailDTO;
+import vn.viettel.sale.service.dto.PrintFreeItemDTO;
+import vn.viettel.sale.service.dto.PrintOrderItemDTO;
+import vn.viettel.sale.service.dto.PrintProductSaleOrderDTO;
+import vn.viettel.sale.service.dto.PrintSaleOrderDTO;
+import vn.viettel.sale.service.dto.PrintZMZV19ZV20ZV23DTO;
+import vn.viettel.sale.service.dto.PromotionDTO;
+import vn.viettel.sale.service.dto.SaleOrderDTO;
+import vn.viettel.sale.service.dto.SaleOrderDetailDTO;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.UserClient;
 
 @Service
 public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleOrderService {

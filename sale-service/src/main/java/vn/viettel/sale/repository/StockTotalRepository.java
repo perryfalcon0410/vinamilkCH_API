@@ -1,15 +1,14 @@
 package vn.viettel.sale.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import vn.viettel.sale.entities.Product;
-import vn.viettel.sale.entities.StockTotal;
-import vn.viettel.core.repository.BaseRepository;
-import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 
-import java.util.List;
-import java.util.Optional;
+import vn.viettel.core.repository.BaseRepository;
+import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.service.dto.StockCountingDetailDTO;
 
 
 public interface StockTotalRepository extends BaseRepository<StockTotal> {

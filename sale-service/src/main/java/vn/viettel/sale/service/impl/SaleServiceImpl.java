@@ -1,5 +1,19 @@
 package vn.viettel.sale.service.impl;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+
 import org.hibernate.exception.ConstraintViolationException;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
@@ -27,19 +42,49 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.utils.JMSType;
-import vn.viettel.sale.entities.*;
-import vn.viettel.sale.messaging.*;
-import vn.viettel.sale.repository.*;
-import vn.viettel.sale.service.*;
-import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.*;
-
-import javax.persistence.EntityManager;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import vn.viettel.sale.entities.OnlineOrder;
+import vn.viettel.sale.entities.OnlineOrderDetail;
+import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderComboDetail;
+import vn.viettel.sale.entities.SaleOrderComboDiscount;
+import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.SaleOrderDiscount;
+import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.messaging.OrderPromotionRequest;
+import vn.viettel.sale.messaging.OrderVoucherRequest;
+import vn.viettel.sale.messaging.ProductOrderRequest;
+import vn.viettel.sale.messaging.SaleOrderRequest;
+import vn.viettel.sale.messaging.SalePromotionCalItemRequest;
+import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
+import vn.viettel.sale.repository.ComboProductDetailRepository;
+import vn.viettel.sale.repository.ComboProductRepository;
+import vn.viettel.sale.repository.OnlineOrderDetailRepository;
+import vn.viettel.sale.repository.OnlineOrderRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderComboDetailRepository;
+import vn.viettel.sale.repository.SaleOrderComboDiscountRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.SaleOrderDiscountRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
+import vn.viettel.sale.service.OnlineOrderService;
+import vn.viettel.sale.service.SaleOrderService;
+import vn.viettel.sale.service.SalePromotionService;
+import vn.viettel.sale.service.SaleService;
+import vn.viettel.sale.service.StockTotalService;
+import vn.viettel.sale.service.dto.ComboProductDetailDTO;
+import vn.viettel.sale.service.dto.FreeProductDTO;
+import vn.viettel.sale.service.dto.OnlineOrderValidDTO;
+import vn.viettel.sale.service.dto.SaleDiscountSaveDTO;
+import vn.viettel.sale.service.dto.SalePromotionCalculationDTO;
+import vn.viettel.sale.service.dto.SalePromotionDTO;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.ShopClient;
 
 @Service
 public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRepository> implements SaleService {

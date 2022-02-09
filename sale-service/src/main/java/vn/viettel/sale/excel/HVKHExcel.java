@@ -1,23 +1,28 @@
 package vn.viettel.sale.excel;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.util.IOUtils;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.utils.ExcelPoiUtils;
 import vn.viettel.sale.service.dto.CTDTO;
 import vn.viettel.sale.service.dto.HDDTO;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class HVKHExcel extends ExcelPoiUtils{
     private String FONT_NAME= "Times New Roman";

@@ -1,16 +1,34 @@
 package vn.viettel.sale.controller;
 
-import io.swagger.annotations.*;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
-import org.apache.poi.util.IOUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.sale.WareHouseTypeDTO;
@@ -22,24 +40,22 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.core.utils.JMSType;
 import vn.viettel.sale.excel.ExportExcel;
-import vn.viettel.sale.messaging.*;
+import vn.viettel.sale.messaging.NotImportRequest;
+import vn.viettel.sale.messaging.ReceiptCreateRequest;
+import vn.viettel.sale.messaging.ReceiptUpdateRequest;
+import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.messaging.TotalResponseV1;
 import vn.viettel.sale.service.ReceiptImportService;
-import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.dto.PoConfirmDTO;
+import vn.viettel.sale.service.dto.PoDetailDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
+import vn.viettel.sale.service.dto.StockAdjustmentDTO;
+import vn.viettel.sale.service.dto.StockAdjustmentDetailDTO;
+import vn.viettel.sale.service.dto.StockBorrowingDTO;
+import vn.viettel.sale.service.dto.StockBorrowingDetailDTO;
 import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.service.impl.ReceiptImportServiceImpl;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @Api(tags = "API chức năng nhập hàng")
