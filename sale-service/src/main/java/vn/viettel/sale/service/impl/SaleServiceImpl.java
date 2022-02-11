@@ -1341,7 +1341,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
             List<OnlineOrderDetail> onlineDetails = onlineOrderDetailRepo.findByOnlineOrderId(request.getOrderOnlineId());
             if(!editableOnlineOrder(request.getProducts(), shopId, onlineDetails))
                 throw new ValidateException(ResponseMessage.EDITABLE_ONLINE_ORDER_NOT_ALLOW);
-
+            onlineOrderService.checkOnlineNumber(request.getOnlineNumber());
             this.onlineSubType(request.getProducts(), saleOrder, onlineDetails);
             saleOrder.setOnlineNumber(onlineOrder.getOrderNumber());
         }
