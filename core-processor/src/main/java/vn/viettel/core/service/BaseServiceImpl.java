@@ -34,6 +34,10 @@ public abstract class BaseServiceImpl<E/* extends BaseEntity*/, R extends BaseRe
     @PersistenceContext
     public EntityManager entityManager;
 
+    public void setModelMapper(ModelMapper modelMapper){
+        if(this.modelMapper == null) this.modelMapper = modelMapper;
+    }
+
     @Override
     public <D extends BaseDTO> D findById(Long id, Class<D> clazz) {
         E dbItem = repository.findById(id).orElse(null);

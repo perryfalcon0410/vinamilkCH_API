@@ -92,9 +92,15 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
 
     public List<ApParamDTO> findAll() {
         List<ApParam> apParams = repository.findAll();
-        ApParamDTO apParamDTO = modelMapper.map(apParams, ApParamDTO.class);
+
         List<ApParamDTO> apParamDTOList = new ArrayList<>();
-        apParamDTOList.add(apParamDTO);
+        if(apParams != null){
+            for(ApParam ap : apParams){
+                ApParamDTO dto = modelMapper.map(ap, ApParamDTO.class);
+                apParamDTOList.add(dto);
+            }
+        }
+
         return apParamDTOList;
     }
 
