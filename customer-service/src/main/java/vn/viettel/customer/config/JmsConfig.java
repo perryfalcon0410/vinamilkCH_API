@@ -15,13 +15,13 @@ import vn.viettel.core.jms.JMSSender;
 @Configuration
 public class JmsConfig {
 
-	@Value("${activemq-url}")
+	@Value("${activemq-url:#{null}}")
 	private String url;
 
-	@Value("${activemq-username}")
+	@Value("${activemq-username:#{null}}")
 	private String username;
 
-	@Value("${activemq-password}")
+	@Value("${activemq-password:#{null}}")
 	private String password;
 
 	@Bean
