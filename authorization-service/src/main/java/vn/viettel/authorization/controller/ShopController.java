@@ -95,4 +95,8 @@ public class ShopController extends BaseController {
         Long level = shopService.getLevelUpdateCustomer(shopId);
         return new Response<Long>().withData(level);
     }
+
+    public void setService(ShopService service) {
+        if(shopService == null) shopService = service;
+    }
 }
