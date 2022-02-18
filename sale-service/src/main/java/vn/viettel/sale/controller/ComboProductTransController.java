@@ -18,6 +18,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.ComboProductTranFilter;
 import vn.viettel.sale.messaging.ComboProductTranRequest;
+import vn.viettel.sale.service.ComboProductService;
 import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.dto.ComboProductTranDTO;
 import vn.viettel.sale.service.dto.TotalDTO;
@@ -34,6 +35,10 @@ public class ComboProductTransController extends BaseController {
     @Autowired
     ComboProductTransService comboProductTransService;
     private final String root = "/sales/combo-product-trans";
+
+    public void setService(ComboProductTransService service){
+        if(comboProductTransService == null) comboProductTransService = service;
+    }
 
     @GetMapping(value = { V1 + root })
     @ApiOperation(value = "Tìm kiếm xuất nhập sản phẩm combo")

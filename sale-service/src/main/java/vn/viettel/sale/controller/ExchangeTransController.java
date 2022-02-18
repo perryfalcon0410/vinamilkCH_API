@@ -20,6 +20,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
 import vn.viettel.sale.messaging.ExchangeTransRequest;
+import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.ExchangeTranService;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
@@ -35,6 +36,10 @@ public class ExchangeTransController extends BaseController {
     @Autowired
     ExchangeTranService service;
     private final String root = "/sales/exchangetrans";
+
+    public void setService(ExchangeTranService service){
+        if(this.service == null) this.service = service;
+    }
 
     @ApiOperation(value = "Api dùng khi tạo mới đơn đổi hàng để lấy lý do trả hàng")
     @ApiResponses(value = {
@@ -77,8 +82,10 @@ public class ExchangeTransController extends BaseController {
     public Response<String> create(@Valid @RequestBody ExchangeTransRequest request, HttpServletRequest httpRequest) {
         ResponseMessage message = service.create(request, this.getUserId(httpRequest),this.getShopId(httpRequest));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.CREATE_EXCHANGE_TRANS_SUCCESS);
         return response;
     }
@@ -108,8 +115,10 @@ public class ExchangeTransController extends BaseController {
     public Response<String> update(@PathVariable Long id,@RequestBody @Valid ExchangeTransRequest request, HttpServletRequest httpRequest) {
         ResponseMessage message = service.update(id,request,this.getShopId(httpRequest));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_EXCHANGE_TRANS_SUCCESS);
         return response;
     }

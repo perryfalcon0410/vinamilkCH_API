@@ -366,6 +366,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
     @Override
     public ResponseMessage updateStockCounting(Long stockCountingId, Long shopId, String userAccount, List<StockCountingUpdateDTO> details) {
         StockCounting stockCounting = repository.getByIdAndShopId(stockCountingId, shopId);
+
         if (stockCounting == null)
             throw new ValidateException(ResponseMessage.STOCK_COUNTING_NOT_FOUND);
         if (stockCounting.getCountingDate().isBefore(DateUtils.convertFromDate(LocalDateTime.now())))
@@ -374,8 +375,8 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         List<StockCountingDetail> stockCountingDetails = countingDetailRepository.findByStockCountingId(stockCountingId);
         if (stockCountingDetails.isEmpty())
             throw new ValidateException(ResponseMessage.NO_PRODUCT_IN_STOCK_COUNTING);
-
         List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, stockCounting.getWareHouseTypeId());
+
         if(stockTotals.size()==0) throw new ValidateException(ResponseMessage.PRODUCT_DOES_NOT_EXISTS_IN_WAREHOUSE);
 
        Map<Long, Integer> stockTotalMaps = new HashMap<>();

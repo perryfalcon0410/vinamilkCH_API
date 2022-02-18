@@ -13,4 +13,8 @@ public class CoverResponse <D, T>{
     private D response;
     private T info;
 
+    public CoverResponse(D stockCountingDTOS, T totalStockCounting) {
+        this.response = stockCountingDTOS;
+        this.info = totalStockCounting;
+    }
 }

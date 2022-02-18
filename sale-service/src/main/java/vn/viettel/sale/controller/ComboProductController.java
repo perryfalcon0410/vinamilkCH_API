@@ -22,6 +22,10 @@ public class ComboProductController extends BaseController {
     ComboProductService comboProductService;
     private final String root = "/sales/combo-products";
 
+    public void setService(ComboProductService service){
+        if(comboProductService == null) comboProductService = service;
+    }
+
     @GetMapping(value = { V1 + root })
     @ApiOperation(value = "Tìm kiếm sản phẩm combo trong xuất nhập combo")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
