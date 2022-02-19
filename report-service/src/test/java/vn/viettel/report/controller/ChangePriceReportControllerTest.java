@@ -1,6 +1,10 @@
 package vn.viettel.report.controller;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -8,16 +12,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.dto.ChangePriceDTO;
 import vn.viettel.report.service.dto.ChangePricePrintDTO;
 import vn.viettel.report.service.dto.ChangePriceTotalDTO;
+import vn.viettel.report.service.feign.ShopClient;
+import vn.viettel.report.service.impl.ChangePriceReportServiceImpl;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -27,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ChangePriceReportControllerTest extends BaseTest {
     private final String root = "/reports/changePrices";
 
-    @MockBean
+    @InjectMocks
     ChangePriceReportService changePriceReportService;
 
     @Test
@@ -90,13 +99,12 @@ public class ChangePriceReportControllerTest extends BaseTest {
         assertThat(responseData, containsString("\"pageSize\":" + size));
     }
 
-    @Test
+   @Test
     public void getAll() throws Exception {
         String uri = V1 + root + "/pdf";
         List<ChangePriceDTO> changePriceDTOS = Arrays.asList(new ChangePriceDTO(), new ChangePriceDTO());
         CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>> coverResponses = new CoverResponse<>(new ChangePriceTotalDTO(), changePriceDTOS);
         List<CoverResponse<ChangePriceTotalDTO, List<ChangePriceDTO>>> response = new ArrayList<>(Collections.singleton(coverResponses));
-
 
         given(changePriceReportService.getAll( any(), any())).willReturn(new ChangePricePrintDTO());
 
@@ -112,7 +120,5 @@ public class ChangePriceReportControllerTest extends BaseTest {
 //        resultActions.andDo(MockMvcResultHandlers.print());
     }
 
-    @Test
-    public void exportToExcel() {
-    }
+
 }
