@@ -16,6 +16,7 @@ import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.ExchangeTransFilter;
+import vn.viettel.report.service.EntryMenuDetailsReportService;
 import vn.viettel.report.service.ExchangeTransReportService;
 import vn.viettel.report.service.dto.ExchangeTransReportDTO;
 
@@ -31,6 +32,10 @@ public class ExchangeTransController extends BaseController {
 
     @Autowired
     ExchangeTransReportService exchangeTransReportService;
+
+    public void setService(ExchangeTransReportService serviceRp) {
+        if (exchangeTransReportService == null) exchangeTransReportService = serviceRp;
+    }
 
     @ApiOperation(value = "Xuất excel báo cáo đổi trả hàng hỏng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

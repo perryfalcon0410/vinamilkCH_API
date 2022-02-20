@@ -33,7 +33,11 @@ public class ReportExportGoodsController extends BaseController {
     @Autowired
     ReportExportGoodsService reportExportGoodsService;
 
-        private final String root = "/reports/export-goods";
+    private final String root = "/reports/export-goods";
+
+    public void setService(ReportExportGoodsService serviceRp) {
+        if (reportExportGoodsService == null) reportExportGoodsService = serviceRp;
+    }
 
     @ApiOperation(value = "Danh sách báo cáo xuất hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

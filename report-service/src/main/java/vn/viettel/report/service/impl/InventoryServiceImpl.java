@@ -36,9 +36,6 @@ public class InventoryServiceImpl extends BaseReportServiceImpl implements Inven
     @Autowired
     ShopClient shopClient;
 
-    @Autowired
-    ModelMapper modelMapper;
-
     @Override
     public ByteArrayInputStream exportImportExcel(InventoryImportExportFilter filter) throws IOException {
         PrintInventoryDTO inventoryDTO = this.getDataExcel(filter);
@@ -121,7 +118,7 @@ public class InventoryServiceImpl extends BaseReportServiceImpl implements Inven
         return printInventoryDTO;
     }
 
-    private List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
+    public List<ImportExportInventoryDTO> callStoreProcedure(InventoryImportExportFilter filter) {
 
         String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();
 

@@ -29,6 +29,10 @@ public class SaleOrderController extends BaseController {
     @Autowired
     SaleOrderAmountService saleOrderAmountService;
 
+    public void setService(SaleOrderAmountService serviceRp) {
+        if (saleOrderAmountService == null) saleOrderAmountService = serviceRp;
+    }
+
     @GetMapping(V1 + root + "/amount")
     @ApiOperation(value = "Danh sách dữ liệu báo cáo doanh số hóa đơn theo khách hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

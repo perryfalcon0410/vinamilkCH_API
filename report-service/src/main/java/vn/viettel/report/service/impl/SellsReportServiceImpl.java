@@ -43,7 +43,7 @@ public class SellsReportServiceImpl extends BaseReportServiceImpl implements Sel
     @Autowired
     UserClient userClient;
 
-    private List<SellDTO> callStoreProcedure(SellsReportsRequest filter) {
+    public List<SellDTO> callStoreProcedure(SellsReportsRequest filter) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SELL", SellDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter(2, Long.class, ParameterMode.IN);

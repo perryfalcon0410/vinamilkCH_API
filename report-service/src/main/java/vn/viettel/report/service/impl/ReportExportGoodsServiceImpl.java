@@ -202,7 +202,7 @@ public class ReportExportGoodsServiceImpl extends BaseReportServiceImpl implemen
     }
 
 
-    private List<ShopExportDTO> callProcedure(ShopExportFilter filter) {
+    public List<ShopExportDTO> callProcedure(ShopExportFilter filter) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_SHOP_EXPORT", ShopExportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

@@ -37,10 +37,16 @@ import java.util.List;
 @RestController
 public class ShopImportReportController extends BaseController {
     private final String root = "/reports/shop-import";
+
     @Autowired
     ShopImportReportService shopImportReportService;
+
     @Autowired
     ShopClient shopClient;
+
+    public void setService(ShopImportReportService serviceRp) {
+        if (shopImportReportService == null) shopImportReportService = serviceRp;
+    }
 
 
     @GetMapping(V1 + root)

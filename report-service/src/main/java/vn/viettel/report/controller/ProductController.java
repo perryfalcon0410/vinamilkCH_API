@@ -15,6 +15,7 @@ import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.report.messaging.PromotionProductFilter;
+import vn.viettel.report.service.InOutAdjustmentService;
 import vn.viettel.report.service.PromotionProductService;
 import vn.viettel.report.service.dto.PromotionProductDTO;
 import vn.viettel.report.service.dto.PromotionProductReportDTO;
@@ -33,6 +34,10 @@ public class ProductController extends BaseController {
 
     @Autowired
     PromotionProductService promotionProductService;
+
+    public void setService(PromotionProductService serviceRp) {
+        if (promotionProductService == null) promotionProductService = serviceRp;
+    }
 
     @GetMapping(V1 + root + "/promotions/excel")
     @ApiOperation(value = "Xuất excel báo cáo hàng khuyến mãi")

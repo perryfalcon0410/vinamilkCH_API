@@ -112,7 +112,7 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
         return response;
     }
 
-   private List<StockTotalReportDTO> callProcedure(StockTotalFilter filter) {
+   public List<StockTotalReportDTO> callProcedure(StockTotalFilter filter) {
 
        StoredProcedureQuery storedProcedure =
                entityManager.createStoredProcedureQuery("P_STOCK_COUNTING", StockTotalReportDTO.class);

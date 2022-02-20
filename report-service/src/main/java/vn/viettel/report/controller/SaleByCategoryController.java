@@ -31,6 +31,10 @@ public class SaleByCategoryController extends BaseController {
     @Autowired
     SaleByCategoryReportService saleByCategoryReportService;
 
+    public void setService(SaleByCategoryReportService serviceRp) {
+        if (saleByCategoryReportService == null) saleByCategoryReportService = serviceRp;
+    }
+
     @ApiOperation(value = "Xuất excel báo cáo doanh so theo ngành hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

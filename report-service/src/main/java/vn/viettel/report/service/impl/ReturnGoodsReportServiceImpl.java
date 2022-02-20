@@ -32,7 +32,7 @@ public class ReturnGoodsReportServiceImpl extends BaseReportServiceImpl implemen
     @Autowired
     ShopClient shopClient;
 
-    private List<ReturnGoodsDTO> callStoreProcedure(ReturnGoodsReportsRequest filter) {
+    public List<ReturnGoodsDTO> callStoreProcedure(ReturnGoodsReportsRequest filter) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_RETURNED_GOODS", ReturnGoodsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

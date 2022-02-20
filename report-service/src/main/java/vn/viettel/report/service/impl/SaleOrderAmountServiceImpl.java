@@ -65,10 +65,11 @@ public class SaleOrderAmountServiceImpl extends BaseReportServiceImpl implements
         return reponse;
     }
 
-    private void validMonth(SaleOrderAmountFilter filter){
+    public boolean validMonth(SaleOrderAmountFilter filter){
         LocalDateTime fromDate = filter.getFromDate().plusDays(1);
         long monthsBetween = ChronoUnit.MONTHS.between(fromDate, filter.getToDate());
         if(monthsBetween >= 12) throw new ValidateException(ResponseMessage.NUMBER_OF_MONTH_LESS_THAN_OR_EQUAL_12);
+        return true;
     }
 
     public TableDynamicDTO callProcedure(SaleOrderAmountFilter filter){

@@ -25,10 +25,14 @@ import java.util.Date;
 @Api("API báo cáo số lượng hóa đơn theo khách hàng")
 public class QuantitySalesReceiptController extends BaseController{
 
-        private final String root = "/reports/customers/quantity";
+    private final String root = "/reports/customers/quantity";
 
-        @Autowired
-        QuantitySalesReceiptService quantitySalesReceiptService;
+    @Autowired
+    QuantitySalesReceiptService quantitySalesReceiptService;
+
+    public void setService(QuantitySalesReceiptService serviceRp) {
+        if (quantitySalesReceiptService == null) quantitySalesReceiptService = serviceRp;
+    }
 
     @GetMapping(V1 + root)
     @ApiOperation(value = "Danh sách dữ liệu báo cáo số hóa đơn theo khách hàng")

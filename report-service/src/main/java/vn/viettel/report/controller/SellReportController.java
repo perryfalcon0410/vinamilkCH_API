@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-
 @RestController
 @Api(tags = "API báo cáo bán hàng")
 public class SellReportController extends BaseController {
@@ -38,6 +37,10 @@ public class SellReportController extends BaseController {
 
     @Autowired
     SellsReportService sellsReportService;
+
+    public void setService(SellsReportService serviceRp) {
+        if (sellsReportService == null) sellsReportService = serviceRp;
+    }
 
     @GetMapping(V1 + root)
     @ApiOperation(value = "Danh sách dữ liệu báo cáo bán hàng")

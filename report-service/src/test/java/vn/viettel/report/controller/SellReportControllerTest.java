@@ -1,76 +1,111 @@
 package vn.viettel.report.controller;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.report.BaseTest;
+import vn.viettel.report.messaging.SellsReportsRequest;
 import vn.viettel.report.service.SellsReportService;
 import vn.viettel.report.service.dto.ReportDateDTO;
 import vn.viettel.report.service.dto.SellDTO;
 import vn.viettel.report.service.dto.SellTotalDTO;
+import vn.viettel.report.service.feign.ShopClient;
+import vn.viettel.report.service.impl.SellsReportServiceImpl;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SellReportControllerTest extends BaseTest {
     private final String root = "/reports/sells";
-    @MockBean
-    SellsReportService sellsReportService;
+
+    @Spy
+    @InjectMocks
+    SellsReportServiceImpl sellsReportService;
+
+    @Mock
+    ShopClient shopClient;
+
+    @Mock
+    SellsReportService service;
+
+    private List<SellDTO> lstEntities;
+
+    private SellsReportsRequest filter;
+
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        final SellReportController controller = new SellReportController();
+        controller.setService(service);
+        this.setupAction(controller);
+        lstEntities = new ArrayList<>();
+        for (Long i = 1L; i < 6L; i++) {
+            SellDTO sell = new SellDTO();
+            sell.setId(i);
+            sell.setCustomerCode("CUS00" + i);
+            sell.setCustomerName("TÊN KH " + i);
+            sell.setOrderNumber("OD00" + i);
+            sell.setIndustry("ID" + i);
+            sell.setPrice(1000D);
+            sell.setQuantity(100);
+            lstEntities.add(sell);
+        }
+        filter = new SellsReportsRequest();
+        filter.setShopId(1L);
+    }
 
     @Test
     public void getReportSells() throws Exception{
         String uri = V1 + root;
-        int size = 2;
-        int page = 5;
-        PageRequest pageReq = PageRequest.of(page, size);
-        List<SellDTO> lstDto = Arrays.asList(new SellDTO(), new SellDTO());
-        Page<SellDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
-        CoverResponse<Page<SellDTO>, SellTotalDTO> response = new CoverResponse<>(pageDto, new SellTotalDTO());
+        Pageable pageable = PageRequest.of(0, 10);
+        doReturn(lstEntities).when(sellsReportService).callStoreProcedure(filter);
 
-        given(sellsReportService.getSellReport(any(), Mockito.any(PageRequest.class)))
-                .willReturn(response);
+        CoverResponse<Page<SellDTO>, SellTotalDTO> response =  sellsReportService.getSellReport(filter, pageable);
+        Page<SellDTO> datas = response.getResponse();
+        assertEquals(lstEntities.size(), datas.getContent().size());
 
         ResultActions resultActions = mockMvc.perform(get(uri)
-                .param("fromDate","2021/07/01")
-                .param("toDate","2021/07/13")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-//        resultActions.andDo(MockMvcResultHandlers.print());
-        String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"pageNumber\":" + page));
-        assertThat(responseData, containsString("\"pageSize\":" + size));
+            .param("fromDate","2021/07/01")
+            .param("toDate","2021/07/13")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+
     }
 
-    @Test
-    public void exportToExcel() {
-    }
 
     @Test
     public void getDataPrint() throws Exception{
         String uri = V1 + root + "/print";
-        List<SellDTO> lstDto = Arrays.asList(new SellDTO(), new SellDTO());
-        CoverResponse<List<SellDTO>, ReportDateDTO> response = new CoverResponse<>(lstDto, new ReportDateDTO());
+        doReturn(lstEntities).when(sellsReportService).callStoreProcedure(filter);
+        doReturn(shop).when(shopClient).getShopByIdV1(filter.getShopId());
 
-        given(sellsReportService.getDataPrint(any())).willReturn(response);
+        CoverResponse<List<SellDTO>, ReportDateDTO> response = sellsReportService.getDataPrint(filter);
+        List<SellDTO> datas = response.getResponse();
+        assertEquals(lstEntities.size(), datas.size());
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-//        resultActions.andDo(MockMvcResultHandlers.print());
+        ResultActions resultActions = mockMvc.perform(get(uri)
+            .param("fromDate","2021/07/01")
+            .param("toDate","2021/07/13")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 }
