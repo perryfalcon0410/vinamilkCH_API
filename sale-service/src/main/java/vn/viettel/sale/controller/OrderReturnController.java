@@ -19,6 +19,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.messaging.*;
+import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
@@ -35,6 +36,10 @@ public class OrderReturnController extends BaseController {
     @Autowired
     OrderReturnService orderReturnService;
     private final String root = "/sales/order-return";
+
+    public void setService(OrderReturnService service){
+        if(orderReturnService == null) orderReturnService = service;
+    }
 
     @GetMapping(value = { V1 + root })
     @ApiOperation(value = "Danh sách hóa đơn trả lại, tìm kiếm trong danh sách")

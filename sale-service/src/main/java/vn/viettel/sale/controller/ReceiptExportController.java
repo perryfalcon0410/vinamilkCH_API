@@ -18,6 +18,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
 import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.dto.PoTransDTO;
 import vn.viettel.sale.service.dto.ReceiptImportListDTO;
@@ -36,6 +37,10 @@ public class ReceiptExportController extends BaseController {
     ReceiptExportService receiptExportService;
 
     private final String root = "/sales/export";
+
+    public void setService(ReceiptExportService service){
+        if(receiptExportService == null) receiptExportService = service;
+    }
 
     @GetMapping(value = { V1 + root})
     @ApiOperation(value = "Lấy danh sách phiếu xuất hàng")
