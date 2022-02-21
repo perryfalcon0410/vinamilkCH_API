@@ -4,13 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -19,42 +17,38 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.context.WebApplicationContext;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.entities.StockTotal;
-import vn.viettel.sale.repository.ComboProductTransRepository;
 import vn.viettel.sale.repository.StockCountingDetailRepository;
 import vn.viettel.sale.repository.StockCountingRepository;
 import vn.viettel.sale.repository.StockTotalRepository;
-import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.impl.ComboProductTransServiceImpl;
 import vn.viettel.sale.service.impl.InventoryServiceImpl;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 public class InventoryControllerTest extends BaseTest {
     private final String root = "/sales";
-//    @Autowired
-//    private WebApplicationContext webApplicationContext;
 
     @InjectMocks
     InventoryServiceImpl serviceImp;
@@ -83,13 +77,16 @@ public class InventoryControllerTest extends BaseTest {
     @Test
     public void testIndex() throws Exception {
         String uri = V1 + root + "/inventory";
-        service.index("code", 1L, LocalDateTime.now(), LocalDateTime.now(), 1L, PageRequest.of(2, 5));
+        Long wareHouseTypeId = 1L;
+        service.index("code", wareHouseTypeId, LocalDateTime.now(), LocalDateTime.now(), 1L, PageRequest.of(2, 5));
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("stockCountingCode", "stockCountingCode");
-//        params.add("wareHouseTypeId", "1");
-        params.add("fromDate" , "2022%2F02%2F01");
-//        params.add("toDate" , "2021-09-01");
-        ResultActions resultActions = mockMvc.perform(get(uri)
+        params.add("wareHouseTypeId", wareHouseTypeId.toString());
+        LocalDate localDate = LocalDate.now();//For reference
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd LLLL yyyy");
+        params.add("fromDate" , localDate.format(formatter));
+        params.add("toDate" , localDate.format(formatter));
+        ResultActions resultActions = mockMvc.perform(get(uri+ "?page=1&size=10")
                 .params(params)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -137,6 +134,7 @@ public class InventoryControllerTest extends BaseTest {
     @Test
     public void testImportExcel() throws Exception {
         String uri = V1 + root + "/inventory/import-excel";
+        Long wareHouseTypeId = 1L;
         StockCountingImportDTO stockCountingImportDTO = new StockCountingImportDTO();
         List<StockCountingDetailDTO> importSuccess = Arrays.asList(new StockCountingDetailDTO(), new StockCountingDetailDTO());
         List<StockCountingExcel> importFails = Arrays.asList(new StockCountingExcel(), new StockCountingExcel());
@@ -146,8 +144,16 @@ public class InventoryControllerTest extends BaseTest {
                 new CoverResponse<>(stockCountingImportDTO, new InventoryImportInfo());
         MockMultipartFile firstFile = new MockMultipartFile("data", "filename.txt", "text/plain", "some xml".getBytes());
 //        given(service.importExcel(1L, firstFile, PageRequest.of(1, 20), "key",1L)).willReturn(data);
-        service.importExcel(1L, firstFile, PageRequest.of(1, 20), "key",1L);
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        service.importExcel(1L, firstFile, PageRequest.of(1, 20), "key",wareHouseTypeId);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("file", "" + firstFile);
+        params.add("searchKeywords", "searchKeywords");
+        params.add("wareHouseTypeId", wareHouseTypeId.toString());
+
+        ResultActions resultActions = mockMvc.perform(get(uri, "?page=1&size=10")
+                .params(params)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());

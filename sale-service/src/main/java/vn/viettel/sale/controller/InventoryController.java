@@ -114,8 +114,10 @@ public class InventoryController extends BaseController {
                                                                    @RequestBody List<StockCountingUpdateDTO> details) {
         ResponseMessage message = inventoryService.updateStockCounting(id, this.getShopId(httpRequest), this.getUsername(httpRequest), details);
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         return response;
     }
 

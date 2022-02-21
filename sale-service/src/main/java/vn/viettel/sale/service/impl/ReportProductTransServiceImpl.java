@@ -56,10 +56,13 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
         if (shop == null)
             throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         reportDTO.setShop(shop);
+        ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
+        reportDTO.setInfo(info);
 
         if(receiptType == 0) {
             PoTrans poTran = poTransRepo.findById(id)
                     .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
+
             if(poTran.getType() == 1) {
                 this.reportPoTransImport(reportDTO, poTran);
             }
@@ -88,9 +91,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     }
 
     public void reportPoTransExport(ReportProductTransDTO reportDTO, PoTrans poTrans) {
-        ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        this.reportDetailDTOMapping(info, poTrans);
-        reportDTO.setInfo(info);
+        this.reportDetailDTOMapping(reportDTO.getInfo(), poTrans);
         List<PoTransDetail> poTransDetails = poTransDetailRepo.getPoTransDetailPrint(poTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsPoTrans(poTransDetails,  reportDTO);
         Collections.sort(reportProductCatDTOS, Comparator.comparing(ReportProductCatDTO::getType));
@@ -99,10 +100,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     }
 
     public void reportPoTransImport(ReportProductTransDTO reportDTO, PoTrans poTrans) {
-        ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        this.reportDetailDTOMapping(info, poTrans);
-        reportDTO.setInfo(info);
-
+        this.reportDetailDTOMapping(reportDTO.getInfo(), poTrans);
         List<PoTransDetail> allPoTransDetails = poTransDetailRepo.getPoTransDetail(poTrans.getId());
         List<PoTransDetail> poTransProducts = new ArrayList<>();
         List<PoTransDetail> poTransProductsPromotions = new ArrayList<>();
@@ -123,9 +121,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     }
 
     public void reportStockAdjustmentTransExport(ReportProductTransDTO reportDTO, StockAdjustmentTrans stockAdjustmentTrans) {
-        ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        this.reportDetailDTOMapping(info, stockAdjustmentTrans);
-        reportDTO.setInfo(info);
+        this.reportDetailDTOMapping(reportDTO.getInfo(), stockAdjustmentTrans);
         List<StockAdjustmentTransDetail> stockAdjustmentTransDetails
                 = stockAdjustmentTransDetailRepo.getStockAdjustmentTransDetail(stockAdjustmentTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsStockAdjustmentTrans(stockAdjustmentTransDetails, reportDTO);
@@ -138,9 +134,7 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
     }
 
     public void reportStockBorrowingTransExport(ReportProductTransDTO reportDTO, StockBorrowingTrans stockBorrowingTrans) {
-        ReportProductTransDetailDTO info = new ReportProductTransDetailDTO();
-        this.reportDetailDTOMapping(info, stockBorrowingTrans);
-        reportDTO.setInfo(info);
+        this.reportDetailDTOMapping(reportDTO.getInfo(), stockBorrowingTrans);
         List<StockBorrowingTransDetail> borrowingDetails = stockBorrowingTransDetailRepo.getStockBorrowingTransDetail(stockBorrowingTrans.getId());
         List<ReportProductCatDTO> reportProductCatDTOS = this.groupProductsStockBorrowingTrans(borrowingDetails, reportDTO);
         Collections.sort(reportProductCatDTOS, Comparator.comparing(ReportProductCatDTO::getType));
@@ -153,8 +147,10 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
 
     public List<ReportProductCatDTO> groupProductsPoTrans(List<PoTransDetail> poTransDetails, ReportProductTransDTO reportDTO) {
         List<ReportProductCatDTO> reportProductCatDTOS = new ArrayList<>();
-        List<Product> products = poTransDetails.stream().map(
-                transDetail -> this.findProduct(transDetail.getProductId())).collect(Collectors.toList());
+        List<Long> productIds = poTransDetails.stream().map(PoTransDetail::getProductId).collect(Collectors.toList());
+        List<Product> products = productRepo.findAllById(productIds);
+//        List<Product> products = poTransDetails.stream().map(
+//                transDetail -> this.findProduct(transDetail.getProductId())).collect(Collectors.toList());
 
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);
@@ -202,8 +198,9 @@ public class ReportProductTransServiceImpl extends BaseServiceImpl<PoTrans, PoTr
 
     public List<ReportProductCatDTO> groupProductsStockAdjustmentTrans(List<StockAdjustmentTransDetail> stockAdjustmentTransDetails, ReportProductTransDTO reportDTO) {
         List<ReportProductCatDTO> reportProductCatDTOS = new ArrayList<>();
-
-        List<Product> products = stockAdjustmentTransDetails.stream().map(trans -> this.findProduct(trans.getProductId())).collect(Collectors.toList());
+        List<Long> productIds = stockAdjustmentTransDetails.stream().map(StockAdjustmentTransDetail::getProductId).collect(Collectors.toList());
+        List<Product> products = productRepo.findAllById(productIds);
+//        List<Product> products = stockAdjustmentTransDetails.stream().map(trans -> this.findProduct(trans.getProductId())).collect(Collectors.toList());
 
         List<Long> catIds = products.stream().map(Product::getCatId).collect(Collectors.toList());
         Set<Long> targetSet = new HashSet<>(catIds);

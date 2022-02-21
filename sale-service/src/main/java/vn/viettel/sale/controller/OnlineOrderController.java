@@ -19,6 +19,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.OnlineOrderService;
+import vn.viettel.sale.service.ReportProductTransService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.xml.DataSet;
 
@@ -38,6 +39,10 @@ public class OnlineOrderController extends BaseController {
     OnlineOrderService onlineOrderService;
 
     private final String root = "/sales/online-orders";
+
+    public void setService(OnlineOrderService service){
+        if(onlineOrderService == null) onlineOrderService = service;
+    }
 
     @GetMapping(value = { V1 + root } )
     @ApiOperation(value = "Tìm kiếm đơn online trong bán hàng")
