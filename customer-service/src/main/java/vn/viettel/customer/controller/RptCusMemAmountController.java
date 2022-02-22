@@ -35,4 +35,8 @@ public class RptCusMemAmountController extends BaseController {
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.FIND_RPT_CUS_MEM_AMOUNT_SUCCESS);
         return new Response<RptCusMemAmountDTO>().withData(rptCusMemAmountDTO);
     }
+
+    public void setService(RptCusMemAmountService service) {
+        if(rptCusMemAmountService == null) rptCusMemAmountService = service;
+    }
 }
