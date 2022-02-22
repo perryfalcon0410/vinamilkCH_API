@@ -14,6 +14,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.customer.service.CustomerService;
 import vn.viettel.customer.service.CustomerTypeService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -113,4 +114,7 @@ public class CustomerTypeController extends BaseController {
     }
 
 
+    public void setService(CustomerTypeService service) {
+        if( customerTypeService == null) customerTypeService = service;
+    }
 }
