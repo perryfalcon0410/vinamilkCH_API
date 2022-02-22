@@ -1,193 +1,316 @@
 package vn.viettel.customer.controller;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.common.ApParamDTO;
+import vn.viettel.core.dto.common.AreaDTO;
+import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CustomerRequest;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.customer.BaseTest;
+import vn.viettel.customer.entities.Customer;
+import vn.viettel.customer.entities.CustomerType;
+import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.messaging.CustomerFilter;
+import vn.viettel.customer.repository.CustomerRepository;
+import vn.viettel.customer.repository.CustomerTypeRepository;
+import vn.viettel.customer.repository.MemBerCustomerRepository;
 import vn.viettel.customer.service.CustomerService;
+import vn.viettel.customer.service.feign.ApParamClient;
+import vn.viettel.customer.service.feign.AreaClient;
+import vn.viettel.customer.service.feign.CategoryDataClient;
+import vn.viettel.customer.service.feign.ShopClient;
+import vn.viettel.customer.service.impl.CustomerServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class CustomerControllerTest extends BaseTest {
 
     private final String root = "/customers";
 
-    @MockBean
-    private CustomerService customerService;
+    @InjectMocks
+    private CustomerServiceImpl customerService;
+
+    @Mock
+    CustomerRepository repository;
+
+    @Mock
+    CustomerService service;
+
+    @Mock
+    CategoryDataClient categoryDataClient;
+
+    @Mock
+    ShopClient shopClient;
+
+    @Mock
+    AreaClient areaClient;
+
+    @Mock
+    MemBerCustomerRepository memBerCustomerRepository;
+
+    @Mock
+    CustomerTypeRepository customerTypeRepository;
+
+    @Mock
+    ApParamClient apParamClient;
+
+    private List<Customer> customerList;
+
+    private List<CategoryDataDTO> categoryDataDTOS;
+
+    private List<ApParamDTO> apParamDTOS;
+
+    private List<AreaDTO> areaDTOS;
+
+    private List<MemberCustomer> memberCustomers;
+
+    private List<CustomerType> customerTypes;
+
+    private List<ShopDTO> shopDTOS;
+
+
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        customerService.setModelMapper(this.modelMapper);
+        final CustomerController controller = new CustomerController();
+        controller.setService(service);
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+
+        customerList = new ArrayList<>();
+        for (int i = 1; i < 6; i++) {
+            final Customer entity = new Customer();
+            entity.setId((long) i);
+            entity.setAddress("Address" + i);
+            entity.setEmail("email." + i + "@email.com");
+            entity.setPhone("0941667427");
+            entity.setFirstName("A");
+            entity.setLastName("B");
+            entity.setNameText("A B");
+            entity.setShopId((long) i);
+            entity.setCustomerTypeId(1L);
+            entity.setCustomerCode("ABCDDNENE1234" + i);
+            entity.setDob(LocalDateTime.of(1993,10,10,10,10));
+            customerList.add(entity);
+        }
+
+        categoryDataDTOS = new ArrayList<>();
+
+        apParamDTOS = new ArrayList<>();
+        final ApParamDTO apParamDTO = new ApParamDTO();
+        apParamDTO.setStatus(1);
+        apParamDTO.setApParamName("18");
+        apParamDTOS.add(apParamDTO);
+
+        areaDTOS = new ArrayList<>();
+        final AreaDTO areaDTO = new AreaDTO();
+        areaDTO.setId(1L);
+        areaDTO.setAreaName("A");
+        areaDTO.setAreaCode("A");
+        areaDTO.setDistrict("A");
+        areaDTOS.add(areaDTO);
+
+        memberCustomers = new ArrayList<>();
+        final MemberCustomer memberCustomer = new MemberCustomer();
+        memberCustomer.setId(1L);
+        memberCustomer.setShopId(1L);
+        memberCustomers.add(memberCustomer);
+
+        customerTypes = new ArrayList<>();
+        final CustomerType customerType = new CustomerType();
+        customerType.setId(1L);
+        customerType.setStatus(1);
+        customerType.setPosModifyCustomer(1);
+        customerTypes.add(customerType);
+
+        shopDTOS = new ArrayList<>();
+        final ShopDTO shopDTO = new ShopDTO();
+        shopDTO.setId(1L);
+        shopDTOS.add(shopDTO);
+    }
 
     //-------------------------------GetAllCustomer-------------------------------
     @Test
     public void getAllCustomer() throws Exception {
         String uri = V1 + root;
-        int size = 2;
-        int page = 5;
+
+        CustomerFilter customerFilter = new CustomerFilter();
+
+        int size = 5;
+        int page = 1;
 
         PageRequest pageReq = PageRequest.of(page, size);
-        List<CustomerDTO> lstDto = Arrays.asList(new CustomerDTO(), new CustomerDTO());
-        Page<CustomerDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
 
-        given(customerService.index(any(),Mockito.any(PageRequest.class))).willReturn(pageDto);
+        Page<Customer> pageCustomer = new PageImpl<>(customerList, pageReq, customerList.size());
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        Response<List<CategoryDataDTO>> response = new Response<>();
+        response.withData(categoryDataDTOS);
+        Mockito.when(categoryDataClient.getGendersV1()).thenReturn(response);
+
+        Mockito.when(repository.findAllBy(
+                null,
+                "",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                pageReq
+        )).thenReturn(pageCustomer);
+
+        Page<CustomerDTO> customerDTOPage = customerService.index(customerFilter, pageReq);
+
+        assertEquals(customerList.size(), customerDTOPage.getSize());
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        String responeData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responeData, containsString("\"pageNumber\":" + page));
-        assertThat(responeData, containsString("\"pageSize\":" + size));
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     //-------------------------------UpdateCustomer-------------------------------
     @Test
     public void updateCustomerSuccessV1Test() throws Exception {
-        String uri = V1 + root + "/update/{id}";
+
+        Long id = customerList.get(0).getId();
+
+        String uri = V1 + root + "/update/" + id.toString();
 
         CustomerRequest requestObj = new CustomerRequest();
+        requestObj.setId(1L);
         requestObj.setFirstName("Test");
         requestObj.setLastName("Auto");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
         requestObj.setMobiPhone("0982222428");
         requestObj.setStatus(1);
-        requestObj.setAreaId(51L);
+        requestObj.setAreaId(1L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
+        requestObj.setCustomerCode("CUS.SHOP1.0001");
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("AUTO TEST");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
 
-        given( customerService.update((CustomerRequest) any(), any(), any(),any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.patch(uri, 1)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        Mockito.when(repository.findById(id)).thenReturn(Optional.ofNullable(customerList.get(0)));
+
+        Mockito.when(shopClient.getLevelUpdateCustomerV1(1L)).thenReturn(new Response<Long>().withData(1L));
+
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
+
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        CustomerDTO customerDTO = customerService.update(requestObj, id, 1L, true);
+
+        assertEquals(requestObj.getId(), customerDTO.getId());
+
+        ResultActions resultActions = mockMvc.perform(patch(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     //-------------------------------FindById-------------------------------------
     @Test
     public void findCustomerByIdSuccessV1Test() throws Exception {
-        String uri = V1 + root + "/{id}";
+        Long id = customerList.get(0).getId();
+        String uri = V1 + root + "/" + id.toString();
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName("requestObj.getFirstName()");
-        dtoObj.setLastName("(requestObj.getLastName()");
-        dtoObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        dtoObj.setMobiPhone("0941667427");
-        dtoObj.setId(1L);
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("AUTO TEST");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(1);
-        dtoObj.setStreet("requestObj.getStreet()");
-        dtoObj.setAreaId(51L);
-        dtoObj.setCustomerTypeId(1L);
+        Mockito.when(repository.getById(id)).thenReturn(customerList.get(0));
 
-        given( customerService.getCustomerById(any(),any())).willReturn(dtoObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.get(uri, 1)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        Mockito.when(memBerCustomerRepository.getMemberCustomer(1L))
+                .thenReturn(Optional.ofNullable(memberCustomers.get(0)));
+
+        Mockito.when(shopClient.getLevelUpdateCustomerV1(1L))
+                .thenReturn(new Response<Long>().withData(1L));
+
+        Mockito.when(customerTypeRepository.getById(1L))
+                .thenReturn(customerTypes.get(0));
+
+        CustomerDTO customerDTO = customerService.getCustomerById(id, 1L);
+
+        assertEquals(id, customerDTO.getId());
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     //-------------------------------FindByMobiPhone------------------------------
     @Test
     public void findCustomerByMobiPhoneSuccessV1Test() throws Exception {
-        String uri = V1 + root + "/phone/{phone}";
+        String phone = "0941667427";
+        String uri = V1 + root + "/phone/" + phone;
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName("requestObj.getFirstName()");
-        dtoObj.setLastName("(requestObj.getLastName()");
-        dtoObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        dtoObj.setMobiPhone("0941667427");
-        dtoObj.setId(1L);
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("AUTO TEST");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(1);
-        dtoObj.setStreet("requestObj.getStreet()");
-        dtoObj.setAreaId(51L);
-        dtoObj.setCustomerTypeId(1L);
+        Mockito.when(repository.getAllByMobiPhoneAndStatus(phone,1)).thenReturn(customerList);
 
-        List<CustomerDTO> customerDTOS = new ArrayList<>();
-        customerDTOS.add(dtoObj);
+        List<CustomerDTO> customerDTOS = customerService.getCustomerByMobiPhone(phone);
 
-        given( customerService.getCustomerByMobiPhone(any())).willReturn(customerDTOS);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.get(uri, "0941667427")
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        assertEquals(customerList.size(), customerDTOS.size());
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":["));
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     //-------------------------------FindCustomerDefault--------------------------
     @Test
     public void findCustomerDefaultSuccessV1Test() throws Exception {
+
         String uri = V1 + root + "/default";
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName("requestObj.getFirstName()");
-        dtoObj.setLastName("(requestObj.getLastName()");
-        dtoObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        dtoObj.setMobiPhone("0941667427");
-        dtoObj.setId(1L);
-        dtoObj.setShopId(1L);
-        dtoObj.setIsDefault(true);
-        dtoObj.setNameText("AUTO TEST");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(1);
-        dtoObj.setStreet("requestObj.getStreet()");
-        dtoObj.setAreaId(51L);
-        dtoObj.setCustomerTypeId(1L);
+        Mockito.when(repository.getCustomerDefault(1L))
+                .thenReturn(customerList.stream()
+                        .map(customer -> modelMapper.map(customer, CustomerDTO.class))
+                        .collect(Collectors.toList())
+                );
 
-        given( customerService.getCustomerDefault(any())).willReturn(dtoObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.get(uri)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        CustomerDTO customerDTO = customerService.getCustomerDefault(1L);
+
+        assertEquals(customerList.get(0).getId(), customerDTO.getId());
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     //-------------------------------CreateCustomer-------------------------------
@@ -198,37 +321,36 @@ public class CustomerControllerTest extends BaseTest {
         CustomerRequest requestObj = new CustomerRequest();
         requestObj.setFirstName("Test");
         requestObj.setLastName("Auto");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setMobiPhone("0982222428");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
         requestObj.setStatus(1);
-        requestObj.setAreaId(51L);
+        requestObj.setAreaId(1L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("AUTO TEST");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("data\":{"));
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -236,39 +358,37 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setLastName("Last");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setMobiPhone("0982222428");
+        requestObj.setLastName("Auto");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
         requestObj.setStatus(1);
-        requestObj.setAreaId(51L);
+        requestObj.setAreaId(1L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("Last");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7001"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -276,40 +396,37 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setFirstName("First");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setMobiPhone("0982222428");
+        requestObj.setFirstName("Test");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
         requestObj.setStatus(1);
-        requestObj.setAreaId(51L);
+        requestObj.setAreaId(1L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setCreatedAt(LocalDateTime.now());
-        dtoObj.setUpdatedAt(LocalDateTime.now());
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("First");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7000"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -317,40 +434,38 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setFirstName("First");
-        requestObj.setLastName("Last");
-        requestObj.setMobiPhone("0982222428");
+        requestObj.setFirstName("Test");
+        requestObj.setLastName("Auto");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
         requestObj.setStatus(1);
-        requestObj.setAreaId(51L);
+        requestObj.setAreaId(1L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setCreatedAt(LocalDateTime.now());
-        dtoObj.setUpdatedAt(LocalDateTime.now());
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("Last First");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7033"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -358,40 +473,38 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setFirstName("First");
-        requestObj.setLastName("Last");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
-        requestObj.setMobiPhone("0982222428");
-        requestObj.setAreaId(51L);
+        requestObj.setFirstName("Test");
+        requestObj.setLastName("Auto");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
+        requestObj.setStatus(1);
+        requestObj.setAreaId(1L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setCreatedAt(LocalDateTime.now());
-        dtoObj.setUpdatedAt(LocalDateTime.now());
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("Last First");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7003"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -399,40 +512,38 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setFirstName("First");
-        requestObj.setLastName("Last");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
+        requestObj.setFirstName("Test");
+        requestObj.setLastName("Auto");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
         requestObj.setStatus(1);
-        requestObj.setAreaId(51L);
+        requestObj.setAreaId(1L);
         requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setCreatedAt(LocalDateTime.now());
-        dtoObj.setUpdatedAt(LocalDateTime.now());
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("Last First");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7015"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -440,40 +551,38 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setFirstName("First");
-        requestObj.setLastName("Last");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
+        requestObj.setFirstName("Test");
+        requestObj.setLastName("Auto");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
         requestObj.setStatus(1);
-        requestObj.setMobiPhone("0941111111");
-        requestObj.setAreaId(51L);
+        requestObj.setAreaId(1L);
+        requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setCreatedAt(LocalDateTime.now());
-        dtoObj.setUpdatedAt(LocalDateTime.now());
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("Last First");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7040"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -481,39 +590,37 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/create";
 
         CustomerRequest requestObj = new CustomerRequest();
-        requestObj.setFirstName("First");
-        requestObj.setLastName("Last");
-        requestObj.setDob(LocalDateTime.of(2010,3,22,14,29,58));
+        requestObj.setFirstName("Test");
+        requestObj.setLastName("Auto");
+        requestObj.setDob(LocalDateTime.of(1993,3,22,14,29,58));
+        requestObj.setMobiPhone("0941667427");
         requestObj.setStatus(1);
-        requestObj.setMobiPhone("0941111111");
-        requestObj.setStreet("51L");
+        requestObj.setAreaId(1L);
+        requestObj.setStreet("123");
         requestObj.setCustomerTypeId(1L);
 
-        CustomerDTO dtoObj = new CustomerDTO();
-        dtoObj.setFirstName(requestObj.getFirstName());
-        dtoObj.setLastName(requestObj.getLastName());
-        dtoObj.setDob(requestObj.getDob());
-        dtoObj.setMobiPhone(requestObj.getMobiPhone());
-        dtoObj.setId(1L);
-        dtoObj.setCreatedAt(LocalDateTime.now());
-        dtoObj.setUpdatedAt(LocalDateTime.now());
-        dtoObj.setShopId(1L);
-        dtoObj.setNameText("Last First");
-        dtoObj.setCustomerCode("CUS.SHOP1.0001");
-        dtoObj.setStatus(requestObj.getStatus());
-        dtoObj.setStreet(requestObj.getStreet());
-        dtoObj.setAreaId(requestObj.getAreaId());
-        dtoObj.setCustomerTypeId(requestObj.getCustomerTypeId());
+        Mockito.when(apParamClient.getApParamByCodeV1("MIN_AGE"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
-        given( customerService.create(any(), any(), any())).willReturn(dtoObj);
-        String inputJson = super.mapToJson(requestObj);
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri)
-                        .content(inputJson)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"statusCode\":7022"));
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("\"data\":null"));
+        Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
+
+        Mockito.when(shopClient.getShopByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTOS.get(0)));
+
+        Mockito.when(repository.getLastCustomerNumber(1L,PageRequest.of(0,1)))
+                .thenReturn( new PageImpl<>(customerList, PageRequest.of(0,1), customerList.size()));
+
+        Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
+
+        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+
+        assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                        .content(super.mapToJson(requestObj))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 }
