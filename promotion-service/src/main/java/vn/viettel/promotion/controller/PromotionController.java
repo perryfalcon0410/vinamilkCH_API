@@ -284,4 +284,7 @@ public class PromotionController extends BaseController {
         return new Response<PromotionProgramDTO>().withData(response);
     }
 
+    public void setService(PromotionProgramService service) {
+        if(promotionProgramService == null) promotionProgramService = service;
+    }
 }
