@@ -16,23 +16,30 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.core.dto.common.CategoryDataDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
-import vn.viettel.sale.entities.ExchangeTrans;
-import vn.viettel.sale.repository.ExchangeTransRepository;
+import vn.viettel.sale.entities.*;
+import vn.viettel.sale.messaging.ExchangeTransDetailRequest;
+import vn.viettel.sale.messaging.ExchangeTransRequest;
+import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ExchangeTranService;
+import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.ExchangeTotalDTO;
 import vn.viettel.sale.service.dto.ExchangeTransDTO;
 import vn.viettel.sale.service.feign.CategoryDataClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.impl.ExchangeTranServiceImpl;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,9 +62,44 @@ public class ExchangeTransControllerTest extends BaseTest {
     @Mock
     CategoryDataClient categoryDataClient;
 
+    @Mock
+    CustomerTypeClient customerTypeClient;
+
+    @Mock
+    ProductPriceRepository priceRepository;
+
+    @Mock
+    StockTotalRepository stockTotalRepository;
+
+    @Mock
+    ExchangeTransDetailRepository transDetailRepository;
+
+    @Mock
+    StockTotalService stockTotalService;
+
+    @Mock
+    ProductRepository productRepo;
+
+    @Mock
+    CustomerClient customerClient;
+
     private List<ExchangeTrans> exchangeTransList;
 
     private List<CategoryDataDTO> categoryDataDTOS;
+
+    private List<CustomerTypeDTO> customerTypeDTOS;
+
+    private List<ExchangeTransDetailRequest> exchangeTransDetailRequests;
+
+    private List<Price> priceList;
+
+    private List<StockTotal> stockTotals;
+
+    private List<Product> products;
+
+    private List<CustomerDTO> customerDTOS;
+
+    private List<ExchangeTransDetail> dbExchangeTransDetails;
 
     @Before
     public void init() {
@@ -71,12 +113,72 @@ public class ExchangeTransControllerTest extends BaseTest {
         exchangeTransList = new ArrayList<>();
         final ExchangeTrans exchangeTrans = new ExchangeTrans();
         exchangeTrans.setId(1L);
+        exchangeTrans.setCustomerId(1L);
+        exchangeTrans.setTransDate(LocalDateTime.now());
+        exchangeTrans.setWareHouseTypeId(1L);
         exchangeTransList.add(exchangeTrans);
 
         categoryDataDTOS = new ArrayList<>();
         final CategoryDataDTO categoryDataDTO = new CategoryDataDTO();
         categoryDataDTO.setId(1L);
         categoryDataDTOS.add(categoryDataDTO);
+
+        customerTypeDTOS = new ArrayList<>();
+        final CustomerTypeDTO customerTypeDTO = new CustomerTypeDTO();
+        customerTypeDTO.setId(1L);
+        customerTypeDTO.setWareHouseTypeId(1L);
+        customerTypeDTOS.add(customerTypeDTO);
+
+        exchangeTransDetailRequests = new ArrayList<>();
+        final ExchangeTransDetailRequest exchangeTransDetailRequest = new ExchangeTransDetailRequest();
+        exchangeTransDetailRequest.setId(1L);
+        exchangeTransDetailRequest.setProductId(1L);
+        exchangeTransDetailRequest.setPrice(10D);
+        exchangeTransDetailRequest.setQuantity(10);
+        exchangeTransDetailRequest.setType(2);
+        exchangeTransDetailRequests.add(exchangeTransDetailRequest);
+
+        priceList = new ArrayList<>();
+        final Price price = new Price();
+        price.setId(1L);
+        price.setProductId(1L);
+        priceList.add(price);
+
+        stockTotals = new ArrayList<>();
+        final StockTotal stockTotal = new StockTotal();
+        stockTotal.setId(1L);
+        stockTotal.setProductId(1L);
+        stockTotal.setQuantity(10);
+        stockTotal.setStatus(1);
+        stockTotal.setShopId(1L);
+        stockTotals.add(stockTotal);
+
+        products = new ArrayList<>();
+        final Product product = new Product();
+        product.setId(1L);
+        product.setIsCombo(true);
+        product.setStatus(1);
+        product.setComboProductId(1L);
+        product.setProductCode("1");
+        product.setProductName("A");
+        products.add(product);
+
+        customerDTOS = new ArrayList<>();
+        final CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setId(1L);
+        customerDTO.setFullName("A");
+        customerDTO.setAddress("A");
+        customerDTO.setMobiPhone("0987654321");
+        customerDTOS.add(customerDTO);
+
+        dbExchangeTransDetails = new ArrayList<>();
+        final ExchangeTransDetail exchangeTransDetail = new ExchangeTransDetail();
+        exchangeTransDetail.setId(1L);
+        exchangeTransDetail.setShopId(1L);
+        exchangeTransDetail.setProductId(1L);
+        exchangeTransDetail.setPrice(10D);
+        exchangeTransDetail.setQuantity(10);
+        dbExchangeTransDetails.add(exchangeTransDetail);
     }
 
     //-------------------------------getAllReason-------------------------------
@@ -122,16 +224,35 @@ public class ExchangeTransControllerTest extends BaseTest {
     @Test
     public void createTest() throws Exception {
         String url = uri + "/create";
-        ExchangeTrans data = new ExchangeTrans();
-        data.setCustomerId(1L);
-        data.setTransCode("ABC");
-        data.setStatus(1);
-        data.setReasonId(6L);
-        data.setShopId(1L);
 
-        service.create(any(), any(), any());
+        ExchangeTransRequest exchangeTransRequest = new ExchangeTransRequest();
+        exchangeTransRequest.setTransCode("ABC");
+        exchangeTransRequest.setCustomerId(1L);
+        exchangeTransRequest.setShopId(1L);
+        exchangeTransRequest.setReasonId(1L);
+        exchangeTransRequest.setLstExchangeDetail(exchangeTransDetailRequests);
 
-        String inputJson = super.mapToJson(data);
+        Mockito.when(categoryDataClient.getByCategoryGroupCodeV1())
+                .thenReturn(new Response<List<CategoryDataDTO>>().withData(categoryDataDTOS));
+
+        Mockito.when(customerTypeClient.getCustomerTypeForSale(1L, 1L))
+                .thenReturn(customerTypeDTOS.get(0));
+
+        LocalDateTime date = LocalDateTime.now();
+
+        List<Long> productIds = exchangeTransDetailRequests.stream().map(
+                item -> item.getProductId()).distinct().collect(Collectors.toList());
+
+        Mockito.when(priceRepository.findProductPriceWithType(productIds, customerTypeDTOS.get(0).getId(), DateUtils.convertToDate(date)))
+                .thenReturn(priceList);
+
+        Mockito.when(stockTotalRepository.getStockTotal(1L, 1L, productIds))
+                .thenReturn(stockTotals);
+
+
+        ResponseMessage responseMessage = serviceImp.create(exchangeTransRequest, 1L, 1L);
+
+        String inputJson = super.mapToJson(exchangeTransRequest);
         ResultActions resultActions = mockMvc.perform(post(url)
                 .content(inputJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -143,12 +264,23 @@ public class ExchangeTransControllerTest extends BaseTest {
     //-------------------------------getExchangeTrans-------------------------------
     @Test
     public void getExchangeTransTest() throws Exception {
-        String url = uri + "/{id}";
+        Long id = 1L;
+        String url = uri + "/" + id;
 
-        Response<ExchangeTransDTO> result = new Response<>();
-        result.setData(new ExchangeTransDTO());
+        Mockito.when(repository.findById(id)).thenReturn(Optional.ofNullable(exchangeTransList.get(0)));
 
-        given(service.getExchangeTrans(any())).willReturn(result.getData());
+        List<Long> productIds = exchangeTransDetailRequests.stream().map(
+                item -> item.getProductId()).distinct().collect(Collectors.toList());
+
+        Mockito.when(productRepo.getProducts(productIds, null))
+                .thenReturn(products);
+
+        Mockito.when(customerClient.getCustomerByIdV1(1L))
+                .thenReturn(new Response<CustomerDTO>().withData(customerDTOS.get(0)));
+
+        ExchangeTransDTO exchangeTransDTO = serviceImp.getExchangeTrans(id);
+
+        assertEquals(id, exchangeTransDTO.getId());
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -161,18 +293,39 @@ public class ExchangeTransControllerTest extends BaseTest {
     //-------------------------------update-------------------------------
     @Test
     public void updateTest() throws Exception {
-        String url = uri + "/update/{id}";
+        Long id = 1L;
+        String url = uri + "/update/" + id.toString();
 
-        ExchangeTrans data = new ExchangeTrans();
-        data.setId(1L);
-        data.setCustomerId(1L);
-        data.setTransCode("ABC");
-        data.setStatus(1);
-        data.setReasonId(6L);
-        data.setShopId(1L);
+        ExchangeTransRequest exchangeTransRequest = new ExchangeTransRequest();
+        exchangeTransRequest.setTransCode("ABC");
+        exchangeTransRequest.setCustomerId(1L);
+        exchangeTransRequest.setShopId(1L);
+        exchangeTransRequest.setReasonId(1L);
+        exchangeTransRequest.setId(1L);
+        exchangeTransRequest.setTransDate(LocalDateTime.now());
+        exchangeTransRequest.setLstExchangeDetail(exchangeTransDetailRequests);
 
-        service.update(any(), any(), any());
-        String inputJson = super.mapToJson(data);
+        Mockito.when(repository.getById(id, 1L, 1L)).thenReturn(exchangeTransList.get(0));
+
+        Mockito.when(customerTypeClient.getCustomerTypeForSale(1L, 1L))
+                .thenReturn(customerTypeDTOS.get(0));
+
+        LocalDateTime date = LocalDateTime.now();
+
+        List<Long> productIds = exchangeTransDetailRequests.stream().map(
+                item -> item.getProductId()).distinct().collect(Collectors.toList());
+
+        Mockito.when(priceRepository.findProductPriceWithType(productIds, customerTypeDTOS.get(0).getId(), DateUtils.convertToDate(date)))
+                .thenReturn(priceList);
+
+        Mockito.when(stockTotalRepository.getStockTotal(1L, 1L, productIds))
+                .thenReturn(stockTotals);
+
+        Mockito.when(transDetailRepository.findByTransId(id))
+                .thenReturn(dbExchangeTransDetails);
+
+        serviceImp.update(id, exchangeTransRequest, 1L);
+        String inputJson = super.mapToJson(exchangeTransRequest);
         ResultActions resultActions = mockMvc.perform(put(url, 1L)
                 .content(inputJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
