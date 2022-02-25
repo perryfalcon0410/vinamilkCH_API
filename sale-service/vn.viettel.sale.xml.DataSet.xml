@@ -1,0 +1,10 @@
+<vn.viettel.sale.xml.DataSet>
+  <lstNewDataSet>
+    <vn.viettel.sale.xml.NewDataSet>
+      <header>
+        <pONumber>VN0002</pONumber>
+        <status>1</status>
+      </header>
+    </vn.viettel.sale.xml.NewDataSet>
+  </lstNewDataSet>
+</vn.viettel.sale.xml.DataSet>

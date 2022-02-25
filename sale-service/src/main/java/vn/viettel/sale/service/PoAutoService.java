@@ -8,9 +8,13 @@ import vn.viettel.sale.service.dto.PoAutoDetailProduct;
 
 public interface PoAutoService {
 
-	public List<PoAutoDTO> getAllPoAuto();
+	public List<PoAutoDTO> getAllPoAuto (Long shopID);
 	
 	public List<PoAutoDTO> getSearchPoAuto(String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus);
 	
-	public List<PoAutoDetailProduct> getPoAutoDetailProduct(Long poAutoId);
+	public List<PoAutoDetailProduct> getPoAutoDetailProduct(String poAutoNumber);
+	
+	public int approvePoAuto(List<String> poAutoNumberList);
+	
+	public int cancelPoAuto(List<String> poAutoNumberList);
 }

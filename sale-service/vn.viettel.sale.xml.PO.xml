@@ -1,0 +1,38 @@
+<vn.viettel.sale.xml.PO>
+  <newPOList>
+    <vn.viettel.sale.xml.NewPO>
+      <poHeader>
+        <vn.viettel.sale.xml.POHeader>
+          <distCode>MH30041002</distCode>
+          <poNumber>VN0002</poNumber>
+          <billToLocation>123 abc</billToLocation>
+          <shipToLocation>456 xyz</shipToLocation>
+          <orderDate>2022-02-25T11:37:56.191</orderDate>
+          <status>1</status>
+          <total>90000.0</total>
+          <paymentTerm>12 NET</paymentTerm>
+        </vn.viettel.sale.xml.POHeader>
+      </poHeader>
+      <poDetailList>
+        <vn.viettel.sale.xml.PODetail>
+          <lstLine>
+            <vn.viettel.sale.xml.Line>
+              <uom>CUO</uom>
+              <quantity>101</quantity>
+              <distCode>MH30041002</distCode>
+              <PONumber>VN0002</PONumber>
+              <itemCode>09TH06</itemCode>
+              <itemDescr>SP Thanh tao 006</itemDescr>
+              <siteId>KHOCHINH</siteId>
+              <price>10001.0</price>
+              <lineTotal>51.0</lineTotal>
+              <requestDate>2022-01-20T00:00:00</requestDate>
+              <version>1</version>
+              <planqty>12267</planqty>
+            </vn.viettel.sale.xml.Line>
+          </lstLine>
+        </vn.viettel.sale.xml.PODetail>
+      </poDetailList>
+    </vn.viettel.sale.xml.NewPO>
+  </newPOList>
+</vn.viettel.sale.xml.PO>

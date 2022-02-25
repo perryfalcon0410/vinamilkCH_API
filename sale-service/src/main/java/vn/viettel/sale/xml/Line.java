@@ -80,5 +80,10 @@ public class Line {
     private Float lineValue;
     @XStreamAlias("PromotionName")
     private String promotionName;
-
+    @XStreamAlias("RequestDate")
+    private LocalDateTime requestDate;
+    @XStreamAlias("VERSION")
+    private String version;
+    @XStreamAlias("PLANQTY")
+    private String planqty;
 }

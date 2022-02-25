@@ -38,4 +38,6 @@ public class POHeader {
     private String status;
     @XStreamAlias("Total")
     private Float total;
+    @XStreamAlias("PaymentTerm")
+    private String paymentTerm;
 }
