@@ -1,6 +1,7 @@
 package vn.viettel.sale.controller;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
@@ -8,14 +9,20 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.entities.ComboProduct;
+import vn.viettel.sale.entities.ComboProductDetail;
 import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.repository.ComboProductDetailRepository;
 import vn.viettel.sale.repository.ComboProductRepository;
 import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.ComboProductService;
 import vn.viettel.sale.service.dto.ComboProductDTO;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
@@ -37,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,7 +74,19 @@ public class ComboProductControllerTest extends BaseTest {
     @Mock
     ProductPriceRepository productPriceRepo;
 
+    @Mock
+    ComboProductDetailRepository comboProductDetailRepo;
+
+    @Mock
+    ProductRepository productRepo;
+
     private List<ComboProduct> lstEntities;
+
+    private List<Price> prices;
+
+    private List<ComboProductDetail> comboProductDetails;
+
+    private List<Product> products;
 
     @Before
     public void init() {
@@ -85,20 +105,32 @@ public class ComboProductControllerTest extends BaseTest {
             entity.setRefProductId(1L);
             lstEntities.add(entity);
         }
+
+        prices = new ArrayList<>();
+        final Price price = new Price();
+        price.setId(1L);
+        price.setProductId(1L);
+        prices.add(price);
+
+        comboProductDetails = new ArrayList<>();
+        final ComboProductDetail comboProductDetail = new ComboProductDetail();
+        comboProductDetail.setProductId(1L);
+        comboProductDetail.setId(1L);
+        comboProductDetails.add(comboProductDetail);
+
+        products = new ArrayList<>();
+        final Product product = new Product();
+        product.setId(1L);
+        products.add(product);
+
     }
 
     //-------------------------------findComboProducts-------------------------------
     @Test
     public void findComboProductsTest() throws Exception {
-//        when(shopClient.getShopByIdV1(id)).thenReturn(new Response<ShopDTO>().withData(shopDTO));
-//        List<Price> prices = new ArrayList<Price>();
-//        Price price = new Price();
-//        price.setProductId(1L);
-//        when(productPriceRepo.findProductPriceWithType(Arrays.asList(1L), 1L, null)).thenReturn(prices);
-//        doReturn(lstEntities).when(repository).findAll(Specification.where(ComboProductSpecification.hasKeyWord("keyWord")).and(ComboProductSpecification.hasStatus(1)));
         List<ComboProductDTO> dtos = serviceImp.findComboProducts(1L, "keyword", 1);
 
-//        assertEquals(0, dtos.size());
+        assertEquals(0, dtos.size());
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -110,11 +142,27 @@ public class ComboProductControllerTest extends BaseTest {
     //-------------------------------getComboProduct-------------------------------
     @Test
     public void getComboProductTest() throws Exception {
-        String url = uri + "/{id}";
+        Long id = lstEntities.get(0).getId();
+        String url = uri + "/" + id.toString();
 
-        ComboProductDTO result =  new ComboProductDTO();
+        Mockito.when(repository.findById(id)).thenReturn(Optional.ofNullable(lstEntities.get(0)));
 
-        given(service.getComboProduct(any(), any())).willReturn(result);
+        Mockito.when(productPriceRepo.findProductPriceWithType(
+                Arrays.asList(lstEntities.get(0).getRefProductId()),
+                null,
+                DateUtils.convertToDate(LocalDateTime.now())
+        )).thenReturn(prices);
+
+        Mockito.when(comboProductDetailRepo.findByComboProductIdAndStatus(1L,1))
+                .thenReturn(comboProductDetails);
+
+        Mockito.when(productRepo.getProducts(comboProductDetails
+                .stream().map(ComboProductDetail::getProductId).collect(Collectors.toList()), 1))
+                .thenReturn(products);
+
+        ComboProductDTO comboProductDTO = serviceImp.getComboProduct(1L, id);
+
+        assertEquals(id, comboProductDTO.getId());
 
         ResultActions resultActions = mockMvc.perform(get(url, 1L)
                 .contentType(MediaType.APPLICATION_JSON))

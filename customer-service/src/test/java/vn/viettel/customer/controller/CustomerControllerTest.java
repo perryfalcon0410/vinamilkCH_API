@@ -100,6 +100,7 @@ public class CustomerControllerTest extends BaseTest {
         customerService.setModelMapper(this.modelMapper);
         final CustomerController controller = new CustomerController();
         controller.setService(service);
+        this.setupAction(controller);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         customerList = new ArrayList<>();

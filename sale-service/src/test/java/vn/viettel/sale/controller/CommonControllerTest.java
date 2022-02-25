@@ -38,7 +38,6 @@ public class CommonControllerTest extends BaseTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-//        serviceImp.setModelMapper(this.modelMapper);
         final CommonController controller = new CommonController();
         controller.setService(service);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -49,16 +48,13 @@ public class CommonControllerTest extends BaseTest {
     public void getImportTypeTest() throws Exception {
         String url = uri + "/import-type";
 
-        List<ImportTypeDTO> result = new ArrayList<>();
-
-        given(service.getList()).willReturn(result);
+        List<ImportTypeDTO> result = serviceImp.getList();
 
         ResultActions resultActions = mockMvc.perform(get(url)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     //-------------------------------getPoConfirmStatus-------------------------------
