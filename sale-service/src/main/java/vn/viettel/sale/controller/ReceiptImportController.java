@@ -22,6 +22,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.excel.ExportExcel;
 import vn.viettel.sale.messaging.*;
+import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.ShopClient;
@@ -41,7 +42,10 @@ public class ReceiptImportController extends BaseController {
     ReceiptImportService receiptService;
     @Autowired
     ShopClient shopClient;
-        private final String root = "/sales/import";
+    private final String root = "/sales/import";
+    public void setService(ReceiptImportService service){
+        if(receiptService == null) receiptService = service;
+    }
 
     @GetMapping(value = { V1 + root })
     @ApiOperation(value = "Lấy danh sách phiếu nhập hàng")
@@ -76,7 +80,8 @@ public class ReceiptImportController extends BaseController {
                                             @Valid @RequestBody ReceiptCreateRequest rq) {
         ResponseMessage message = receiptService.createReceipt(rq,this.getUserId(request),this.getShopId(request));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
+        if(message != null)
+            response.setStatusValue(message.statusCodeValue());
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_IMPORT_SUCCESS);
         return response;
     }

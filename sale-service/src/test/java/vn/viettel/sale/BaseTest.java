@@ -29,6 +29,18 @@ public class BaseTest extends JsonObjectConverter {
     @Autowired
     protected MockMvc mockMvc;
 
+    public void setupAction(Object... controllers) {
+        mockMvc = MockMvcBuilders.standaloneSetup(controllers)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+                .setViewResolvers(new ViewResolver() {
+                    @Override
+                    public View resolveViewName(String viewName, Locale locale) throws Exception {
+                        return new MappingJackson2JsonView();
+                    }
+                })
+                .build();
+    }
+
     @Test
     public void initTest() throws Exception {
         assertEquals("", "");
