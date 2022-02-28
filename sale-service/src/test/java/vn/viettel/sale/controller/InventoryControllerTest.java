@@ -19,6 +19,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.entities.StockCounting;
@@ -71,7 +72,7 @@ public class InventoryControllerTest extends BaseTest {
         serviceImp.setModelMapper(this.modelMapper);
         final InventoryController controller = new InventoryController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
     }
 
     @Test
@@ -149,10 +150,11 @@ public class InventoryControllerTest extends BaseTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("file", "" + firstFile);
         params.add("searchKeywords", "searchKeywords");
-        params.add("wareHouseTypeId", wareHouseTypeId.toString());
+//        params.add("wareHouseTypeId", "1");
 
-        ResultActions resultActions = mockMvc.perform(get(uri, "?page=1&size=10")
-                .params(params)
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("wareHouseTypeId", "1L")
+//                .params(params)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -257,18 +259,17 @@ public class InventoryControllerTest extends BaseTest {
     @Test
     public void testCreateStockCounting() throws Exception {
         String uri = V1 + root + "/inventory?override=true";
+        Long wareHouseTypeId = 1L;
+        Long shopId = 1L;
         List<StockCountingDetailDTO> request = Arrays.asList(new StockCountingDetailDTO(), new StockCountingDetailDTO());
-//        given(repository.findById(1L)).willReturn(Optional.empty());
-//        StockCounting stockCounting = new StockCounting();
-//        stockCounting.setCountingDate(LocalDateTime.now());
-//        stockCounting.setShopId(1L);
-//        stockCounting.setWareHouseTypeId(1L);
-//        stockCounting.setId(1L);
-//        given(repository.save(stockCounting)).willAnswer(invocation -> invocation.getArgument(0));
-        Long id = service.createStockCounting(request,1L, 1L, 1L, true);
+//        given(repository.findByWareHouseTypeId(wareHouseTypeId,shopId,
+//                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())))
+//                .willReturn(new ArrayList<>());
+        Long id = service.createStockCounting(request,1L, shopId, wareHouseTypeId, true);
         assertNotNull(id);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions = mockMvc.perform(post(uri)
+                .param("wareHouseTypeId", "1")
                 .content(inputJson)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());

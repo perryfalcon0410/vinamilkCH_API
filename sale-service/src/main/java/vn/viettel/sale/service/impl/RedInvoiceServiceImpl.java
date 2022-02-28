@@ -93,11 +93,10 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
         if (tsToDate == null) tsToDate = LocalDateTime.now();
         tsFromDate = DateUtils.convertFromDate(tsFromDate);
         tsToDate = DateUtils.convertToDate(tsToDate);
-
         Page<RedInvoice> redInvoices = repository.findAll(Specification.where(RedInvoiceSpecification.hasCustomerId(ids))
                 .and(RedInvoiceSpecification.hasShopId(shopId))
                 .and(RedInvoiceSpecification.hasFromDateToDate(fromDate, toDate))
-                .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);;
+                .and(RedInvoiceSpecification.hasInvoiceNumber(invoiceNumber)), pageable);
 
         Page<RedInvoiceDTO> redInvoiceDTOS = redInvoices.map(red -> modelMapper.map(red, RedInvoiceDTO.class));
         TotalRedInvoice totalRedInvoice = repository.getTotalRedInvoice1(shopId, ids, invoiceNumber, tsFromDate, tsToDate);

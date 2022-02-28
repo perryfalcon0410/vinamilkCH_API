@@ -53,7 +53,7 @@ public class OrderReturnControllerTest extends BaseTest {
 //        serviceImp.setModelMapper(this.modelMapper);
         final OrderReturnController controller = new OrderReturnController();
         controller.setService(orderReturnService);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
     }
 
     @Test
@@ -68,7 +68,10 @@ public class OrderReturnControllerTest extends BaseTest {
                 new CoverResponse<>(orderReturnDTOS, new SaleOrderTotalResponse());
 //        given(orderReturnService.getAllOrderReturn(any(), Mockito.any(PageRequest.class), any())).willReturn(data);
         orderReturnService.getAllOrderReturn(any(), Mockito.any(PageRequest.class), any());
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate", "2022/02/22")
+                .param("toDate", "2022/02/22")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());

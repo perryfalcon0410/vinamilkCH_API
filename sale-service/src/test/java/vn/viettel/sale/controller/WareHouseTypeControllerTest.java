@@ -44,7 +44,7 @@ public class WareHouseTypeControllerTest extends BaseTest {
         serviceImp.setModelMapper(this.modelMapper);
         final WareHouseTypeController controller = new WareHouseTypeController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
     }
 
     @Test

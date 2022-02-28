@@ -108,7 +108,6 @@ public class ExchangeTransControllerTest extends BaseTest {
         final ExchangeTransController controller = new ExchangeTransController();
         controller.setService(service);
         this.setupAction(controller);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         exchangeTransList = new ArrayList<>();
         final ExchangeTrans exchangeTrans = new ExchangeTrans();
@@ -271,9 +270,6 @@ public class ExchangeTransControllerTest extends BaseTest {
 
         List<Long> productIds = exchangeTransDetailRequests.stream().map(
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
-
-        Mockito.when(productRepo.getProducts(productIds, null))
-                .thenReturn(products);
 
         Mockito.when(customerClient.getCustomerByIdV1(1L))
                 .thenReturn(new Response<CustomerDTO>().withData(customerDTOS.get(0)));

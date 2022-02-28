@@ -75,11 +75,11 @@ public class ReceiptExportControllerTest extends BaseTest {
         serviceImp.setModelMapper(this.modelMapper);
         final ReceiptExportController controller = new ReceiptExportController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
     }
 
     @Test
-    public void find() throws Exception {
+    public void findTest() throws Exception {
         String uri = V1 + root;
         Long shopId = 1L;
         String transCode = "";
@@ -94,7 +94,10 @@ public class ReceiptExportControllerTest extends BaseTest {
                 toDate, 0, shopId, pageable);
         assertNotNull(result);
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate", "2022/02/22")
+                .param("toDate", "2022/02/22")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
@@ -122,7 +125,6 @@ public class ReceiptExportControllerTest extends BaseTest {
 //        when(repository.findByIdAndShopIdAndTypeAndStatus(request.getReceiptImportId(), 1L, 1,1 )).thenReturn(java.util.Optional.of(poTrans));
 //        when(poTransDetailRepository.getPoTransDetailByTransId(id)).thenReturn(poTransDetails);
         ResponseMessage responseMessage = service.createReceipt( request, 1L, 1L);
-        System.out.println("jjjjjjjjj " + responseMessage);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)

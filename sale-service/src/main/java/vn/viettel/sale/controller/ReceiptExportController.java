@@ -74,7 +74,9 @@ public class ReceiptExportController extends BaseController {
     public Response<String> createReceipt(HttpServletRequest request, @Valid @RequestBody ReceiptExportCreateRequest rq) {
         ResponseMessage message = receiptExportService.createReceipt(rq, this.getUserId(request),this.getShopId(request));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+        }
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.CREATE_RECEIPT_EXPORT_SUCCESS);
         return response;
     }
@@ -89,8 +91,10 @@ public class ReceiptExportController extends BaseController {
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_EXPORT_SUCCESS);
         ResponseMessage message = receiptExportService.updateReceiptExport(rq, Id,this.getShopId(request));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         return response;
     }
     @PutMapping(value = { V1 + root + "/remove/{Id}"})
@@ -104,8 +108,10 @@ public class ReceiptExportController extends BaseController {
                                                 @ApiParam("Id phiếu xuất")@PathVariable long Id) {
         ResponseMessage message = receiptExportService.removeReceiptExport(type,Id,this.getShopId(request));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.REMOVE_RECEIPT_EXPORT_SUCCESS);
         return response;
     }

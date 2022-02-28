@@ -43,7 +43,7 @@ public class RedInvoiceDetailControllerTest extends BaseTest {
         serviceImp.setModelMapper(this.modelMapper);
         final RedInvoiceDetailController controller = new RedInvoiceDetailController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
     }
 
     @Test

@@ -23,6 +23,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.service.ProductService;
+import vn.viettel.sale.service.ReceiptImportService;
 import vn.viettel.sale.service.RedInvoiceService;
 import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.dto.*;
@@ -44,6 +45,10 @@ public class RedInvoiceController extends BaseController {
     @Autowired
     ProductService productService;
     private final String root = "/sales";
+
+    public void setService(RedInvoiceService service){
+        if(redInvoiceService == null) redInvoiceService = service;
+    }
 
     @ApiOperation(value = "Danh sách hóa đơn đỏ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

@@ -94,7 +94,7 @@ public class ComboProductControllerTest extends BaseTest {
         serviceImp.setModelMapper(this.modelMapper);
         final ComboProductController controller = new ComboProductController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
 
         lstEntities = new ArrayList<>();
         for (int i = 1; i < 6; i++) {

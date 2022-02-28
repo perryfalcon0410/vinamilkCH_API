@@ -109,7 +109,6 @@ public class ComboProductTransControllerTest extends BaseTest {
         final ComboProductTransController controller = new ComboProductTransController();
         controller.setService(service);
         this.setupAction(controller);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         lstEntities = new ArrayList<>();
         for (Long i = 1L; i < 6L; i++) {

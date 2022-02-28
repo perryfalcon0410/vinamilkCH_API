@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -17,25 +17,31 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import vn.viettel.core.messaging.Response;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.BaseTest;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.messaging.OrderProductRequest;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.ProductService;
-import vn.viettel.sale.service.ReportProductTransService;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
 import vn.viettel.sale.service.dto.ProductDTO;
 import vn.viettel.sale.service.dto.ProductInfoDTO;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.impl.ProductServiceImpl;
-import vn.viettel.sale.service.impl.ReportProductTransServiceImpl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,13 +55,25 @@ public class ProductControllerTest extends BaseTest {
     @Mock
     ProductService service;
 
+    @Mock
+    ProductRepository repository;
+
+    @Mock
+    CustomerTypeClient customerTypeClient;
+
+    @Mock
+    StockTotalRepository stockTotalRepo;
+
+    @Mock
+    ProductPriceRepository productPriceRepo;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
         serviceImp.setModelMapper(this.modelMapper);
         final ProductController controller = new ProductController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
     }
 
     //-------------------------------findALlProductInfo-------------------------------
@@ -95,7 +113,7 @@ public class ProductControllerTest extends BaseTest {
         service.findProducts(any(), Mockito.any(PageRequest.class));
         ResultActions resultActions = mockMvc
                 .perform(get(uri)
-                        .param("customerTypeId", "1")
+                        .param("customerId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
@@ -116,10 +134,11 @@ public class ProductControllerTest extends BaseTest {
 
 //        given(service.findProductsMonth(any(),any(), any())).willReturn(pageDto);
 
-        service.findProductsMonth(any(),any(), any());
+        service.findProductsMonth(1L,1L, pageReq);
         ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("customerId", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("customerTypeId", "1"))
+        )
                 .andDo(MockMvcResultHandlers.print());
 
         MvcResult mvcResult = resultActions.andReturn();
@@ -167,17 +186,36 @@ public class ProductControllerTest extends BaseTest {
     @Test
     public void changeCustomerTypeSuccessV1Test() throws Exception {
         String uri = V1 + root + "/change/customer-type/{customerTypeId}";
+        Long customerTypeId = 1L;
+        Long shopId = 1L;
+        List<OrderProductRequest> productsRequests = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        List<StockTotal> stockTotals = new ArrayList<>();
+        for(int i = 1; i < 5; i++){
+            OrderProductRequest orderProductRequest = new OrderProductRequest();
+            orderProductRequest.setProductId((long)i);
+            productsRequests.add(orderProductRequest);
 
-        OrderProductsDTO dtoObj = new OrderProductsDTO();
-//        given( service.changeCustomerType(any(), any(), any())).willReturn(dtoObj);
-        service.changeCustomerType(any(), any(), any());
-        ResultActions resultActions =  mockMvc
-                .perform(MockMvcRequestBuilders.post(uri, 1)
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                        .param("customerTypeId", "1"))
-                .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
+            Product product = new Product();
+            product.setId((long)i);
+            products.add(product);
+        }
+        CustomerTypeDTO customerType = new CustomerTypeDTO();
+        customerType.setWareHouseTypeId(1L);
+        given(customerTypeClient.getCusTypeById(customerTypeId)).willReturn(customerType);
+        List<Long> productIds = productsRequests.stream().map(item -> item.getProductId()).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        given(repository.getProducts(productIds,1)).willReturn(products);
+//        given(stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), productIds)).willReturn(stockTotals);
+//        given(productPriceRepo.findProductPriceWithType(productIds, customerTypeId, DateUtils.convertToDate(LocalDateTime.now()))).willReturn(new ArrayList<>());
+
+        serviceImp.changeCustomerType(customerTypeId, shopId, productsRequests);
+//        ResultActions resultActions =  mockMvc
+//                .perform(MockMvcRequestBuilders.post(uri, 1)
+//                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+//                        .param("customerTypeId", "1"))
+//                .andDo(MockMvcResultHandlers.print());
+//        MvcResult mvcResult = resultActions.andReturn();
+//        assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     //-------------------------------findProductsByKeyWord-----------------------------

@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,17 +33,13 @@ import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.service.impl.ReceiptImportServiceImpl;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.BDDMockito.given;
@@ -226,7 +221,10 @@ public class ReceiptImportControllerTest extends BaseTest {
         assertNotNull(result);
         assertEquals(listDto.size(),((Page<ReceiptImportListDTO>)result.getResponse()).getSize());
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate", "01/04/2021")
+                .param("toDate", "01/04/2021")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
@@ -245,7 +243,10 @@ public class ReceiptImportControllerTest extends BaseTest {
         assertNotNull(result);
         assertEquals(list.size(),((Page<ReceiptImportListDTO>)result.getResponse()).getSize());
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate", "2022/02/22")
+                .param("toDate", "2022/02/22")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
@@ -263,7 +264,10 @@ public class ReceiptImportControllerTest extends BaseTest {
         assertNotNull(result);
         assertEquals(list.size(),((Page<ReceiptImportListDTO>)result.getResponse()).getSize());
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate", "2022/02/22")
+                .param("toDate", "2022/02/22")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
@@ -281,7 +285,10 @@ public class ReceiptImportControllerTest extends BaseTest {
         assertNotNull(result);
         assertEquals(list.size(),((Page<ReceiptImportListDTO>)result.getResponse()).getSize());
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate", "2022/02/22")
+                        .param("toDate", "2022/02/22")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());

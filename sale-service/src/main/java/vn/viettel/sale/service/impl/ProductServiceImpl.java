@@ -296,9 +296,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         if(productRequest.getProductId() == null) return this.newProduct(productRequest);
 
         Product product = null;
-        for (Product p : products){
-            if(p.getId().equals(productRequest.getProductId())){
-                product = p; break;
+        if(products != null) {
+            for (Product p : products) {
+                if (p.getId().equals(productRequest.getProductId())) {
+                    product = p;
+                    break;
+                }
             }
         }
         /*if(product == null) throw new ValidateException(ResponseMessage.PRODUCT_NOT_FOUND, productRequest.getProductId() + "");*/
@@ -313,17 +316,23 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         }
 
         double price = 0;
-        for (Price p : prices){
-            if(p.getProductId().equals(productRequest.getProductId())){
-                price = p.getPrice(); break;
+        if(prices != null) {
+            for (Price p : prices) {
+                if (p.getProductId().equals(productRequest.getProductId())) {
+                    price = p.getPrice();
+                    break;
+                }
             }
         }
 
         dto.setPrice(price);
         int stockTotal = 0;
-        for(StockTotal p : stockTotals){
-            if(p.getProductId().equals(product.getId())){
-                stockTotal = p.getQuantity(); break;
+        if(stockTotals != null) {
+            for (StockTotal p : stockTotals) {
+                if (p.getProductId().equals(product.getId())) {
+                    stockTotal = p.getQuantity();
+                    break;
+                }
             }
         }
 

@@ -40,7 +40,7 @@ public class CommonControllerTest extends BaseTest {
         MockitoAnnotations.initMocks(this);
         final CommonController controller = new CommonController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
     }
 
     //-------------------------------getImportType-------------------------------

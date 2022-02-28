@@ -45,17 +45,4 @@ public class BaseTest extends JsonObjectConverter {
     public void initTest() throws Exception {
         assertEquals("", "");
     }
-
-    public void setupAction(Object... controllers) {
-        mockMvc = MockMvcBuilders.standaloneSetup(controllers)
-                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-                .setViewResolvers(new ViewResolver() {
-                    @Override
-                    public View resolveViewName(String viewName, Locale locale) throws Exception {
-                        return new MappingJackson2JsonView();
-                    }
-                })
-                .build();
-
-    }
 }
