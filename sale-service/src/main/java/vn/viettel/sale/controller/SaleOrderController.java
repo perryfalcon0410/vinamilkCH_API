@@ -106,4 +106,7 @@ public class SaleOrderController extends BaseController {
     }
 
 
+    public void setService(SaleOrderService service) {
+        if(saleOrderService == null) saleOrderService = service;
+    }
 }
