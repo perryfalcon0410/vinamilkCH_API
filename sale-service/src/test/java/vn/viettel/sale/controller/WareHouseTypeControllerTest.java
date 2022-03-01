@@ -8,7 +8,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.repository.WareHouseTypeRepository;
 import vn.viettel.sale.service.WareHouseTypeService;

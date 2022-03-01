@@ -89,7 +89,6 @@ public class SaleOrderControllerTest extends BaseTest {
         final SaleOrderController controller = new SaleOrderController();
         controller.setService(service);
         this.setupAction(controller);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         lstEntities = new ArrayList<>();
         for (Long i = 1L; i < 6L; i++) {

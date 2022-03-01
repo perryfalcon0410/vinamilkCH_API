@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -150,7 +151,11 @@ public class RedInvoiceController extends BaseController {
             HttpServletRequest httpRequest,
             @ApiParam(value = "Tìm theo tên, mã")
             @RequestParam(value = "keyWord", required = false) String keyWord) {
-        List<ProductDataSearchDTO> productDataSearchDTOS = productService.findAllProduct(getShopId(httpRequest), keyWord);
+        List<ProductDataSearchDTO> productDataSearchDTOS = new ArrayList<>();
+        Long id = getShopId(httpRequest);
+        if(id != null) {
+            productDataSearchDTOS = productService.findAllProduct(id, keyWord);
+        }
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.SEARCH_PRODUCT_SUCCESS);
         return new Response<List<ProductDataSearchDTO>>().withData(productDataSearchDTOS);
     }
@@ -182,8 +187,10 @@ public class RedInvoiceController extends BaseController {
                                             @RequestParam(value = "ids", required = false) List<Long> ids) {
         ResponseMessage message = redInvoiceService.deleteByIds(ids);
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.DELETE_RED_INVOICE_SUCCESS);
         return response;
     }
@@ -192,8 +199,10 @@ public class RedInvoiceController extends BaseController {
     public Response<ResponseMessage> update(@Valid @RequestBody List<RedInvoiceRequest> redInvoiceRequests, HttpServletRequest httpRequest) {
         ResponseMessage message = redInvoiceService.updateRed(redInvoiceRequests, this.getUserId(httpRequest), this.getShopId(httpRequest));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.UPDATE_RED_INVOICE_SUCCESS);
         return response;
     }
