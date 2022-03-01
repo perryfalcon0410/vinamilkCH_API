@@ -171,6 +171,35 @@ public class ConnectFTP {
 
         return false;
     }
+    
+    public boolean uploadFileV2(InputStream inputStream, String fileName, String locationPath){
+        try {
+            if(inputStream != null && !StringUtils.stringIsNullOrEmpty(fileName)) {
+                if (StringUtils.stringIsNullOrEmpty(locationPath)) {
+                    locationPath = "/POCHGTSP/MTAUTOPO";
+                }
+                if(ftpClient != null && ftpClient.isConnected()){
+                    ftpClient.setFileTransferMode(FTPClient.BINARY_FILE_TYPE);
+                    ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+                    if (!ftpClient.changeWorkingDirectory(locationPath)) {
+                    	ftpClient.makeDirectory(locationPath);
+                    }
+                    ftpClient.storeFile( locationPath + "/" + fileName, inputStream);
+                    ftpClient.sendNoOp();
+                } else {
+                    Path pathLocation = Paths.get(locationPath).toAbsolutePath().normalize();
+                    Files.createDirectories(pathLocation);
+                    Path targetLocation = pathLocation.resolve(fileName);
+                    Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+                }
+                return true;
+            }
+        }catch (Exception ex) {
+            LogFile.logToFile("sale-service", "schedule", LogLevel.ERROR, null, "FTP upload error: " + ex.getMessage());
+        }
+
+        return false;
+    }
 
     public boolean moveFile(String fromPath, String toPath, String fileName){
         try {

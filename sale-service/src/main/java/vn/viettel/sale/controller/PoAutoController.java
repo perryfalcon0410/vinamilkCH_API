@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +29,7 @@ import vn.viettel.sale.service.dto.PoAutoNumberList;
 @RestController
 public class PoAutoController extends BaseController {
 
-	private final String root = "/sales";
+	private final String root = "/sales/po-auto";
 
 	@Autowired
 	PoAutoService poAutoService;
@@ -36,9 +37,11 @@ public class PoAutoController extends BaseController {
 	@ApiOperation(value = "Api dùng để lấy tất cả danh sách mua hàng")
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/po-list" })
-	public Response<List<PoAutoDTO>> getAllPoAuto(HttpServletRequest httpRequest) {
+	public Response<List<PoAutoDTO>> getAllPoAuto(HttpServletRequest httpRequest, @RequestParam(name = "page", required = false) Integer page) {
 
-		List<PoAutoDTO> response = poAutoService.getAllPoAuto(this.getShopId(httpRequest));
+		if(page == null) page = 0;
+		
+		List<PoAutoDTO> response = poAutoService.getAllPoAuto(this.getShopId(httpRequest), page);
 
 		return new Response<List<PoAutoDTO>>().withData(response);
 	}
@@ -47,12 +50,12 @@ public class PoAutoController extends BaseController {
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/po-search-list" })
 	public Response<List<PoAutoDTO>> getSearchPoAuto(HttpServletRequest httpRequest, 
-													@RequestParam String poAutoNumber,
-													@RequestParam String poGroupCode,
-													@RequestParam(value="fromCreateDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date fromCreateDate,
-													@RequestParam(value="toCreateDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date toCreateDate,
-													@RequestParam(value="fromApproveDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date fromApproveDate,
-													@RequestParam(value="toApproveDate") @DateTimeFormat(pattern="yyyy-MM-dd") Date toApproveDate,
+													@RequestParam(name = "poAutoNumber", required = false) String poAutoNumber,
+													@RequestParam(name = "poGroupCode", required = false) String poGroupCode,
+													@RequestParam(value="fromCreateDate") @DateTimeFormat(iso=ISO.DATE) Date fromCreateDate,
+													@RequestParam(value="toCreateDate") @DateTimeFormat(iso=ISO.DATE) Date toCreateDate,
+													@RequestParam(value="fromApproveDate") @DateTimeFormat(iso=ISO.DATE) Date fromApproveDate,
+													@RequestParam(value="toApproveDate") @DateTimeFormat(iso=ISO.DATE) Date toApproveDate,
 													@RequestParam int poStatus) {
 
 		List<PoAutoDTO> response = poAutoService.getSearchPoAuto(poAutoNumber,
@@ -61,17 +64,18 @@ public class PoAutoController extends BaseController {
 																 DateUtils.convertToDate(toCreateDate),
 																 DateUtils.convertFromDate(fromApproveDate),
 																 DateUtils.convertToDate(toApproveDate),
-																 poStatus);
+																 poStatus,
+																 this.getShopId(httpRequest));
 
 		return new Response<List<PoAutoDTO>>().withData(response);
 	}
 	
-	@ApiOperation(value = "Api dùng để tìm kiếm danh sách mua hàng")
+	@ApiOperation(value = "Api dùng để lấy chi tiết của đơn hàng")
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/po-detail-product" })
 	public Response<List<PoAutoDetailProduct>> getPoAutoProduct(HttpServletRequest httpRequest, @RequestParam String poAutoNumber) {
 		
-		List<PoAutoDetailProduct> response = poAutoService.getPoAutoDetailProduct(poAutoNumber);
+		List<PoAutoDetailProduct> response = poAutoService.getPoAutoDetailProduct(poAutoNumber, this.getShopId(httpRequest));
 		
 		return new Response<List<PoAutoDetailProduct>>().withData(response);
 	}
@@ -86,7 +90,7 @@ public class PoAutoController extends BaseController {
                                                          @ApiParam("PO auto number need approve")
                                                          @RequestBody PoAutoNumberList poAutoNumberList ) {
     	
-    	int response = poAutoService.approvePoAuto(poAutoNumberList.getPoAutoNumberList());
+    	int response = poAutoService.approvePoAuto(poAutoNumberList.getPoAutoNumberList(), this.getShopId(request));
         
         return new Response<Integer>().withData(response);
     }
@@ -101,7 +105,7 @@ public class PoAutoController extends BaseController {
                                                          @ApiParam("PO auto number need cancel")
                                                          @RequestBody PoAutoNumberList poAutoNumberList ) {
     	
-    	int response = poAutoService.cancelPoAuto(poAutoNumberList.getPoAutoNumberList());
+    	int response = poAutoService.cancelPoAuto(poAutoNumberList.getPoAutoNumberList(), this.getShopId(request));
         
         return new Response<Integer>().withData(response);
     }

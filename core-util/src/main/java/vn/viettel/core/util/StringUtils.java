@@ -16,6 +16,12 @@ public class StringUtils {
         fileName +="_"+shopCode+".xml";
         return fileName;
     }
+    
+    public static String createXmlFileNameV2(String shopCode) {
+        String fileName = "Exp_MT_PO_" + shopCode + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        fileName += ".xml";
+        return fileName;
+    }
 
     public static boolean stringNotNullOrEmpty(String value) {
         if (value == null || "".equals(value.trim()))

@@ -85,5 +85,5 @@ public class Line {
     @XStreamAlias("VERSION")
     private String version;
     @XStreamAlias("PLANQTY")
-    private String planqty;
+    private Integer planqty;
 }
