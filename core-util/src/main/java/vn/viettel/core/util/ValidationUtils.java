@@ -1,17 +1,13 @@
 package vn.viettel.core.util;
 
-import org.apache.commons.lang3.EnumUtils;
-import vn.viettel.core.util.status.Validatable;
-
-import java.util.List;
 import java.util.function.Predicate;
 
 public class ValidationUtils {
 
-    public static <T extends Enum<T> & Validatable> boolean isValidEnumValue(Class<T> enumClazz, Object value) {
-        List<T> avaiableEnums = EnumUtils.getEnumList(enumClazz);
-        return avaiableEnums.stream().anyMatch(anEnum -> anEnum.validateValue().equals(String.valueOf(value)));
-    }
+//    public static <T extends Enum<T> & Validatable> boolean isValidEnumValue(Class<T> enumClazz, Object value) {
+//        List<T> avaiableEnums = EnumUtils.getEnumList(enumClazz);
+//        return avaiableEnums.stream().anyMatch(anEnum -> anEnum.validateValue().equals(String.valueOf(value)));
+//    }
 
     private static final String SPECIAL_CHARS = "!@#$%^&*";
     private static final Predicate<String> MORE_THAN_SIX_CHARS = s -> s.length() >= 6;
