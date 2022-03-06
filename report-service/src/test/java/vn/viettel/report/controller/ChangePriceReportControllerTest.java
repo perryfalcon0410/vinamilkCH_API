@@ -8,14 +8,9 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
@@ -31,7 +26,6 @@ import vn.viettel.report.service.impl.ChangePriceReportServiceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
@@ -60,6 +54,17 @@ public class ChangePriceReportControllerTest extends BaseTest {
         MockitoAnnotations.initMocks(this);
         final ChangePriceReportController controller = new ChangePriceReportController();
         controller.setService(service);
+        controller.setShopClient(new ShopClient() {
+            @Override
+            public Response<ShopDTO> getShopByIdV1(Long id) {
+                return shop;
+            }
+
+            @Override
+            public Response<ShopDTO> getByNameV1(String name) {
+                return shop;
+            }
+        });
         this.setupAction(controller);
         lstEntities = new ArrayList<>();
         for (Long i = 1L; i < 6L; i++) {
@@ -77,6 +82,8 @@ public class ChangePriceReportControllerTest extends BaseTest {
         filter = new ChangePriceFilter();
         filter.setSearchKey("KH");
         filter.setShopId(1L);
+        filter.setFromTransDate(LocalDateTime.now());
+        filter.setToTransDate(LocalDateTime.now());
     }
 
     @Test
@@ -99,6 +106,7 @@ public class ChangePriceReportControllerTest extends BaseTest {
                         .param("fromOrderDate", "01/04/2021")
                         .param("toOrderDate", "01/05/2021")
                         .param("isPaging", "true")
+                        .param("licenseNumber", "NUM00")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -119,12 +127,44 @@ public class ChangePriceReportControllerTest extends BaseTest {
         assertEquals(lstEntities.size(),response.getDetails().size());
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON)
-            .param("fromTransDate", "01/05/2021")
-            .param("toTransDate", "01/05/2021"))
+                .param("fromTransDate", "01/04/2021")
+                .param("toTransDate", "01/05/2021")
+                .param("fromOrderDate", "01/04/2021")
+                .param("toOrderDate", "01/05/2021")
+                .param("ids", "1,2,3")
+                .param("licenseNumber", "NUM00")
+                )
             .andExpect(status().isOk())
             .andDo(MockMvcResultHandlers.print());
        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
+   /* @Test
+    public void exportToExcel() throws Exception {
+        String uri = V1 + root + "/excel";
+        Pageable page = PageRequest.of(0, 10);
+        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> res = new Response<CoverResponse<List<ChangePriceDTO>,
+                ChangePriceTotalDTO>>().withData(new CoverResponse<>(lstEntities, new ChangePriceTotalDTO()));
+
+        doReturn(res).when(changePriceReportService).index(filter, page, false);
+        doReturn(shop).when(shopClient).getShopByIdV1(filter.getShopId());
+
+        ChangePricePrintDTO response =  changePriceReportService.getAll(filter,  page);
+
+  //      Mockito.when(changePriceReportService.index(filter, page, false)).thenReturn(res);
+      assertEquals(lstEntities.size(),response.getDetails().size());
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                        .param("fromTransDate", "01/04/2021")
+                        .param("toTransDate", "01/05/2021")
+                        .param("fromOrderDate", "01/04/2021")
+                        .param("toOrderDate", "01/05/2021")
+                        .param("isPaging", "true")
+                        .param("licenseNumber", "NUM00")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+   //  assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }*/
 
 }

@@ -140,7 +140,7 @@ public class CustomerNotTradeServiceImpl extends BaseReportServiceImpl implement
     }
 
 
-    private List<CustomerTradeDTO> callProcedure(CustomerTradeFilter filter) {
+    public List<CustomerTradeDTO> callProcedure(CustomerTradeFilter filter) {
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getKeySearch().toUpperCase(Locale.ROOT));
 
         StoredProcedureQuery query =

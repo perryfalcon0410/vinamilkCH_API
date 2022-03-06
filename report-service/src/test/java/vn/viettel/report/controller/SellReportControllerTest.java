@@ -1,5 +1,6 @@
 package vn.viettel.report.controller;
 
+import liquibase.pro.packaged.U;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -12,9 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.messaging.CoverResponse;
+import vn.viettel.core.service.feign.UserClient;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.messaging.SellsReportsRequest;
+import vn.viettel.report.messaging.UserDataResponse;
 import vn.viettel.report.service.SellsReportService;
 import vn.viettel.report.service.dto.ReportDateDTO;
 import vn.viettel.report.service.dto.SellDTO;
@@ -41,9 +45,14 @@ public class SellReportControllerTest extends BaseTest {
     ShopClient shopClient;
 
     @Mock
+    UserClient userClient;
+
+    @Mock
     SellsReportService service;
 
     private List<SellDTO> lstEntities;
+
+    private  List<UserDTO> dtoList;
 
     private SellsReportsRequest filter;
 
@@ -54,6 +63,8 @@ public class SellReportControllerTest extends BaseTest {
         controller.setService(service);
         this.setupAction(controller);
         lstEntities = new ArrayList<>();
+
+        dtoList = new ArrayList<>();
         for (Long i = 1L; i < 6L; i++) {
             SellDTO sell = new SellDTO();
             sell.setId(i);
@@ -64,6 +75,11 @@ public class SellReportControllerTest extends BaseTest {
             sell.setPrice(1000D);
             sell.setQuantity(100);
             lstEntities.add(sell);
+
+            UserDTO dto = new UserDTO();
+            dto.setId(1L);
+            dto.setFullName("Ten la: " + i);
+            dtoList.add(dto);
         }
         filter = new SellsReportsRequest();
         filter.setShopId(1L);
@@ -108,4 +124,20 @@ public class SellReportControllerTest extends BaseTest {
             .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
+
+    @Test
+    public void getDataUser() throws Exception{
+        String uri = V1 + root  + "/get-data-user";
+        doReturn(dtoList).when(userClient).getUserDataV1(filter.getShopId());
+
+        List<UserDataResponse> response = sellsReportService.getDataUser(1L);
+
+        assertEquals(dtoList.size(), response.size());
+
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
 }

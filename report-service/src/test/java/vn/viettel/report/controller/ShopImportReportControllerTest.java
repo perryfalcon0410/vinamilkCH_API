@@ -17,6 +17,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.messaging.ShopImportFilter;
 import vn.viettel.report.service.ShopImportReportService;
+import vn.viettel.report.service.dto.PrintShopImportDTO;
 import vn.viettel.report.service.dto.ShopImportDTO;
 import vn.viettel.report.service.dto.ShopImportTotalDTO;
 import vn.viettel.report.service.feign.ShopClient;
@@ -63,6 +64,10 @@ public class ShopImportReportControllerTest extends BaseTest {
             shopDTO.setQuantity(1000);
             shopDTO.setProductCode("SP00" + i);
             shopDTO.setProductName("Tên sản phẩm " + i);
+            shopDTO.setTypess(0);
+            shopDTO.setType(1);
+            shopDTO.setOrderId(1L);
+            shopDTO.setProductInfoName("NGHANH HANG");
             lstEntities.add(shopDTO);
         }
         filter = new ShopImportFilter();
@@ -87,6 +92,27 @@ public class ShopImportReportControllerTest extends BaseTest {
             .param("toDate", "01/05/2021"))
             .andExpect(status().isOk())
             .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+
+    }
+
+
+    @Test
+    public void print() throws Exception{
+        String uri = V1 + root + "/print";
+
+        Response<List<ShopImportDTO>> list = new Response<>();
+        list.setData(lstEntities);
+        doReturn(list).when(shopImportReportService).callProcedure(filter);
+        doReturn(shop).when(shopClient).getShopByIdV1(filter.getShopId());
+        PrintShopImportDTO response = shopImportReportService.print(filter, 1L);
+      assertEquals(1,response.getImpPO().getOrderImports().size());
+
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON)
+                        .param("fromDate", "01/04/2021")
+                        .param("toDate", "01/05/2021"))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
 
     }

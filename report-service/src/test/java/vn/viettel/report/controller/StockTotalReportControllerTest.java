@@ -95,8 +95,7 @@ public class StockTotalReportControllerTest extends BaseTest {
 
     @Test
     public void print() throws Exception {
-        String uri = V1 + root;
-        Pageable pageable = PageRequest.of(0, 10);
+        String uri = V1 + root + "/print";
         doReturn(lstEntities).when(stockTotalReportService).callProcedure(filter);
         doReturn(shop).when(shopClient).getShopByIdV1(filter.getShopId());
 
