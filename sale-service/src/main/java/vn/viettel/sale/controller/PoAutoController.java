@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import vn.viettel.sale.service.PoAutoService;
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
 import vn.viettel.sale.service.dto.PoAutoNumberList;
+import vn.viettel.sale.service.dto.ProductStockDTO;
 
 @RestController
 public class PoAutoController extends BaseController {
@@ -56,6 +58,7 @@ public class PoAutoController extends BaseController {
 													@RequestParam(value="toCreateDate") @DateTimeFormat(iso=ISO.DATE) Date toCreateDate,
 													@RequestParam(value="fromApproveDate") @DateTimeFormat(iso=ISO.DATE) Date fromApproveDate,
 													@RequestParam(value="toApproveDate") @DateTimeFormat(iso=ISO.DATE) Date toApproveDate,
+													@RequestParam(name = "page", required = false) Integer page,
 													@RequestParam int poStatus) {
 
 		List<PoAutoDTO> response = poAutoService.getSearchPoAuto(poAutoNumber,
@@ -65,7 +68,8 @@ public class PoAutoController extends BaseController {
 																 DateUtils.convertFromDate(fromApproveDate),
 																 DateUtils.convertToDate(toApproveDate),
 																 poStatus,
-																 this.getShopId(httpRequest));
+																 this.getShopId(httpRequest),
+																 page);
 
 		return new Response<List<PoAutoDTO>>().withData(response);
 	}
@@ -109,4 +113,16 @@ public class PoAutoController extends BaseController {
         
         return new Response<Integer>().withData(response);
     }
+    
+	@ApiOperation(value = "Api dùng để lấy tất cả danh sách mua hàng")
+	@ApiResponse(code = 200, message = "Success")
+	@GetMapping(value = { V1 + root + "/product-list" })
+	public Response<Page<ProductStockDTO>> getAllProductByPage(HttpServletRequest httpRequest, @RequestParam(name = "page", required = false) Integer page) {
+
+		if(page == null) page = 0;
+		
+		Page<ProductStockDTO> response = poAutoService.getProductByPage(page);
+
+		return new Response<Page<ProductStockDTO>>().withData(response);
+	}
 }

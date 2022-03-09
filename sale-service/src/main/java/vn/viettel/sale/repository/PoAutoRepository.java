@@ -29,7 +29,7 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     		+ "and (:poStatus = -1 or po.status = :poStatus) "
     		+ "and (po.shopId = :shopId)")
 	public List<PoAuto> searchPoList (String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, 
-			LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId);
+			LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId, Pageable pageable);
     
     @Query(value = "select po from PoAuto po where po.poAutoNumber = :poAutoNumber and (po.shopId = :shopId)")
     public PoAuto getPoAutoBypoAutoNumber (String poAutoNumber, Long shopId);

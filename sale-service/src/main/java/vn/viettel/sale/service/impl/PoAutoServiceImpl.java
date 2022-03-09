@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -35,6 +36,7 @@ import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.PoAutoService;
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
+import vn.viettel.sale.service.dto.ProductStockDTO;
 import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.util.ConnectFTP;
@@ -83,11 +85,12 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	}
 
 	@Override
-	public List<PoAutoDTO> getSearchPoAuto(String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId) {
+	public List<PoAutoDTO> getSearchPoAuto(String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId, int page) {
 		
 		List<PoAutoDTO> poAutoDTOList = new ArrayList<PoAutoDTO>();
+		Pageable pageable = PageRequest.of(page, 5, Sort.by("poAutoNumber"));
 		
-		poAutoRepository.searchPoList(poAutoNumber, poGroupCode, fromCreateDate, toCreateDate, fromApproveDate, toApproveDate, poStatus, shopId).forEach((n) -> {
+		poAutoRepository.searchPoList(poAutoNumber, poGroupCode, fromCreateDate, toCreateDate, fromApproveDate, toApproveDate, poStatus, shopId, pageable).forEach((n) -> {
 			poAutoDTOList.add(convertToDTO(n));
 		});
 		return poAutoDTOList;
@@ -135,10 +138,22 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		if(poAutoNumberList.isEmpty()) return FAIL;
 		
 		poAutoNumberList.forEach(n -> {
-			poAutoRepository.cancelPo(n, LocalDateTime.now(), shopId);
+			PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
+			if(temp.getStatus() != 2) {
+				poAutoRepository.cancelPo(n, LocalDateTime.now(), shopId);				
+			}
 		});
 		
 		return SUCCESS;
+	}
+	
+	@Override
+	public Page<ProductStockDTO> getProductByPage(int page) {
+		
+		Pageable pageable = PageRequest.of(page, 5);
+		Page<ProductStockDTO> productList = productRepository.getProductByPage(pageable);
+		
+		return productList;
 	}
 	
 	@Transactional(rollbackFor = Exception.class)
@@ -150,7 +165,12 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         
         List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
         
-        if (apParamDTOList == null || !apParamDTOList.get(0).getValue().equals(ACCEPT_VALUE)) return;
+        if (apParamDTOList == null) return;
+        
+        if (apParamDTOList.get(0).getValue().equals(ACCEPT_VALUE)) {
+        	// Do the download thing
+        	
+        }
 
         String uploadDestination = "/POCHGTSP/MTAUTOPO";
             

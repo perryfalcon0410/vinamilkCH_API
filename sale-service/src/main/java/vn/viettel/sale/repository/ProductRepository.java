@@ -10,6 +10,7 @@ import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.service.dto.FreeProductDTO;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.ProductDetailDTO;
+import vn.viettel.sale.service.dto.ProductStockDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -157,4 +158,10 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             " JOIN StockTotal st ON st.productId = p.id AND st.shopId =:shopId AND st.wareHouseTypeId = :warehouseId AND st.quantity > 0 AND st.status = 1 " +
             " WHERE upper(p.barCode) like %:barCode% AND p.status = 1 ")
     List<OrderProductDTO> getByBarCodeAndStatus(String barCode, Long shopId, Long customerTypeId, Long warehouseId, LocalDateTime toDate);
+    
+    @Query(" select new vn.viettel.sale.service.dto.ProductStockDTO (pd.productName, pd.productCode, st.quantity, pr.price) from Product pd "
+    		+ "join StockTotal st on pd.id = st.productId "
+    		+ "join Price pr on pd.id = pr.productId "
+    		+ "where pd.status = 1 ")
+    Page<ProductStockDTO> getProductByPage(Pageable pageable);
 }
