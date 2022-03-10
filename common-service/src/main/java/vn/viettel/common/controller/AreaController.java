@@ -28,6 +28,10 @@ public class AreaController extends BaseController {
     private AreaService areaService;
     private final String root = "/commons/areas";
 
+    public void setService(AreaService service){
+        if(areaService == null) areaService = service;
+    }
+
     @ApiOperation(value = "Danh sách Tỉnh/Tp")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

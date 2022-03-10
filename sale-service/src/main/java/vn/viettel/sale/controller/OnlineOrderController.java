@@ -43,6 +43,10 @@ public class OnlineOrderController extends BaseController {
 
     private final String root = "/sales/online-orders";
 
+    public void setService(OnlineOrderService service){
+        if(onlineOrderService == null) onlineOrderService = service;
+    }
+
     @GetMapping(value = { V1 + root } )
     @ApiOperation(value = "Tìm kiếm đơn online trong bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

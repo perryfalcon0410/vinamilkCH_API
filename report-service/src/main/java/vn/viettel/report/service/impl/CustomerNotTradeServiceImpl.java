@@ -76,7 +76,7 @@ public class CustomerNotTradeServiceImpl extends BaseReportServiceImpl implement
         return printDTO;
     }
 
-    private List<CustomerReportDTO> customerNotTradeProcedures(CustomerNotTradeFilter filter) {
+    public List<CustomerReportDTO> customerNotTradeProcedures(CustomerNotTradeFilter filter) {
         StoredProcedureQuery storedProcedure =
                 entityManager.createStoredProcedureQuery("P_CUSTOMER_NOT_TRADE", CustomerReportDTO.class);
         storedProcedure.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);
@@ -140,7 +140,7 @@ public class CustomerNotTradeServiceImpl extends BaseReportServiceImpl implement
     }
 
 
-    private List<CustomerTradeDTO> callProcedure(CustomerTradeFilter filter) {
+    public List<CustomerTradeDTO> callProcedure(CustomerTradeFilter filter) {
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getKeySearch().toUpperCase(Locale.ROOT));
 
         StoredProcedureQuery query =

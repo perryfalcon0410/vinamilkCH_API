@@ -31,11 +31,18 @@ import java.util.List;
 
 @RestController
 public class InOutAdjustmentController extends BaseController {
+    private final String root = "/reports/in-out-adjustment";
+
     @Autowired
     ShopClient shopClient;
+
     @Autowired
     InOutAdjustmentService inOutAdjustmentService;
-    private final String root = "/reports/in-out-adjustment";
+
+    public void setService(InOutAdjustmentService serviceRp) {
+        if (inOutAdjustmentService == null) inOutAdjustmentService = serviceRp;
+    }
+
     @GetMapping(V1 + root )
     @ApiOperation(value = "Danh sách nhập xuất điều chỉnh")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

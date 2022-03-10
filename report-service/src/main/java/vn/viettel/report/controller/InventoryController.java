@@ -34,6 +34,9 @@ public class InventoryController extends BaseController {
     @Autowired
     InventoryService inventoryService;
 
+    public void setService(InventoryService serviceRp) {
+        if (inventoryService == null) inventoryService = serviceRp;
+    }
 
     @GetMapping(V1 + root + "/import-export/excel")
     @ApiOperation(value = "Xuất excel báo cáo xuất nhập tồn")

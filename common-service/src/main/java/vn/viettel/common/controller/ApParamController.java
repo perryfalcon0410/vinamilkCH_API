@@ -25,6 +25,10 @@ public class ApParamController extends BaseController {
     ApParamService apParamService;
     private final String root = "/commons/apparams";
 
+    public void setService(ApParamService service){
+        if(apParamService == null) apParamService = service;
+    }
+
     @ApiOperation(value = "Ap param theo id")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

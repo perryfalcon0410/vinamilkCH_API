@@ -13,13 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import vn.viettel.core.dto.common.CategoryDataDTO;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.report.BaseTest;
-import vn.viettel.report.messaging.ExchangeTransFilter;
-import vn.viettel.report.service.ExchangeTransReportService;
-import vn.viettel.report.service.dto.ExchangeTransReportDTO;
-import vn.viettel.report.service.feign.CommonClient;
-import vn.viettel.report.service.impl.ExchangeTransReportServiceImpl;
+import vn.viettel.report.messaging.QuantitySalesReceiptFilter;
+import vn.viettel.report.service.QuantitySalesReceiptService;
+import vn.viettel.report.service.dto.TableDynamicDTO;
+import vn.viettel.report.service.impl.QuantitySalesReceiptServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,22 +28,19 @@ import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class ExchangeTransControllerTest extends BaseTest {
-    private final String root = "/reports/exchange-trans";
+public class QuantitySalesReceiptControllerTest extends BaseTest {
+    private final String root = "/reports/customers/quantity";
 
     @Spy
     @InjectMocks
-    ExchangeTransReportServiceImpl exchangeTransReportService;
+    QuantitySalesReceiptServiceImpl quantitySalesReceiptService;
 
     @Mock
-    CommonClient commonClient;
+    QuantitySalesReceiptService service;
 
-    @Mock
-    ExchangeTransReportService service;
+    private QuantitySalesReceiptFilter filter;
 
-    private ExchangeTransFilter filter;
-
-    private ExchangeTransReportDTO tableDynamicDTO;
+    private TableDynamicDTO tableDynamicDTO;
 
     private List<Object[]> rowData;
 
@@ -54,10 +49,10 @@ public class ExchangeTransControllerTest extends BaseTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        final ExchangeTransController controller = new ExchangeTransController();
+        final QuantitySalesReceiptController controller = new QuantitySalesReceiptController();
         controller.setService(service);
         this.setupAction(controller);
-        tableDynamicDTO = new ExchangeTransReportDTO();
+        tableDynamicDTO = new TableDynamicDTO();
         reasonsDT = new ArrayList<>();
         rowData = new ArrayList<>();
         for (Long i = 1L; i < 6L; i++) {
@@ -80,42 +75,35 @@ public class ExchangeTransControllerTest extends BaseTest {
         tableDynamicDTO.setTotals(rowData.get(rowData.size() - 1));
         tableDynamicDTO.setResponse(rowData);
 
-        filter = new ExchangeTransFilter();
+        filter = new QuantitySalesReceiptFilter();
         filter.setShopId(1L);
+        filter.setFromDate(LocalDateTime.now());
+        filter.setToDate(LocalDateTime.now());
     }
 
     @Test
-    public void getReportExchangeTrans() throws Exception{
+    public void findQuantity() throws Exception{
         String uri = V1 + root;
         Pageable page = PageRequest.of(0, 10);
-        doReturn(tableDynamicDTO).when(exchangeTransReportService).callProcedure(filter);
-        doReturn(true).when(exchangeTransReportService).validMonth(filter);
-
-        ExchangeTransReportDTO response =  exchangeTransReportService.getExchangeTransReport(filter, page);
+        doReturn(tableDynamicDTO).when(quantitySalesReceiptService).callProcedure(filter);
+        TableDynamicDTO response =  quantitySalesReceiptService.findQuantity(filter, page);
 
         Page<Object[]> pageRes = (Page<Object[]>) response.getResponse();
 
         assertEquals(rowData.size(),pageRes.getContent().size());
 
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
+        ResultActions resultActions = mockMvc.perform(get(uri)
+            .param("fromDate", "01/04/2021")
+            .param("toDate", "01/05/2021")
+            .param("customerTypeId", "100")
+            .param("keySearch", "Test")
+            .param("phoneNumber", "09870")
+            .param("fromQuantity", "1000")
+            .param("toQuantity", "100")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
-    @Test
-    public void listReasonExchange() throws Exception{
-        String uri = V1 + root + "/reason-exchange";
-        Response  response = new Response<CategoryDataDTO>();
-        response.setData(reasonsDT);
-        doReturn(response).when(commonClient).getReasonExchangeV1();
-
-        List<CategoryDataDTO> lst = exchangeTransReportService.listReasonExchange();
-        assertEquals(lst.size(),reasonsDT.size());
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
-    }
 }

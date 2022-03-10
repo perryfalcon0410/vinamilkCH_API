@@ -1,24 +1,27 @@
 package vn.viettel.sale.controller;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.service.CommonService;
 import vn.viettel.sale.service.dto.ImportTypeDTO;
 import vn.viettel.sale.service.dto.PoConfirmStatusDTO;
 import vn.viettel.sale.service.dto.StockAdjustmentStatusDTO;
 import vn.viettel.sale.service.dto.StockBorrowingStatusDTO;
+import vn.viettel.sale.service.impl.CommonServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -26,25 +29,32 @@ public class CommonControllerTest extends BaseTest {
     private final String root = "/sales/commons";
     private final String uri = V1 + root;
 
-    @MockBean
+    @InjectMocks
+    CommonServiceImpl serviceImp;
+
+    @Mock
     CommonService service;
+
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        final CommonController controller = new CommonController();
+        controller.setService(service);
+        this.setupAction(controller);
+    }
 
     //-------------------------------getImportType-------------------------------
     @Test
     public void getImportTypeTest() throws Exception {
         String url = uri + "/import-type";
 
-        List<ImportTypeDTO> result = new ArrayList<>();
-
-        given(service.getList()).willReturn(result);
+        List<ImportTypeDTO> result = serviceImp.getList();
 
         ResultActions resultActions = mockMvc.perform(get(url)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("["));
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     //-------------------------------getPoConfirmStatus-------------------------------
@@ -62,7 +72,6 @@ public class CommonControllerTest extends BaseTest {
 
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("["));
     }
 
     //-------------------------------getStockAdjustmentStatus-------------------------------
@@ -80,7 +89,6 @@ public class CommonControllerTest extends BaseTest {
 
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("["));
     }
 
     //-------------------------------getStockBorrowingStatus-------------------------------
@@ -98,6 +106,5 @@ public class CommonControllerTest extends BaseTest {
 
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
-        assertThat(mvcResult.getResponse().getContentAsString(), containsString("["));
     }
 }

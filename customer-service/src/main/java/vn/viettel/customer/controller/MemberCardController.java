@@ -91,4 +91,7 @@ public class MemberCardController extends BaseController {
     }
 
 
+    public void setService(MemberCardService service) {
+        if(memberCardService == null) memberCardService = service;
+    }
 }

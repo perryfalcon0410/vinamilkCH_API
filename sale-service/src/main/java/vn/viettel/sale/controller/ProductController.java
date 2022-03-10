@@ -14,6 +14,7 @@ import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.messaging.OrderProductRequest;
 import vn.viettel.sale.messaging.ProductFilter;
+import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.ProductService;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
@@ -30,6 +31,10 @@ public class ProductController extends BaseController {
     @Autowired
     ProductService productService;
     private final String root = "/sales/products";
+
+    public void setService(ProductService service){
+        if(productService == null) productService = service;
+    }
 
     @GetMapping(value = {V1 + root + "/product-infos"})
     @ApiOperation(value = "Tìm kiếm các ngành hàng trong bán hàng")

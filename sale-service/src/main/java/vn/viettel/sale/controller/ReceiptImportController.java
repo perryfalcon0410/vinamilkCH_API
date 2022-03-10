@@ -69,6 +69,10 @@ public class ReceiptImportController extends BaseController {
     private JMSSender jmsSender;
     private final String root = "/sales/import";
 
+    public void setService(ReceiptImportService service){
+        if(receiptService == null) receiptService = service;
+    }
+
     @GetMapping(value = { V1 + root })
     @ApiOperation(value = "Lấy danh sách phiếu nhập hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

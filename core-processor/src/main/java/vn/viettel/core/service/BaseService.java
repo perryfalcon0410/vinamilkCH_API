@@ -1,5 +1,6 @@
 package vn.viettel.core.service;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.viettel.core.service.dto.BaseDTO;
@@ -7,6 +8,8 @@ import vn.viettel.core.service.dto.BaseDTO;
 import java.util.List;
 
 public interface BaseService {
+
+    void setModelMapper(ModelMapper modelMapper);
 
     /**
      * Find item by id

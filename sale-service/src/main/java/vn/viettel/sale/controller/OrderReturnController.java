@@ -49,9 +49,14 @@ import vn.viettel.sale.service.dto.SaleOrderDTO;
 public class OrderReturnController extends BaseController {
     @Autowired
     OrderReturnService orderReturnService;
+    
     @Autowired
     JMSSender jmsSender;
     private final String root = "/sales/order-return";
+
+    public void setService(OrderReturnService service){
+        if(orderReturnService == null) orderReturnService = service;
+    }
 
     @GetMapping(value = { V1 + root })
     @ApiOperation(value = "Danh sách hóa đơn trả lại, tìm kiếm trong danh sách")

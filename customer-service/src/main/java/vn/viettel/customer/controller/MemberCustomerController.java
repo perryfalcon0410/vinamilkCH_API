@@ -87,4 +87,7 @@ public class MemberCustomerController extends BaseController {
     }
 
 
+    public void setService(MemberCustomerService service) {
+        if(memberCustomerService == null) memberCustomerService = service;
+    }
 }

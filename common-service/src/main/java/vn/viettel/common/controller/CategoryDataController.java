@@ -25,6 +25,10 @@ public class CategoryDataController extends BaseController {
     CategoryDataService categoryDataService;
     private final String root = "/commons/categorydata";
 
+    public void setService(CategoryDataService service){
+        if(categoryDataService == null) categoryDataService = service;
+    }
+
     @ApiOperation(value = "")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

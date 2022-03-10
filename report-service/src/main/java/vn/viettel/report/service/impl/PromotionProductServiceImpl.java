@@ -150,7 +150,7 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
         return response;
     }
 
-    private List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {
+    public List<PromotionProductDTO> callStoreProcedure(PromotionProductFilter filter) {
 
         String keySearchUpper = VNCharacterUtils.removeAccent(filter.getOrderNumber().toUpperCase(Locale.ROOT));
         String upperCode = filter.getProductCodes()==null?filter.getProductCodes():filter.getProductCodes().toUpperCase();

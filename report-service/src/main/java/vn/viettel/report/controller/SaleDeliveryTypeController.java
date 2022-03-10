@@ -30,8 +30,13 @@ import java.util.List;
 @RestController
 public class SaleDeliveryTypeController extends BaseController {
     private final String root = "/reports/delivery-type";
+
     @Autowired
     SaleDeliveryTypeService saleDeliveryTypeService;
+
+    public void setService(SaleDeliveryTypeService serviceRp) {
+        if (saleDeliveryTypeService == null) saleDeliveryTypeService = serviceRp;
+    }
 
     @ApiOperation(value = "Xuất excel báo cáo doanh số theo loại giao hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

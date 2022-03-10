@@ -47,7 +47,7 @@ public class SaleByDeliveryImpl extends BaseReportServiceImpl implements SaleDel
         return excel.export();
     }
 
-    private List<SaleByDeliveryTypeDTO> callStoreProcedure(SaleDeliveryTypeFilter filter) {
+    public List<SaleByDeliveryTypeDTO> callStoreProcedure(SaleDeliveryTypeFilter filter) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_SALES_BY_DELIVERY", SaleByDeliveryTypeDTO.class);
         query.registerStoredProcedureParameter("DELIVERY_TYPE", void.class,  ParameterMode.REF_CURSOR);
         query.registerStoredProcedureParameter("fromDate", LocalDateTime.class, ParameterMode.IN);

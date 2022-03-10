@@ -38,6 +38,9 @@ public class EntryMenuDetailsController extends BaseController {
     @Autowired
     EntryMenuDetailsReportService entryMenuDetailsReportService;
 
+    public void setService(EntryMenuDetailsReportService serviceRp) {
+        if (entryMenuDetailsReportService == null) entryMenuDetailsReportService = serviceRp;
+    }
 
     @GetMapping(V1 + root)
     @ApiOperation(value = "Danh sách dữ liệu báo cáo bảng kê chi tiết đơn nhập hàng")

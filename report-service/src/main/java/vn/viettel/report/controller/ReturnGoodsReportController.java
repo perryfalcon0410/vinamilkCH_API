@@ -38,6 +38,10 @@ public class ReturnGoodsReportController extends BaseController {
     @Autowired
     ReturnGoodsReportService returnGoodsReportService;
 
+    public void setService(ReturnGoodsReportService serviceRp) {
+        if (returnGoodsReportService == null) returnGoodsReportService = serviceRp;
+    }
+
     @GetMapping(V1 + root)
     @ApiOperation(value = "Danh sách dữ liệu báo cáo hàng trả lại")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

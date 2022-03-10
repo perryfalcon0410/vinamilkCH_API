@@ -38,4 +38,20 @@ public class StringUtils {
         int randomNum = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
         return String.valueOf(randomNum);
     }
+
+    public static String substringAfter(String image, String s) {
+        return image;
+    }
+
+    public static String substringAfterLast(String url, String s) {
+        return url;
+    }
+
+    public static boolean isNotBlank(String url) {
+        return true;
+    }
+
+    public static String substringBetween(String image, String s, String s1) {
+        return image;
+    }
 }

@@ -41,8 +41,17 @@ public class ChangePriceReportController extends BaseController {
 
     @Autowired
     ChangePriceReportService service;
+
     @Autowired
     ShopClient shopClient;
+
+    public void setService(ChangePriceReportService serviceRp) {
+        if (service == null) service = serviceRp;
+    }
+
+    public void setShopClient(ShopClient shop) {
+        if (shopClient == null) shopClient = shop;
+    }
 
     @ApiOperation(value = "Api dùng để lấy dữ liệu báo cáo chêch lệch giá theo điều kiện tìm kiếm")
     @ApiResponse(code = 200, message = "Success")

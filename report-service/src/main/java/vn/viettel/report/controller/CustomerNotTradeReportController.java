@@ -19,6 +19,7 @@ import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.CustomerNotTradeFilter;
 import vn.viettel.report.messaging.CustomerTradeFilter;
+import vn.viettel.report.service.ChangePriceReportService;
 import vn.viettel.report.service.CustomerNotTradeService;
 import vn.viettel.report.service.dto.CustomerNotTradePrintDTO;
 import vn.viettel.report.service.dto.CustomerReportDTO;
@@ -40,6 +41,10 @@ public class    CustomerNotTradeReportController extends BaseController {
     CustomerNotTradeService service;
     @Autowired
     ShopClient shopClient;
+
+    public void setService(CustomerNotTradeService serviceRp) {
+        if (service == null) service = serviceRp;
+    }
 
     private final String root = "/reports/customers";
 

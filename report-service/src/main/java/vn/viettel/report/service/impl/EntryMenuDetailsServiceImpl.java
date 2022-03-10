@@ -34,7 +34,7 @@ public class EntryMenuDetailsServiceImpl extends BaseReportServiceImpl implement
     @Autowired
     ShopClient shopClient;
 
-    private List<EntryMenuDetailsDTO> callStoreProcedure(EntryMenuDetailsReportsRequest filter) {
+    public List<EntryMenuDetailsDTO> callStoreProcedure(EntryMenuDetailsReportsRequest filter) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("P_ENTRY_MENU_DETAILS", EntryMenuDetailsDTO.class);
         query.registerStoredProcedureParameter(1, void.class, ParameterMode.REF_CURSOR);

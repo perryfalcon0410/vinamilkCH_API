@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import vn.viettel.authorization.repository.RoleRepository;
+import vn.viettel.authorization.service.ShopService;
 import vn.viettel.authorization.service.UserAuthenticateService;
 import vn.viettel.authorization.service.dto.ChangePasswordRequest;
 import vn.viettel.authorization.service.dto.LoginRequest;
@@ -117,5 +118,9 @@ public class UserAuthenticateController extends BaseController {
     public List<UserDTO> getUserData(@RequestParam Long shopId) {
         List<UserDTO> dtoList = userLoginService.getDataUser(shopId);
         return dtoList;
+    }
+
+    public void setService(UserAuthenticateService service) {
+        if(userLoginService == null) userLoginService = service;
     }
 }

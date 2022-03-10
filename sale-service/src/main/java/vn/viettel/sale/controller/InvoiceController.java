@@ -20,6 +20,10 @@ public class InvoiceController extends BaseController {
 
     private final String root = "/sales/invoices";
 
+    public void setService(ReportProductTransService service){
+        if(reportProductTransService == null) reportProductTransService = service;
+    }
+
     @GetMapping(V1 + root + "/product-trans/{id}")
     public Response<ReportProductTransDTO> findComboProducts(HttpServletRequest httpRequest, @PathVariable Long id, @RequestParam Integer receiptType ) {
         return reportProductTransService.getInvoice(this.getShopId(httpRequest), id, receiptType);

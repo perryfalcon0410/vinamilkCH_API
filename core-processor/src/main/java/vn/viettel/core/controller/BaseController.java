@@ -50,9 +50,13 @@ public abstract class BaseController extends HandlerException {
     }*/
 
     public Long getShopId(HttpServletRequest httpRequest) {
-        Long shopId = (Long) httpRequest.getAttribute(Constants.CURRENT_SHOP_ID);
-        if(shopId !=null) return shopId;
-        return securityContexHolder.getContext().getShopId();
+        if(httpRequest != null && securityContexHolder != null) {
+            Long shopId = (Long) httpRequest.getAttribute(Constants.CURRENT_SHOP_ID);
+            if (shopId != null) return shopId;
+            return securityContexHolder.getContext().getShopId();
+        }
+
+        return null;
     }
 
     public Long getUserId(HttpServletRequest httpRequest) {

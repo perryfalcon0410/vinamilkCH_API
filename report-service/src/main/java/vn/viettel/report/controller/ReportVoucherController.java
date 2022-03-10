@@ -32,6 +32,10 @@ public class ReportVoucherController extends BaseController {
 
     private final String root = "/reports/vouchers";
 
+    public void setService(ReportVoucherService serviceRp) {
+        if (reportVoucherService == null) reportVoucherService = serviceRp;
+    }
+
     @ApiOperation(value = "Danh sách báo cáo voucher")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

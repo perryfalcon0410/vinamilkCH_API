@@ -29,10 +29,16 @@ import java.util.Date;
 @Api(tags = "Api dùng cho báo cáo tồn kho")
 public class StockTotalReportController extends BaseController {
     private final String root = "/reports/stock-total";
+
     @Autowired
     StockTotalReportService stockTotalReportService;
+
     @Autowired
     ShopClient shopClient;
+
+    public void setService(StockTotalReportService serviceRp) {
+        if (stockTotalReportService == null) stockTotalReportService = serviceRp;
+    }
 
     @GetMapping(V1 + root)
     public Response<CoverResponse<Page<StockTotalReportDTO>, StockTotalInfoDTO>> getStockTotalReport(HttpServletRequest httpRequest, @RequestParam Date stockDate,

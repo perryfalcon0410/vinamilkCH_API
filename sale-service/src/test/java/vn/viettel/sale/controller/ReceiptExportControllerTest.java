@@ -1,69 +1,116 @@
 package vn.viettel.sale.controller;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
+import vn.viettel.sale.entities.PoTrans;
+import vn.viettel.sale.entities.PoTransDetail;
 import vn.viettel.sale.messaging.ReceiptCreateDetailRequest;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
 import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
+import vn.viettel.sale.repository.PoTransDetailRepository;
+import vn.viettel.sale.repository.PoTransRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.ReceiptExportService;
+import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.PoTransDTO;
 import vn.viettel.sale.service.dto.ReceiptImportListDTO;
 import vn.viettel.sale.service.dto.StockBorrowingDTO;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import vn.viettel.sale.service.impl.ReceiptExportServiceImpl;
 
 public class ReceiptExportControllerTest extends BaseTest {
     private final String root = "/sales/export";
 
-    @MockBean
-    ReceiptExportService receiptExportService;
+    @InjectMocks
+    ReceiptExportServiceImpl serviceImp;
+
+    @Mock
+    ReceiptExportService service;
+
+    @Mock
+    PoTransRepository repository;
+
+    @Mock
+    PoTransDetailRepository poTransDetailRepository;
+
+    @Mock
+    StockTotalRepository stockTotalRepository;
+
+    @Mock
+    StockTotalService stockTotalService;
+
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        serviceImp.setModelMapper(this.modelMapper);
+        final ReceiptExportController controller = new ReceiptExportController();
+        controller.setService(service);
+        this.setupAction(controller);
+    }
 
     @Test
-    public void find() throws Exception {
+    public void findTest() throws Exception {
         String uri = V1 + root;
+        Long shopId = 1L;
+        String transCode = "";
+        String redInvoiceNo = "";
+        LocalDateTime fromDate = null;
+        LocalDateTime toDate = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(1, 20);
         List<ReceiptImportListDTO> list = Arrays.asList(new ReceiptImportListDTO(), new ReceiptImportListDTO());
         Page<ReceiptImportListDTO> page = new PageImpl<>(list);
-        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response =
-                new CoverResponse<>(page, new TotalResponse());
-        given(receiptExportService.find(any(),any(), any(), any(), any(), any(), Mockito.any(PageRequest.class))).willReturn(response);
+        when(repository.getReceiptPo(any(), any(), any(), any(), any(), any(), any(Pageable.class))).thenReturn(page);
+        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> result = serviceImp.find(transCode, redInvoiceNo, fromDate,
+                toDate, 0, shopId, pageable);
+        assertNotNull(result);
 
-        ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("fromDate", "2022/02/22")
+                .param("toDate", "2022/02/22")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
-        String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"data\":{"));
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
     public void create() throws Exception {
         String uri = V1 + root;
+        Long id = 1L;
         ReceiptExportCreateRequest request = new ReceiptExportCreateRequest();
-        request.setImportType(1);
+        request.setImportType(0);
+        request.setReceiptImportId(id);
         request.setInternalNumber("PO12345");
         request.setRedInvoiceNo("RE123");
         request.setIsRemainAll(true);
@@ -71,9 +118,13 @@ public class ReceiptExportControllerTest extends BaseTest {
         request.setTransCode("CD001");
         request.setLitQuantityRemain(Arrays.asList(new ReceiptCreateDetailRequest(), new ReceiptCreateDetailRequest()));
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(1l);
-        given(receiptExportService.createReceipt(any(), any(), any())).willReturn(ids);
+        PoTrans poTrans = new PoTrans();
+        poTrans.setWareHouseTypeId(2L);
+        poTrans.setId(id);
+        List<PoTransDetail> poTransDetails = new ArrayList<>();
+//        when(repository.findByIdAndShopIdAndTypeAndStatus(request.getReceiptImportId(), 1L, 1,1 )).thenReturn(java.util.Optional.of(poTrans));
+//        when(poTransDetailRepository.getPoTransDetailByTransId(id)).thenReturn(poTransDetails);
+        List<Long> res = service.createReceipt( request, 1L, 1L);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -94,9 +145,7 @@ public class ReceiptExportControllerTest extends BaseTest {
         request.setListProductRemain(Arrays.asList(new ReceiptCreateDetailRequest(), new ReceiptCreateDetailRequest()));
         request.setNote("Ghi chu 2");
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(1l);
-        given(receiptExportService.updateReceiptExport(any(), any(),any())).willReturn(ids);
+        service.updateReceiptExport(any(), any(),any());
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.patch(uri, 1L)
@@ -112,9 +161,7 @@ public class ReceiptExportControllerTest extends BaseTest {
     public void removeReceiptExport() throws Exception {
         String uri = V1 + root + "/remove/1?type=2";
         ResponseMessage response = ResponseMessage.SUCCESSFUL;
-        List<List<String>> ids = new ArrayList<List<String>>();
-        ids.add(Arrays.asList(""));
-        given(receiptExportService.removeReceiptExport(any(), any(),any())).willReturn(ids);
+        service.removeReceiptExport(any(), any(),any());
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri)
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
@@ -132,29 +179,28 @@ public class ReceiptExportControllerTest extends BaseTest {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<PoTransDTO> list = Arrays.asList(new PoTransDTO(), new PoTransDTO());
         Page<PoTransDTO> pageResponse =  new PageImpl<>(list, pageRequest , list.size());
-        given(receiptExportService.getListPoTrans(any(), any(), any(), any(), any(),any(), any(), Mockito.any(PageRequest.class))).willReturn(pageResponse);
+        service.getListPoTrans(any(), any(), any(), any(), any(),any(), any(), Mockito.any(PageRequest.class));
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
-        String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"pageNumber\":" + page));
-        assertThat(responseData, containsString("\"pageSize\":" + size));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     @Test
     public void getListStockBorrowing() throws Exception {
         String uri = V1 + root + "/borrowing";
         List<StockBorrowingDTO> list = Arrays.asList(new StockBorrowingDTO(), new StockBorrowingDTO());
-        given(receiptExportService.getListStockBorrowing(any(), Mockito.any(PageRequest.class))).willReturn(list);
+        service.getListStockBorrowing(any(), Mockito.any(PageRequest.class));
 
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         resultActions.andDo(MockMvcResultHandlers.print());
-        String responseData = resultActions.andReturn().getResponse().getContentAsString();
-        assertThat(responseData, containsString("\"data\":["));
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
 }

@@ -83,4 +83,8 @@ public class VoucherController extends BaseController {
        Boolean response = voucherService.returnVoucher(saleOrderId);
         return new Response<Boolean>().withData(response);
     }
+
+    public void setService(VoucherService service) {
+        if(voucherService == null) voucherService = service;
+    }
 }

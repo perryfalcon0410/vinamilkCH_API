@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.sale.service.ReportProductTransService;
 import vn.viettel.sale.service.WareHouseTypeService;
 import vn.viettel.sale.service.dto.WareHouseTypeDTO;
 
@@ -22,6 +23,10 @@ public class WareHouseTypeController extends BaseController {
     @Autowired
     WareHouseTypeService wareHouseTypeService;
     private final String root = "/sales/warehouse";
+
+    public void setService(WareHouseTypeService service){
+        if(wareHouseTypeService == null) wareHouseTypeService = service;
+    }
 
     @GetMapping(value = V1+root)
     @ApiOperation(value = "Lấy danh sách loại khô")

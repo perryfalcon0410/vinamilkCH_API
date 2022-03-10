@@ -278,6 +278,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                     .collect(Collectors.toList()), null);
             List<PoConfirm> poConfirms = poConfirmRepository.findAllById(poDetails.stream().map(item -> item.getPoId()).distinct()
                     .collect(Collectors.toList()));
+
             for (PoDetail pt : poDetails) {
                 modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                 PoDetailDTO dto = modelMapper.map(pt, PoDetailDTO.class);
@@ -673,7 +674,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         checkNoteLength(request.getNote());
         List<Long> syncIds = new ArrayList<Long>();
         LocalDateTime transDate = LocalDateTime.now();
-
         if (request.getPoId() == null) {
             if(request.getInternalNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
             if(request.getPoCoNumber().length()>50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
@@ -823,7 +823,6 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setStatus(1);
             stockAdjustmentRecord.setAdjustmentId(request.getPoId());
 
-            List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
             Integer totalQuantity = 0;
             Double totalAmount = 0D;
             SaleOrder order = new SaleOrder();
@@ -860,6 +859,8 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             stockAdjustmentRecord.setRedInvoiceNo(order.getOrderNumber());
             stockAdjustmentRecord.setInternalNumber(createInternalCodeAdjust(shopId));
             stockAdjustmentTransRepository.save(stockAdjustmentRecord);
+
+            List<StockAdjustmentDetail> stockAdjustmentDetails = stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId());
 
             List<Price> prices = productPriceRepository.findProductPriceWithType(stockAdjustmentDetails.stream().map(item -> item.getProductId()).distinct()
                     .collect(Collectors.toList()), stockAdjustment.getWareHouseTypeId(), DateUtils.convertToDate(transDate));
@@ -1345,7 +1346,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         Page<PoTrans> pos = repository.getLastTransCode(1, reciCode.toString(),
                 LocalDateTime.now().with(firstDayOfYear()), PageRequest.of(0,1));
         int STT = 0;
-        if(!pos.getContent().isEmpty()) {
+        if(pos != null && !pos.getContent().isEmpty()) {
             String str = pos.getContent().get(0).getTransCode();
             String numberString = str.substring(str.length() - 5);
             STT = Integer.valueOf(numberString);

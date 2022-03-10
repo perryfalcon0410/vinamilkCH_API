@@ -52,6 +52,10 @@ public class ExchangeTransController extends BaseController {
     private JMSSender jmsSender;
     private final String root = "/sales/exchangetrans";
 
+    public void setService(ExchangeTranService service){
+        if(this.service == null) this.service = service;
+    }
+
     @ApiOperation(value = "Api dùng khi tạo mới đơn đổi hàng để lấy lý do trả hàng")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),

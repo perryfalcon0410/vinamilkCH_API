@@ -57,6 +57,10 @@ public class ReceiptExportController extends BaseController {
     
     private final String root = "/sales/export";
 
+    public void setService(ReceiptExportService service){
+        if(receiptExportService == null) receiptExportService = service;
+    }
+
     @GetMapping(value = { V1 + root})
     @ApiOperation(value = "Lấy danh sách phiếu xuất hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),

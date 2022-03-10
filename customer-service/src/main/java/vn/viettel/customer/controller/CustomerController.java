@@ -309,4 +309,8 @@ public class CustomerController extends BaseController {
         stats.setHeapFreeSize(Runtime.getRuntime().freeMemory());
         return stats;
     }
+
+    public void setService(CustomerService cService) {
+        if(service == null) service = cService;
+    }
 }

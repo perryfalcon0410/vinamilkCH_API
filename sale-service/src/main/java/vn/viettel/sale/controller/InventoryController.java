@@ -39,6 +39,7 @@ import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.excel.SampleExcel;
 import vn.viettel.sale.excel.StockCountingAllExcel;
 import vn.viettel.sale.excel.StockCountingFailExcel;
+import vn.viettel.sale.service.ComboProductTransService;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.InventoryImportInfo;
 import vn.viettel.sale.service.dto.StockCountingDTO;
@@ -59,6 +60,10 @@ public class InventoryController extends BaseController {
     @Autowired
     ShopClient shopClient;
     private final String root = "/sales";
+
+    public void setService(InventoryService service){
+        if(inventoryService == null) inventoryService = service;
+    }
 
     @ApiOperation(value = "Api dùng để lấy danh sách tồn kho theo điều kiện tìm kiếm")
     @ApiResponse(code = 200, message = "Success")
@@ -119,8 +124,10 @@ public class InventoryController extends BaseController {
                                                                    @RequestBody List<StockCountingUpdateDTO> details) {
         ResponseMessage message = inventoryService.updateStockCounting(id, this.getShopId(httpRequest), this.getUsername(httpRequest), details);
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         return response;
     }
 
