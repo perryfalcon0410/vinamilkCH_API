@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,19 +40,19 @@ public class PoAutoController extends BaseController {
 	@ApiOperation(value = "Api dùng để lấy tất cả danh sách mua hàng")
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/po-list" })
-	public Response<List<PoAutoDTO>> getAllPoAuto(HttpServletRequest httpRequest, @RequestParam(name = "page", required = false) Integer page) {
+	public Response<Page<PoAutoDTO>> getAllPoAuto(HttpServletRequest httpRequest, @RequestParam(name = "page", required = false) Integer page) {
 
 		if(page == null) page = 0;
 		
-		List<PoAutoDTO> response = poAutoService.getAllPoAuto(this.getShopId(httpRequest), page);
+		Page<PoAutoDTO> response = poAutoService.getAllPoAuto(this.getShopId(httpRequest), page);
 
-		return new Response<List<PoAutoDTO>>().withData(response);
+		return new Response<Page<PoAutoDTO>>().withData(response);
 	}
 	
 	@ApiOperation(value = "Api dùng để tìm kiếm danh sách mua hàng")
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/po-search-list" })
-	public Response<List<PoAutoDTO>> getSearchPoAuto(HttpServletRequest httpRequest, 
+	public Response<Page<PoAutoDTO>> getSearchPoAuto(HttpServletRequest httpRequest, 
 													@RequestParam(name = "poAutoNumber", required = false) String poAutoNumber,
 													@RequestParam(name = "poGroupCode", required = false) String poGroupCode,
 													@RequestParam(value="fromCreateDate") @DateTimeFormat(iso=ISO.DATE) Date fromCreateDate,
@@ -61,7 +62,7 @@ public class PoAutoController extends BaseController {
 													@RequestParam(name = "page", required = false) Integer page,
 													@RequestParam int poStatus) {
 
-		List<PoAutoDTO> response = poAutoService.getSearchPoAuto(poAutoNumber,
+		Page<PoAutoDTO> response = poAutoService.getSearchPoAuto(poAutoNumber,
 																 poGroupCode, 
 																 DateUtils.convertFromDate(fromCreateDate),
 																 DateUtils.convertToDate(toCreateDate),
@@ -71,7 +72,7 @@ public class PoAutoController extends BaseController {
 																 this.getShopId(httpRequest),
 																 page);
 
-		return new Response<List<PoAutoDTO>>().withData(response);
+		return new Response<Page<PoAutoDTO>>().withData(response);
 	}
 	
 	@ApiOperation(value = "Api dùng để lấy chi tiết của đơn hàng")
@@ -117,12 +118,10 @@ public class PoAutoController extends BaseController {
 	@ApiOperation(value = "Api dùng để lấy tất cả danh sách mua hàng")
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/product-list" })
-	public Response<Page<ProductStockDTO>> getAllProductByPage(HttpServletRequest httpRequest, @RequestParam(name = "page", required = false) Integer page) {
-
-		if(page == null) page = 0;
-		
-		Page<ProductStockDTO> response = poAutoService.getProductByPage(page);
-
+	public Response<Page<ProductStockDTO>> getAllProductByPage(HttpServletRequest httpRequest, 
+														@RequestParam(name = "keyword", required = false) String keyword,
+														Pageable pageable) {
+		Page<ProductStockDTO> response = poAutoService.getProductByPage(pageable, this.getShopId(httpRequest), keyword);
 		return new Response<Page<ProductStockDTO>>().withData(response);
 	}
 }

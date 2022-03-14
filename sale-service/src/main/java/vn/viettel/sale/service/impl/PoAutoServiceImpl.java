@@ -2,16 +2,21 @@ package vn.viettel.sale.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.persistence.Tuple;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -72,28 +77,19 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
     int FAIL = 0;
 
 	@Override
-	public List<PoAutoDTO> getAllPoAuto(Long shopId, int page) {
+	public Page<PoAutoDTO> getAllPoAuto(Long shopId, int page) {
 
-		List<PoAutoDTO> poAutoDTOList = new ArrayList<PoAutoDTO>();
 		Pageable pageable = PageRequest.of(page, 5, Sort.by("poAutoNumber"));
 		
-		poAutoRepository.findAllPo(shopId, pageable).forEach((n) -> {
-			poAutoDTOList.add(convertToDTO(n));
-		});
-		
-		return poAutoDTOList;
+		return poAutoRepository.findAllPo(shopId, pageable);
 	}
 
 	@Override
-	public List<PoAutoDTO> getSearchPoAuto(String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId, int page) {
+	public Page<PoAutoDTO> getSearchPoAuto(String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId, int page) {
 		
-		List<PoAutoDTO> poAutoDTOList = new ArrayList<PoAutoDTO>();
 		Pageable pageable = PageRequest.of(page, 5, Sort.by("poAutoNumber"));
 		
-		poAutoRepository.searchPoList(poAutoNumber, poGroupCode, fromCreateDate, toCreateDate, fromApproveDate, toApproveDate, poStatus, shopId, pageable).forEach((n) -> {
-			poAutoDTOList.add(convertToDTO(n));
-		});
-		return poAutoDTOList;
+		return poAutoRepository.searchPoList(poAutoNumber, poGroupCode, fromCreateDate, toCreateDate, fromApproveDate, toApproveDate, poStatus, shopId, pageable);
 	}
 	
 	@Override
@@ -113,14 +109,16 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public int approvePoAuto(List<String> poAutoNumberList, Long shopId) {		
+	public int approvePoAuto(List<String> poAutoNumberList, Long shopId) {
+		
+		int UNAPPROVE_STATUS = 0;
 		
 		if(poAutoNumberList.isEmpty()) return FAIL;
 		
 		List<PoAuto> poAutoSucList = new ArrayList<>();
 		poAutoNumberList.forEach(n -> {
 			PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
-			if(temp.getStatus() == 0) {
+			if(temp.getStatus() == UNAPPROVE_STATUS) {
 				poAutoRepository.approvePo(n, LocalDateTime.now(), shopId);
 				poAutoSucList.add(temp);
 			}
@@ -135,11 +133,13 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
     @Transactional(rollbackFor = Exception.class)
 	public int cancelPoAuto(List<String> poAutoNumberList, Long shopId) {
 		
+		int CANCEL_STATUS = 2;
+		
 		if(poAutoNumberList.isEmpty()) return FAIL;
 		
 		poAutoNumberList.forEach(n -> {
 			PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
-			if(temp.getStatus() != 2) {
+			if(temp.getStatus() != CANCEL_STATUS) {
 				poAutoRepository.cancelPo(n, LocalDateTime.now(), shopId);				
 			}
 		});
@@ -148,12 +148,25 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	}
 	
 	@Override
-	public Page<ProductStockDTO> getProductByPage(int page) {
+	public Page<ProductStockDTO> getProductByPage(Pageable pageable, Long shopid, String keyword) {
 		
-		Pageable pageable = PageRequest.of(page, 5);
-		Page<ProductStockDTO> productList = productRepository.getProductByPage(pageable);
+//		Pageable pageable = PageRequest.of(page, 5);
+		List<Tuple> productList = poAutoRepository.getProductByPage(shopid, keyword);
 		
-		return productList;
+		List<ProductStockDTO> productStockDtos = productList.stream()
+	            .map(t -> new ProductStockDTO(
+	                    t.get(0, String.class), 
+	                    t.get(1, String.class), 
+	                    t.get(2, BigDecimal.class),
+	                    t.get(3, BigDecimal.class)
+	                    ))
+	            .collect(Collectors.toList());
+		
+		final int start = (int)pageable.getOffset();
+ 		final int end = Math.min((start + pageable.getPageSize()), productStockDtos.size());
+		final Page<ProductStockDTO> paging = new PageImpl<>(productStockDtos.subList(start, end), pageable, productStockDtos.size());
+		
+		return paging;
 	}
 	
 	@Transactional(rollbackFor = Exception.class)
@@ -199,23 +212,23 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         connectFTP.disconnectFTPServer();
    }
 
-	private PoAutoDTO convertToDTO(PoAuto oldPo) {
-		
-		PoAutoDTO newPo = new PoAutoDTO();
-		
-		if(oldPo.getPoAutoNumber() != null) 
-			newPo.setPoAutoNumber(oldPo.getPoAutoNumber());
-		if(oldPo.getGroupCode() != null) 
-			newPo.setGroupCode(oldPo.getGroupCode());
-		newPo.setStatus(oldPo.getStatus());
-		if(oldPo.getAmount() != null) 
-			newPo.setAmount(oldPo.getAmount());
-		if(oldPo.getCreateAt() != null) 
-			newPo.setCreateAt(oldPo.getCreateAt());
-		if(oldPo.getApproveDate() != null) 
-			newPo.setApproveDate(oldPo.getApproveDate());
-		return newPo;
-	}
+//	private PoAutoDTO convertToDTO(PoAuto oldPo) {
+//		
+//		PoAutoDTO newPo = new PoAutoDTO();
+//		
+//		if(oldPo.getPoAutoNumber() != null) 
+//			newPo.setPoAutoNumber(oldPo.getPoAutoNumber());
+//		if(oldPo.getGroupCode() != null) 
+//			newPo.setGroupCode(oldPo.getGroupCode());
+//		newPo.setStatus(oldPo.getStatus());
+//		if(oldPo.getAmount() != null) 
+//			newPo.setAmount(oldPo.getAmount());
+//		if(oldPo.getCreateAt() != null) 
+//			newPo.setCreateAt(oldPo.getCreateAt());
+//		if(oldPo.getApproveDate() != null) 
+//			newPo.setApproveDate(oldPo.getApproveDate());
+//		return newPo;
+//	}
 	
 	private PoAutoDetailProduct convertPoAutoDetail(PoAutoDetail poAutoDetail) {
 		

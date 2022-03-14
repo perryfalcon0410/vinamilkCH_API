@@ -159,9 +159,4 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             " WHERE upper(p.barCode) like %:barCode% AND p.status = 1 ")
     List<OrderProductDTO> getByBarCodeAndStatus(String barCode, Long shopId, Long customerTypeId, Long warehouseId, LocalDateTime toDate);
     
-    @Query(" select new vn.viettel.sale.service.dto.ProductStockDTO (pd.productName, pd.productCode, st.quantity, pr.price) from Product pd "
-    		+ "join StockTotal st on pd.id = st.productId "
-    		+ "join Price pr on pd.id = pr.productId "
-    		+ "where pd.status = 1 ")
-    Page<ProductStockDTO> getProductByPage(Pageable pageable);
 }

@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Tuple;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,20 +18,22 @@ import vn.viettel.sale.entities.PoAuto;
 import vn.viettel.sale.entities.PoAutoDetail;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SalePlan;
+import vn.viettel.sale.service.dto.PoAutoDTO;
 
 @Repository
 public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificationExecutor<PoAuto> {
 	
-	@Query(value = "select po from PoAuto po where po.shopId = :shopId")
-	public List<PoAuto> findAllPo(Long shopId, Pageable pageable);
+	@Query(value = "select new vn.viettel.sale.service.dto.PoAutoDTO (po.poAutoNumber, po.groupCode, po.status, po.createAt, po.approveDate, po.amount) from PoAuto po where po.shopId = :shopId")
+	public Page<PoAutoDTO> findAllPo(Long shopId, Pageable pageable);
 	
-    @Query(value = "select po from PoAuto po where (:poAutoNumber is null or po.poAutoNumber like %:poAutoNumber%) "
+    @Query(value = "select new vn.viettel.sale.service.dto.PoAutoDTO (po.poAutoNumber, po.groupCode, po.status, po.createAt, po.approveDate, po.amount) from PoAuto po "
+    		+ "where (:poAutoNumber is null or po.poAutoNumber like %:poAutoNumber%) "
     		+ "and (:poGroupCode is null or po.groupCode like %:poGroupCode%) "
     		+ "and (po.createAt between :fromCreateDate and :toCreateDate) "
     		+ "and (po.approveDate between :fromApproveDate and :toApproveDate) "
     		+ "and (:poStatus = -1 or po.status = :poStatus) "
     		+ "and (po.shopId = :shopId)")
-	public List<PoAuto> searchPoList (String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, 
+	public Page<PoAutoDTO> searchPoList (String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, 
 			LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId, Pageable pageable);
     
     @Query(value = "select po from PoAuto po where po.poAutoNumber = :poAutoNumber and (po.shopId = :shopId)")
@@ -56,4 +61,23 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     @Query(value = "Update PoAuto SET status = 1, approveDate = :date, updateAt = :date Where poAutoNumber = :poAutoNumber "
     		+ "and shopId = :shopId")
     public int approvePo (String poAutoNumber, LocalDateTime date, Long shopId);
+    
+    @Query(value = 
+    		"select pd.product_name productName, pd.product_code productCode, pr.price price, st.quantity quantity from products pd join ( "
+    		+ "    select price, product_id from prices where (product_id, id) in ( "
+    		+ "        select product_id, min(id) "
+    		+ "        from prices where (product_id, from_date) in ( "
+    		+ "            select product_id, max(from_date) "
+    		+ "            from prices where status = 1 group by product_id) "
+    		+ "        group by product_id) "
+    		+ ") pr on pd.id = pr.product_id "
+    		+ "join ( "
+    		+ "    select quantity, product_id from stock_total st "
+    		+ "    join warehouse_type wt on st.ware_house_type_id = wt.id "
+    		+ "    and wt.warehouse_type_name = 'Cửa hàng' and wt.status = 1 "
+    		+ "    where st.status = 1 and st.shop_id = ?1 "
+    		+ ") st on st.product_id = pd.id"
+    		+ "where pd.status = 1 and ( ?2 is null or pd.product_name like '%?2%')"
+    		, nativeQuery = true)
+    List<Tuple> getProductByPage(Long shopId, String keyword);
 }

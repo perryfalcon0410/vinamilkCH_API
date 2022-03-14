@@ -1,5 +1,7 @@
 package vn.viettel.sale.service.dto;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +17,8 @@ public class ProductStockDTO {
 	
 	private String productCode;
 	
-	private Integer quantity;
+	private BigDecimal price;
 	
-	private Double price;
+	private BigDecimal quantity;
+	
 }
