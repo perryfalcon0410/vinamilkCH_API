@@ -164,6 +164,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
             List<StockCountingExcelDTO> dtos = new ArrayList<>();
             List<StockCountingDetailDTO> newProducts = new ArrayList<>();
             Map<Long, StockCountingExcelDTO> resultMap = result.stream().collect(Collectors.toMap(StockCountingExcelDTO::getProductId, Function.identity()));
+
             for (StockCountingDetailDTO st : countingDetails) {
                  if(resultMap.containsKey(st.getProductId())) {
                      StockCountingExcelDTO countingExcel = resultMap.get(st.getProductId());

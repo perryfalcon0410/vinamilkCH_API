@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,8 +44,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -169,13 +172,26 @@ public class ComboProductTransControllerTest extends BaseTest {
     //-------------------------------findComboProductTrans-------------------------------
     @Test
     public void findComboProductTransTest() throws Exception {
-        CoverResponse<Page<ComboProductTranDTO>, TotalDTO> data = new CoverResponse<>();
-        List<ComboProductTranDTO> listData = Arrays.asList(new ComboProductTranDTO());
-        data.setResponse(new PageImpl<>(listData));
-        data.setInfo(new TotalDTO());
+        Long shopId = 1L;
+        String transCode = "TRANSCODE";
+        LocalDateTime fromDate = LocalDateTime.of(2022,2,22,0,0);
+        ComboProductTranFilter filter = new ComboProductTranFilter();
+        filter.setShopId(shopId);
+        filter.setTransCode(transCode);
+        filter.setTransType(1);
+        filter.setFromDate(DateUtils.convertFromDate(fromDate));
+        filter.setToDate(DateUtils.convertToDate(LocalDateTime.now()));
 
-        Pageable page = PageRequest.of(1, 5);
-        CoverResponse<Page<ComboProductTranDTO>, TotalDTO>  result = service.getAll(new ComboProductTranFilter(), page);
+        final Page<ComboProductTrans> pageData = new PageImpl<>(lstEntities);
+        Pageable page = PageRequest.of(0, 5);
+        when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(pageData);
+
+        given(repository.getExchangeTotal(shopId, transCode, filter.getTransType(),
+                fromDate, filter.getToDate())).willReturn(new TotalDTO());
+
+        CoverResponse<Page<ComboProductTranDTO>, TotalDTO>  result = serviceImp.getAll(filter, page);
+
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                         .param("fromDate", "2022/02/22")

@@ -47,12 +47,14 @@ public class ComboProductServiceImpl extends BaseServiceImpl<ComboProduct, Combo
     public List<ComboProductDTO> findComboProducts(Long shopId, String keyWord, Integer status) {
         List<ComboProductDTO> dtos = new ArrayList<>();
         List<ComboProduct> comboProducts = repository.findAll(
-            Specification.where(ComboProductSpecification.hasKeyWord(keyWord)).and(ComboProductSpecification.hasStatus(status)));
+            Specification.where(ComboProductSpecification.hasKeyWord(keyWord))
+                    .and(ComboProductSpecification.hasStatus(status)));
         Long customerTypeId = null;
         List<Long> lstProductIds = comboProducts.stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
-        if(lstProductIds.isEmpty()) return dtos;
-        List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, DateUtils.convertToDate(LocalDateTime.now()));
 
+        if(lstProductIds.isEmpty()) return dtos;
+        LocalDateTime now = DateUtils.convertToDate(LocalDateTime.now());
+        List<Price> prices = productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId, now);
         for (ComboProduct combo: comboProducts) {
             for (Price price : prices) {
                 if (price.getProductId().equals(combo.getRefProductId())) {

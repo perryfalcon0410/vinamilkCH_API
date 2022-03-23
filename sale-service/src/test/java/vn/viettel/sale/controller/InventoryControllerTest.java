@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -17,19 +19,24 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
+import vn.viettel.sale.entities.Price;
 import vn.viettel.sale.entities.StockCounting;
 import vn.viettel.sale.entities.StockCountingDetail;
 import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.StockCountingDetailRepository;
 import vn.viettel.sale.repository.StockCountingRepository;
 import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.InventoryService;
 import vn.viettel.sale.service.dto.*;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.impl.InventoryServiceImpl;
 
 import java.time.LocalDate;
@@ -39,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -66,6 +74,12 @@ public class InventoryControllerTest extends BaseTest {
     @Mock
     StockCountingDetailRepository countingDetailRepository;
 
+    @Mock
+    CustomerTypeClient customerTypeClient;
+
+    @Mock
+    ProductPriceRepository priceRepository;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -79,7 +93,7 @@ public class InventoryControllerTest extends BaseTest {
     public void testIndex() throws Exception {
         String uri = V1 + root + "/inventory";
         Long wareHouseTypeId = 1L;
-        service.index("code", wareHouseTypeId, LocalDateTime.now(), LocalDateTime.now(), 1L, PageRequest.of(2, 5));
+        serviceImp.index("code", wareHouseTypeId, LocalDateTime.now(), LocalDateTime.now(), 1L, PageRequest.of(2, 5));
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("stockCountingCode", "stockCountingCode");
         params.add("wareHouseTypeId", wareHouseTypeId.toString());
@@ -87,6 +101,7 @@ public class InventoryControllerTest extends BaseTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd LLLL yyyy");
         params.add("fromDate" , localDate.format(formatter));
         params.add("toDate" , localDate.format(formatter));
+
         ResultActions resultActions = mockMvc.perform(get(uri+ "?page=1&size=10")
                 .params(params)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -99,14 +114,44 @@ public class InventoryControllerTest extends BaseTest {
     @Test
     public void testGetAll() throws Exception {
         String uri = V1 + root + "/inventories?isPaging=true";
-        int size = 2;
-        int page = 5;
-        PageRequest pageRequest = PageRequest.of(page, size);
-        List<StockCountingDTO> list = Arrays.asList(new StockCountingDTO(), new StockCountingDTO());
-        Page<StockCountingDTO> stockCountingDTOS = new PageImpl<>(list, pageRequest, list.size());
-        CoverResponse<Page<StockCountingDTO>, TotalStockCounting> data =
-                new CoverResponse<>(stockCountingDTOS, new TotalStockCounting());
-        given(service.getAll( any(), any(), any())).willReturn(data);
+        Long shopId = 1L;
+        Long wareHouseTypeId = 1L;
+        String searchKeywords = "KEY";
+        List<StockCountingDetailDTO> countingDetails = new ArrayList<>();
+        List<CustomerTypeDTO> customerTypes = new ArrayList<>();
+        List<Price> prices = new ArrayList<>();
+        for(int i = 1; i < 5 ; i++){
+            StockCountingDetailDTO  dto = new StockCountingDetailDTO();
+            dto.setId((long)i);
+            dto.setProductId((long)i);
+            dto.setPrice(5500.0);
+            dto.setStockQuantity(2);
+            countingDetails.add(dto);
+
+            CustomerTypeDTO cDto = new CustomerTypeDTO();
+            cDto.setId((long)i);
+            customerTypes.add(cDto);
+
+            Price price = new Price();
+            price.setId((long)i);
+            price.setProductId((long)i);
+            price.setPrice(5500.0);
+            prices.add(price);
+        }
+
+        given(stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords)).willReturn(countingDetails);
+
+        given(customerTypeClient.getCusTypeByWarehouse(wareHouseTypeId)).willReturn(customerTypes);
+        List<Long> customerTypeIds = Arrays.asList(-1L);
+        if(!customerTypes.isEmpty()) customerTypeIds = customerTypes.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+
+        given(priceRepository.findProductPriceWithTypes(countingDetails.stream().map(item -> item.getProductId())
+                .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()))).willReturn(prices);
+
+        Object response = serviceImp.getAll(shopId, searchKeywords, wareHouseTypeId);
+
+        assertNotNull(response);
+
         ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -115,16 +160,167 @@ public class InventoryControllerTest extends BaseTest {
     }
 
     @Test
-    public void testGetStockCountingDetails() throws Exception {
+    public void testGetStockCountingDetailsToDayUpdate() throws Exception {
         String uri = V1 + root + "/inventory/{id}";
+        Long shopId = 1L;
+        Long id = 1L;
 
-        int size = 2;
-        int page = 5;
-        PageRequest pageRequest = PageRequest.of(page, size);
-        List<StockCountingExcelDTO> list = Arrays.asList(new StockCountingExcelDTO(), new StockCountingExcelDTO());
-        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response =
-                new CoverResponse<>(list, new TotalStockCounting());
-        given(service.getByStockCountingId(any(),any())).willReturn(response);
+        StockCounting stockCounting = new StockCounting();
+        stockCounting.setStockCountingCode("CODE");
+        stockCounting.setCountingDate(LocalDateTime.now());
+        stockCounting.setWareHouseTypeId(1L);
+        given(repository.getByIdAndShopId(id, shopId)).willReturn(stockCounting);
+
+        List<StockCountingDetailDTO> countingDetails = new ArrayList<>();
+        List<StockCountingExcelDTO> result = new ArrayList<>();
+        for(int i = 1; i < 5 ; i++){
+            StockCountingDetailDTO  dto = new StockCountingDetailDTO();
+            dto.setId((long)i);
+            dto.setProductId((long)i);
+            dto.setPrice(5500.0);
+            dto.setStockQuantity(2);
+            dto.setInventoryQuantity(3);
+            dto.setPacketQuantity(3);
+            dto.setConvfact(1);
+            dto.setUnitQuantity(3);
+            dto.setProductCategoryCode("CATCODE");
+            dto.setProductCode("CODE");
+            countingDetails.add(dto);
+
+            StockCountingExcelDTO excelDTO = new StockCountingExcelDTO();
+            excelDTO.setProductId((long)i);
+            excelDTO.setProductId((long)i);
+            excelDTO.setPrice(5500.0);
+            excelDTO.setStockQuantity(2);
+            excelDTO.setInventoryQuantity(3);
+            excelDTO.setPacketQuantity(3);
+            excelDTO.setConvfact(1);
+            excelDTO.setUnitQuantity(3);
+            excelDTO.setProductCategoryCode("CATCODE");
+            excelDTO.setProductCode("CODE");
+            result.add(excelDTO);
+        }
+
+        given(countingDetailRepository.getStockCountingDetail(id)).willReturn(result);
+        given(stockTotalRepository.getStockCountingDetail(shopId, stockCounting.getWareHouseTypeId(), null)).willReturn(countingDetails);
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = serviceImp.getByStockCountingId(id, shopId);
+
+        assertNotNull(response);
+
+        ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void testGetStockCountingDetailsToDayNew() throws Exception {
+        String uri = V1 + root + "/inventory/{id}";
+        Long shopId = 1L;
+        Long id = 1L;
+
+        StockCounting stockCounting = new StockCounting();
+        stockCounting.setStockCountingCode("CODE");
+        stockCounting.setCountingDate(LocalDateTime.now());
+        stockCounting.setWareHouseTypeId(1L);
+        given(repository.getByIdAndShopId(id, shopId)).willReturn(stockCounting);
+
+        List<StockCountingDetailDTO> countingDetails = new ArrayList<>();
+        List<CustomerTypeDTO> customerTypes = new ArrayList<>();
+        List<Price> prices = new ArrayList<>();
+        List<StockCountingDetailDTO> newProducts = new ArrayList<>();
+        for(int i = 1; i < 5 ; i++){
+            StockCountingDetailDTO  dto = new StockCountingDetailDTO();
+            dto.setId((long)i);
+            dto.setProductId((long)i);
+            dto.setPrice(5500.0);
+            dto.setStockQuantity(2);
+            dto.setInventoryQuantity(3);
+            dto.setPacketQuantity(3);
+            dto.setConvfact(1);
+            dto.setUnitQuantity(3);
+            dto.setProductCategoryCode("CATCODE");
+            dto.setProductCode("CODE");
+            countingDetails.add(dto);
+            newProducts.add(dto);
+
+            CustomerTypeDTO cDto = new CustomerTypeDTO();
+            cDto.setId((long)i);
+            customerTypes.add(cDto);
+
+            Price price = new Price();
+            price.setId((long)i);
+            price.setProductId((long)i);
+            price.setPrice(5500.0);
+            prices.add(price);
+        }
+        given(stockTotalRepository.getStockCountingDetail(shopId, stockCounting.getWareHouseTypeId(), null)).willReturn(countingDetails);
+        given(customerTypeClient.getCusTypeByWarehouse(stockCounting.getWareHouseTypeId())).willReturn(customerTypes);
+        List<Long> customerTypeIds = Arrays.asList(-1L);
+        customerTypeIds = customerTypes.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+        given(priceRepository.findProductPriceWithTypes(newProducts.stream().map(item -> item.getProductId()).distinct()
+                .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()))).willReturn(prices);
+
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = serviceImp.getByStockCountingId(id, shopId);
+
+        assertNotNull(response);
+
+        ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void testGetStockCountingDetailsNotToDay() throws Exception {
+        String uri = V1 + root + "/inventory/{id}";
+        Long shopId = 1L;
+        Long id = 1L;
+
+        StockCounting stockCounting = new StockCounting();
+        stockCounting.setStockCountingCode("CODE");
+        stockCounting.setCountingDate(LocalDateTime.now().plusDays(-3));
+        stockCounting.setWareHouseTypeId(1L);
+        given(repository.getByIdAndShopId(id, shopId)).willReturn(stockCounting);
+
+        List<StockCountingDetailDTO> countingDetails = new ArrayList<>();
+        List<StockCountingExcelDTO> result = new ArrayList<>();
+        for(int i = 1; i < 5 ; i++){
+            StockCountingDetailDTO  dto = new StockCountingDetailDTO();
+            dto.setId((long)i);
+            dto.setProductId((long)i);
+            dto.setPrice(5500.0);
+            dto.setStockQuantity(2);
+            dto.setInventoryQuantity(3);
+            dto.setPacketQuantity(3);
+            dto.setConvfact(1);
+            dto.setUnitQuantity(3);
+            dto.setProductCategoryCode("CATCODE");
+            dto.setProductCode("CODE");
+            countingDetails.add(dto);
+
+            StockCountingExcelDTO excelDTO = new StockCountingExcelDTO();
+            excelDTO.setProductId((long)i);
+            excelDTO.setProductId((long)i);
+            excelDTO.setPrice(5500.0);
+            excelDTO.setStockQuantity(2);
+            excelDTO.setInventoryQuantity(3);
+            excelDTO.setPacketQuantity(3);
+            excelDTO.setConvfact(1);
+            excelDTO.setUnitQuantity(3);
+            excelDTO.setProductCategoryCode("CATCODE");
+            excelDTO.setProductCode("CODE");
+            result.add(excelDTO);
+        }
+
+        given(countingDetailRepository.getStockCountingDetail(id)).willReturn(result);
+        given(stockTotalRepository.getStockCountingDetail(shopId, stockCounting.getWareHouseTypeId(), null)).willReturn(countingDetails);
+        CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = serviceImp.getByStockCountingId(id, shopId);
+
+        assertNotNull(response);
+
         ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -136,16 +332,46 @@ public class InventoryControllerTest extends BaseTest {
     public void testImportExcel() throws Exception {
         String uri = V1 + root + "/inventory/import-excel";
         Long wareHouseTypeId = 1L;
-        StockCountingImportDTO stockCountingImportDTO = new StockCountingImportDTO();
-        List<StockCountingDetailDTO> importSuccess = Arrays.asList(new StockCountingDetailDTO(), new StockCountingDetailDTO());
-        List<StockCountingExcel> importFails = Arrays.asList(new StockCountingExcel(), new StockCountingExcel());
-        stockCountingImportDTO.setImportSuccess(importSuccess);
-        stockCountingImportDTO.setImportFails(importFails);
-        CoverResponse<StockCountingImportDTO,InventoryImportInfo> data =
-                new CoverResponse<>(stockCountingImportDTO, new InventoryImportInfo());
-        MockMultipartFile firstFile = new MockMultipartFile("data", "filename.txt", "text/plain", "some xml".getBytes());
-//        given(service.importExcel(1L, firstFile, PageRequest.of(1, 20), "key",1L)).willReturn(data);
-        service.importExcel(1L, firstFile, PageRequest.of(1, 20), "key",wareHouseTypeId);
+        Long shopId = 1L;
+        String searchKeywords = "AA";
+        MultipartFile firstFile = new MockMultipartFile("filename", "someTestFile.XLSX", "application/vnd.ms-excel", "someTestFile.XLSX".getBytes());
+
+        List<StockCountingDetailDTO> countingDetails = new ArrayList<>();
+        List<CustomerTypeDTO> customerTypes = new ArrayList<>();
+        List<Price> prices = new ArrayList<>();
+        List<StockCountingDetailDTO> newProducts = new ArrayList<>();
+        for(int i = 1; i < 5 ; i++){
+            StockCountingDetailDTO  dto = new StockCountingDetailDTO();
+            dto.setId((long)i);
+            dto.setProductId((long)i);
+            dto.setPrice(5500.0);
+            dto.setStockQuantity(2);
+            dto.setInventoryQuantity(3);
+            dto.setPacketQuantity(3);
+            dto.setConvfact(1);
+            dto.setUnitQuantity(3);
+            dto.setProductCategoryCode("CATCODE");
+            dto.setProductCode("CODE");
+            countingDetails.add(dto);
+            newProducts.add(dto);
+
+            CustomerTypeDTO cDto = new CustomerTypeDTO();
+            cDto.setId((long)i);
+            customerTypes.add(cDto);
+
+            Price price = new Price();
+            price.setId((long)i);
+            price.setProductId((long)i);
+            price.setPrice(5500.0);
+            prices.add(price);
+        }
+        given(stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords)).willReturn(countingDetails);
+        given(customerTypeClient.getCusTypeByWarehouse(wareHouseTypeId)).willReturn(customerTypes);
+        List<Long> customerTypeIds = customerTypeIds = customerTypes.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
+        given(priceRepository.findProductPriceWithTypes(countingDetails.stream().map(item -> item.getProductId())
+                .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()))).willReturn(prices);
+        CoverResponse<StockCountingImportDTO, InventoryImportInfo> result =
+                service.importExcel(shopId, firstFile, PageRequest.of(0, 20), searchKeywords,wareHouseTypeId);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("file", "" + firstFile);
@@ -265,7 +491,7 @@ public class InventoryControllerTest extends BaseTest {
 //        given(repository.findByWareHouseTypeId(wareHouseTypeId,shopId,
 //                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())))
 //                .willReturn(new ArrayList<>());
-        Long id = service.createStockCounting(request,1L, shopId, wareHouseTypeId, true);
+        Long id = serviceImp.createStockCounting(request,1L, shopId, wareHouseTypeId, true);
         assertNotNull(id);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions = mockMvc.perform(post(uri)

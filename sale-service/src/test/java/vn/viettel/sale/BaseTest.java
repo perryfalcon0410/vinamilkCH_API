@@ -2,6 +2,8 @@ package vn.viettel.sale;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -15,6 +17,10 @@ import vn.viettel.core.convert.JsonObjectConverter;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.messaging.Response;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
@@ -39,6 +45,13 @@ public class BaseTest extends JsonObjectConverter {
                     }
                 })
                 .build();
+
+        try(MockedStatic<LocalDateTime> mockedStatic = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            String instantExpected = "2022-02-22T10:15:30Z";
+            Clock clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+            LocalDateTime now = LocalDateTime.now(clock);
+            mockedStatic.when(LocalDateTime::now).thenReturn(now);
+        }
     }
 
     @Test
