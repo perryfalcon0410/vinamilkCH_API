@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -159,6 +160,24 @@ public class PromotionControllerTest extends BaseTest {
         assertEquals(id, promotionProgramDTO.getId());
 
         ResultActions resultActions = mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    //
+    @Test
+    public void getByIdsTest() throws Exception {
+        String url = uri + "/ids";
+        List<Long> ids = lstEntities.stream().map(PromotionProgram::getId).collect(Collectors.toList());
+        List<PromotionProgram> lstPromotionPrograms = new ArrayList<>();
+        List<PromotionProgramDTO> result = service.findByIds(ids);
+
+        assertEquals(lstPromotionPrograms.size(), result.size());
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .param("programIds", "1")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
