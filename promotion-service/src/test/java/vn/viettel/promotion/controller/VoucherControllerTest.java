@@ -10,20 +10,25 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.ShopParamDTO;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.voucher.VoucherDTO;
+
+import vn.viettel.core.messaging.Response;
 import vn.viettel.promotion.BaseTest;
 import vn.viettel.promotion.entities.*;
-import vn.viettel.promotion.repository.VoucherProgramRepository;
-import vn.viettel.promotion.repository.VoucherRepository;
+import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
+import vn.viettel.promotion.service.feign.CustomerClient;
+import vn.viettel.promotion.service.feign.ShopClient;
 import vn.viettel.promotion.service.impl.VoucherServiceImpl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,7 +49,22 @@ public class VoucherControllerTest extends BaseTest {
     VoucherService service;
 
     @Mock
+    ShopClient shopClient;
+
+    @Mock
     VoucherProgramRepository voucherProgramRepository;
+
+    @Mock
+    CustomerClient customerClient;
+
+    @Mock
+    VoucherShopMapRepostiory voucherShopMapRepo;
+
+    @Mock
+    VoucherCustomerMapRepository voucherCustomerMapRepo;
+
+    @Mock
+    VoucherSaleProductRepository voucherSaleProductRepo;
 
     private List<Voucher> lstEntities;
 
@@ -80,6 +100,46 @@ public class VoucherControllerTest extends BaseTest {
 
     }
 
+    @Test
+    public void getVoucherBySerialTest() throws Exception {
+        Map<String, String> voucher = new HashMap<>();
+        voucher.put("serial","ABC");
+        List<Long> productIds = new ArrayList<>();
+        productIds.add(1l);
+        productIds.add(2l);
+        String url = uri + "/code";
+
+        ShopParamDTO shopParamDTO = new ShopParamDTO();
+        shopParamDTO.setId(1L);
+        shopParamDTO.setName("10");
+
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setId(1L);
+        customerDTO.setCustomerTypeId(1L);
+
+        ShopDTO shopDTO = new ShopDTO();
+        shopDTO.setId(1L);
+
+        Mockito.when(shopClient.getShopParamV1("SALEMT_LIMITVC", "LIMITVC", 1L)).thenReturn(new Response<ShopParamDTO>().withData(shopParamDTO));
+        Mockito.when(repository.getBySerial(any(),any(),any())).thenReturn(Optional.ofNullable(lstEntities.get(0)));
+        Mockito.when(customerClient.getCustomerByIdV1(any())).thenReturn(new Response<CustomerDTO>().withData(customerDTO));
+        Mockito.when(shopClient.getByIdV1(any())).thenReturn(new Response<ShopDTO>().withData(shopDTO));
+        List<Long> lst = new ArrayList<>();
+        Mockito.when(voucherShopMapRepo.findShopIds(lstEntities.get(0).getVoucherProgramId(), 1)).thenReturn(lst);
+        Mockito.when(voucherCustomerMapRepo.findCustomerIds(lstEntities.get(0).getVoucherProgramId(), 1)).thenReturn(lst);
+        Mockito.when(voucherSaleProductRepo.findProductIds(lstEntities.get(0).getVoucherProgramId(), 1)).thenReturn(lst);
+        VoucherDTO result = voucherService.getVoucherBySerial(voucher.get("serial"),1L,1L,productIds);
+
+        assertEquals(lstEntities.get(0).getId(), result.getId());
+
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
     //-------------------------------updateVoucher-------------------------------
     @Test
     public void updateVoucherTest() throws Exception {
@@ -120,6 +180,27 @@ public class VoucherControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(url)
                         .header(headerType, secretKey)
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void returnVoucherTest() throws Exception {
+        Long saleOrderId = 1L;
+        Boolean flag = false;
+        String url = uri + "/return";
+        Mockito.when(repository.getVoucherBySaleOrderId(saleOrderId)).thenReturn(lstEntities);
+        Boolean result = voucherService.returnVoucher(saleOrderId);
+        if(lstEntities.size()>0)
+            flag = true;
+        else flag = false;
+        assertEquals(flag, result);
+
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
