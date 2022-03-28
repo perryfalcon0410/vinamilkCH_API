@@ -461,7 +461,7 @@ public class InventoryServiceImpl extends BaseServiceImpl<StockCounting, StockCo
         stockCounting.setShopId(shopId);
         stockCounting.setWareHouseTypeId(wareHouseTypeId);
 
-        repository.save(stockCounting);
+        stockCounting = repository.save(stockCounting);
 
         for (StockCountingDetailDTO detail : stockCountingDetails) {
             StockCountingDetail stockCountingDetail = new StockCountingDetail();

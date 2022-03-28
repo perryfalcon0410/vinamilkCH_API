@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -316,7 +317,6 @@ public class InventoryControllerTest extends BaseTest {
         }
 
         given(countingDetailRepository.getStockCountingDetail(id)).willReturn(result);
-        given(stockTotalRepository.getStockCountingDetail(shopId, stockCounting.getWareHouseTypeId(), null)).willReturn(countingDetails);
         CoverResponse<List<StockCountingExcelDTO>, TotalStockCounting> response = serviceImp.getByStockCountingId(id, shopId);
 
         assertNotNull(response);
@@ -365,11 +365,6 @@ public class InventoryControllerTest extends BaseTest {
             price.setPrice(5500.0);
             prices.add(price);
         }
-        given(stockTotalRepository.getStockCountingDetail(shopId, wareHouseTypeId, searchKeywords)).willReturn(countingDetails);
-        given(customerTypeClient.getCusTypeByWarehouse(wareHouseTypeId)).willReturn(customerTypes);
-        List<Long> customerTypeIds = customerTypeIds = customerTypes.stream().map(item -> item.getId()).distinct().collect(Collectors.toList());
-        given(priceRepository.findProductPriceWithTypes(countingDetails.stream().map(item -> item.getProductId())
-                .collect(Collectors.toList()), customerTypeIds, DateUtils.convertToDate(LocalDateTime.now()))).willReturn(prices);
         CoverResponse<StockCountingImportDTO, InventoryImportInfo> result =
                 service.importExcel(shopId, firstFile, PageRequest.of(0, 20), searchKeywords,wareHouseTypeId);
 
@@ -488,11 +483,16 @@ public class InventoryControllerTest extends BaseTest {
         Long wareHouseTypeId = 1L;
         Long shopId = 1L;
         List<StockCountingDetailDTO> request = Arrays.asList(new StockCountingDetailDTO(), new StockCountingDetailDTO());
-//        given(repository.findByWareHouseTypeId(wareHouseTypeId,shopId,
-//                DateUtils.convertFromDate(LocalDateTime.now()), DateUtils.convertToDate(LocalDateTime.now())))
-//                .willReturn(new ArrayList<>());
+        List<StockCounting> stockCountings = new ArrayList<>();
+        StockCounting stockCounting = new StockCounting();
+        stockCounting.setId(1L);
+        stockCounting.setStockCountingCode("12345");
+        stockCountings.add(stockCounting);
+        Page<StockCounting> stockCountingPage = new PageImpl<>(stockCountings);
+        Mockito.when(repository.getLastStockCounting(any(), any(), any())).thenReturn(stockCountingPage);
+        Mockito.when(repository.save(any())).thenReturn(stockCounting);
         Long id = serviceImp.createStockCounting(request,1L, shopId, wareHouseTypeId, true);
-        assertNotNull(id);
+        assertEquals(stockCounting.getId(), id);
         String inputJson = super.mapToJson(request);
         ResultActions resultActions = mockMvc.perform(post(uri)
                 .param("wareHouseTypeId", "1")
