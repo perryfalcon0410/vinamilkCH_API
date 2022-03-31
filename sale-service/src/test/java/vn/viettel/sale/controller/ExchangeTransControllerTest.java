@@ -317,11 +317,11 @@ public class ExchangeTransControllerTest extends BaseTest {
                 item -> item.getProductId()).distinct().collect(Collectors.toList());
         productIds.add(2L);
 
-        Mockito.when(priceRepository.findProductPriceWithType(productIds, customerTypeDTOS.get(0).getId(), DateUtils.convertToDate(date)))
-                .thenReturn(priceList);
+//        Mockito.when(priceRepository.findProductPriceWithType(productIds, customerTypeDTOS.get(0).getId(), DateUtils.convertToDate(date)))
+//                .thenReturn(priceList);
 
-        Mockito.when(stockTotalRepository.getStockTotal(1L, 1L, productIds))
-                .thenReturn(stockTotals);
+//        Mockito.when(stockTotalRepository.getStockTotal(1L, 1L, productIds))
+//                .thenReturn(stockTotals);
 
         Mockito.when(transDetailRepository.findByTransId(id))
                 .thenReturn(dbExchangeTransDetails);

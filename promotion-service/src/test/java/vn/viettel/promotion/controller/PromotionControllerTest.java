@@ -6,11 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.promotion.*;
 import vn.viettel.core.messaging.Response;
@@ -28,12 +26,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(secure = false)
 public class PromotionControllerTest extends BaseTest {
 
     private final String root = "/promotions";
@@ -43,13 +39,12 @@ public class PromotionControllerTest extends BaseTest {
     private final String headerType = "Authorization";
 
     @InjectMocks
-    private PromotionProgramImpl programService;
+    PromotionProgramImpl serviceImpl;
+    @Mock
+    PromotionProgramService service;
 
     @Mock
     PromotionProgramRepository repository;
-
-    @Mock
-    PromotionProgramService service;
 
     @Mock
     PromotionProgramDiscountRepository promotionDiscountRepository;
@@ -84,10 +79,10 @@ public class PromotionControllerTest extends BaseTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        programService.setModelMapper(this.modelMapper);
+        serviceImpl.setModelMapper(this.modelMapper);
         final PromotionController controller = new PromotionController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
 
         lstEntities = new ArrayList<>();
         for (int i = 1; i < 6; i++) {
@@ -135,7 +130,7 @@ public class PromotionControllerTest extends BaseTest {
         Mockito.when(promotionDiscountRepository.getPromotionProgramDiscountByOrderNumber(orderNumber))
                 .thenReturn(promotionProgramDiscounts);
 
-        List<PromotionProgramDiscountDTO> promotionProgramDiscountDTOS = programService
+        List<PromotionProgramDiscountDTO> promotionProgramDiscountDTOS = serviceImpl
                 .listPromotionProgramDiscountByOrderNumber(orderNumber);
 
         assertEquals(promotionProgramDiscounts.size(), promotionProgramDiscountDTOS.size());
@@ -155,7 +150,7 @@ public class PromotionControllerTest extends BaseTest {
 
         Mockito.when(repository.findById(id)).thenReturn(Optional.ofNullable(lstEntities.get(0)));
 
-        PromotionProgramDTO promotionProgramDTO = programService.getPromotionProgramById(id);
+        PromotionProgramDTO promotionProgramDTO = serviceImpl.getPromotionProgramById(id);
 
         assertEquals(id, promotionProgramDTO.getId());
 
@@ -170,9 +165,10 @@ public class PromotionControllerTest extends BaseTest {
     @Test
     public void getByIdsTest() throws Exception {
         String url = uri + "/ids";
-        List<Long> ids = lstEntities.stream().map(PromotionProgram::getId).collect(Collectors.toList());
+        List<Long> promotionIds = lstEntities.stream().map(PromotionProgram::getId).collect(Collectors.toList());
         List<PromotionProgram> lstPromotionPrograms = new ArrayList<>();
-        List<PromotionProgramDTO> result = service.findByIds(ids);
+        Mockito.when(repository.findAllById(promotionIds)).thenReturn(lstPromotionPrograms);
+        List<PromotionProgramDTO> result = serviceImpl.findByIds(promotionIds);
 
         assertEquals(lstPromotionPrograms.size(), result.size());
         ResultActions resultActions = mockMvc.perform(get(url)
@@ -196,7 +192,7 @@ public class PromotionControllerTest extends BaseTest {
         Mockito.when(promotionProductRepository.findByPromotionIds(list)).thenReturn(programProducts);
 
         List<PromotionProgramProductDTO> promotionProgramProductDTOS =
-                programService.findByPromotionIds(list);
+                serviceImpl.findByPromotionIds(list);
 
         assertEquals(programProducts.size(), promotionProgramProductDTOS.size());
 
@@ -218,7 +214,7 @@ public class PromotionControllerTest extends BaseTest {
         Mockito.when(promotionProductRepository.findByPromotionIds(list)).thenReturn(programProducts);
 
         List<PromotionProgramProductDTO> promotionProgramProductDTOS =
-                programService.findByPromotionIds(list);
+                serviceImpl.findByPromotionIds(list);
 
         assertEquals(programProducts.size(), promotionProgramProductDTOS.size());
 
@@ -245,7 +241,7 @@ public class PromotionControllerTest extends BaseTest {
                 .thenReturn(promotionShopMaps);
 
 
-        PromotionShopMapDTO promotionShopMapDTO = programService.getPromotionShopMap(id, 1L);
+        PromotionShopMapDTO promotionShopMapDTO = serviceImpl.getPromotionShopMap(id, 1L);
 
         assertEquals(id, promotionShopMapDTO.getId());
 
@@ -269,7 +265,7 @@ public class PromotionControllerTest extends BaseTest {
         Mockito.when(promotionProductOpenRepository.findByPromotionProgramId(programId))
                 .thenReturn(promotionProductOpens);
 
-        List<PromotionProductOpenDTO> promotionProductOpenDTOS = programService.getFreeItems(programId);
+        List<PromotionProductOpenDTO> promotionProductOpenDTOS = serviceImpl.getFreeItems(programId);
 
         assertEquals(promotionProductOpens.size(), promotionProductOpenDTOS.size());
 

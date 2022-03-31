@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,7 +77,7 @@ public class OnlineOrderControllerTest extends BaseTest {
     ShopClient shopClient;
 
     @Mock
-    private CustomerOnlRequest customerOnlRequest;
+    private CustomerOnlRequest cusRequest;
 
     @Before
     public void init() {
@@ -138,22 +140,20 @@ public class OnlineOrderControllerTest extends BaseTest {
         response.setData(lstCustomerDTO);
         Mockito.when(customerClient.getCustomerByMobiPhoneV1(onlineOrder.getCustomerPhone())).thenReturn(response);
 
+        CustomerOnlRequest classToBeTestedSpy = Mockito.spy(new CustomerOnlRequest());
+        Mockito.doReturn(cusRequest).when(classToBeTestedSpy);
         Response response1 = new Response<>();
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setCustomerTypeId(1L);
         response1.setData(customerDTO);
+        cusRequest.setStatus(1);
+        cusRequest.setMobiPhone(onlineOrder.getCustomerPhone());
+        cusRequest.setDob(onlineOrder.getCustomerDOB());
+        cusRequest.setAddress(onlineOrder.getCustomerAddress());
+        cusRequest.setLastName("KH");
+        cusRequest.setFirstName("CustomerName");
 
-        CustomerOnlRequest cusRequest = Mockito.spy(new CustomerOnlRequest());
-        Mockito.doReturn(customerOnlRequest).when(cusRequest);
-
-        customerOnlRequest.setStatus(1);
-        customerOnlRequest.setMobiPhone(onlineOrder.getCustomerPhone());
-        customerOnlRequest.setDob(onlineOrder.getCustomerDOB());
-        customerOnlRequest.setAddress(onlineOrder.getCustomerAddress());
-        customerOnlRequest.setLastName("KH");
-        customerOnlRequest.setFirstName("CustomerName");
-
-        Mockito.when(customerClient.createForFeignV1(customerOnlRequest, shopId)).thenReturn(response1);
+        Mockito.when(customerClient.createForFeignV1(cusRequest, shopId)).thenReturn(response1);
 
         CustomerTypeDTO customerType = new CustomerTypeDTO();
         Mockito.when(customerTypeClient.getCusTypeById(customerDTO.getCustomerTypeId())).thenReturn(customerType);
@@ -185,14 +185,15 @@ public class OnlineOrderControllerTest extends BaseTest {
                     DateUtils.convertToDate(LocalDateTime.now()))).thenReturn(prices);
 
             Mockito.when(stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), productIds)).thenReturn(stockTotals);
+
+            Response response2 = new Response<>();
+            response2.setData(true);
+            Mockito.when(shopClient.isEditableOnlineOrderV1(shopId)).thenReturn(response2);
+
+            OnlineOrderDTO dto = serviceImp.getOnlineOrder(id, shopId, 1L);
+
+            assertNotNull(dto);
         }
-        Response response2 = new Response<>();
-        response2.setData(true);
-        Mockito.when(shopClient.isEditableOnlineOrderV1(shopId)).thenReturn(response2);
-
-        OnlineOrderDTO dto = serviceImp.getOnlineOrder(id, shopId, 1L);
-
-        assertNotNull(dto);
 
         ResultActions resultActions = mockMvc.perform(get(uri, "123").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -131,7 +131,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
 
         LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
         LocalDateTime toDate = LocalDateTime.now();
-//        Page<Long> productIds = repository.findProductsTopSale(shopId, customerId, null, "", fromDate, toDate, false, pageable);
 
         return repository.findOrderProductTopSale(shopId, customer.getCustomerTypeId(), wareHouseTypeId, customerId,
                 "", fromDate, toDate, false, pageable);
@@ -205,7 +204,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, ProductReposito
         List<Product> products = repository.findAll(Specification.where(
                 ProductSpecification.hasCodeOrName(keyWord)), Sort.by(Sort.Direction.ASC, "productCode"));
         if(products.size() > 0) {
-            List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item -> item.getId()).collect(Collectors.toList()), 1, LocalDateTime.now());
+            List<Price> prices = productPriceRepo.findProductPrice(products.stream().map(item ->
+                    item.getId()).collect(Collectors.toList()), 1, LocalDateTime.now());
             return products.stream().map(item -> {
                         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
                         ProductDataSearchDTO dto = modelMapper.map(item, ProductDataSearchDTO.class);

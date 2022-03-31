@@ -587,7 +587,7 @@ public class SaleOrderServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderRe
         if(fromDate == null) fromDate = DateUtils.getFirstDayOfCurrentMonth();
         if(toDate == null) toDate = LocalDateTime.now();
         if(redInvoiceFilter.getOrderNumber() != null) redInvoiceFilter.setOrderNumber(redInvoiceFilter.getOrderNumber().trim().toUpperCase());
-        Page<SaleOrder> saleOrders = repository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, pageable);
+        Page<SaleOrder> saleOrders = saleOrderRepository.getAllBillOfSaleList(shopId,redInvoiceFilter.getOrderNumber(), customerIds, fromDate, toDate, pageable);
 
         List<CustomerDTO> customers = customerClient.getCustomerInfoV1(new ArrayList<>(), null, saleOrders.stream().map(item -> item.getCustomerId())
                 .distinct().collect(Collectors.toList()));

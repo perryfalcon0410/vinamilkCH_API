@@ -80,7 +80,6 @@ public class RedInvoiceServiceImpl extends BaseServiceImpl<RedInvoice, RedInvoic
 
     @Override
     public CoverResponse<Page<RedInvoiceDTO>, TotalRedInvoice> getAll(Long shopId, String searchKeywords, Date fromDate, Date toDate, String invoiceNumber, Pageable pageable) {
-        System.out.println("zzzzzzz");
         List<Long> ids = null;
         if(searchKeywords != null){
             ids = customerClient.getIdCustomerBySearchKeyWordsV1(searchKeywords.trim()).getData();

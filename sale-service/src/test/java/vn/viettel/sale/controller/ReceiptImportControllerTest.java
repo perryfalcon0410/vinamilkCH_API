@@ -461,6 +461,7 @@ public class ReceiptImportControllerTest extends BaseTest {
         String uri = V1 + root + "/po-detail0/{id}";
 
         CoverResponse<List<PoDetailDTO>, TotalResponseV1> result = serviceImp.getPoDetailByPoId(id, shopId);
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(uri, id).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

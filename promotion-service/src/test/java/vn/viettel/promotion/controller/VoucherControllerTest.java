@@ -40,7 +40,7 @@ public class VoucherControllerTest extends BaseTest {
     private final String headerType = "Authorization";
 
     @InjectMocks
-    private VoucherServiceImpl voucherService;
+    VoucherServiceImpl serviceImpl;
 
     @Mock
     VoucherRepository repository;
@@ -73,10 +73,10 @@ public class VoucherControllerTest extends BaseTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        voucherService.setModelMapper(this.modelMapper);
+        serviceImpl.setModelMapper(this.modelMapper);
         final VoucherController controller = new VoucherController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
 
         lstEntities = new ArrayList<>();
         for (int i = 1; i < 6; i++) {
@@ -128,7 +128,7 @@ public class VoucherControllerTest extends BaseTest {
         Mockito.when(voucherShopMapRepo.findShopIds(lstEntities.get(0).getVoucherProgramId(), 1)).thenReturn(lst);
         Mockito.when(voucherCustomerMapRepo.findCustomerIds(lstEntities.get(0).getVoucherProgramId(), 1)).thenReturn(lst);
         Mockito.when(voucherSaleProductRepo.findProductIds(lstEntities.get(0).getVoucherProgramId(), 1)).thenReturn(lst);
-        VoucherDTO result = voucherService.getVoucherBySerial(voucher.get("serial"),1L,1L,productIds);
+        VoucherDTO result = serviceImpl.getVoucherBySerial(voucher.get("serial"),1L,1L,productIds);
 
         assertEquals(lstEntities.get(0).getId(), result.getId());
 
@@ -152,7 +152,7 @@ public class VoucherControllerTest extends BaseTest {
         Mockito.when(voucherProgramRepository.findById(voucherDTO.getId()))
                 .thenReturn(Optional.ofNullable(voucherPrograms.get(0)));
 
-        VoucherDTO result = voucherService.updateVoucher(voucherDTO);
+        VoucherDTO result = serviceImpl.updateVoucher(voucherDTO);
 
         assertEquals(voucherDTO.getId(), result.getId());
 
@@ -173,7 +173,7 @@ public class VoucherControllerTest extends BaseTest {
 
         Mockito.when(repository.getVoucherBySaleOrderId(saleOrderId)).thenReturn(lstEntities);
 
-        List<VoucherDTO> list = voucherService.getVoucherBySaleOrderId(saleOrderId);
+        List<VoucherDTO> list = serviceImpl.getVoucherBySaleOrderId(saleOrderId);
 
         assertEquals(lstEntities.size(), list.size());
 
@@ -192,7 +192,7 @@ public class VoucherControllerTest extends BaseTest {
         Boolean flag = false;
         String url = uri + "/return";
         Mockito.when(repository.getVoucherBySaleOrderId(saleOrderId)).thenReturn(lstEntities);
-        Boolean result = voucherService.returnVoucher(saleOrderId);
+        Boolean result = serviceImpl.returnVoucher(saleOrderId);
         if(lstEntities.size()>0)
             flag = true;
         else flag = false;

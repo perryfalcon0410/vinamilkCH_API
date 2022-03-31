@@ -257,7 +257,8 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         LocalDateTime date1 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MIN);
         LocalDateTime date2 = LocalDateTime.now().toLocalDate().atTime(LocalTime.MAX);
         List<StockBorrowingDTO> stockBorrowings = stockBorrowingRepository.getStockBorrowingExport(shopId, date1, date2);
-        Collections.sort(stockBorrowings, Comparator.comparing(StockBorrowingDTO::getBorrowDate, Comparator.reverseOrder()).thenComparing(StockBorrowingDTO::getPoBorrowCode, Comparator.reverseOrder()));
+        Collections.sort(stockBorrowings, Comparator.comparing(StockBorrowingDTO::getBorrowDate,
+                Comparator.reverseOrder()).thenComparing(StockBorrowingDTO::getPoBorrowCode, Comparator.reverseOrder()));
         return stockBorrowings;
     }
 
@@ -287,9 +288,10 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         poRecord.setType(2);
         poRecord.setStatus(1);
         repository.save(poRecord);
-        Set<Long> countNumSKU = new HashSet<>();System.out.println("jjjjjjjjj " + poTrans);
+        Set<Long> countNumSKU = new HashSet<>();
         List<PoTransDetail> poTransDetails = poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId());
-        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, poTrans.getWareHouseTypeId(), poTransDetails.stream().map(item ->
+        List<StockTotal> stockTotals = stockTotalRepository.getStockTotal(shopId, poTrans.getWareHouseTypeId(),
+                poTransDetails.stream().map(item ->
                 item.getProductId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()));
         List<PoTransDetail> savePoTransDetails = new ArrayList<>();
         HashMap<Long, Integer> idAndValues = new HashMap<>();

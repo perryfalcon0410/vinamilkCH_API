@@ -38,6 +38,10 @@ public abstract class BaseServiceImpl<E/* extends BaseEntity*/, R extends BaseRe
         if(this.modelMapper == null) this.modelMapper = modelMapper;
     }
 
+    public void setRepository(R repository){
+        this.repository = repository;
+    }
+
     @Override
     public <D extends BaseDTO> D findById(Long id, Class<D> clazz) {
         E dbItem = repository.findById(id).orElse(null);
