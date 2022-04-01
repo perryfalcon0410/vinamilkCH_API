@@ -130,17 +130,6 @@ public abstract class BaseServiceImpl<E/* extends BaseEntity*/, R extends BaseRe
         return (Class<E>) paramType.getActualTypeArguments()[0];
     }
 
-    /*public boolean checkUserPermission(List<PermissionDTO> permissionList, Long formId, Long controlId) {
-        boolean havePrivilege = false;
-
-        for (PermissionDTO permission : permissionList) {
-            List<ControlDTO> controlList = permission.getControls();
-            if (permission.getId() == formId && controlList.stream().anyMatch(ctrl -> ctrl.getId().equals(controlId)))
-                havePrivilege = true;
-        }
-        return havePrivilege;
-    }*/
-
     public Predicate createInStatement(CriteriaBuilder cb, Path fieldName, List values) {
         int listSize = values.size();
         int PARAMETER_LIMIT = 999;

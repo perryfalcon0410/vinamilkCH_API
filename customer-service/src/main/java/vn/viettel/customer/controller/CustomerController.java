@@ -215,16 +215,6 @@ public class CustomerController extends BaseController {
         return service.getCustomerInfo(status, customerIds, sorts);
     }
 
-//    @GetMapping(value = { V1 + root + "/feign-customers"})
-//    public Response<List<CustomerDTO>> getAllCustomerToRedInvocie(@RequestParam List<Long> customerIds) {
-//        return new Response<List<CustomerDTO>>().withData(service.getAllCustomerToRedInvoice(customerIds));
-//    }
-
-    @Override
-    public ResponseEntity<?> handleAPIBadRequestException(BadRequestException ex, HttpServletRequest request) {
-        return super.handleAPIBadRequestException(ex, request);
-    }
-
     @ApiOperation(value = "Tìm kiếm khách hàng dạng autocomplete ở màn hình bán hàng")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
