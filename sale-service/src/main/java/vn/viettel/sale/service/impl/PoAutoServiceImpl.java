@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,12 +38,15 @@ import vn.viettel.sale.entities.PoAuto;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SalePlan;
 import vn.viettel.sale.entities.PoAutoDetail;
+import vn.viettel.sale.repository.PoAutoDetailRepository;
 import vn.viettel.sale.repository.PoAutoRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.PoAutoService;
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
+import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
+import vn.viettel.sale.service.dto.poSplitDTO;
 import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.util.ConnectFTP;
@@ -56,6 +61,9 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	
 	@Autowired 
 	PoAutoRepository poAutoRepository;
+	
+	@Autowired
+	PoAutoDetailRepository poAutoDetailRepository;
 	
 	@Autowired
 	ProductRepository productRepository;
@@ -75,6 +83,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
     
     int SUCCESS = 1;
     int FAIL = 0;
+    int count = 0;
 
 	@Override
 	public Page<PoAutoDTO> getAllPoAuto(Long shopId, int page) {
@@ -149,8 +158,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	
 	@Override
 	public Page<ProductStockDTO> getProductByPage(Pageable pageable, Long shopid, String keyword) {
-		
-//		Pageable pageable = PageRequest.of(page, 5);
+
 		List<Tuple> productList = poAutoRepository.getProductByPage(shopid, keyword);
 		
 		List<ProductStockDTO> productStockDtos = productList.stream()
@@ -167,6 +175,134 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		final Page<ProductStockDTO> paging = new PageImpl<>(productStockDtos.subList(start, end), pageable, productStockDtos.size());
 		
 		return paging;
+	}
+	
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	private class productIdList {
+		private BigDecimal productId;
+	}
+	
+	public void spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopid) {
+		
+		HashMap<Integer, String> poNumberMap = new HashMap<Integer, String>();
+		
+		ProductQuantityListDTO result = new ProductQuantityListDTO();
+		
+		List<Tuple> POsplit = poAutoRepository.getSplitPO(shopid);
+		
+		List<Tuple> palletSplitList = poAutoRepository.getPalletSplit(shopid);
+		
+		List<poSplitDTO> poSplitDTOs = POsplit.stream()
+	            .map(t -> new poSplitDTO(
+	                    t.get(1, BigDecimal.class),
+	                    t.get(2, BigDecimal.class),
+	                    t.get(3, BigDecimal.class)
+	                    ))
+	            .collect(Collectors.toList());
+		
+		List<poSplitDTO> poSplitCat = poSplitDTOs.stream().filter(p -> p.getObjectType() == BigDecimal.valueOf(0)).collect(Collectors.toList());
+		List<poSplitDTO> poSplitSubCat = poSplitDTOs.stream().filter(p -> p.getObjectType() == BigDecimal.valueOf(1)).collect(Collectors.toList());
+		List<poSplitDTO> poSplitProd = poSplitDTOs.stream().filter(p -> p.getObjectType() == BigDecimal.valueOf(2)).collect(Collectors.toList());
+		
+		List<productIdList> palletSplit = palletSplitList.stream()
+				.map(t -> new productIdList(
+						t.get(1, BigDecimal.class)
+						))
+				.collect(Collectors.toList());
+		
+		ProductQuantityListDTO productQuantityListDtoPallet = new ProductQuantityListDTO();
+		
+		ProductQuantityListDTO productQuantityListDtoNotPallet = new ProductQuantityListDTO();
+		
+		productQuantityListDTO.getProductQuantityList().forEach(n -> {
+			if( palletSplit.contains( BigDecimal.valueOf(n.getProductId()))) 
+				productQuantityListDtoPallet.add(n);
+			else
+				productQuantityListDtoNotPallet.add(n);
+		});
+		
+		productQuantityListDtoPallet.getProductQuantityList().forEach(n -> {
+
+			Product pd = productRepository.getById(n.getProductId());
+			
+			poSplitProd.forEach(m -> {
+				if(m.getObjectId() == BigDecimal.valueOf(pd.getId())) {
+					n.setGroupId(m.getGroupId().intValue());
+				}
+			});
+			
+			if(n.getGroupId() == null) {
+				poSplitSubCat.forEach(m -> {
+					if(m.getObjectId() == BigDecimal.valueOf(pd.getSubCatId())) {
+						n.setGroupId(m.getGroupId().intValue());
+					}
+				});
+			}
+			
+			if(n.getGroupId() == null) {
+				poSplitCat.forEach(m -> {
+					if(m.getObjectId() == BigDecimal.valueOf(pd.getCatId())) {
+						n.setGroupId(m.getGroupId().intValue());
+					}
+				});
+			}
+			
+			if(n.getGroupId() == null) {
+				n.setGroupId(-1);
+			}
+			
+			n.setProductConv(pd.getConvFact());
+			result.add(n);
+			
+		});
+		
+		result.getProductQuantityList().forEach(n -> {
+			if(poNumberMap.get(n.getGroupId()) == null) {
+				poNumberMap.put(n.getGroupId(), getCurrentMaxPOAutoNumberId());
+			}
+			
+			PoAuto po = new PoAuto();
+			
+			po = poAutoRepository.getPoAutoBypoAutoNumber(poNumberMap.get(n.getGroupId()), shopid);
+			
+			if(po == null) {
+				po.setShopId(shopid);
+				po.setStaffId(null);
+				po.setPoAutoDate(LocalDateTime.now());
+				po.setAmount(null);
+				po.setDiscount(null);
+				po.setTotal(null);
+				po.setStatus(0);
+				po.setBillToLocation(null);
+				po.setShipToLocation(null);
+				po.setPaymentTerm(null);
+				po.setApproveDate(null);
+				po.setCreateAt(LocalDateTime.now());
+				poAutoRepository.save(po);
+				po = poAutoRepository.getPoAutoBypoAutoNumber(poNumberMap.get(n.getGroupId()), shopid);
+			}
+			
+			PoAutoDetail pod = new PoAutoDetail();
+			pod.setPoAutoId(po.getId());
+			pod.setProductId(n.getProductId());
+			pod.setPriceId(poAutoRepository.getNewPriceIdOfProduct(n.getProductId()).longValue());
+			pod.setPrice(poAutoRepository.getNewPriceOfProduct(n.getProductId()).longValue());
+			pod.setPoAutoDate(new Date());
+			pod.setConvfact(Long.valueOf(n.getProductConv()));
+			pod.setQuantity(n.getQuantity());
+			pod.setAmount(pod.getQuantity() * pod.getConvfact() * pod.getPrice());
+			pod.setCreatedAt(LocalDateTime.now());
+			poAutoDetailRepository.save(pod);
+		});
+	}
+	
+	private String getCurrentMaxPOAutoNumberId() {
+		
+		PoAuto a = poAutoRepository.getNewestPoAutoNumber().get(0);
+		count += 1;
+		return ("MTPO" + String.valueOf(Long.valueOf(a.getPoAutoNumber().substring(4)) + count) );
 	}
 	
 	@Transactional(rollbackFor = Exception.class)
@@ -211,24 +347,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         
         connectFTP.disconnectFTPServer();
    }
-
-//	private PoAutoDTO convertToDTO(PoAuto oldPo) {
-//		
-//		PoAutoDTO newPo = new PoAutoDTO();
-//		
-//		if(oldPo.getPoAutoNumber() != null) 
-//			newPo.setPoAutoNumber(oldPo.getPoAutoNumber());
-//		if(oldPo.getGroupCode() != null) 
-//			newPo.setGroupCode(oldPo.getGroupCode());
-//		newPo.setStatus(oldPo.getStatus());
-//		if(oldPo.getAmount() != null) 
-//			newPo.setAmount(oldPo.getAmount());
-//		if(oldPo.getCreateAt() != null) 
-//			newPo.setCreateAt(oldPo.getCreateAt());
-//		if(oldPo.getApproveDate() != null) 
-//			newPo.setApproveDate(oldPo.getApproveDate());
-//		return newPo;
-//	}
 	
 	private PoAutoDetailProduct convertPoAutoDetail(PoAutoDetail poAutoDetail) {
 		

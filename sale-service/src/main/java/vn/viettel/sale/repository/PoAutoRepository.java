@@ -1,5 +1,6 @@
 package vn.viettel.sale.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -29,8 +30,10 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     @Query(value = "select new vn.viettel.sale.service.dto.PoAutoDTO (po.poAutoNumber, po.groupCode, po.status, po.createAt, po.approveDate, po.amount) from PoAuto po "
     		+ "where (:poAutoNumber is null or po.poAutoNumber like %:poAutoNumber%) "
     		+ "and (:poGroupCode is null or po.groupCode like %:poGroupCode%) "
-    		+ "and (po.createAt between :fromCreateDate and :toCreateDate) "
-    		+ "and (po.approveDate between :fromApproveDate and :toApproveDate) "
+    		+ "and (:fromCreateDate is null or po.createAt >= :fromCreateDate) "
+    		+ "and (:toCreateDate is null or po.createAt <= :toCreateDate) "
+    		+ "and ((:fromApproveDate is null or po.approveDate is null) or po.approveDate >= :fromApproveDate) "
+    		+ "and ((:toApproveDate is null or po.approveDate is null) or po.approveDate <= :toApproveDate) "
     		+ "and (:poStatus = -1 or po.status = :poStatus) "
     		+ "and (po.shopId = :shopId)")
 	public Page<PoAutoDTO> searchPoList (String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, 
@@ -76,8 +79,55 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     		+ "    join warehouse_type wt on st.ware_house_type_id = wt.id "
     		+ "    and wt.warehouse_type_name = 'Cửa hàng' and wt.status = 1 "
     		+ "    where st.status = 1 and st.shop_id = ?1 "
-    		+ ") st on st.product_id = pd.id"
-    		+ "where pd.status = 1 and ( ?2 is null or pd.product_name like '%?2%')"
+    		+ ") st on st.product_id = pd.id "
+    		+ "where pd.status = 1 and ( ?2 is null or pd.product_name like '%?2%') "
     		, nativeQuery = true)
     List<Tuple> getProductByPage(Long shopId, String keyword);
+    
+    @Query(value = 
+    		"SELECT "
+    		+ "    pog.po_auto_group_id groupId, "
+    		+ "    pogd.object_type objectType, "
+    		+ "    pogd.object_id objectId "
+    		+ "FROM "
+    		+ "    po_auto_group pog "
+    		+ "    JOIN po_auto_group_detail   pogd ON pogd.po_auto_group_id = pog.po_auto_group_id "
+    		+ "    LEFT JOIN po_auto_group_shop_map pogsm ON pogsm.shop_id = ?1 "
+    		+ "WHERE "
+    		+ "    ( pog.po_auto_group_shop_map_id IS NULL "
+    		+ "      AND pogsm.po_auto_group_shop_map_id IS NULL ) "
+    		+ "    OR ( pog.po_auto_group_shop_map_id = pogsm.po_auto_group_shop_map_id "
+    		+ "         AND pogsm.po_auto_group_shop_map_id IS NOT NULL )"
+    		, nativeQuery = true)
+    List<Tuple> getSplitPO(Long shopId);
+    
+    @Query(value = 
+    		"SELECT "
+    		+ "    product_id "
+    		+ "FROM "
+    		+ "    pallet_shop_product "
+    		+ "    WHERE shop_id = ?1"
+    		, nativeQuery = true)
+    List<Tuple> getPalletSplit(Long shopId);
+    
+    @Query(value = "select po from PoAuto po order by po.id")
+    public List<PoAuto> getNewestPoAutoNumber();
+    
+    @Query(value = "select id from prices where (product_id, id) in ( "
+    		+ "    select product_id, min(id) "
+    		+ "    from prices where (product_id, from_date) in ( "
+    		+ "        select product_id, max(from_date) "
+    		+ "        from prices where status = 1 group by product_id) "
+    		+ "    group by product_id) and product_id = ?1"
+    		, nativeQuery = true)
+    BigDecimal getNewPriceIdOfProduct(Long productId);
+    
+    @Query(value = "select price from prices where (product_id, id) in ( "
+    		+ "    select product_id, min(id) "
+    		+ "    from prices where (product_id, from_date) in ( "
+    		+ "        select product_id, max(from_date) "
+    		+ "        from prices where status = 1 group by product_id) "
+    		+ "    group by product_id) and product_id = ?1"
+    		, nativeQuery = true)
+    BigDecimal getNewPriceOfProduct(Long productId);
 }

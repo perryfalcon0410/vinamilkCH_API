@@ -8,8 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +25,7 @@ import vn.viettel.sale.service.PoAutoService;
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
 import vn.viettel.sale.service.dto.PoAutoNumberList;
+import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
 
 @RestController
@@ -55,10 +54,10 @@ public class PoAutoController extends BaseController {
 	public Response<Page<PoAutoDTO>> getSearchPoAuto(HttpServletRequest httpRequest, 
 													@RequestParam(name = "poAutoNumber", required = false) String poAutoNumber,
 													@RequestParam(name = "poGroupCode", required = false) String poGroupCode,
-													@RequestParam(value="fromCreateDate") @DateTimeFormat(iso=ISO.DATE) Date fromCreateDate,
-													@RequestParam(value="toCreateDate") @DateTimeFormat(iso=ISO.DATE) Date toCreateDate,
-													@RequestParam(value="fromApproveDate") @DateTimeFormat(iso=ISO.DATE) Date fromApproveDate,
-													@RequestParam(value="toApproveDate") @DateTimeFormat(iso=ISO.DATE) Date toApproveDate,
+													@RequestParam(value="fromCreateDate", required = false) Date fromCreateDate,
+													@RequestParam(value="toCreateDate", required = false) Date toCreateDate,
+													@RequestParam(value="fromApproveDate", required = false) Date fromApproveDate,
+													@RequestParam(value="toApproveDate", required = false) Date toApproveDate,
 													@RequestParam(name = "page", required = false) Integer page,
 													@RequestParam int poStatus) {
 
@@ -124,4 +123,19 @@ public class PoAutoController extends BaseController {
 		Page<ProductStockDTO> response = poAutoService.getProductByPage(pageable, this.getShopId(httpRequest), keyword);
 		return new Response<Page<ProductStockDTO>>().withData(response);
 	}
+	
+    @PostMapping(value = {V1 + root + "/save-po"})
+    @ApiOperation(value = "Lưu đơn PO")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    public Response<Integer> splitPO(HttpServletRequest request,
+                                                         @ApiParam("PO auto list need save")
+                                                         @RequestBody ProductQuantityListDTO productQuantityListDTO ) {
+    	
+    	poAutoService.spiltPO(productQuantityListDTO, this.getShopId(request));
+        
+        return new Response<Integer>().withData(1);
+    }
 }

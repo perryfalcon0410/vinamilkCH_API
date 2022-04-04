@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
+import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
 
 public interface PoAutoService {
@@ -23,4 +24,6 @@ public interface PoAutoService {
 	public int cancelPoAuto(List<String> poAutoNumberList, Long shopId);
 	
 	public Page<ProductStockDTO> getProductByPage(Pageable pageable, Long shopId, String keyword);
+	
+	public void spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopid);
 }
