@@ -16,7 +16,7 @@ public class ProductQuantityListDTO {
 	
 	public void add(ProductQuantityDTO a) {
 		
-		if(productQuantityList.isEmpty()) {
+		if(productQuantityList == null || productQuantityList.size() == 0) {
 			productQuantityList = new ArrayList<ProductQuantityDTO>();
 		}
 		productQuantityList.add(a);

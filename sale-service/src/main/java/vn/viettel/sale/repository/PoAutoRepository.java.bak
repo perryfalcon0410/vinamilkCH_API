@@ -78,11 +78,8 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     		+ "    join warehouse_type wt on st.ware_house_type_id = wt.id "
     		+ "    and wt.warehouse_type_name = 'Cửa hàng' and wt.status = 1 "
     		+ "    where st.status = 1 and st.shop_id = ?1 "
-    		+ ") st on st.product_id = pd.id "
-    		+ "where pd.status = 1 and ( ?2 is null or pd.product_name like '%?2%') "
+    		+ ") st on st.product_id = pd.id"
+    		+ "where pd.status = 1"
     		, nativeQuery = true)
     List<Tuple> getProductByPage(Long shopId, String keyword);
-    
-    @Query(value = "select po from PoAuto po order by po.id desc")
-    public List<PoAuto> getNewestPoAutoNumber();
 }

@@ -10,7 +10,6 @@ import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.service.dto.FreeProductDTO;
 import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.ProductDetailDTO;
-import vn.viettel.sale.service.dto.ProductStockDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -159,4 +158,16 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
             " WHERE upper(p.barCode) like %:barCode% AND p.status = 1 ")
     List<OrderProductDTO> getByBarCodeAndStatus(String barCode, Long shopId, Long customerTypeId, Long warehouseId, LocalDateTime toDate);
     
+    @Query(value = "select pd from Product pd where pd.productCode = :productCode")
+    Product getByProductCode(String productCode);
+    
+    @Query(value = 
+    		"SELECT "
+    		+ "		pd.productCode "
+    		+ "FROM "
+    		+ "		Product pd "
+    		+ "JOIN "
+    		+ "		PalletShopProduct psp on psp.productId = pd.id "
+    		+ "		AND psp.shopId = :shopId")
+    List<String> getPalletSplit(Long shopId);
 }

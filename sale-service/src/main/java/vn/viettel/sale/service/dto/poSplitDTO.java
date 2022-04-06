@@ -13,10 +13,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class poSplitDTO {
 
-	private BigDecimal groupId;
+	private Long id;
 	
-	private BigDecimal objectType;
+	private Integer objectType;
 	
-	private BigDecimal objectId;
+	private Long objectId;
 	
 }
