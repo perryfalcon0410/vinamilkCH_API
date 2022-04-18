@@ -198,7 +198,6 @@ public class OnlineOrderControllerTest extends BaseTest {
         ResultActions resultActions = mockMvc.perform(get(uri, "123").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
-        resultActions.andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 }

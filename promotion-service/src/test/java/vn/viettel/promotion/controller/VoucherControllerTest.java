@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -101,7 +102,7 @@ public class VoucherControllerTest extends BaseTest {
     }
 
     @Test
-    public void getVoucherBySerialTest() throws Exception {
+    public void getVoucherBySerial() throws Exception {
         Map<String, String> voucher = new HashMap<>();
         voucher.put("serial","ABC");
         List<Long> productIds = new ArrayList<>();
@@ -142,7 +143,7 @@ public class VoucherControllerTest extends BaseTest {
     }
     //-------------------------------updateVoucher-------------------------------
     @Test
-    public void updateVoucherTest() throws Exception {
+    public void updateVoucher() throws Exception {
 
         VoucherDTO voucherDTO = lstEntities.stream().map(voucher -> modelMapper.map(voucher, VoucherDTO.class))
                 .collect(Collectors.toList()).get(0);
@@ -167,7 +168,7 @@ public class VoucherControllerTest extends BaseTest {
 
     //-------------------------------getVoucherBySaleOrderId-------------------------------
     @Test
-    public void getVoucherBySaleOrderIdTest() throws Exception {
+    public void getVoucherBySaleOrderId() throws Exception {
         Long saleOrderId = 1L;
         String url = uri + "/get-by-sale-order-id/" + saleOrderId.toString();
 
@@ -187,7 +188,7 @@ public class VoucherControllerTest extends BaseTest {
     }
 
     @Test
-    public void returnVoucherTest() throws Exception {
+    public void returnVoucher() throws Exception {
         Long saleOrderId = 1L;
         Boolean flag = false;
         String url = uri + "/return";
@@ -197,6 +198,24 @@ public class VoucherControllerTest extends BaseTest {
             flag = true;
         else flag = false;
         assertEquals(flag, result);
+
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getFeignVoucher() throws Exception {
+        Long id = 1L;
+        Boolean flag = false;
+        String url = uri + "/feign/" + id.toString();
+        Mockito.when(repository.getById(id)).thenReturn(new Voucher());
+        VoucherDTO result = serviceImpl.getFeignVoucher(id);
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
                 .header(headerType, secretKey)
