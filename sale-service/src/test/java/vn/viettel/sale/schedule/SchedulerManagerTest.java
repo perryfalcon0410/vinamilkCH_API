@@ -91,14 +91,14 @@ public class SchedulerManagerTest extends BaseTest {
         OnlineOrder onlineOrder = new OnlineOrder();
         onlineOrder.setSaleOrderId(1L);
         onlineOrders.add(onlineOrder);
-        BDDMockito.given(repository.findOnlineOrderExportXml(1L)).willReturn(onlineOrders);
+//        BDDMockito.given(repository.findOnlineOrderExportXml(1L)).willReturn(onlineOrders);
 
-        BDDMockito.given(saleOrderRepository.findById(onlineOrder.getSaleOrderId())).willReturn(java.util.Optional.of(new SaleOrder()));
+//        BDDMockito.given(saleOrderRepository.findById(onlineOrder.getSaleOrderId())).willReturn(java.util.Optional.of(new SaleOrder()));
 
         ShopDTO shopDTO = new ShopDTO();
         Response response1 = new Response();
         response1.setData(shopDTO);
-        BDDMockito.given(shopClient.getByIdV1(1L)).willReturn(response1);
+//        BDDMockito.given(shopClient.getByIdV1(1L)).willReturn(response1);
 
         onlineOrderServiceImpl.uploadOnlineOrderSchedule();
     }
