@@ -105,5 +105,4 @@ public class QuantitySalesReceiptControllerTest extends BaseTest {
             .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
-
 }

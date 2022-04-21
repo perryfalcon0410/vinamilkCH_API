@@ -54,7 +54,6 @@ public class PromotionProductServiceImpl extends BaseReportServiceImpl implement
         return excel.export();
     }
 
-
     //data sheet 2
     private List<PromotionProductDTO> promotionProductsDay(List<PromotionProductDTO> promotions) throws CloneNotSupportedException {
         Map<String, PromotionProductDTO> maps = new HashMap<>();

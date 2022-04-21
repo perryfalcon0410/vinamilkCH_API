@@ -1,35 +1,25 @@
 package vn.viettel.sale.controller;
 
 import io.swagger.annotations.*;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.logging.LogMessage;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.messaging.OnlineOrderFilter;
 import vn.viettel.sale.service.OnlineOrderService;
-import vn.viettel.sale.service.ReportProductTransService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
-import vn.viettel.sale.xml.DataSet;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @Api(tags = "API sử dụng cho bán hàng đơn online")

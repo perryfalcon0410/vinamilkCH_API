@@ -32,6 +32,9 @@ public class SchedulerManagerTest extends BaseTest {
     @Mock
     OnlineOrderDetailRepository onlineOrderDetailRepo;
 
+    @InjectMocks
+    SchedulerManager manager;
+
     @Mock
     ShopClient shopClient;
 
@@ -66,7 +69,7 @@ public class SchedulerManagerTest extends BaseTest {
     }
 
     @Test
-    public void getOnlineOrder() {
+    public void getOnlineOrder() throws InterruptedException {
         List<ApParamDTO> apParamDTOList = new ArrayList<>();
         ApParamDTO apParamDTO = new ApParamDTO();
         apParamDTO.setValue("11");
@@ -75,10 +78,14 @@ public class SchedulerManagerTest extends BaseTest {
         response.setData(apParamDTOList);
         BDDMockito.given(apparamClient.getApParamByTypeV1("FTP")).willReturn(response);
         onlineOrderServiceImpl.getOnlineOrderSchedule();
+
+        manager.getOnlineOrder();
+
+        assertNotNull("123");
     }
 
     @Test
-    public void uploadOnlineOrder() {
+    public void uploadOnlineOrder() throws InterruptedException {
         List<ApParamDTO> apParamDTOList = new ArrayList<>();
         ApParamDTO apParamDTO = new ApParamDTO();
         apParamDTO.setValue("11");
@@ -101,5 +108,9 @@ public class SchedulerManagerTest extends BaseTest {
 //        BDDMockito.given(shopClient.getByIdV1(1L)).willReturn(response1);
 
         onlineOrderServiceImpl.uploadOnlineOrderSchedule();
+
+        manager.uploadOnlineOrder();
+
+        assertNotNull("123");
     }
 }
