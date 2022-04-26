@@ -2,6 +2,7 @@ package vn.viettel.report;
 
 
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -21,9 +22,10 @@ import vn.viettel.core.messaging.Response;
 
 import java.util.Locale;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(MockitoJUnitRunner.class)
 @DataJpaTest
-//@EnableSpringDataWebSupport
 public class BaseTest extends JsonObjectConverter {
 
     public final String V1 = "/api/v1";
@@ -59,5 +61,10 @@ public class BaseTest extends JsonObjectConverter {
         shop.withData(dto);
         shop.setSuccess(true);
 
+    }
+
+    @Test
+    public void initTest() throws Exception {
+        assertEquals("", "");
     }
 }

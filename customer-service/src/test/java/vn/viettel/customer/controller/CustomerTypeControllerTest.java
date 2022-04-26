@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +33,7 @@ public class CustomerTypeControllerTest extends BaseTest{
     private final String headerType = "Authorization";
 
     @InjectMocks
-    private CustomerTypeServiceImpl customerTypeService;
+    private CustomerTypeServiceImpl serviceImpl;
 
     @Mock
     CustomerTypeRepository repository;
@@ -45,37 +46,24 @@ public class CustomerTypeControllerTest extends BaseTest{
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        customerTypeService.setModelMapper(this.modelMapper);
+        serviceImpl.setModelMapper(this.modelMapper);
         final CustomerTypeController controller = new CustomerTypeController();
         controller.setService(service);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        this.setupAction(controller);
 
         customerTypeList = new ArrayList<>();
         for (int i = 1; i < 6; i++) {
-            final CustomerType entity = new CustomerType();
+            CustomerType entity = new CustomerType();
+            entity.setPosModifyCustomer(1);
+            entity.setStatus(1);
             entity.setId((long) i);
             customerTypeList.add(entity);
         }
     }
 
-    //-------------------------------GetAllCustomerType-------------------------------
-   /* @Test
-    public void findCustomerType() throws Exception {
-        String uri = V1 + root;
-        List<CustomerTypeDTO> lstDto = Arrays.asList(new CustomerTypeDTO(), new CustomerTypeDTO(), new CustomerTypeDTO());
-
-        given(customerTypeService.getAll().willReturn(lstDto);
-
-        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-        MvcResult mvcResult = resultActions.andReturn();
-        assertEquals(200, mvcResult.getResponse().getStatus());
-    }*/
-
 //    -------------------------------findCustomerTypeByShopId-------------------------
     @Test
-    public void findCustomerTypeByShopIdSuccessV1Test() throws Exception {
+    public void getCusTypeByShopId() throws Exception {
 
         Long shopId = 1L;
 
@@ -88,7 +76,7 @@ public class CustomerTypeControllerTest extends BaseTest{
                 );
 
 
-        CustomerTypeDTO customerTypeDTO = customerTypeService.getCusTypeByShopId(shopId);
+        CustomerTypeDTO customerTypeDTO = serviceImpl.getCusTypeByShopId(shopId);
 
         assertEquals(customerTypeList.get(0).getId(), customerTypeDTO.getId());
 
@@ -98,5 +86,65 @@ public class CustomerTypeControllerTest extends BaseTest{
                 .andDo(MockMvcResultHandlers.print());
 
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getAllTrue() throws Exception {
+
+        Long shopId = 1L;
+        String uri = V1 + root ;
+
+        Mockito.when(repository.findAll()).thenReturn(customerTypeList);
+        List<CustomerTypeDTO> result = serviceImpl.getAll(true);
+        assertNotNull(result);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getAllFalse() throws Exception {
+
+        Long shopId = 1L;
+        String uri = V1 + root ;
+
+        Mockito.when(repository.findAll()).thenReturn(customerTypeList);
+        List<CustomerTypeDTO> result = serviceImpl.getAll(false);
+        assertNotNull(result);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getCustomerTypeDefault() {
+    }
+
+    @Test
+    public void getWarehouseTypeByShopId() {
+    }
+
+    @Test
+    public void getCusTypeById() {
+    }
+
+    @Test
+    public void getCusTypeByWarehouse() {
+    }
+
+    @Test
+    public void getCustomerTypeForSale() {
+    }
+
+    @Test
+    public void setService() {
     }
 }

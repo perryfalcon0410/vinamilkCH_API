@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
 import vn.viettel.core.messaging.RPT_ZV23Request;
+import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.promotion.entities.PromotionProgram;
 import vn.viettel.promotion.entities.RPT_ZV23;
 import vn.viettel.promotion.repository.PromotionProgramDetailRepository;
 import vn.viettel.promotion.repository.PromotionProgramProductRepository;
+import vn.viettel.promotion.repository.PromotionProgramRepository;
 import vn.viettel.promotion.repository.PromotionRPT_ZV23Repository;
 import vn.viettel.promotion.service.RPT_ZV23Service;
 import vn.viettel.promotion.service.feign.SaleClient;
@@ -19,11 +22,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class RPT_ZV23Impl implements RPT_ZV23Service {
+public class RPT_ZV23Impl extends BaseServiceImpl<RPT_ZV23, PromotionRPT_ZV23Repository> implements RPT_ZV23Service {
     @Autowired
     PromotionRPT_ZV23Repository rpt_zv23Repository;
-    @Autowired
-    protected ModelMapper modelMapper;
     @Autowired
     PromotionProgramProductRepository promotionProgramProduct;
     @Autowired

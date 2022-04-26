@@ -85,7 +85,7 @@ public class NewOrderReturnDTO {
     @ApiModelProperty(notes = "ghi chú trên hóa đơn đỏ")
     private String redInvoiceRemark;
     @ApiModelProperty(notes = "id lý do")
-    private Long reasonId;
+    private String reasonId;
     @ApiModelProperty(notes = "mô tả lý do")
     private String reasonDesc;
     @ApiModelProperty(notes = "ngày tạo")

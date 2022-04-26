@@ -1,44 +1,58 @@
 package vn.viettel.customer.controller;
 
+import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
+import vn.viettel.core.service.dto.BaseDTO;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.customer.BaseTest;
 import vn.viettel.customer.entities.Customer;
 import vn.viettel.customer.entities.CustomerType;
 import vn.viettel.customer.entities.MemberCustomer;
+import vn.viettel.customer.messaging.CusRedInvoiceFilter;
 import vn.viettel.customer.messaging.CustomerFilter;
+import vn.viettel.customer.messaging.CustomerSaleFilter;
 import vn.viettel.customer.repository.CustomerRepository;
 import vn.viettel.customer.repository.CustomerTypeRepository;
 import vn.viettel.customer.repository.MemBerCustomerRepository;
+import vn.viettel.customer.repository.RptCusMemAmountRepository;
 import vn.viettel.customer.service.CustomerService;
-import vn.viettel.customer.service.feign.ApParamClient;
-import vn.viettel.customer.service.feign.AreaClient;
-import vn.viettel.customer.service.feign.CategoryDataClient;
-import vn.viettel.customer.service.feign.ShopClient;
+import vn.viettel.customer.service.CustomerTypeService;
+import vn.viettel.customer.service.MemberCardService;
+import vn.viettel.customer.service.MemberCustomerService;
+import vn.viettel.customer.service.feign.*;
 import vn.viettel.customer.service.impl.CustomerServiceImpl;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -53,7 +67,7 @@ public class CustomerControllerTest extends BaseTest {
     private final String root = "/customers";
 
     @InjectMocks
-    private CustomerServiceImpl customerService;
+    private CustomerServiceImpl serviceImpl;
 
     @Mock
     CustomerRepository repository;
@@ -79,6 +93,27 @@ public class CustomerControllerTest extends BaseTest {
     @Mock
     ApParamClient apParamClient;
 
+    @Mock
+    UserClient userClient;
+
+    @Mock
+    MemberCardService memberCardService;
+
+    @Mock
+    MemberCustomerService memberCustomerService;
+
+    @Mock
+    RptCusMemAmountRepository rptCusMemAmountRepository;
+
+    @Mock
+    CustomerTypeService customerTypeService;
+
+    @Mock
+    MemBerCustomerRepository memBerCustomerRepos;
+
+    @Mock
+    public EntityManager entityManager;
+
     private List<Customer> customerList;
 
     private List<CategoryDataDTO> categoryDataDTOS;
@@ -97,11 +132,10 @@ public class CustomerControllerTest extends BaseTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        customerService.setModelMapper(this.modelMapper);
+        serviceImpl.setModelMapper(this.modelMapper);
         final CustomerController controller = new CustomerController();
         controller.setService(service);
         this.setupAction(controller);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         customerList = new ArrayList<>();
         for (int i = 1; i < 6; i++) {
@@ -186,7 +220,7 @@ public class CustomerControllerTest extends BaseTest {
                 pageReq
         )).thenReturn(pageCustomer);
 
-        Page<CustomerDTO> customerDTOPage = customerService.index(customerFilter, pageReq);
+        Page<CustomerDTO> customerDTOPage = serviceImpl.index(customerFilter, pageReq);
 
         assertEquals(customerList.size(), customerDTOPage.getSize());
 
@@ -228,7 +262,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(areaClient.getByIdV1(1L)).thenReturn(new Response<AreaDTO>().withData(areaDTOS.get(0)));
 
-        CustomerDTO customerDTO = customerService.update(requestObj, id, 1L, true);
+        CustomerDTO customerDTO = serviceImpl.update(requestObj, id, 1L, true);
 
         assertEquals(requestObj.getId(), customerDTO.getId());
 
@@ -258,7 +292,7 @@ public class CustomerControllerTest extends BaseTest {
         Mockito.when(customerTypeRepository.getById(1L))
                 .thenReturn(customerTypes.get(0));
 
-        CustomerDTO customerDTO = customerService.getCustomerById(id, 1L);
+        CustomerDTO customerDTO = serviceImpl.getCustomerById(id, 1L);
 
         assertEquals(id, customerDTO.getId());
 
@@ -278,7 +312,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.getAllByMobiPhoneAndStatus(phone,1)).thenReturn(customerList);
 
-        List<CustomerDTO> customerDTOS = customerService.getCustomerByMobiPhone(phone);
+        List<CustomerDTO> customerDTOS = serviceImpl.getCustomerByMobiPhone(phone);
 
         assertEquals(customerList.size(), customerDTOS.size());
 
@@ -302,7 +336,7 @@ public class CustomerControllerTest extends BaseTest {
                         .collect(Collectors.toList())
                 );
 
-        CustomerDTO customerDTO = customerService.getCustomerDefault(1L);
+        CustomerDTO customerDTO = serviceImpl.getCustomerDefault(1L);
 
         assertEquals(customerList.get(0).getId(), customerDTO.getId());
 
@@ -341,7 +375,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -379,7 +413,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -417,7 +451,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -456,7 +490,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -495,7 +529,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -534,7 +568,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -573,7 +607,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -612,7 +646,7 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.save(any())).thenReturn(customerList.get(0));
 
-        CustomerDTO customerDTO = customerService.create(requestObj, 1L, 1L);
+        CustomerDTO customerDTO = serviceImpl.create(requestObj, 1L, 1L);
 
         assertEquals(requestObj.getMobiPhone(), customerDTO.getPhone());
 
@@ -622,6 +656,245 @@ public class CustomerControllerTest extends BaseTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getCustomerForAutoComplete() {
+    }
+
+    @Test
+    public void create() {
+    }
+
+    @Test
+    public void createForFeign() {
+    }
+
+    @Test
+    public void getCustomerById() {
+    }
+
+    @Test
+    public void getCustomerByMobiPhone() {
+    }
+
+    @Test
+    public void update() {
+    }
+
+    @Test
+    public void excelCustomersReport() {
+    }
+
+    @Test
+    public void updateFeign() throws Exception {
+        String uri = V1 + root  + "/feign/update/{id}";
+        Long shopId = 1L;
+        CustomerRequest request = new CustomerRequest();
+        request.setId(1L);
+        Pageable pageable = PageRequest.of(0,5);
+        Customer customerDb = new Customer();
+        Mockito.when(repository.findById(request.getId()))
+                .thenReturn(Optional.of(customerDb));
+
+        serviceImpl.updateForSale(request, shopId);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri, shopId).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getIdCustomerBySearchKeyWords() throws Exception {
+        String uri = V1 + root  + "/ids-customer-by-keyword";
+        Long shopId = 1L;
+        String searchKeywords = "123";
+        String customerPhone = "456987";
+        List<Long> customers = Arrays.asList(1L);
+        Pageable pageable = PageRequest.of(0,5);
+        Mockito.when(repository.getCustomersIds(searchKeywords, searchKeywords.toUpperCase(Locale.ROOT), searchKeywords))
+                .thenReturn(customers);
+
+        serviceImpl.getIdCustomerBySearchKeyWords(searchKeywords);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getIdCustomerBy() throws Exception {
+        String uri = V1 + root  + "/ids-customer";
+        Long shopId = 1L;
+        String searchKeywords = "123";
+        String customerPhone = "456987";
+        List<Long> ids = Arrays.asList(1L);
+        Pageable pageable = PageRequest.of(0,5);
+        List<Long> customers = new ArrayList<>();
+        double count = Math.ceil(ids.size()/1000.0) - 1;
+        int max = 0;
+        for(int i = 0; i <= count; i++) {
+            if ((i + 1)*1000 > ids.size()) {
+                max = ids.size();
+            } else {
+                max = (i + 1)*1000;
+            }
+            List<Long> subIds = ids.subList(i*1000, max);
+            Mockito.when(repository.getCustomerIds( searchKeywords, customerPhone, subIds))
+                    .thenReturn(customers);
+        }
+
+        serviceImpl.getIdCustomerBy(searchKeywords, customerPhone, ids);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void testGetCustomerDefault() throws Exception {
+        String uri = V1 + root  + "/feign-default/{id}";
+        Long shopId = 1L;
+        Pageable pageable = PageRequest.of(0,5);
+        List<CustomerDTO> lstCustomerDTO = Arrays.asList(new CustomerDTO());
+        Mockito.when(repository.getCustomerDefault(shopId))
+                .thenReturn(lstCustomerDTO);
+        serviceImpl.getCustomerDefaultByShop(shopId);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri,shopId).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getCustomerInfo() throws Exception {
+        String uri = V1 + root  + "/feign-cusinfo";
+        Integer status = 1;
+        List<Long> customerIds = Arrays.asList(1L);
+        List< SortDTO > sorts = new ArrayList<>();
+        SortDTO sortDTO = new SortDTO();
+        sortDTO.setDirection("DESC");
+        CriteriaBuilder cb = Mockito.mock(CriteriaBuilder.class);
+        Mockito.when(entityManager.getCriteriaBuilder()).thenReturn(cb);
+
+        CriteriaQuery<Customer> query = Mockito.mock(CriteriaQuery.class);
+        Mockito.when(cb.createQuery(Customer.class)).thenReturn(query);
+
+        Root<Customer> customer = Mockito.mock(Root.class);
+        Mockito.when(query.from(Customer.class)).thenReturn(customer);
+
+        Path fieldName = Mockito.mock(Path.class);
+        Mockito.when(customer.get("id")).thenReturn(fieldName);
+
+        TypedQuery<Customer> typedQuery = Mockito.mock(TypedQuery.class);
+        Mockito.when(entityManager.createQuery(query)).thenReturn(typedQuery);
+
+        serviceImpl.getCustomerInfo(status, customerIds, sorts);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void findCustomerForSaleCase1() throws Exception {
+        String uri = V1 + root  + "/autocomplete";
+        Long customerId = 1L;
+        Long shopId = 1L;
+        Pageable pageable = PageRequest.of(0,5);
+        CustomerSaleFilter customerFilter = new CustomerSaleFilter();
+        customerFilter.setSearchKeywords("123");
+        customerFilter.setCustomerOfShop(true);
+        customerFilter.setSearchPhoneOnly(true);
+
+        List<CustomerDTO> lstCustomerDTO = new ArrayList<>();
+        CustomerDTO customerDTO = new CustomerDTO();
+        lstCustomerDTO.add(customerDTO);
+        Page<CustomerDTO> page = new PageImpl<>(lstCustomerDTO, pageable, lstCustomerDTO.size());
+        Mockito.when(repository.searchForSaleFone(shopId, customerFilter.getSearchKeywords(), pageable)).thenReturn(page);
+
+        serviceImpl.findCustomerForSale(shopId, customerFilter, pageable);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void findCustomerForSaleCase2() throws Exception {
+        String uri = V1 + root  + "/autocomplete";
+        Long customerId = 1L;
+        Long shopId = 1L;
+        Pageable pageable = PageRequest.of(0,5);
+        CustomerSaleFilter customerFilter = new CustomerSaleFilter();
+        customerFilter.setSearchKeywords("123");
+        customerFilter.setCustomerOfShop(false);
+        customerFilter.setSearchPhoneOnly(false);
+
+        List<CustomerDTO> lstCustomerDTO = new ArrayList<>();
+        CustomerDTO customerDTO = new CustomerDTO();
+        lstCustomerDTO.add(customerDTO);
+        Page<CustomerDTO> page = new PageImpl<>(lstCustomerDTO, pageable, lstCustomerDTO.size());
+        Mockito.when(repository.searchForSale(null, VNCharacterUtils.removeAccent(customerFilter.getSearchKeywords()).toUpperCase(),
+                customerFilter.getSearchKeywords(), customerFilter.getSearchKeywords(), pageable)).thenReturn(page);
+
+        serviceImpl.findCustomerForSale(shopId, customerFilter, pageable);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getScoreCumulated() throws Exception {
+        String uri = V1 + root  + "/scorecumulated/{customerId}";
+        Long customerId = 1L;
+
+        MemberCustomer memberCustomer = new MemberCustomer();
+        Mockito.when(memBerCustomerRepos.findByCustomerId(customerId)).thenReturn(Optional.of(memberCustomer));
+
+        serviceImpl.getScoreCumulated(customerId);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri,customerId).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void findCustomerForRedInvoice() throws Exception {
+        String uri = V1 + root  + "/red-invoice";
+        CusRedInvoiceFilter filter = new CusRedInvoiceFilter();
+        Long shopId = 1L;
+        Pageable pageable = PageRequest.of(0,5);
+        List<CustomerDTO> lstCustomerDTO = Arrays.asList(new CustomerDTO());
+        Page<CustomerDTO> response = new PageImpl<>(lstCustomerDTO, pageable, lstCustomerDTO.size());
+        Mockito.when(repository.searchForRedInvoice(
+                filter.getSearchKeywords(), filter.getMobiphone(), filter.getWorkingOffice(), filter.getOfficeAddress(), filter.getTaxCode(), shopId, pageable))
+                .thenReturn(response);
+        serviceImpl.findCustomerForRedInvoice(filter, shopId, pageable);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getMemoryStatistics() throws Exception {
+        String uri = V1 + root  + "/memory-status";
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 }

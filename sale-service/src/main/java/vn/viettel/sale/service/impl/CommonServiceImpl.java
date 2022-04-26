@@ -49,7 +49,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public List<StockBorrowingStatusDTO> getListStockBorrowingTypeDTO() {
         List<StockBorrowingStatusDTO> stockBorrowingStatusDTOS = new ArrayList<>();
-        for (int i = 0; i < StockBorrowingStatus.values().length; i++) {
+        for (int i = 1; i <= StockBorrowingStatus.values().length; i++) {
             StockBorrowingStatusDTO stockBorrowingStatusDTO = new StockBorrowingStatusDTO(i, StockBorrowingStatus.getValueOf(i));
             stockBorrowingStatusDTOS.add(stockBorrowingStatusDTO);
         }
