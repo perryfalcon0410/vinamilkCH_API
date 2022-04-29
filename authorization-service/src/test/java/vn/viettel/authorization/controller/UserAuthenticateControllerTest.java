@@ -255,6 +255,8 @@ public class UserAuthenticateControllerTest extends BaseTest {
                 .withPermission(dataPermissionDTOS).get()
         )).thenReturn("$2a$04$kaZSFDxgokCLbh9/kiGQXeyvbgaQ03KrEA9QlzTRK.dXhEQei04/K");
 
+        UserLogOnTime log = new UserLogOnTime();
+        Mockito.when(userLogRepository.save(Mockito.isA(UserLogOnTime.class))).thenReturn(log);
         userAuthenticateService.saveLoginLog(requestObj.getShopId(), requestObj.getUsername(), requestObj);
 
 

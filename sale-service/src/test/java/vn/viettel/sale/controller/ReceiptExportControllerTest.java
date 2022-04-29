@@ -1,5 +1,6 @@
 package vn.viettel.sale.controller;
 
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -7,16 +8,34 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,51 +43,64 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-<<<<<<< HEAD
 
-=======
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
->>>>>>> refs/heads/feature/UpdateUnitest
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
-import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.sale.BaseTest;
-import vn.viettel.sale.entities.*;
+import vn.viettel.sale.entities.PoTrans;
+import vn.viettel.sale.entities.PoTransDetail;
+import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.StockAdjustment;
+import vn.viettel.sale.entities.StockAdjustmentDetail;
+import vn.viettel.sale.entities.StockAdjustmentTrans;
+import vn.viettel.sale.entities.StockAdjustmentTransDetail;
+import vn.viettel.sale.entities.StockBorrowing;
+import vn.viettel.sale.entities.StockBorrowingDetail;
+import vn.viettel.sale.entities.StockBorrowingTrans;
+import vn.viettel.sale.entities.StockBorrowingTransDetail;
+import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.ReceiptCreateDetailRequest;
 import vn.viettel.sale.messaging.ReceiptExportCreateRequest;
 import vn.viettel.sale.messaging.ReceiptExportUpdateRequest;
 import vn.viettel.sale.messaging.TotalResponse;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.repository.PoConfirmRepository;
+import vn.viettel.sale.repository.PoDetailRepository;
+import vn.viettel.sale.repository.PoTransDetailRepository;
+import vn.viettel.sale.repository.PoTransRepository;
+import vn.viettel.sale.repository.ProductPriceRepository;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.StockAdjustmentDetailRepository;
+import vn.viettel.sale.repository.StockAdjustmentRepository;
+import vn.viettel.sale.repository.StockAdjustmentTransDetailRepository;
+import vn.viettel.sale.repository.StockAdjustmentTransRepository;
+import vn.viettel.sale.repository.StockBorrowingDetailRepository;
+import vn.viettel.sale.repository.StockBorrowingRepository;
+import vn.viettel.sale.repository.StockBorrowingTransDetailRepository;
+import vn.viettel.sale.repository.StockBorrowingTransRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
+import vn.viettel.sale.repository.WareHouseTypeRepository;
 import vn.viettel.sale.service.ReceiptExportService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
-import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.*;
+import vn.viettel.sale.service.dto.PoTransDTO;
+import vn.viettel.sale.service.dto.ReceiptImportDTO;
+import vn.viettel.sale.service.dto.ReceiptImportListDTO;
+import vn.viettel.sale.service.dto.StockBorrowingDTO;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.service.impl.ReceiptExportServiceImpl;
 
-<<<<<<< HEAD
-=======
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.*;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
->>>>>>> refs/heads/feature/UpdateUnitest
 public class ReceiptExportControllerTest extends BaseTest {
     private final String root = "/sales/export";
 
@@ -308,11 +340,6 @@ public class ReceiptExportControllerTest extends BaseTest {
         poTrans.setId(id);
         poTrans.setTransCode("00001");
         List<PoTransDetail> poTransDetails = new ArrayList<>();
-<<<<<<< HEAD
-//        when(repository.findByIdAndShopIdAndTypeAndStatus(request.getReceiptImportId(), 1L, 1,1 )).thenReturn(java.util.Optional.of(poTrans));
-//        when(poTransDetailRepository.getPoTransDetailByTransId(id)).thenReturn(poTransDetails);
-        List<Long> res = service.createReceipt( request, 1L, 1L);
-=======
         PoTransDetail poTransDetail = new PoTransDetail();
         poTransDetail.setProductId(1L);
         poTransDetail.setId(1L);
@@ -362,11 +389,13 @@ public class ReceiptExportControllerTest extends BaseTest {
                     poTransDetails.stream().map(item -> item.getProductId()).distinct().filter(Objects::nonNull)
                             .collect(Collectors.toList()))).thenReturn(stockTotals);
 
-            ResponseMessage responseMessage = serviceImp.createReceipt( request, userId, shopId);
-            assertNotNull(responseMessage);
+            PoTrans po = new PoTrans();
+            po.setId(1l);
+            Mockito.when(repository.save(Mockito.isA(PoTrans.class))).thenReturn(po);
+            List<Long> res = serviceImp.createReceipt( request, userId, shopId);
+            assertNotNull(res);
         }
 
->>>>>>> refs/heads/feature/UpdateUnitest
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.post(uri)
@@ -452,8 +481,11 @@ public class ReceiptExportControllerTest extends BaseTest {
                     poTransDetails.stream().map(item -> item.getProductId()).distinct().filter(Objects::nonNull)
                             .collect(Collectors.toList()))).thenReturn(stockTotals);
 
-            ResponseMessage responseMessage = serviceImp.createReceipt( request, userId, shopId);
-            assertNotNull(responseMessage);
+            PoTrans po = new PoTrans();
+            po.setId(1l);
+            Mockito.when(repository.save(Mockito.isA(PoTrans.class))).thenReturn(po);
+            List<Long> res = serviceImp.createReceipt( request, userId, shopId);
+            assertNotNull(res);
         }
 
         String inputJson = super.mapToJson(request);
@@ -574,8 +606,8 @@ public class ReceiptExportControllerTest extends BaseTest {
             when(stockTotalRepository.getStockTotal(shopId, stockAdjustment.getWareHouseTypeId(),
                     sads.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()))).thenReturn(stockTotals);
 
-            ResponseMessage responseMessage = serviceImp.createReceipt( request, userId, shopId);
-            assertNotNull(responseMessage);
+            List<Long> res = serviceImp.createReceipt( request, userId, shopId);
+            assertNotNull(res);
         }
 
         String inputJson = super.mapToJson(request);
@@ -701,8 +733,10 @@ public class ReceiptExportControllerTest extends BaseTest {
             when(stockTotalRepository.getStockTotal(shopId, stockBorrowing.getWareHouseTypeId(),
                     sbds.stream().map(item -> item.getProductId()).distinct().collect(Collectors.toList()))).thenReturn(stockTotals);
 
-            ResponseMessage responseMessage = serviceImp.createReceipt( request, userId, shopId);
-            assertNotNull(responseMessage);
+            Mockito.when(stockBorrowingRepository.save(Mockito.isA(StockBorrowing.class))).thenReturn(stockBorrowing);
+            Mockito.when(stockBorrowingTransRepository.save(Mockito.isA(StockBorrowingTrans.class))).thenReturn(stockAdjustmentTrans);
+            List<Long> res = serviceImp.createReceipt( request, userId, shopId);
+            assertNotNull(res);
         }
 
         String inputJson = super.mapToJson(request);
@@ -761,8 +795,8 @@ public class ReceiptExportControllerTest extends BaseTest {
         when(stockTotalRepository.getStockTotal(1L, poTrans.getWareHouseTypeId(), poTransDetails.stream().map(item ->
                 item.getProductId()).distinct().filter(Objects::nonNull).collect(Collectors.toList()))).thenReturn(stockTotals);
 
-        ResponseMessage responseMessage = serviceImp.updateReceiptExport(request, 1L, 1L);
-        assertNotNull(responseMessage);
+        List<Long> res = serviceImp.updateReceiptExport(request, 1L, 1L);
+        assertNotNull(res);
 
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
@@ -796,8 +830,8 @@ public class ReceiptExportControllerTest extends BaseTest {
         when(stockAdjustmentTransRepository.getByIdAndShopId(1L, 1L, 2))
                 .thenReturn(adjustmentTrans);
 
-        ResponseMessage responseMessage = serviceImp.updateReceiptExport(request, 1L, 1L);
-        assertNotNull(responseMessage);
+        List<Long> res = serviceImp.updateReceiptExport(request, 1L, 1L);
+        assertNotNull(res);
 
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
@@ -831,8 +865,9 @@ public class ReceiptExportControllerTest extends BaseTest {
         when(stockBorrowingTransRepository.getByIdAndShopId(1L, 1L, 2))
                 .thenReturn(adjustmentTrans);
 
-        ResponseMessage responseMessage = serviceImp.updateReceiptExport(request, 1L, 1L);
-        assertNotNull(responseMessage);
+        Mockito.when(stockBorrowingTransRepository.save(Mockito.isA(StockBorrowingTrans.class))).thenReturn(adjustmentTrans);
+        List<Long> res = serviceImp.updateReceiptExport(request, 1L, 1L);
+        assertNotNull(res);
 
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc
@@ -868,8 +903,9 @@ public class ReceiptExportControllerTest extends BaseTest {
         poTransDetails.add(poTransDetail);
         when(poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId())).thenReturn(poTransDetails);
 
-        ResponseMessage responseMessage = serviceImp.removeReceiptExport(type, id, shopId);
-        assertNotNull(responseMessage);
+        Mockito.when(repository.save(Mockito.isA(PoTrans.class))).thenReturn(poTrans);
+        List<List<String>> res = serviceImp.removeReceiptExport(type, id, shopId);
+        assertNotNull(res);
 
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri)
@@ -911,8 +947,12 @@ public class ReceiptExportControllerTest extends BaseTest {
 
         when(stockAdjustmentRepository.getById(stockAdjustmentTrans.getAdjustmentId())).thenReturn(new StockAdjustment());
 
-        ResponseMessage responseMessage = serviceImp.removeReceiptExport(type, id, shopId);
-        assertNotNull(responseMessage);
+        StockAdjustment stockAdjustment = new StockAdjustment();
+        stockAdjustment.setId(2l);
+        Mockito.when(stockAdjustmentRepository.save(Mockito.isA(StockAdjustment.class))).thenReturn(stockAdjustment);
+        Mockito.when(stockAdjustmentTransRepository.save(Mockito.isA(StockAdjustmentTrans.class))).thenReturn(stockAdjustmentTrans);
+        List<List<String>> res = serviceImp.removeReceiptExport(type, id, shopId);
+        assertNotNull(res);
 
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri)
@@ -944,8 +984,10 @@ public class ReceiptExportControllerTest extends BaseTest {
         stockBorrowing.setId(1L);
         when(stockBorrowingRepository.findById(stockBorrowingTrans.getStockBorrowingId())).thenReturn(Optional.of(stockBorrowing));
 
-        ResponseMessage responseMessage = serviceImp.removeReceiptExport(type, id, shopId);
-        assertNotNull(responseMessage);
+
+        Mockito.when(stockBorrowingTransRepository.save(Mockito.isA(StockBorrowingTrans.class))).thenReturn(stockBorrowingTrans);
+        List<List<String>> res = serviceImp.removeReceiptExport(type, id, shopId);
+        assertNotNull(res);
 
         ResultActions resultActions =  mockMvc
                 .perform(MockMvcRequestBuilders.put(uri)

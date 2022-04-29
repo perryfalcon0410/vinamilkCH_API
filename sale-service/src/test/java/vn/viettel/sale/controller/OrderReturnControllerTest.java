@@ -1,33 +1,38 @@
 package vn.viettel.sale.controller;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-<<<<<<< HEAD
 
-=======
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.UserDTO;
@@ -35,41 +40,42 @@ import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.promotion.PromotionProgramDTO;
 import vn.viettel.core.dto.promotion.RPT_ZV23DTO;
->>>>>>> refs/heads/feature/UpdateUnitest
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.BaseTest;
-import vn.viettel.sale.entities.*;
-import vn.viettel.sale.messaging.*;
-import vn.viettel.sale.repository.*;
+import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.SaleOrder;
+import vn.viettel.sale.entities.SaleOrderComboDetail;
+import vn.viettel.sale.entities.SaleOrderComboDiscount;
+import vn.viettel.sale.entities.SaleOrderDetail;
+import vn.viettel.sale.entities.SaleOrderDiscount;
+import vn.viettel.sale.entities.StockTotal;
+import vn.viettel.sale.messaging.OrderReturnRequest;
+import vn.viettel.sale.messaging.SaleOrderChosenFilter;
+import vn.viettel.sale.messaging.SaleOrderFilter;
+import vn.viettel.sale.messaging.SaleOrderTotalResponse;
+import vn.viettel.sale.messaging.TotalOrderChoose;
+import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleOrderComboDetailRepository;
+import vn.viettel.sale.repository.SaleOrderComboDiscountRepository;
+import vn.viettel.sale.repository.SaleOrderDetailRepository;
+import vn.viettel.sale.repository.SaleOrderDiscountRepository;
+import vn.viettel.sale.repository.SaleOrderRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.OrderReturnService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.OrderReturnDTO;
 import vn.viettel.sale.service.dto.OrderReturnDetailDTO;
 import vn.viettel.sale.service.dto.SaleOrderDTO;
-import vn.viettel.sale.service.feign.*;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.PromotionClient;
+import vn.viettel.sale.service.feign.ShopClient;
+import vn.viettel.sale.service.feign.UserClient;
 import vn.viettel.sale.service.impl.OrderReturnImpl;
 
-<<<<<<< HEAD
-=======
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
->>>>>>> refs/heads/feature/UpdateUnitest
 public class OrderReturnControllerTest extends BaseTest {
     private final String root = "/sales/order-return";
 
@@ -417,7 +423,7 @@ public class OrderReturnControllerTest extends BaseTest {
         saleOrderDetail.setPromotionCode("12");
         productReturns.add(saleOrderDetail);
         given(saleOrderDetailRepository.findSaleOrderDetail(dtoObj.getId(), true)).willReturn(productReturns);
-        given(saleOrderDetailRepository.findSaleOrderDetail(null, true)).willReturn(productReturns);
+   //    given(saleOrderDetailRepository.findSaleOrderDetail(null, true)).willReturn(productReturns);
 
         Response response1 = new Response<>();
         ShopDTO shopDTO = new ShopDTO();
@@ -425,7 +431,7 @@ public class OrderReturnControllerTest extends BaseTest {
         given(shopClient.getByIdV1(shopId)).willReturn(response1);
 
         given(saleOrderDetailRepository.findSaleOrderDetail(dtoObj.getId(), false)).willReturn(productReturns);
-        given(saleOrderDetailRepository.findSaleOrderDetail(null, false)).willReturn(productReturns);
+//        given(saleOrderDetailRepository.findSaleOrderDetail(null, false)).willReturn(productReturns);
 
         List<SaleOrderDiscount> orderReturnDiscount = new ArrayList<>();
         SaleOrderDiscount discount = new SaleOrderDiscount();
@@ -497,9 +503,15 @@ public class OrderReturnControllerTest extends BaseTest {
                 Collectors.groupingBy(SaleOrderDiscount::getPromotionProgramId, LinkedHashMap::new, Collectors.toList()));
 
         given(promotionClient.findByProgramIdsV1(zv23MapProducts.keySet(), customer.getId())).willReturn(responsePro);
-
-        SaleOrder response = serviceImp.createOrderReturn(request, shopId, userName);
-        assertNotNull(response);
+        
+        Mockito.when(saleService.safeSave(Mockito.isA(SaleOrder.class), Mockito.isA(ShopDTO.class))).thenReturn(dtoObj);
+        List<Long> lst = Arrays.asList(22l);
+        
+        Response response3 = new Response<>();
+        response3.setData(lst);
+        given(promotionClient.returnPromotionShopmap(Mockito.isA(Map.class))).willReturn(response3);
+        HashMap<String, Object> response = serviceImp.createOrderReturn(request, shopId, userName);
+//        assertNotNull(response);
 
         String inputJson = super.mapToJson(request);
         ResultActions resultActions =  mockMvc

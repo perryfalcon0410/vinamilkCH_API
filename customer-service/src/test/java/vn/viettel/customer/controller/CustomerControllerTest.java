@@ -283,8 +283,10 @@ public class CustomerControllerTest extends BaseTest {
 
         Mockito.when(repository.getById(id)).thenReturn(customerList.get(0));
 
-        Mockito.when(memBerCustomerRepository.getMemberCustomer(1L))
-                .thenReturn(Optional.ofNullable(memberCustomers.get(0)));
+		/*
+		 * Mockito.when(memBerCustomerRepository.getMemberCustomer(1L))
+		 * .thenReturn(Optional.ofNullable(memberCustomers.get(0)));
+		 */
 
         Mockito.when(shopClient.getLevelUpdateCustomerV1(1L))
                 .thenReturn(new Response<Long>().withData(1L));

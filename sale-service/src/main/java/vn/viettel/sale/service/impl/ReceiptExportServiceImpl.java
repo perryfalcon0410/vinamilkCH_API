@@ -787,7 +787,7 @@ public class ReceiptExportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             StockAdjustment stockAdjustment = stockAdjustmentRepository.getById(stockAdjustmentTrans.get().getAdjustmentId());
             if(stockAdjustment != null) {
                 stockAdjustment.setStatus(1);
-                stockAdjustmentRepository.save(stockAdjustment);
+                stockAdjustment = stockAdjustmentRepository.save(stockAdjustment);
                 stockAdjustmentId = stockAdjustment.getId().toString();
             }
             StockAdjustmentTrans stockAdjustmentTransResult = stockAdjustmentTransRepository.save(stockAdjustmentTrans.get());

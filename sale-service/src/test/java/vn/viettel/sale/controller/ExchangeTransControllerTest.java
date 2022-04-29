@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -253,13 +254,11 @@ public class ExchangeTransControllerTest extends BaseTest {
         Mockito.when(stockTotalRepository.getStockTotal(1L, 1L, productIds))
                 .thenReturn(stockTotals);
 
-<<<<<<< HEAD
-
-        ExchangeTransDTO responseMessage = serviceImp.create(exchangeTransRequest, 1L, 1L);
-=======
-        ResponseMessage result = serviceImp.create(exchangeTransRequest, 1L, 1L);
+        ExchangeTrans exchangeTransRecord = new ExchangeTrans();
+        exchangeTransRecord.setId(2l);
+        Mockito.when(repository.save(Mockito.isA(ExchangeTrans.class))).thenReturn(exchangeTransRecord);
+        ExchangeTransDTO result = serviceImp.create(exchangeTransRequest, 1L, 1L);
         assertNotNull(result);
->>>>>>> refs/heads/feature/UpdateUnitest
 
         String inputJson = super.mapToJson(exchangeTransRequest);
         ResultActions resultActions = mockMvc.perform(post(url)
@@ -384,8 +383,10 @@ public class ExchangeTransControllerTest extends BaseTest {
         Mockito.when(transDetailRepository.findByTransId(id))
                 .thenReturn(dbExchangeTransDetails);
 
-        ResponseMessage responseMessage = serviceImp.update(id, exchangeTransRequest, 1L);
-        assertEquals(ResponseMessage.UPDATE_SUCCESSFUL, responseMessage);
+        ExchangeTrans exchange = new ExchangeTrans();
+        Mockito.when(repository.save(Mockito.isA(ExchangeTrans.class))).thenReturn(exchange);
+        ExchangeTransDTO res = serviceImp.update(id, exchangeTransRequest, 1L);
+        assertNotNull(res);
 
         String inputJson = super.mapToJson(exchangeTransRequest);
         ResultActions resultActions = mockMvc.perform(put(url, 1L)
@@ -431,8 +432,10 @@ public class ExchangeTransControllerTest extends BaseTest {
         Mockito.when(transDetailRepository.findByTransId(id))
                 .thenReturn(dbExchangeTransDetails);
 
-        ResponseMessage responseMessage = serviceImp.update(id, exchangeTransRequest, 1L);
-        assertEquals(ResponseMessage.UPDATE_SUCCESSFUL, responseMessage);
+        ExchangeTrans exchange = new ExchangeTrans();
+        Mockito.when(repository.save(Mockito.isA(ExchangeTrans.class))).thenReturn(exchange);
+        ExchangeTransDTO res = serviceImp.update(id, exchangeTransRequest, 1L);
+        assertNotNull(res);
 
         String inputJson = super.mapToJson(exchangeTransRequest);
         ResultActions resultActions = mockMvc.perform(put(url, 1L)
@@ -477,8 +480,11 @@ public class ExchangeTransControllerTest extends BaseTest {
         Mockito.when(transDetailRepository.findByTransId(id))
                 .thenReturn(dbExchangeTransDetails);
 
-        ResponseMessage responseMessage = serviceImp.update(id, exchangeTransRequest, 1L);
-        assertEquals(ResponseMessage.UPDATE_SUCCESSFUL, responseMessage);
+        ExchangeTrans exchange = new ExchangeTrans();
+        exchange.setId(2l);
+        Mockito.when(repository.save(Mockito.isA(ExchangeTrans.class))).thenReturn(exchange);
+        ExchangeTransDTO res = serviceImp.update(id, exchangeTransRequest, 1L);
+        assertNotNull(res);
 
         String inputJson = super.mapToJson(exchangeTransRequest);
         ResultActions resultActions = mockMvc.perform(put(url, 1L)

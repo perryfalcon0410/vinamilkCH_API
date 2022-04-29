@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -714,7 +715,7 @@ public class PromotionControllerTest extends BaseTest {
         Mockito.when(promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getId())).thenReturn(new ArrayList<>());
         Mockito.when(promotionShopMapRepository.findByPromotionProgramIdAndShopId(discount.getPromotionProgramId(), shopDTO.getParentShopId())).thenReturn(shopMapDB);
 
-        Boolean response = serviceImpl.returnMGG(orderCode, shopId);
+        List<Long> response = serviceImpl.returnMGG(orderCode, shopId);
 
         assertNotNull(response);
 
@@ -752,7 +753,7 @@ public class PromotionControllerTest extends BaseTest {
         Mockito.when(promotionShopMapRepository.findByPromotionProgramCode("KEY", shopDTO.getId())).thenReturn(promotionShopMap);
 //        Mockito.when(promotionSaleProductRepository.findByPromotionProgramIdAndStatus(programId, productIds)).thenReturn(2);
 
-        Boolean response = serviceImpl.returnPromotionShopmap(shopMaps, shopId);
+        List<Long> response = serviceImpl.returnPromotionShopmap(shopMaps, shopId);
 
         assertNotNull(response);
 
