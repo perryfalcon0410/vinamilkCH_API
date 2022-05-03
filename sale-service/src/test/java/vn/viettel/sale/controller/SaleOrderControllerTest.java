@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -176,6 +177,8 @@ public class SaleOrderControllerTest extends BaseTest {
 
         SaleOrderDetailDTO saleOrderDetail = saleOrderService.getSaleOrderDetail(1L, "1");
 
+        assertNotNull(saleOrderDetail);
+
         ResultActions resultActions = mockMvc.perform(get(uri)
                         .param("fromDate", "2022/02/22")
                         .param("toDate", "2022/02/22")
@@ -209,6 +212,7 @@ public class SaleOrderControllerTest extends BaseTest {
                 .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
 
         PrintSaleOrderDTO dto = saleOrderService.printSaleOrder(id, 1L);
+        assertNotNull(dto);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                         .param("fromDate", "2022/02/22")

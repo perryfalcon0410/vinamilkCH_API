@@ -1,61 +1,36 @@
 package vn.viettel.sale.controller;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
+import vn.viettel.core.util.VNCharacterUtils;
 import vn.viettel.sale.BaseTest;
-import vn.viettel.sale.entities.ComboProduct;
-import vn.viettel.sale.entities.ComboProductDetail;
-import vn.viettel.sale.entities.Price;
-import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.*;
 import vn.viettel.sale.repository.ComboProductDetailRepository;
 import vn.viettel.sale.repository.ComboProductRepository;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.service.ComboProductService;
 import vn.viettel.sale.service.dto.ComboProductDTO;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import vn.viettel.core.dto.ShopDTO;
-import vn.viettel.core.dto.common.AreaDTO;
-import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.service.impl.ComboProductServiceImpl;
 import vn.viettel.sale.specification.ComboProductSpecification;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import javax.persistence.criteria.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 public class ComboProductControllerTest extends BaseTest {
@@ -97,40 +72,53 @@ public class ComboProductControllerTest extends BaseTest {
         this.setupAction(controller);
 
         lstEntities = new ArrayList<>();
+        prices = new ArrayList<>();
+        products = new ArrayList<>();
+
         for (int i = 1; i < 6; i++) {
             final ComboProduct entity = new ComboProduct();
             entity.setId((long) i);
-            entity.setProductName("keyword" + i);
+            entity.setProductName("KEYWORD" + i);
             entity.setStatus(1);
-            entity.setRefProductId(1L);
+            entity.setRefProductId((long) i);
             lstEntities.add(entity);
-        }
 
-        prices = new ArrayList<>();
-        final Price price = new Price();
-        price.setId(1L);
-        price.setProductId(1L);
-        prices.add(price);
+            final Price price = new Price();
+            price.setId((long) i);
+            price.setProductId((long) i);
+            price.setPrice(5.0);
+            prices.add(price);
+
+            final Product product = new Product();
+            product.setId((long) i);
+            products.add(product);
+        }
 
         comboProductDetails = new ArrayList<>();
         final ComboProductDetail comboProductDetail = new ComboProductDetail();
         comboProductDetail.setProductId(1L);
         comboProductDetail.setId(1L);
         comboProductDetails.add(comboProductDetail);
-
-        products = new ArrayList<>();
-        final Product product = new Product();
-        product.setId(1L);
-        products.add(product);
-
     }
 
     //-------------------------------findComboProducts-------------------------------
     @Test
     public void findComboProductsTest() throws Exception {
-        List<ComboProductDTO> dtos = serviceImp.findComboProducts(1L, "keyword", 1);
+        String keyWord = "KEYWORD";
+        Integer status = 1;
+        Long customerTypeId = null;
 
-        assertEquals(0, dtos.size());
+        when(repository.findAll(any(Specification.class))).thenReturn(lstEntities);
+
+        List<Long> lstProductIds = lstEntities.stream().map(item -> item.getRefProductId()).distinct().collect(Collectors.toList());
+
+        LocalDateTime now = DateUtils.convertToDate(LocalDateTime.now());
+
+        given(productPriceRepo.findProductPriceWithType(lstProductIds, customerTypeId,
+                now)).willReturn(prices);
+        List<ComboProductDTO> dtos = serviceImp.findComboProducts(1L, keyWord, status);
+
+        assertEquals(lstEntities.size(), dtos.size());
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))

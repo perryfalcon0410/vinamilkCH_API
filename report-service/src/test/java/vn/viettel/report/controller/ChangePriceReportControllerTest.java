@@ -23,12 +23,17 @@ import vn.viettel.report.service.dto.ChangePriceTotalDTO;
 import vn.viettel.report.service.feign.ShopClient;
 import vn.viettel.report.service.impl.ChangePriceReportServiceImpl;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.StoredProcedureQuery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,6 +53,12 @@ public class ChangePriceReportControllerTest extends BaseTest {
     private List<ChangePriceDTO> lstEntities;
 
     private ChangePriceFilter filter;
+
+    @Mock
+    public EntityManager entityManager;
+
+    @Mock
+    StoredProcedureQuery storedProcedure;
 
     @Before
     public void init() {
@@ -94,11 +105,10 @@ public class ChangePriceReportControllerTest extends BaseTest {
         Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> res = new Response<CoverResponse<List<ChangePriceDTO>,
                 ChangePriceTotalDTO>>().withData(new CoverResponse<>(lstEntities, new ChangePriceTotalDTO()));
 
-        doReturn(res).when(changePriceReportService).index(filter, page, false);
-        doReturn(shop).when(shopClient).getShopByIdV1(filter.getShopId());
+        when(entityManager.createStoredProcedureQuery("P_CHANGE_PRICE", ChangePriceDTO.class)).thenReturn(storedProcedure);
 
-        ChangePricePrintDTO response =  changePriceReportService.getAll(filter,  page);
-        assertEquals(lstEntities.size(),response.getDetails().size());
+        Object response =  changePriceReportService.index(filter, page, false);
+        assertNotNull(response);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                         .param("fromTransDate", "01/04/2021")
@@ -108,7 +118,6 @@ public class ChangePriceReportControllerTest extends BaseTest {
                         .param("isPaging", "true")
                         .param("licenseNumber", "NUM00")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
@@ -138,33 +147,5 @@ public class ChangePriceReportControllerTest extends BaseTest {
             .andDo(MockMvcResultHandlers.print());
        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
-
-   /* @Test
-    public void exportToExcel() throws Exception {
-        String uri = V1 + root + "/excel";
-        Pageable page = PageRequest.of(0, 10);
-        Response<CoverResponse<List<ChangePriceDTO>, ChangePriceTotalDTO>> res = new Response<CoverResponse<List<ChangePriceDTO>,
-                ChangePriceTotalDTO>>().withData(new CoverResponse<>(lstEntities, new ChangePriceTotalDTO()));
-
-        doReturn(res).when(changePriceReportService).index(filter, page, false);
-        doReturn(shop).when(shopClient).getShopByIdV1(filter.getShopId());
-
-        ChangePricePrintDTO response =  changePriceReportService.getAll(filter,  page);
-
-  //      Mockito.when(changePriceReportService.index(filter, page, false)).thenReturn(res);
-      assertEquals(lstEntities.size(),response.getDetails().size());
-
-        ResultActions resultActions = mockMvc.perform(get(uri)
-                        .param("fromTransDate", "01/04/2021")
-                        .param("toTransDate", "01/05/2021")
-                        .param("fromOrderDate", "01/04/2021")
-                        .param("toOrderDate", "01/05/2021")
-                        .param("isPaging", "true")
-                        .param("licenseNumber", "NUM00")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-   //  assertEquals(200, resultActions.andReturn().getResponse().getStatus());
-    }*/
 
 }

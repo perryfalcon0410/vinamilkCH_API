@@ -388,7 +388,7 @@ public class OrderReturnImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
       /*  newOrderReturn.setOrderNumber(saleService.createOrderNumber(shop));
         repository.save(newOrderReturn); //save new orderReturn*/
         try{
-            saleService.safeSave(newOrderReturn, shop);
+        	newOrderReturn = saleService.safeSave(newOrderReturn, shop);
         }catch (Exception ex) {
             throw new ValidateException(ResponseMessage.SAVE_FAIL);
         }

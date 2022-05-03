@@ -44,8 +44,14 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
         if(shopDTO == null) throw new ValidateException(ResponseMessage.SHOP_NOT_FOUND);
         StockTotalReportPrintDTO printDTO = new StockTotalReportPrintDTO();
         List<StockTotalReportDTO> lists =  callProcedure(filter);
-        StockTotalReportDTO totalInfo = lists.get(lists.size() - 1);
-        List<StockTotalReportDTO> listResults = lists.subList(0, lists.size() - 2);
+        StockTotalReportDTO totalInfo = new StockTotalReportDTO();
+        if(lists.size() > 0){
+            totalInfo = lists.get(lists.size() - 1);
+        }
+        List<StockTotalReportDTO> listResults = new ArrayList<>();
+        if(lists.size() > 1){
+            listResults = lists.subList(0, lists.size() - 2);
+        }
         /*
             LinkedHashMap::new danh sách lấy lên đã sort - chống sort lại của map đảm bảo đúng thứ tự ngành hàng đã sort trước đó
          */

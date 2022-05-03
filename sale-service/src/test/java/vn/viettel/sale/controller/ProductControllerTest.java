@@ -2,27 +2,30 @@ package vn.viettel.sale.controller;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import vn.viettel.core.dto.customer.CustomerDTO;
 import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.sale.BaseTest;
+import vn.viettel.sale.entities.Price;
 import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.ProductInfo;
 import vn.viettel.sale.entities.StockTotal;
 import vn.viettel.sale.messaging.OrderProductRequest;
+import vn.viettel.sale.messaging.ProductFilter;
+import vn.viettel.sale.repository.ProductInfoRepository;
 import vn.viettel.sale.repository.ProductPriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.StockTotalRepository;
@@ -31,10 +34,14 @@ import vn.viettel.sale.service.dto.OrderProductDTO;
 import vn.viettel.sale.service.dto.OrderProductsDTO;
 import vn.viettel.sale.service.dto.ProductDTO;
 import vn.viettel.sale.service.dto.ProductInfoDTO;
+import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.impl.ProductServiceImpl;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,8 +49,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 public class ProductControllerTest extends BaseTest {
@@ -67,6 +76,15 @@ public class ProductControllerTest extends BaseTest {
     @Mock
     ProductPriceRepository productPriceRepo;
 
+    @Mock
+    ProductInfoRepository productInfoRepo;
+
+    @Mock
+    CustomerClient customerClient;
+
+    @Mock
+    private Clock clock;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -80,18 +98,19 @@ public class ProductControllerTest extends BaseTest {
     @Test
     public void findComboProductsSuccessTest() throws Exception {
         String uri = V1 + root + "/product-infos";
+        Integer status = 1;
+        Integer type = 1;
+        Pageable pageable = PageRequest.of(0, 5);
 
-        List<ProductInfoDTO> lstDto = new ArrayList<>();
-        lstDto.add(new ProductInfoDTO());
-        lstDto.add(new ProductInfoDTO());
+        ProductInfo productInfo = new ProductInfo();
+        List<ProductInfo> lstDto = new ArrayList<>();
+        lstDto.add(productInfo);
+        final Page<ProductInfo> pageData = new PageImpl<>(lstDto);
+        when(productInfoRepo.findAll(any(Specification.class), any(Pageable.class))).thenReturn(pageData);
 
-        int size = 2;
-        int page = 5;
-        PageRequest pageReq = PageRequest.of(page, size);
-        Page<ProductInfoDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
+        Page<ProductInfoDTO> result = serviceImp.findAllProductInfo(status, type, pageable);
 
-//        given(service.findAllProductInfo(any(), any(),any())).willReturn(pageDto);
-        service.findAllProductInfo(any(), any(),any());
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc
                 .perform(get(uri)
@@ -104,13 +123,34 @@ public class ProductControllerTest extends BaseTest {
     @Test
     public void findProductsSuccessTest() throws Exception {
         String uri = V1 + root ;
-        int size = 2;
-        int page = 0;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(0, 5);
+        ProductFilter filter = new ProductFilter();
+        filter.setCustomerId(1L);
+        filter.setKeyWord("123");
+        filter.setShopId(1L);
+        filter.setStatus(1);
+        filter.setProductInfoId(1L);
+
         List<OrderProductDTO> list = Arrays.asList(new OrderProductDTO(), new OrderProductDTO());
-        Page<OrderProductDTO> data = new PageImpl<>(list, pageRequest , list.size());
-//        given(service.findProducts(any(), Mockito.any(PageRequest.class))).willReturn(data);
-        service.findProducts(any(), Mockito.any(PageRequest.class));
+        Page<OrderProductDTO> data = new PageImpl<>(list, pageable , list.size());
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerTypeId(1L);
+        Long wareHouseTypeId = 1L;
+        given(customerClient.getCustomerByIdV1(filter.getCustomerId())).willReturn(new Response<CustomerDTO>().withData(customerDTO));
+        given(customerTypeClient.getWarehouseTypeByShopId(filter.getShopId())).willReturn(wareHouseTypeId);
+        try(MockedStatic<LocalDateTime> mockedStatic = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            String instantExpected = "2022-02-22T10:15:30Z";
+            clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+            LocalDateTime now = LocalDateTime.now(clock);
+            mockedStatic.when(LocalDateTime::now).thenReturn(now);
+
+            given(repository.findOrderProductDTO(filter.getShopId(), customerDTO.getCustomerTypeId(), wareHouseTypeId, null,
+                    filter.getKeyWord(), filter.getStatus(), filter.getProductInfoId(), LocalDateTime.now(), pageable)).willReturn(data);
+
+            Page<OrderProductDTO> result = serviceImp.findProducts(filter, pageable);
+            assertNotNull(result);
+        }
+
         ResultActions resultActions = mockMvc
                 .perform(get(uri)
                         .param("customerId", "1")
@@ -123,18 +163,35 @@ public class ProductControllerTest extends BaseTest {
     @Test
     public void findProductsTopSaleSuccessTest() throws Exception {
         String uri = V1 + root + "/top-sale/month";
-        List<OrderProductDTO> lstDto = new ArrayList<>();
-        lstDto.add(new OrderProductDTO());
-        lstDto.add(new OrderProductDTO());
+        Long shopId = 1L;
+        Long customerId = 1L;
+        Pageable pageable = PageRequest.of(0, 5);
 
-        int size = 2;
-        int page = 5;
-        PageRequest pageReq = PageRequest.of(page, size);
-        Page<OrderProductDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerTypeId(1L);
+        Long wareHouseTypeId = 1L;
+        given(customerClient.getCustomerByIdV1(customerId)).willReturn(new Response<CustomerDTO>().withData(customerDTO));
+        given(customerTypeClient.getWarehouseTypeByShopId(shopId)).willReturn(wareHouseTypeId);
 
-//        given(service.findProductsMonth(any(),any(), any())).willReturn(pageDto);
+        try(MockedStatic<LocalDateTime> mockedStatic = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            String instantExpected = "2022-02-22T10:15:30Z";
+            clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+            LocalDateTime now = LocalDateTime.now(clock);
+            mockedStatic.when(LocalDateTime::now).thenReturn(now);
 
-        service.findProductsMonth(1L,1L, pageReq);
+            LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
+            LocalDateTime toDate = LocalDateTime.now();
+
+            List<OrderProductDTO> list = Arrays.asList(new OrderProductDTO(), new OrderProductDTO());
+            Page<OrderProductDTO> data = new PageImpl<>(list, pageable , list.size());
+            given(repository.findOrderProductTopSale(shopId, customerDTO.getCustomerTypeId(), wareHouseTypeId, customerId,
+                    "", fromDate, toDate, false, pageable)).willReturn(data);
+
+            Page<OrderProductDTO> result = serviceImp.findProductsMonth(shopId,customerId, pageable);
+
+            assertNotNull(result);
+        }
+
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .param("customerId", "1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -149,17 +206,37 @@ public class ProductControllerTest extends BaseTest {
     @Test
     public void findProductsCustomerTopSaleSuccessTest() throws Exception {
         String uri = V1 + root + "/top-sale/customer/{customerId}";
-        List<OrderProductDTO> lstDto = new ArrayList<>();
-        lstDto.add(new OrderProductDTO());
-        lstDto.add(new OrderProductDTO());
+        Long shopId = 1L;
+        Long customerId = 1L;
+        Pageable pageable = PageRequest.of(0, 5);
 
-        int size = 2;
-        int page = 5;
-        PageRequest pageReq = PageRequest.of(page, size);
-        Page<OrderProductDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerTypeId(1L);
+        Long wareHouseTypeId = 1L;
+        given(customerClient.getCustomerByIdV1(customerId)).willReturn(new Response<CustomerDTO>().withData(customerDTO));
+        given(customerTypeClient.getWarehouseTypeByShopId(shopId)).willReturn(wareHouseTypeId);
+        List<Long> list = Arrays.asList(1L);
+        Page<Long> productIds = new PageImpl<>(list, pageable , list.size());
+        given(repository.findProductsCustomerTopSale(shopId, customerId, pageable)).willReturn(productIds);
 
-//        given(service.findProductsCustomerTopSale(any(),any(), any())).willReturn(pageDto);
-        service.findProductsCustomerTopSale(any(),any(), any());
+        try(MockedStatic<LocalDateTime> mockedStatic = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+            String instantExpected = "2022-02-22T10:15:30Z";
+            clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+            LocalDateTime now = LocalDateTime.now(clock);
+            mockedStatic.when(LocalDateTime::now).thenReturn(now);
+
+            LocalDateTime fromDate = DateUtils.getFirstDayOfCurrentMonth();
+            LocalDateTime toDate = LocalDateTime.now();
+
+            List<OrderProductDTO> list1 = Arrays.asList(new OrderProductDTO(), new OrderProductDTO());
+            Page<OrderProductDTO> data = new PageImpl<>(list1, pageable , list1.size());
+            given(repository.findOrderProductDTO(shopId, customerDTO.getCustomerTypeId(), wareHouseTypeId, productIds.getContent(),
+                    null, null, null, LocalDateTime.now(), pageable)).willReturn(data);
+
+            Page<OrderProductDTO> result = serviceImp.findProductsCustomerTopSale(shopId,customerId, pageable);
+
+            assertNotNull(result);
+        }
 
         ResultActions resultActions = mockMvc.perform(get(uri,1)
                         .param("page", "5")
@@ -168,15 +245,6 @@ public class ProductControllerTest extends BaseTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(MockMvcResultHandlers.print());
-//        ArgumentCaptor<Pageable> pageableCaptor =
-//                ArgumentCaptor.forClass(Pageable.class);
-//        verify(characterRepository).findAllPage(pageableCaptor.capture());
-//        PageRequest pageable = (PageRequest) pageableCaptor.getValue();
-//
-//        assertThat(pageable).hasPageNumber(5);
-//        assertThat(pageable).hasPageSize(10);
-//        assertThat(pageable).hasSort("name", Sort.Direction.ASC);
-//        assertThat(pageable).hasSort("id", Sort.Direction.DESC);
 
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
@@ -203,31 +271,53 @@ public class ProductControllerTest extends BaseTest {
         CustomerTypeDTO customerType = new CustomerTypeDTO();
         customerType.setWareHouseTypeId(1L);
         given(customerTypeClient.getCusTypeById(customerTypeId)).willReturn(customerType);
+
         List<Long> productIds = productsRequests.stream().map(item -> item.getProductId()).filter(Objects::nonNull).distinct().collect(Collectors.toList());
         given(repository.getProducts(productIds,1)).willReturn(products);
-//        given(stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), productIds)).willReturn(stockTotals);
-//        given(productPriceRepo.findProductPriceWithType(productIds, customerTypeId, DateUtils.convertToDate(LocalDateTime.now()))).willReturn(new ArrayList<>());
+        given(stockTotalRepo.getStockTotal(shopId, customerType.getWareHouseTypeId(), productIds)).willReturn(stockTotals);
+        given(productPriceRepo.findProductPriceWithType(productIds, customerTypeId, DateUtils.convertToDate(LocalDateTime.now()))).willReturn(new ArrayList<>());
 
-        serviceImp.changeCustomerType(customerTypeId, shopId, productsRequests);
-//        ResultActions resultActions =  mockMvc
-//                .perform(MockMvcRequestBuilders.post(uri, 1)
-//                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-//                        .param("customerTypeId", "1"))
-//                .andDo(MockMvcResultHandlers.print());
-//        MvcResult mvcResult = resultActions.andReturn();
-//        assertEquals(200, mvcResult.getResponse().getStatus());
+        OrderProductsDTO result = serviceImp.changeCustomerType(customerTypeId, shopId, productsRequests);
+        assertNotNull(result);
+
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.post(uri, 1)
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                        .param("customerTypeId", "1"))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
     //-------------------------------findProductsByKeyWord-----------------------------
     @Test
     public void findProductsByKeyWordSuccessTest() throws Exception {
         String uri = V1 + root + "/find";
-        List<OrderProductDTO> lstDto = new ArrayList<>();
-        lstDto.add(new OrderProductDTO());
-        lstDto.add(new OrderProductDTO());
+        Long shopId = 1L;
+        Long customerId = 1L;
+        String keyWord = "123";
+        List<Product> products = new ArrayList<>();
+        Product product = new Product();
+        product.setId(1L);
+        products.add(product);
 
-//        given(service.findProductsByKeyWord(any(),any(), any())).willReturn(lstDto);
-        service.findProductsByKeyWord(any(),any(), any());
+        given(repository.findAll(any(Specification.class))).willReturn(products);
+
+        CustomerTypeDTO customerType = new CustomerTypeDTO();
+        customerType.setId(1L);
+        customerType.setWareHouseTypeId(1L);
+        given(customerTypeClient.getCustomerTypeForSale(customerId, shopId)).willReturn(null);
+        given(customerTypeClient.getCusTypeByShopIdV1(shopId)).willReturn(customerType);
+
+        List<Price> prices = new ArrayList<>();
+        Price price = new Price();
+        price.setProductId(1L);
+        prices.add(price);
+        given(productPriceRepo.findProductPriceWithType(products.stream().map(item -> item.getId()).
+                collect(Collectors.toList()), customerType.getId(), DateUtils.convertToDate(LocalDateTime.now()))).willReturn(prices);
+
+        List<OrderProductDTO> result = serviceImp.findProductsByKeyWord(shopId, customerId, keyWord);
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -241,16 +331,20 @@ public class ProductControllerTest extends BaseTest {
     @Test
     public void findSuccessTest() throws Exception {
         String uri = V1 + root+ "/choose-product";
-        List<ProductDTO> lstDto = new ArrayList<>();
-        lstDto.add(new ProductDTO());
-        lstDto.add(new ProductDTO());
+        List<Product> lstDto = new ArrayList<>();
+        lstDto.add(new Product());
+        lstDto.add(new Product());
 
-        int size = 2;
-        int page = 5;
-        PageRequest pageReq = PageRequest.of(page, size);
-        Page<ProductDTO> pageDto = new PageImpl<>(lstDto, pageReq, lstDto.size());
-//        given(service.findProduct(any(),any(),any(),any())).willReturn(new Response<Page<ProductDTO>>().withData(pageDto));
-        service.findProduct(any(),any(),any(),any(), Mockito.any(Pageable.class));
+        Long shopId = 1L;
+        String productCode = "123";
+        String productName = "123";
+        Long catId = 1L;
+        Pageable pageable = PageRequest.of(0,5);
+        Page<Product> pageDto = new PageImpl<>(lstDto, pageable, lstDto.size());
+        given(repository.findAll(any(Specification.class),any(Pageable.class))).willReturn(pageDto);
+
+        Page<ProductDTO> result = serviceImp.findProduct(shopId,productCode,productName,catId, pageable);
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
                 .contentType(MediaType.APPLICATION_JSON))

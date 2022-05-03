@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -62,9 +63,8 @@ public class CommonControllerTest extends BaseTest {
     public void getPoConfirmStatusTest() throws Exception {
         String url = uri + "/po-confirm-status";
 
-        List<PoConfirmStatusDTO> result = new ArrayList<>();
-
-        given(service.getListPoConfirmStatusDTO()).willReturn(result);
+        List<PoConfirmStatusDTO> result = serviceImp.getListPoConfirmStatusDTO();
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -79,9 +79,9 @@ public class CommonControllerTest extends BaseTest {
     public void getStockAdjustmentStatusTest() throws Exception {
         String url = uri + "/adjustment-status";
 
-        List<StockAdjustmentStatusDTO> result = new ArrayList<>();
+        List<StockAdjustmentStatusDTO> result = serviceImp.getListStockAdjustmentTypeDTO();
 
-        given(service.getListStockAdjustmentTypeDTO()).willReturn(result);
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -96,9 +96,8 @@ public class CommonControllerTest extends BaseTest {
     public void getStockBorrowingStatusTest() throws Exception {
         String url = uri + "/borrowing-status";
 
-        List<StockBorrowingStatusDTO> result = new ArrayList<>();
-
-        given(service.getListStockBorrowingTypeDTO()).willReturn(result);
+        List<StockBorrowingStatusDTO> result = serviceImp.getListStockBorrowingTypeDTO();
+        assertNotNull(result);
 
         ResultActions resultActions = mockMvc.perform(get(url)
                 .contentType(MediaType.APPLICATION_JSON))

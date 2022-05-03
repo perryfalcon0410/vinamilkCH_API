@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import vn.viettel.core.exception.ValidateException;
 import vn.viettel.report.BaseTest;
 import vn.viettel.report.messaging.ReportVoucherFilter;
 import vn.viettel.report.service.ReportVoucherService;
@@ -84,6 +85,4 @@ public class ReportVoucherControllerTest extends BaseTest {
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
 
     }
-
-
 }
