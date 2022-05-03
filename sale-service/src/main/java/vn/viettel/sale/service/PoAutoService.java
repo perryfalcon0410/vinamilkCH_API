@@ -1,6 +1,7 @@
 package vn.viettel.sale.service;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -19,11 +20,13 @@ public interface PoAutoService {
 	
 	public List<PoAutoDetailProduct> getPoAutoDetailProduct(String poAutoNumber, Long shopId);
 	
-	public int approvePoAuto(List<String> poAutoNumberList, Long shopId);
+	public String approvePoAuto(List<String> poAutoNumberList, Long shopId);
 	
-	public int cancelPoAuto(List<String> poAutoNumberList, Long shopId);
+	public String cancelPoAuto(List<String> poAutoNumberList, Long shopId);
 	
 	public Page<ProductStockDTO> getProductByPage(Pageable pageable, Long shopId, String keyword);
 	
-	public void spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopid);
+	public String spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopid);
+	
+	public String getOfferPoAuto(Long shopid, Long productId);
 }

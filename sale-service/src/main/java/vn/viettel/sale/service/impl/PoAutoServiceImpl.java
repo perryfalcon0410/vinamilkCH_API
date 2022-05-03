@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +32,7 @@ import vn.viettel.core.convert.XStreamTranslator;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
+import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.PoAuto;
@@ -43,8 +44,13 @@ import vn.viettel.sale.repository.PalletShopProductRepository;
 import vn.viettel.sale.repository.PoAutoDetailRepository;
 import vn.viettel.sale.repository.PoAutoGroupRepository;
 import vn.viettel.sale.repository.PoAutoRepository;
+import vn.viettel.sale.repository.PoTransDetailRepository;
 import vn.viettel.sale.repository.PriceRepository;
 import vn.viettel.sale.repository.ProductRepository;
+import vn.viettel.sale.repository.SaleDayRepository;
+import vn.viettel.sale.repository.SalePlanRepository;
+import vn.viettel.sale.repository.StockAdjustmentTransDetailRepository;
+import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.PoAutoService;
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
@@ -52,6 +58,7 @@ import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
 import vn.viettel.sale.service.dto.poSplitDTO;
 import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.ReportStockClient;
 import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.util.ConnectFTP;
 import vn.viettel.sale.xml.Line;
@@ -79,13 +86,31 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	PoAutoGroupRepository poAutoGroupRepository;
 	
 	@Autowired
+	PoTransDetailRepository poTransDetailRepository;
+	
+	@Autowired
+	StockAdjustmentTransDetailRepository stockAdjustmentTransDetailRepository;
+	
+	@Autowired
 	PriceRepository priceRepository;
+	
+	@Autowired
+	SalePlanRepository salePlanRepository;
+	
+	@Autowired
+	SaleDayRepository saleDayRepository;
+	
+	@Autowired
+	StockTotalRepository stockTotalRepository;
 	
     @Autowired
     ApparamClient apparamClient;
     
     @Autowired
     ShopClient shopClient;
+    
+    @Autowired
+    ReportStockClient reportStockClient;
     
     @Value("${spring.application.name}")
     public String appName;
@@ -94,14 +119,34 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
     
     private Class<?>[] classes = new Class[] { PO.class, NewPO.class, POHeader.class, PODetail.class, Line.class};
     
-    int SUCCESS = 1;
-    int FAIL = 0;
-    int count = 0;
+    String ERROR = "Có lỗi trong quá trình xử lý.";
+    String SUCCESS = "Thành công.";
 
 	@Override
 	public Page<PoAutoDTO> getAllPoAuto(Long shopId, int page) {
 
 		Pageable pageable = PageRequest.of(page, 5, Sort.by("poAutoNumber"));
+		
+		LocalDate today = LocalDate.now();
+		
+		String test1 = getOfferPoAuto(2742l, 8321l);
+		
+		// long khi cong lai ma null thi gay ra nullException
+		Long test2 = poAutoRepository.getImportQuantity1(2742l, null, null) + poAutoRepository.getImportQuantity2(2742l, null);
+		
+		// long khi cong lai ma null thi gay ra nullException
+		Long test3 = poAutoRepository.getExportQuantity1(2742l, null, null) + poAutoRepository.getExportQuantity2(2742l, null);
+		
+		Long test4 = poAutoRepository.getExportQuantity3(2742l, null);
+		
+		// xet null or = 0 thi loai san pham do ra
+		Long KeHoachTieuThuThang = salePlanRepository.getQuantityByShopProduct(2742l, 8321l, null);
+		
+		// check null, 0
+		Long DinhMucKeHoach = KeHoachTieuThuThang/saleDayRepository.getDayMonthByShopId(shopId, null);
+		
+		// check null, 0
+		Long NgayDuTruKH = (stockTotalRepository.getStockTotalByShopProduct(2742l, 3471l, 8321l)/DinhMucKeHoach);
 		
 		return poAutoRepository.findAllPo(shopId, pageable);
 	}
@@ -131,38 +176,43 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public int approvePoAuto(List<String> poAutoNumberList, Long shopId) {
+	public String approvePoAuto(List<String> poAutoNumberList, Long shopId) {
 		
-		int UNAPPROVE_STATUS = 0;
+		Integer UNAPPROVE_STATUS = 0;
 		
-		if(poAutoNumberList.isEmpty()) return FAIL;
+		if(poAutoNumberList.isEmpty()) return ERROR;
 		
-		List<PoAuto> poAutoSucList = new ArrayList<>();
-		poAutoNumberList.forEach(n -> {
-			PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
-			if(temp.getStatus() == UNAPPROVE_STATUS) {
-				poAutoRepository.approvePo(n, LocalDateTime.now(), shopId);
-				poAutoSucList.add(temp);
-			}
-		});
-		
-		if(!poAutoSucList.isEmpty()) poAutoExportXML(poAutoSucList);
-		
+		try {
+			List<PoAuto> poAutoSucList = new ArrayList<>();
+			poAutoNumberList.forEach(n -> {
+				PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
+				if(UNAPPROVE_STATUS.equals(temp.getStatus())) {
+					poAutoRepository.approvePo(n, LocalDateTime.now(), shopId);
+					poAutoSucList.add(temp);
+				}
+			});
+			
+			if(!poAutoSucList.isEmpty()) poAutoExportXML(poAutoSucList);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return ERROR;
+		}
 		return SUCCESS;
 	}
 	
 	@Override
     @Transactional(rollbackFor = Exception.class)
-	public int cancelPoAuto(List<String> poAutoNumberList, Long shopId) {
+	public String cancelPoAuto(List<String> poAutoNumberList, Long shopId) {
 		
-		int CANCEL_STATUS = 2;
+		Integer CANCEL_STATUS = 2;
 		
-		if(poAutoNumberList.isEmpty()) return FAIL;
+		if(poAutoNumberList.isEmpty()) return ERROR;
 		
 		poAutoNumberList.forEach(n -> {
 			PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
-			if(temp.getStatus() != CANCEL_STATUS) {
-				poAutoRepository.cancelPo(n, LocalDateTime.now(), shopId);				
+			if(!CANCEL_STATUS.equals(temp.getStatus())) {
+				poAutoRepository.cancelPo(n, LocalDateTime.now(), shopId);
 			}
 		});
 		
@@ -173,6 +223,8 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	public Page<ProductStockDTO> getProductByPage(Pageable pageable, Long shopid, String keyword) {
 
 		List<Tuple> productList = poAutoRepository.getProductByPage(shopid, keyword);
+		
+		if(productList == null || productList.size() < 1) return null;
 		
 		List<ProductStockDTO> productStockDtos = productList.stream()
 	            .map(t -> new ProductStockDTO(
@@ -190,37 +242,55 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		return paging;
 	}
 	
-	@Getter
-	@Setter
-	@AllArgsConstructor
-	private class productIdList {
-		private BigDecimal productId;
-	}
-	
-	public void spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopId) {
+	public String spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopId) {
 		
 		List<poSplitDTO> poSplit = poAutoGroupRepository.getSplitPO(shopId);
-		
+			
 		ProductQuantityListDTO productQuantityListDtoPallet = new ProductQuantityListDTO();
-		
+			
 		ProductQuantityListDTO productQuantityListDtoNotPallet = new ProductQuantityListDTO();
-		
+			
 		List<String> palletSplitProductCodeList = productRepository.getPalletSplit(shopId);
+			
+		try {
+				
+			List<poSplitDTO> poSplitCat = poSplit.stream().filter(p -> p.getObjectType() == 0).collect(Collectors.toList());
+			List<poSplitDTO> poSplitSubCat = poSplit.stream().filter(p -> p.getObjectType() == 1).collect(Collectors.toList());
+			List<poSplitDTO> poSplitProd = poSplit.stream().filter(p -> p.getObjectType() == 2).collect(Collectors.toList());
+			
+			productQuantityListDTO.getProductQuantityList().forEach(n -> {
+				if( palletSplitProductCodeList.contains(n.getProductCode()))
+					productQuantityListDtoPallet.add(n);
+				else
+					productQuantityListDtoNotPallet.add(n);
+			});
+			
+			handleSavePOAutoPOAutoDetail(productQuantityListDtoPallet, poSplitCat, poSplitSubCat, poSplitProd, shopId);
+			
+			handleSavePOAutoPOAutoDetail(productQuantityListDtoNotPallet, poSplitCat, poSplitSubCat, poSplitProd, shopId);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return ERROR;
+		}
 		
-		List<poSplitDTO> poSplitCat = poSplit.stream().filter(p -> p.getObjectType() == 0).collect(Collectors.toList());
-		List<poSplitDTO> poSplitSubCat = poSplit.stream().filter(p -> p.getObjectType() == 1).collect(Collectors.toList());
-		List<poSplitDTO> poSplitProd = poSplit.stream().filter(p -> p.getObjectType() == 2).collect(Collectors.toList());
+		return SUCCESS;
+	}
+	
+	public String getOfferPoAuto(Long shopId, Long productId) {
 		
-		productQuantityListDTO.getProductQuantityList().forEach(n -> {
-			if( palletSplitProductCodeList.contains(n.getProductCode()))
-				productQuantityListDtoPallet.add(n);
-			else
-				productQuantityListDtoNotPallet.add(n);
-		});
+		try {
+			LocalDate lastMonthDay = LocalDate.now();
+			lastMonthDay = lastMonthDay.withDayOfMonth(1).minusDays(1);
+			Response<Long> test = reportStockClient.getStockAggregated(shopId, productId, lastMonthDay); 
+			System.out.println("aaa");
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return ERROR;
+		}
 		
-		handleSavePOAutoPOAutoDetail(productQuantityListDtoPallet, poSplitCat, poSplitSubCat, poSplitProd, shopId);
-		
-		handleSavePOAutoPOAutoDetail(productQuantityListDtoNotPallet, poSplitCat, poSplitSubCat, poSplitProd, shopId);
+		return SUCCESS;
 	}
 	
 	private void handleSavePOAutoPOAutoDetail(ProductQuantityListDTO productQuantityListDTO, List<poSplitDTO> poSplitCat, List<poSplitDTO> poSplitSubCat, List<poSplitDTO> poSplitProd, Long shopId) {
@@ -231,7 +301,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		if(productQuantityListDTO == null ||
 				productQuantityListDTO.getProductQuantityList() == null ||
-				productQuantityListDTO.getProductQuantityList().size() == 0) return;
+				productQuantityListDTO.getProductQuantityList().size() == 0) return ;
 		
 		productQuantityListDTO.getProductQuantityList().forEach(n -> {
 

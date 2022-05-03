@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.viettel.core.controller.BaseController;
+import vn.viettel.core.dto.report.ReportStockAggregatedDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.report.messaging.StockTotalFilter;
@@ -23,7 +24,9 @@ import vn.viettel.report.service.feign.ShopClient;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @Api(tags = "Api dùng cho báo cáo tồn kho")
@@ -71,5 +74,19 @@ public class StockTotalReportController extends BaseController {
         StockTotalFilter filter = new StockTotalFilter(stockDate, productCodes, this.getShopId(httpRequest), warehouseTypeId);
         StockTotalReportPrintDTO response = stockTotalReportService.print(filter);
         return new Response<StockTotalReportPrintDTO>().withData(response);
+    }
+    
+    @ApiOperation(value = "In danh sách báo cáo tồn kho")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/rpt-stock")
+    public Response<Long> getStockAggregated( 
+    												@RequestParam Long shopId,
+                                                    @RequestParam Long productId,
+                                                    @RequestParam(value="rptDate", required = false) LocalDate rptDate) {
+    	Long response = stockTotalReportService.getStockAggregated(shopId, productId, rptDate);
+        return new Response<Long>().withData(response);
     }
 }

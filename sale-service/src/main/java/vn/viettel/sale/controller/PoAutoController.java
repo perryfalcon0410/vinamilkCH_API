@@ -59,8 +59,10 @@ public class PoAutoController extends BaseController {
 													@RequestParam(value="fromApproveDate", required = false) Date fromApproveDate,
 													@RequestParam(value="toApproveDate", required = false) Date toApproveDate,
 													@RequestParam(name = "page", required = false) Integer page,
-													@RequestParam int poStatus) {
+													@RequestParam(name = "poStatus", required = false) Integer poStatus) {
 
+		if(poStatus == null) poStatus = -1;
+		
 		Page<PoAutoDTO> response = poAutoService.getSearchPoAuto(poAutoNumber,
 																 poGroupCode, 
 																 DateUtils.convertFromDate(fromCreateDate),
@@ -90,13 +92,13 @@ public class PoAutoController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Integer> approvePoAuto(HttpServletRequest request,
+    public Response<String> approvePoAuto(HttpServletRequest request,
                                                          @ApiParam("PO auto number need approve")
                                                          @RequestBody PoAutoNumberList poAutoNumberList ) {
     	
-    	int response = poAutoService.approvePoAuto(poAutoNumberList.getPoAutoNumberList(), this.getShopId(request));
+		String response = poAutoService.approvePoAuto(poAutoNumberList.getPoAutoNumberList(), this.getShopId(request));
         
-        return new Response<Integer>().withData(response);
+        return new Response<String>().withData(response);
     }
 	
     @PostMapping(value = {V1 + root + "/cancel-po"})
@@ -105,13 +107,13 @@ public class PoAutoController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Integer> cancelPoAuto(HttpServletRequest request,
+    public Response<String> cancelPoAuto(HttpServletRequest request,
                                                          @ApiParam("PO auto number need cancel")
                                                          @RequestBody PoAutoNumberList poAutoNumberList ) {
     	
-    	int response = poAutoService.cancelPoAuto(poAutoNumberList.getPoAutoNumberList(), this.getShopId(request));
+    	String response = poAutoService.cancelPoAuto(poAutoNumberList.getPoAutoNumberList(), this.getShopId(request));
         
-        return new Response<Integer>().withData(response);
+        return new Response<String>().withData(response);
     }
     
 	@ApiOperation(value = "Api dùng để lấy tất cả danh sách mua hàng")
@@ -121,6 +123,7 @@ public class PoAutoController extends BaseController {
 														@RequestParam(name = "keyword", required = false) String keyword,
 														Pageable pageable) {
 		Page<ProductStockDTO> response = poAutoService.getProductByPage(pageable, this.getShopId(httpRequest), keyword);
+		
 		return new Response<Page<ProductStockDTO>>().withData(response);
 	}
 	
@@ -130,12 +133,12 @@ public class PoAutoController extends BaseController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
     )
-    public Response<Integer> splitPO(HttpServletRequest request,
+    public Response<String> splitPO(HttpServletRequest request,
                                                          @ApiParam("PO auto list need save")
                                                          @RequestBody ProductQuantityListDTO productQuantityListDTO ) {
     	
-    	poAutoService.spiltPO(productQuantityListDTO, this.getShopId(request));
+    	String response = poAutoService.spiltPO(productQuantityListDTO, this.getShopId(request));
         
-        return new Response<Integer>().withData(1);
+        return new Response<String>().withData(response);
     }
 }

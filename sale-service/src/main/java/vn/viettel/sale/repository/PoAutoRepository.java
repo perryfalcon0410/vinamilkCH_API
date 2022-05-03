@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import vn.viettel.core.repository.BaseRepository;
 import vn.viettel.sale.entities.PoAuto;
 import vn.viettel.sale.entities.PoAutoDetail;
+import vn.viettel.sale.entities.PoTransDetail;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SalePlan;
 import vn.viettel.sale.service.dto.PoAutoDTO;
@@ -85,4 +86,64 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     
     @Query(value = "select po from PoAuto po order by po.id desc")
     public List<PoAuto> getNewestPoAutoNumber();
+    
+    @Query(value = "select ptd from PoTransDetail ptd "
+    		+ "join PoTrans pt on pt.id = ptd.transId "
+    		+ "and (pt.transDate = :transDate or 1 = 1)"
+    		+ "and pt.shopId = :shopId "
+    		+ "and pt.status = 1")
+    List<PoTransDetail> getInputQuantity(Long shopId, Date transDate);
+    
+    @Query(value = "select SUM(potd.quantity + satd.quantity + sbtd.quantity) "
+    		+ "from PoTrans pot "
+    		+ "join PoTransDetail potd on potd.transId = pot.id "
+    		+ "join StockAdjustmentTrans sat on pot.shopId = sat.shopId and sat.type = 1 and sat.status = 1 and (sat.adjustmentDate = :date or 1=1) "
+    		+ "join StockAdjustmentTransDetail satd on satd.transId = sat.id "
+    		+ "join StockBorrowingTrans sbt on pot.shopId = sbt.toShopId and sbt.type = 1 and sbt.status = 1 and (sbt.borrowDate = :date or 1=1) "
+    		+ "join StockBorrowingTransDetail sbtd on sbt.id = sbtd.transId "
+    		+ "where pot.status = 1 and pot.type = 1 and (pot.transDate = :locDate or 1=1) "
+    		+ "and pot.shopId = :shopId")
+    Long getImportQuantity1(Long shopId, Date date, LocalDateTime locDate);
+    
+    @Query(value = "select SUM(sod.quantity + cptd.quantity) "
+    		+ "from SaleOrder so "
+    		+ "join SaleOrderDetail sod on so.id = sod.saleOrderId "
+    		+ "join ComboProductTrans cpt on so.shopId = cpt.shopId and cpt.transType = 1 and (cpt.transDate = :date or 1=1) "
+    		+ "join ComboProductTransDetail cptd on cpt.id = cptd.transId and cptd.isCombo = 1 "
+    		+ "where so.shopId = :shopId and so.type = 2 and (so.orderDate = :date or 1=1) ")
+    Long getImportQuantity2(Long shopId, Date date);
+    
+    @Query(value = "select SUM(potd.quantity + satd.quantity + sbtd.quantity) "
+    		+ "from PoTrans pot "
+    		+ "join PoTransDetail potd on potd.transId = pot.id "
+    		+ "join StockAdjustmentTrans sat on pot.shopId = sat.shopId and sat.type = 2 and sat.status = 3 and (sat.adjustmentDate = :date or 1=1) "
+    		+ "join StockAdjustmentTransDetail satd on satd.transId = sat.id "
+    		+ "join StockBorrowingTrans sbt on pot.shopId = sbt.shopId and sbt.type = 2 and sbt.status = 2 and (sbt.borrowDate = :date or 1=1) "
+    		+ "join StockBorrowingTransDetail sbtd on sbt.id = sbtd.transId "
+    		+ "where pot.status = 1 and pot.type = 2 and (pot.transDate = :locDate or 1=1) "
+    		+ "and pot.shopId = :shopId")
+    Long getExportQuantity1(Long shopId, Date date, LocalDateTime locDate);
+    
+    @Query(value = "select SUM(sod.quantity + cptd.quantity + etd.quantity - sod2.quantity) "
+    		+ "from SaleOrder so "
+    		+ "join SaleOrderDetail sod on so.id = sod.saleOrderId "
+    		+ "join SaleOrder so2 on so.shopId = so2.shopId and so2.type = 2 and (so2.orderDate = :date or 1=1) "
+    		+ "join SaleOrderDetail sod2 on so2.id = sod2.saleOrderId "
+    		+ "join ComboProductTrans cpt on so.shopId = cpt.shopId and cpt.transType = 2 and (cpt.transDate = :date or 1=1) "
+    		+ "join ComboProductTransDetail cptd on cpt.id = cptd.transId and cptd.isCombo = 1 "
+    		+ "join ExchangeTrans et on so.shopId = et.shopId and (et.transDate = :date or 1=1) "
+    		+ "join ExchangeTransDetail etd on et.id = etd.transId "
+    		+ "where so.shopId = :shopId and so.type = 1 and (so.orderDate = :date or 1=1) ")
+    Long getExportQuantity2(Long shopId, Date date);
+    
+    @Query(value = "select SUM(sod.quantity + etd.quantity - sod2.quantity) "
+    		+ "from SaleOrder so "
+    		+ "join SaleOrderDetail sod on so.id = sod.saleOrderId "
+    		+ "join SaleOrder so2 on so.shopId = so2.shopId and so2.type = 2 and (so2.orderDate = :date or 1=1) "
+    		+ "join SaleOrderDetail sod2 on so2.id = sod2.saleOrderId "
+    		+ "join ExchangeTrans et on so.shopId = et.shopId and (et.transDate = :date or 1=1) "
+    		+ "join ExchangeTransDetail etd on et.id = etd.transId "
+    		+ "where so.shopId = :shopId and so.type = 1 and (so.orderDate = :date or 1=1) ")
+    Long getExportQuantity3(Long shopId, Date date);
+
 }

@@ -6,12 +6,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.report.ReportStockAggregatedDTO;
 import vn.viettel.core.exception.ValidateException;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.service.BaseReportServiceImpl;
 import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.report.messaging.StockTotalFilter;
+import vn.viettel.report.repository.ReportStockAggregatedRepository;
 import vn.viettel.report.service.StockTotalReportService;
 import vn.viettel.report.service.dto.*;
 import vn.viettel.report.service.excel.StockTotalReportExcel;
@@ -19,8 +21,10 @@ import vn.viettel.report.service.feign.ShopClient;
 
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +34,9 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
 
     @Autowired
     ShopClient shopClient;
+    
+    @Autowired
+    ReportStockAggregatedRepository reportStockAggregatedRepository;
 
     @Override
     public StockTotalReportPrintDTO print(StockTotalFilter filter) {
@@ -131,5 +138,31 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
        List<StockTotalReportDTO> listResult = storedProcedure.getResultList();
 
        return listResult;
+   }
+
+   @Override
+	public Long getStockAggregated(Long shopId, Long productId, LocalDate rptDate) {
+	   
+	   List<Long> reportStockAggregatedList = reportStockAggregatedRepository.getStockAggregated(shopId, productId, rptDate);
+
+	   Long test = getImportPast(shopId, productId, null, null);
+	   
+	   return reportStockAggregatedList.get(0);
+	}
+   
+   @Override
+   public Long getImportPast(Long shopId, Long productId, Date rptBegDate, Date rptDate) {
+	   
+	   Long importPast = reportStockAggregatedRepository.getImport(shopId, productId, null, null);
+	   
+	   return importPast;
+   }
+   
+   @Override
+   public Long getExportPast(Long shopId, Long productId, Date rptBegDate, Date rptDate) {
+	   
+	   Long exportPast = reportStockAggregatedRepository.getExport(shopId, productId, null, null);
+	   
+	   return exportPast;
    }
 }

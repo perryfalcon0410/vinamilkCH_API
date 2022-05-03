@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.PoTransDetail;
 import vn.viettel.core.repository.BaseRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PoTransDetailRepository extends BaseRepository<PoTransDetail> {
@@ -21,4 +22,5 @@ public interface PoTransDetailRepository extends BaseRepository<PoTransDetail> {
 
     @Query(value = "SELECT pd FROM PoTransDetail pd WHERE pd.transId =:transId AND pd.quantity > 0 ")
     List<PoTransDetail> getPoTransDetailPrint(Long transId);
+   
 }

@@ -190,4 +190,5 @@ public interface PoTransRepository extends BaseRepository<PoTrans>, JpaSpecifica
             "       AND ( sbt.transDate BETWEEN :fromDate AND :toDate ) " +
             "")
     TotalResponse getTotalResponseBorrowing(Long shopId, int type, String transCode, String redInvoiceNo, LocalDateTime fromDate, LocalDateTime toDate);
+    
 }
