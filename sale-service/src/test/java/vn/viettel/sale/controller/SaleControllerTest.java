@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -17,22 +18,21 @@ import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.UserDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
 import vn.viettel.core.messaging.CoverResponse;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.entities.*;
+import vn.viettel.sale.messaging.ProductOrderRequest;
 import vn.viettel.sale.messaging.SaleOrderFilter;
+import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.messaging.SaleOrderTotalResponse;
-import vn.viettel.sale.repository.SaleOrderDetailRepository;
-import vn.viettel.sale.repository.SaleOrderDiscountRepository;
-import vn.viettel.sale.repository.SaleOrderRepository;
-import vn.viettel.sale.service.SaleOrderService;
+import vn.viettel.sale.repository.*;
+import vn.viettel.sale.service.*;
 import vn.viettel.sale.service.dto.*;
-import vn.viettel.sale.service.feign.ApparamClient;
-import vn.viettel.sale.service.feign.CustomerClient;
-import vn.viettel.sale.service.feign.ShopClient;
-import vn.viettel.sale.service.feign.UserClient;
+import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.service.impl.SaleOrderServiceImpl;
+import vn.viettel.sale.service.impl.SaleServiceImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SaleControllerTest extends BaseTest {
@@ -49,8 +50,17 @@ public class SaleControllerTest extends BaseTest {
     @InjectMocks
     SaleOrderServiceImpl saleOrderService;
 
+    @InjectMocks
+    SaleServiceImpl serviceImp;
+
     @Mock
-    SaleOrderService service;
+    SaleService service;
+
+    @Mock
+    ProductService productService;
+
+    @Mock
+    SalePromotionService salePromotionService;
 
     @Mock
     SaleOrderRepository repository;
@@ -73,6 +83,39 @@ public class SaleControllerTest extends BaseTest {
     @Mock
     ShopClient shopClient;
 
+    @Mock
+    SaleOrderDetailRepository detailRepository;
+    @Mock
+    ProductRepository productRepository;
+    @Mock
+    StockTotalRepository stockTotalRepository;
+    @Mock
+    ProductPriceRepository priceRepository;
+    @Mock
+    ComboProductRepository comboProductRepository;
+    @Mock
+    ComboProductDetailRepository comboDetailRepository;
+    @Mock
+    SaleOrderComboDetailRepository saleOrderComboDetailRepo;
+    @Mock
+    OnlineOrderRepository onlineOrderRepo;
+    @Mock
+    OnlineOrderDetailRepository onlineOrderDetailRepo;
+    @Mock
+    CustomerTypeClient customerTypeClient;
+    @Mock
+    PromotionClient promotionClient;
+    @Mock
+    OnlineOrderService onlineOrderService;
+    @Mock
+    SalePromotionService salePromotionService;
+    @Mock
+    SaleOrderDiscountRepository saleOrderDiscountRepo;
+    @Mock
+    SaleOrderComboDiscountRepository saleOrderComboDiscountRepo;
+    @Mock
+    StockTotalService stockTotalService;
+
     private List<SaleOrder> lstEntities;
 
     private List<ApParamDTO> apParamDTOS;
@@ -82,13 +125,16 @@ public class SaleControllerTest extends BaseTest {
     private List<UserDTO> userDTOS;
 
     private List<SaleOrderDiscount> saleOrderDiscounts;
+    ShopDTO shop;
+    CustomerTypeDTO customerType;
+    SaleOrderRequest request;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
         saleOrderService.setModelMapper(this.modelMapper);
         final SaleController controller = new SaleController();
-//        controller.setService(service);
+        controller.setService(service);
         this.setupAction(controller);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
@@ -128,6 +174,33 @@ public class SaleControllerTest extends BaseTest {
         final SaleOrderDiscount saleOrderDiscount = new SaleOrderDiscount();
         saleOrderDiscount.setId(1L);
         saleOrderDiscounts.add(saleOrderDiscount);
+
+        request = new SaleOrderRequest();
+        SalePromotionDTO salePromotionDTO = new SalePromotionDTO();
+        List<SalePromotionDTO> promotionDTOS = Arrays.asList(salePromotionDTO);
+        request.setPromotionInfo(promotionDTOS);
+        ProductOrderRequest dto = new ProductOrderRequest();
+        dto.setQuantity(5);
+        List<ProductOrderRequest> products = Arrays.asList(dto);
+        request.setProducts(products);
+
+        Mockito.when(customerClient.getCustomerByIdV1(1L)).thenReturn(new Response<CustomerDTO>().withData(customerDTOS.get(0)));
+
+        shop = new ShopDTO();
+        shop.setId(1L);
+
+        Mockito.when(shopClient.getByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shop));
+
+        Mockito.when(apparamClient.getApParamByTypeAndvalue(null, "1"))
+                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
+
+        customerType = new CustomerTypeDTO();
+        Mockito.when(customerTypeClient.getCustomerTypeForSale(1L, 1L)).thenReturn(customerType);
+
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.ofNullable(lstEntities.get(0)));
+
+        Mockito.when(saleOrderDiscountRepository.findAllBySaleOrderId(id))
+                .thenReturn(saleOrderDiscounts);
     }
 
     @Test
@@ -195,32 +268,60 @@ public class SaleControllerTest extends BaseTest {
         Long id = 1L;
         String uri = V1 + root + "/print-sale-order/" + id.toString();
 
-        Mockito.when(repository.findById(1L)).thenReturn(Optional.ofNullable(lstEntities.get(0)));
-
-        Mockito.when(customerClient.getCustomerByIdV1(1L)).thenReturn(new Response<CustomerDTO>().withData(customerDTOS.get(0)));
-
-
-        Mockito.when(saleOrderDiscountRepository.findAllBySaleOrderId(id))
-                .thenReturn(saleOrderDiscounts);
-
-        ShopDTO shopDTO = new ShopDTO();
-        shopDTO.setId(1L);
-
-        Mockito.when(shopClient.getByIdV1(1L)).thenReturn(new Response<ShopDTO>().withData(shopDTO));
-
-        Mockito.when(apparamClient.getApParamByTypeAndvalue(null, "1"))
-                .thenReturn(new Response<ApParamDTO>().withData(apParamDTOS.get(0)));
-
         PrintSaleOrderDTO dto = saleOrderService.printSaleOrder(id, 1L);
         assertNotNull(dto);
 
-        ResultActions resultActions = mockMvc.perform(get(uri)
-                        .param("fromDate", "2022/02/22")
-                        .param("toDate", "2022/02/22")
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                .content(this.mapToJson(request))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
 
-//        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
+    @Test
+    public void createSaleOrder() throws Exception {
+
+        Long id = 1L;
+        String uri = V1 + root;
+
+
+
+        serviceImp.createSaleOrder(request, 1L, 1L, false);
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                .content(this.mapToJson(request))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getOrderPromotions() {
+    }
+
+    @Test
+    public void getPromotionProduct() {
+    }
+
+    @Test
+    public void promotionCalculation() {
+    }
+
+    @Test
+    public void getPriceByPrID() {
+    }
+
+    @Test
+    public void printTempSaleOrder() {
+    }
+
+    @Test
+    public void getDiscountCode() {
+    }
+
+    @Test
+    public void getClientIp() {
+    }
 }

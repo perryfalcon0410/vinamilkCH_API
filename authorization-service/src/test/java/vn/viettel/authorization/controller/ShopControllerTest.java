@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -22,14 +23,14 @@ import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.messaging.ShopParamRequest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ShopControllerTest extends BaseTest {
@@ -42,18 +43,17 @@ public class ShopControllerTest extends BaseTest {
     ShopServiceImpl shopService;
 
     @Mock
-    ShopParamRepository shopParamRepository;
-
-    @Mock
     ShopService service;
 
     @Mock
     ShopRepository repository;
 
+    @Mock
+    ShopParamRepository shopParamRepo;
+
     private List<Shop> lstEntities;
 
     private List<ShopParam> lstShopParamEntities;
-
 
     @Before
     public void init() {
@@ -139,13 +139,21 @@ public class ShopControllerTest extends BaseTest {
 
     @Test
     public void isEditableOnlineOrderTrue() throws Exception{
-        Long id = lstEntities.get(0).getId();
-        String uri = V1 + root + "/editable/online-order/" + id.toString();
+        Long shopId = lstEntities.get(0).getId();
+        String uri = V1 + root + "/editable/online-order/" + shopId.toString();
+        String type = "SALEMT_ONLINE_ORDER";
+        String code = "VES_EDITING";
 
-        Mockito.when(shopParamRepository.getShopParam("SALEMT_ONLINE_ORDER","VES_EDITING", id))
-                .thenReturn(Optional.of(new ShopParam()));
+        Shop shop = new Shop();
+        shop.setId(2L);
+        shop.setStatus(1);
+        shop.setParentShopId(2L);
+        shop.setStatus(2);
 
-        assertEquals(true, shopService.isEditableOnlineOrder(id));
+        Mockito.when(repository.getById(shopId)).thenReturn(shop);
+        Mockito.when(shopParamRepo.getShopParam(type, code, shopId)).thenReturn(Optional.empty());
+
+        shopService.isEditableOnlineOrder(shopId);
 
         ResultActions resultActions = mockMvc.perform(get(uri).header(headerType, secretKey)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -173,13 +181,22 @@ public class ShopControllerTest extends BaseTest {
 
     @Test
     public void isManuallyCreatableOnlineOrderTestTrue() throws Exception{
-        Long id = lstEntities.get(1).getId();
-        String uri = V1 + root + "/manually-creatable/online-order/" + id.toString();
+        Long shopId = lstEntities.get(1).getId();
+        String uri = V1 + root + "/manually-creatable/online-order/" + shopId.toString();
 
-        Mockito.when(shopParamRepository.getShopParam("SALEMT_ONLINE_ORDER","MANUAL_ORDER", id))
-                .thenReturn(Optional.of(new ShopParam()));
+        String type = "SALEMT_ONLINE_ORDER";
+        String code = "MANUAL_ORDER";
 
-        assertEquals(true, shopService.isManuallyCreatableOnlineOrder(id));
+        Shop shop = new Shop();
+        shop.setId(2L);
+        shop.setStatus(1);
+        shop.setParentShopId(2L);
+        shop.setStatus(2);
+
+        Mockito.when(repository.getById(shopId)).thenReturn(shop);
+        Mockito.when(shopParamRepo.getShopParam(type, code, shopId)).thenReturn(Optional.empty());
+
+        shopService.isManuallyCreatableOnlineOrder(shopId);
 
         ResultActions resultActions = mockMvc.perform(get(uri).header(headerType, secretKey)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -210,15 +227,15 @@ public class ShopControllerTest extends BaseTest {
         Long id = lstEntities.get(0).getId();
         String uri = V1 + root + "/shop-params";
 
-        Mockito.when(shopParamRepository.getShopParam("SALEMT_LIMITVC","LIMITVC", id))
-                .thenReturn(Optional.ofNullable(lstShopParamEntities.get(0)));
+        Mockito.when(shopParamRepo.getShopParam("SALEMT_LIMITVC","LIMITVC", id))
+                .thenReturn(Optional.of(lstShopParamEntities.get(0)));
 
-        assertEquals(lstShopParamEntities.get(0).getId(), shopService.getShopParam("SALEMT_LIMITVC", "LIMITVC", id).getId());
+        shopService.getShopParam("SALEMT_LIMITVC", "LIMITVC", id);
 
         ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("shopId", id.toString())
                         .param("type","SALEMT_LIMITVC")
                         .param("code","LIMITVC")
-                        .param("shopId", id.toString())
                         .header(headerType, secretKey)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -250,7 +267,7 @@ public class ShopControllerTest extends BaseTest {
         dtoObj.setDescription(requestObj.getDescription());
         dtoObj.setStatus(requestObj.getStatus());
 
-        Mockito.when(shopParamRepository.findById(id)).thenReturn(Optional.ofNullable(lstShopParamEntities.get(0)));
+        Mockito.when(shopParamRepo.findById(id)).thenReturn(Optional.ofNullable(lstShopParamEntities.get(0)));
 
         assertEquals(lstShopParamEntities.get(0).getId(), shopService.updateShopParam(requestObj, id).getId());
 
@@ -258,6 +275,102 @@ public class ShopControllerTest extends BaseTest {
                         .header(headerType, secretKey)
                         .content(super.mapToJson(requestObj))
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getByShopCode() throws Exception {
+        String code = "code";
+        String uri = V1 + root + "/code/" + code;
+
+        Mockito.when(repository.findByShopCode(code)).thenReturn(new Shop());
+
+        shopService.getByShopCode(code);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getAllShopToRedInvoice() throws Exception {
+        String code = "code";
+        String uri = V1 + root + "/feign/shops" ;
+
+        List<Long> shopIds = Arrays.asList(1L);
+
+        Mockito.when(repository.getShopByIds(shopIds)).thenReturn(Arrays.asList(new Shop()));
+
+        shopService.getAllShopToRedInvoice(shopIds);
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getImportTransReturn() throws Exception {
+        Long shopId = 1L;
+        String uri = V1 + root + "/import-trans-return/" + shopId.toString();
+
+        List<Long> shopIds = Arrays.asList(1L);
+        String type = "SALEMT_LIMIT_DAY_RETURN";
+        String code = "IMPORT_TRANS_RETURN";
+        Shop shop = new Shop();
+        shop.setId(1L);
+        shop.setStatus(1);
+        shop.setParentShopId(2L);
+        shop.setStatus(2);
+
+        Mockito.when(repository.getById(shopId)).thenReturn(shop);
+        Mockito.when(shopParamRepo.dayReturn(shopId, type, code)).thenReturn(null);
+        Mockito.when(shopParamRepo.dayReturn(shop.getId(), type, code)).thenReturn(new ShopParam());
+
+        shopService.getImportSaleReturn(shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getLevelUpdateCustomer() throws Exception {
+        Long shopId = 1L;
+        String uri = V1 + root + "/level-customer" ;
+
+        List<Long> shopIds = Arrays.asList(1L);
+        String type = "SALEMT_EDIT_CUSTOMER";
+        String code = "OTHER_STORE";
+        Shop shop = new Shop();
+        shop.setId(1L);
+        shop.setStatus(1);
+        shop.setParentShopId(2L);
+        shop.setStatus(2);
+
+        Mockito.when(repository.getById(shopId)).thenReturn(shop);
+        Mockito.when(shopParamRepo.dayReturn(shopId, type, code)).thenReturn(null);
+        Mockito.when(shopParamRepo.dayReturn(shop.getId(), type, code)).thenReturn(new ShopParam());
+
+        shopService.getLevelUpdateCustomer(shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .header(headerType, secretKey)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 

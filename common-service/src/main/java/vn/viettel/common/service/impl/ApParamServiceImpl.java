@@ -115,7 +115,6 @@ public class ApParamServiceImpl extends BaseServiceImpl<ApParam, ApParamReposito
     public List<ApParamDTO> getSalesChannel() {
         List<ApParam> apParam = repository.getSalesChannel();
         if (apParam.size() == 0) return new ArrayList<>();
-//            throw new ValidateException(ResponseMessage.AP_PARAM_NOT_EXISTS);
         return apParam.stream().map(apParam1 -> modelMapper.map(apParam1 , ApParamDTO.class)).collect(Collectors.toList());
     }
 

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public interface PoConfirmService extends BaseService {
-    Response<PoConfirm> getPoConfirmById(Long id);
     void syncXmlPo(InputStream input, WareHouseType wareHouseType) throws IOException;
     PoConfirmXmlDTO updatePoCofirm(Long shopId);
 

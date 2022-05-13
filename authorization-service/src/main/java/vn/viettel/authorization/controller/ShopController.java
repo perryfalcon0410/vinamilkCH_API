@@ -52,8 +52,8 @@ public class ShopController extends BaseController {
         return new Response<Boolean>().withData(response);
     }
 
-    @PostMapping(value = V1 + root + "/feign/shops")
-    public Response<List<ShopDTO>> getAllShopToRedInvoice(@RequestBody List<Long> shopIds) {
+    @GetMapping(value = V1 + root + "/feign/shops")
+    public Response<List<ShopDTO>> getAllShopToRedInvoice(@RequestParam List<Long> shopIds) {
         List<ShopDTO> shopDTOS = shopService.getAllShopToRedInvoice(shopIds);
         return new Response<List<ShopDTO>>().withData(shopDTOS);
     }
@@ -90,7 +90,7 @@ public class ShopController extends BaseController {
         return dto;
     }
 
-    @PostMapping(value = { V1 + root + "/level-customer"})
+    @GetMapping(value = { V1 + root + "/level-customer"})
     public Response<Long> getLevelUpdateCustomer(@RequestParam Long shopId) {
         Long level = shopService.getLevelUpdateCustomer(shopId);
         return new Response<Long>().withData(level);

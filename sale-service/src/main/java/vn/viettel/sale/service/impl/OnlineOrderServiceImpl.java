@@ -6,8 +6,6 @@ import lombok.Setter;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.poi.util.IOUtils;
 import org.modelmapper.convention.MatchingStrategies;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -37,7 +35,10 @@ import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
-import vn.viettel.sale.service.feign.*;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.specification.OnlineOrderSpecification;
 import vn.viettel.sale.util.ConnectFTP;
 import vn.viettel.sale.xml.*;
@@ -59,9 +60,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     CustomerClient customerClient;
-
-    @Autowired
-    AreaClient areaClient;
 
     @Autowired
     ApparamClient apparamClient;

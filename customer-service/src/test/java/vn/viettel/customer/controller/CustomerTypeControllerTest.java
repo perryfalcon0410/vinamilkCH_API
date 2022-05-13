@@ -18,6 +18,7 @@ import vn.viettel.customer.service.CustomerTypeService;
 import vn.viettel.customer.service.impl.CustomerTypeServiceImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -125,26 +126,132 @@ public class CustomerTypeControllerTest extends BaseTest{
     }
 
     @Test
-    public void getCustomerTypeDefault() {
+    public void getCustomerTypeDefault() throws Exception {
+
+        String uri = V1 + root + "/default" ;
+
+        List<CustomerTypeDTO> customerTypes = Arrays.asList(new CustomerTypeDTO());
+        Mockito.when(repository.getCustomerTypeDefault()).thenReturn(customerTypes);
+        serviceImpl.getCustomerTypeDefaut();
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
-    public void getWarehouseTypeByShopId() {
+    public void getWarehouseTypeByShopId() throws Exception {
+        Long shopId = 1L;
+        String uri = V1 + root + "/warehouse-type/shop/" + shopId.toString() ;
+
+        List<CustomerTypeDTO> customerTypes = Arrays.asList(new CustomerTypeDTO());
+        Mockito.when(repository.getWareHouseTypeIdByShopId(shopId)).thenReturn(null);
+        Mockito.when(repository.getCustomerTypeDefault()).thenReturn(customerTypes);
+        serviceImpl.getWarehouseTypeByShopId(shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
-    public void getCusTypeById() {
+    public void getCusTypeById() throws Exception {
+        Long id = 1L;
+        String uri = V1 + root + "/" + id.toString() ;
+
+        List<CustomerType> customerTypes = Arrays.asList(new CustomerType());
+        Mockito.when(repository.findByIds(Arrays.asList(id))).thenReturn(customerTypes);
+        serviceImpl.findByIds(Arrays.asList(id));
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
-    public void getCusTypeByWarehouse() {
+    public void getCusTypeByWarehouse() throws Exception {
+        Long warehouseId = 1L;
+        String uri = V1 + root + "/getbywarehouse"  ;
+
+        List<CustomerType> customerTypes = Arrays.asList(new CustomerType());
+        Mockito.when(repository.getByWarehouse(warehouseId)).thenReturn(customerTypes);
+        serviceImpl.findByWarehouse(warehouseId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
-    public void getCustomerTypeForSale() {
+    public void getCustomerTypeForSale() throws Exception {
+        Long customerId = 1L;
+        Long shopId = 1L;
+        String uri = V1 + root + "/sale-order"  ;
+
+        List<CustomerTypeDTO> customerTypes = Arrays.asList(new CustomerTypeDTO());
+        Mockito.when(repository.getByCustomerId(customerId)).thenReturn(customerTypes);
+        serviceImpl.getCustomerType(customerId, shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
-    public void setService() {
+    public void getAll1() throws Exception {
+        Long customerId = 1L;
+        Long shopId = 1L;
+        String uri = V1 + root ;
+        Boolean isCreate = false;
+
+        CustomerType customerType = new CustomerType();
+        customerType.setStatus(1);
+        List<CustomerType> customerTypes = Arrays.asList(customerType);
+        Mockito.when(repository.findAll()).thenReturn(customerTypes);
+        serviceImpl.getAll(isCreate);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getAll2() throws Exception {
+        Long customerId = 1L;
+        Long shopId = 1L;
+        String uri = V1 + root ;
+        Boolean isCreate = true;
+
+        CustomerType customerType = new CustomerType();
+        customerType.setStatus(1);
+        customerType.setPosModifyCustomer(1);
+        List<CustomerType> customerTypes = Arrays.asList(customerType);
+        Mockito.when(repository.findAll()).thenReturn(customerTypes);
+        serviceImpl.getAll(isCreate);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 }

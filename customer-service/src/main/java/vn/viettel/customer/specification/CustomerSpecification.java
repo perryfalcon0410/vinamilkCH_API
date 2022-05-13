@@ -76,49 +76,12 @@ public final class CustomerSpecification {
         };
     }
 
-    public static Specification<Customer> hasPhone(String phone) {
-        return (root, query, criteriaBuilder) -> {
-            if (phone == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + phone);
-        };
-    }
-
     public static Specification<Customer> hasIdNo(String idNo) {
         return (root, query, criteriaBuilder) -> {
             if (idNo == null) {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.like(root.get(Customer_.idNo), "%" + idNo + "%");
-        };
-    }
-
-    public static Specification<Customer> hasFullNameOrCodeOrPhone(String searchKeywords) {
-        return (root, query, criteriaBuilder) -> {
-            if (searchKeywords == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return  criteriaBuilder.or(
-                    criteriaBuilder.like(root.get(Customer_.nameText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
-                    criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
-                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords),
-                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords)
-            );
-        };
-    }
-
-    public static Specification<Customer> haskeySearchForSale(String searchKeywords) {
-        return (root, query, criteriaBuilder) -> {
-            if (searchKeywords == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return  criteriaBuilder.or(
-                    criteriaBuilder.like(root.get(Customer_.nameText), "%" + VNCharacterUtils.removeAccent(searchKeywords.toUpperCase(Locale.ROOT)) + "%"),
-                    criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"),
-                    criteriaBuilder.like(root.get(Customer_.phone), "%" + searchKeywords),
-                    criteriaBuilder.like(root.get(Customer_.mobiPhone), "%" + searchKeywords)
-            );
         };
     }
 
@@ -133,26 +96,5 @@ public final class CustomerSpecification {
                     criteriaBuilder.like(root.get(Customer_.customerCode), "%" + searchKeywords.toUpperCase(Locale.ROOT) + "%"));
         };
     }
-
-    public static Specification<Customer> hasFromDateToDate(LocalDateTime sFromDate, LocalDateTime sToDate) {
-        return (root, query, criteriaBuilder) ->{
-            LocalDateTime tsFromDate = DateUtils.convertFromDate(sFromDate);
-            LocalDateTime tsToDate = DateUtils.convertToDate(sToDate);
-
-            if (sFromDate == null && sToDate == null) {
-                return criteriaBuilder.conjunction();
-            }
-            if(sFromDate == null && sToDate != null)
-            {
-                return criteriaBuilder.lessThanOrEqualTo(root.get(Customer_.createdAt),tsToDate);
-            }
-            if(sFromDate != null && sToDate == null)
-            {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get(Customer_.createdAt),tsFromDate);
-            }
-            return criteriaBuilder.between(root.get(Customer_.createdAt), tsFromDate, tsToDate);
-        };
-    }
-
 
 }

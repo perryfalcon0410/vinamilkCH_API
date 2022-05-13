@@ -38,15 +38,15 @@ public class FeatureOnOffInterceptor extends HandlerInterceptorAdapter {
         return super.preHandle(request, response, handler);
     }
 
-    private boolean isFeignClientCallOrByPass(String authorizationHeader) {
-        if (StringUtils.isEmpty(authorizationHeader)) {
-            return true;
-        } else if (authorizationHeader.trim().startsWith(AuthorizationType.BEARER_TOKEN)) {
-            return false;
-        } else {
-            return true;
-        }
-    }
+//    private boolean isFeignClientCallOrByPass(String authorizationHeader) {
+//        if (StringUtils.isEmpty(authorizationHeader)) {
+//            return true;
+//        } else if (authorizationHeader.trim().startsWith(AuthorizationType.BEARER_TOKEN)) {
+//            return false;
+//        } else {
+//            return true;
+//        }
+//    }
 
     private boolean isAnnotationAtClass(HandlerMethod handler) {
         for (Annotation annotation : handler.getMethod().getDeclaringClass().getDeclaredAnnotations()) {

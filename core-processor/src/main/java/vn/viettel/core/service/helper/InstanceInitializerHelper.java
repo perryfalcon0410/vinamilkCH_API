@@ -28,22 +28,4 @@ public class InstanceInitializerHelper {
 		return newInstance;
 	}
 
-	/**
-	 * Create new instance of type class (Entity)
-	 * 
-	 * @param clazz
-	 * @return
-	 */
-	public static <E extends BaseEntity> E newEntityIntance(Class<E> clazz) {
-		E newInstance = null;
-		try {
-			newInstance = clazz.newInstance();
-		} catch (InstantiationException e) {
-			logger.error(e.getMessage());
-		} catch (IllegalAccessException e) {
-			logger.error(e.getMessage());
-		}
-		return newInstance;
-	}
-
 }

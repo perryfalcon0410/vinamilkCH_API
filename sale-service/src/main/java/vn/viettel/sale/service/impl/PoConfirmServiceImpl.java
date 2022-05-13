@@ -56,16 +56,6 @@ public class PoConfirmServiceImpl extends BaseServiceImpl<PoConfirm, PoConfirmRe
     XStreamTranslator xstream = XStreamTranslator.getInstance();
 
     @Override
-    public Response<PoConfirm> getPoConfirmById(Long id) {
-        Optional<PoConfirm> poConfirm = repository.findById(id);
-        if(!poConfirm.isPresent())
-        {
-            throw new ValidateException(ResponseMessage.PO_CONFIRM_NOT_EXISTS);
-        }
-        return new Response<PoConfirm>().withData(poConfirm.get());
-    }
-
-    @Override
     public void syncXmlPo(InputStream input, WareHouseType wareHouseType) throws IOException {
         Class<?>[] classes = new Class[] { Line.class, PODetail.class, POHeader.class, NewData.class, NewDataSet.class};
         xstream.processAnnotations(classes);

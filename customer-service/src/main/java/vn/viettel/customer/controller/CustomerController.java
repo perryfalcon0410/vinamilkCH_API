@@ -166,7 +166,8 @@ public class CustomerController extends BaseController {
         Cập nhật KH bên bán hàng || hóa đơn đỏ
      */
     @PutMapping(value = { V1 + root + "/feign/update/{id}"})
-    public Response<CustomerDTO> updateFeign(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id, @Valid @RequestBody CustomerRequest request) {
+    public Response<CustomerDTO> updateFeign(HttpServletRequest httpRequest, @PathVariable(name = "id") Long id,
+                                             @Valid @RequestBody CustomerRequest request) {
         CustomerDTO customerDTO = service.updateForSale(request, this.getShopId(httpRequest));
         return new Response<CustomerDTO>().withData(customerDTO);
     }
@@ -265,16 +266,6 @@ public class CustomerController extends BaseController {
         CusRedInvoiceFilter filter = new CusRedInvoiceFilter(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase(), mobiphone.trim(), workingOffice, officeAddress, taxCode);
 
         return new Response<Page<CustomerDTO>>().withData(service.findCustomerForRedInvoice(filter, this.getShopId(httpRequest), pageable));
-    }
-
-
-  @GetMapping( V1 + root + "/memory-status")
-    public MemoryStats getMemoryStatistics() {
-        MemoryStats stats = new MemoryStats();
-        stats.setHeapSize(Runtime.getRuntime().totalMemory());
-        stats.setHeapMaxSize(Runtime.getRuntime().maxMemory());
-        stats.setHeapFreeSize(Runtime.getRuntime().freeMemory());
-        return stats;
     }
 
     public void setService(CustomerService cService) {

@@ -18,6 +18,7 @@ import vn.viettel.core.util.ResponseMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,7 +113,6 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
         if(shopId != null){
             Shop shop = repository.getById(shopId);
             if(shop != null && shop.getStatus() == 1) {
-//                lstResults.add(shop);
                 shopId = shop.getParentShopId();
                 for (int i = 0;;i++){
                     if(shopId == null) break;
@@ -129,8 +129,8 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
     @Override
     public ShopParamDTO getShopParam(String type, String code, Long shopId) {
-        ShopParam shopParam = shopParamRepo.getShopParam(type, code, shopId)
-            .orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_PARAM_NOT_FOUND));
+        Optional<ShopParam> shopParam = shopParamRepo.getShopParam(type, code, shopId);
+//            .orElseThrow(() -> new ValidateException(ResponseMessage.SHOP_PARAM_NOT_FOUND));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper.map(shopParam, ShopParamDTO.class);
     }

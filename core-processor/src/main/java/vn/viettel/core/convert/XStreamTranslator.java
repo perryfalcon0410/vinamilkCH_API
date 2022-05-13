@@ -15,10 +15,6 @@ public final class XStreamTranslator extends XStream {
         XStream.setupDefaultSecurity(xstream);
     }
 
-    public void processAnnotations(Object o)
-    {
-        xstream.processAnnotations(o.getClass());
-    }
     /**
      * Convert a any given Object to a XML String
      * @param object
@@ -32,33 +28,11 @@ public final class XStreamTranslator extends XStream {
      * @param xml
      * @return
      */
-    public Object toObject(String xml) {
-        return (Object) xstream.fromXML(xml);
-    }
-    /**
-     * return this class instance
-     * @return
-     */
+
     public static XStreamTranslator getInstance(){
         return new XStreamTranslator();
     }
-    /**
-     * convert to Object from given File
-     * @param xmlFile
-     * @return
-     * @throws IOException
-     */
-    public Object toObject(File xmlFile) throws IOException {
-        return xstream.fromXML(new FileReader(xmlFile));
-    }
 
-    /**
-     * convert to Object from given Multipart file
-     * */
-    public Object toObject(MultipartFile xmlFile) throws IOException {
-        InputStream input = xmlFile.getInputStream();
-        return xstream.fromXML(input);
-    }
     /**
      * create XML file from the given object with custom file name
      * @param fileName

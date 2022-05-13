@@ -27,20 +27,20 @@ public class ProductSpecification {
             );
         };
     }
-    public static Specification<Product> hasProductInfo(Long infoId) {
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            if(infoId == null) {
-                return criteriaBuilder.conjunction();
-            }
-            return criteriaBuilder.or(
-                criteriaBuilder.in(root.get(Product_.catId) ).value(infoId),
-                criteriaBuilder.in(root.get(Product_.subCatId) ).value(infoId),
-                criteriaBuilder.in(root.get(Product_.brandId) ).value(infoId),
-                criteriaBuilder.in(root.get(Product_.packingId) ).value(infoId)
-            );
-
-        };
-    }
+//    public static Specification<Product> hasProductInfo(Long infoId) {
+//        return (root, criteriaQuery, criteriaBuilder) -> {
+//            if(infoId == null) {
+//                return criteriaBuilder.conjunction();
+//            }
+//            return criteriaBuilder.or(
+//                criteriaBuilder.in(root.get(Product_.catId) ).value(infoId),
+//                criteriaBuilder.in(root.get(Product_.subCatId) ).value(infoId),
+//                criteriaBuilder.in(root.get(Product_.brandId) ).value(infoId),
+//                criteriaBuilder.in(root.get(Product_.packingId) ).value(infoId)
+//            );
+//
+//        };
+//    }
     public static Specification<Product> hasProductCode(String productCode) {
         return (root, query, criteriaBuilder) -> {
             if (productCode == null) {
@@ -73,19 +73,4 @@ public class ProductSpecification {
         return (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(root.get(Product_.status), 1);
     }
 
-    public static Specification<Product> hasStockTotal(boolean hasStockTotal, Long shopId) {
-
-        return (root, query, criteriaBuilder) -> {
-            if (hasStockTotal == false)
-                return criteriaBuilder.conjunction();
-
-            Subquery<StockTotal> subQuery = query.subquery(StockTotal.class);
-            Root<StockTotal> subRoot = subQuery.from(StockTotal.class);
-            Predicate predicate1 = criteriaBuilder.equal(subRoot.get(StockTotal_.productId), root.get("id"));
-            Predicate predicate2 = criteriaBuilder.greaterThan(subRoot.get(StockTotal_.quantity), 0);
-
-            subQuery.select(subRoot).where(predicate1, predicate2);
-            return criteriaBuilder.exists(subQuery);
-        };
-    }
 }

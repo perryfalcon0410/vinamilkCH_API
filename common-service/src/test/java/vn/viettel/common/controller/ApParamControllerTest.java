@@ -17,13 +17,13 @@ import vn.viettel.common.service.impl.ApParamServiceImpl;
 import vn.viettel.core.dto.common.ApParamDTO;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -201,4 +201,88 @@ public class ApParamControllerTest extends BaseTest {
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
+    @Test
+    public void testGetApParams() throws Exception {
+        String type = "1";
+        String uri = V1 + root + "/get-by-value/" + type;
+        List<String> values = Arrays.asList("value1");
+
+        when(repository.getApParams(values, type)).thenReturn(lstEntities);
+        apParamService.getApParams(values, type);
+
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getSalesChannel() throws Exception {
+        String uri = V1 + root + "/get_sales_channel";
+
+        when(repository.getSalesChannel()).thenReturn(lstEntities);
+        apParamService.getSalesChannel();
+
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getApParamByTypeAndvalue() throws Exception {
+        String uri = V1 + root + "/type-value";
+        String type = "1";
+        String value = "1";
+
+        when(repository.findByTypeAndValueAndStatus(type, value, 1)).thenReturn(Optional.ofNullable(lstEntities.get(0)));
+        apParamService.getApParamByTypeAndvalue(type, value);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("type", type)
+                .param("value", value)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getApParamOnlineOrder() throws Exception {
+        String uri = V1 + root + "/online-order/type";
+        String discription = "1";
+
+        when(repository.getOnlineOrderType()).thenReturn(lstEntities);
+        apParamService.getApParamOnlineOrder(discription);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("discription", discription)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getApParamByCodeType() throws Exception {
+        String code = "1";
+        String uri = V1 + root + "/code-type/" + code;
+        String type = "1";
+
+        when(repository.findByCode(code, type)).thenReturn(lstEntities);
+        apParamService.getByCode(code, type);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .param("code", code)
+                .param("type", type)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
 }

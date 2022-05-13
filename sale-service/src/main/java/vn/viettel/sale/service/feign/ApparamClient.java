@@ -16,9 +16,6 @@ public interface ApparamClient {
     @GetMapping("api/v1/commons/apparams/reason-adjust/{id}")
     Response<ApParamDTO> getReasonV1(@PathVariable Long id);
 
-    @GetMapping("api/v1/commons/apparams")
-    Response<List<ApParamDTO>> getApParamsV1();
-
     @GetMapping("api/v1/commons/apparams/getByCode/{code}")
     Response<ApParamDTO> getApParamByCodeV1(@PathVariable String code);
 

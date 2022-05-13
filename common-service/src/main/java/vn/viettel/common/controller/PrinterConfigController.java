@@ -29,6 +29,10 @@ public class PrinterConfigController extends BaseController {
 
     private final String root = "/commons/printer-client";
 
+    public void setService(PrinterConfigService service){
+        if(this.service == null) this.service = service;
+    }
+
     @ApiOperation(value = "Tạo cấu hình máy in")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request")}
@@ -64,7 +68,6 @@ public class PrinterConfigController extends BaseController {
         String clienIdStr = clientId.toLowerCase() + "_" + this.getUsername(httpRequest).toLowerCase();
         PrinterConfigDTO config = service.getPrinter(clienIdStr);
         if(config == null) config = service.getPrinter(clientId);
-//        if(config == null) config = service.getPrinter(this.getClientIp(httpRequest));
         LogFile.logToFile(appName, getUsername(httpRequest), LogLevel.INFO, httpRequest, LogMessage.GET_PRINTER_CONFIG_SUCCESS);
         return new Response<PrinterConfigDTO>().withData(config);
     }

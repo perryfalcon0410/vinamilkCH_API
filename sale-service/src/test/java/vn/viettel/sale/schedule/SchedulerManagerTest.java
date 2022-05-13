@@ -10,16 +10,18 @@ import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.sale.BaseTest;
 import vn.viettel.sale.entities.OnlineOrder;
-import vn.viettel.sale.entities.SaleOrder;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.OnlineOrderService;
-import vn.viettel.sale.service.feign.*;
+import vn.viettel.sale.service.feign.ApparamClient;
+import vn.viettel.sale.service.feign.CustomerClient;
+import vn.viettel.sale.service.feign.CustomerTypeClient;
+import vn.viettel.sale.service.feign.ShopClient;
 import vn.viettel.sale.service.impl.OnlineOrderServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 public class SchedulerManagerTest extends BaseTest {
 
@@ -40,9 +42,6 @@ public class SchedulerManagerTest extends BaseTest {
 
     @Mock
     CustomerClient customerClient;
-
-    @Mock
-    AreaClient areaClient;
 
     @Mock
     ApparamClient apparamClient;

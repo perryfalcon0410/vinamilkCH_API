@@ -1,5 +1,7 @@
 package vn.viettel.customer.controller;
 
+import io.swagger.annotations.ApiParam;
+import oracle.net.aso.p;
 import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,20 +10,21 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.RequestParam;
 import vn.viettel.core.dto.ShopDTO;
 import vn.viettel.core.dto.SortDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.dto.common.AreaDTO;
 import vn.viettel.core.dto.common.CategoryDataDTO;
 import vn.viettel.core.dto.customer.CustomerDTO;
+import vn.viettel.core.dto.customer.CustomerTypeDTO;
+import vn.viettel.core.messaging.CustomerOnlRequest;
 import vn.viettel.core.messaging.CustomerRequest;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.dto.BaseDTO;
@@ -51,15 +54,14 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class CustomerControllerTest extends BaseTest {
@@ -282,9 +284,6 @@ public class CustomerControllerTest extends BaseTest {
         String uri = V1 + root + "/" + id.toString();
 
         Mockito.when(repository.getById(id)).thenReturn(customerList.get(0));
-
-        Mockito.when(memBerCustomerRepository.getMemberCustomer(1L))
-                .thenReturn(Optional.ofNullable(memberCustomers.get(0)));
 
         Mockito.when(shopClient.getLevelUpdateCustomerV1(1L))
                 .thenReturn(new Response<Long>().withData(1L));
@@ -660,7 +659,27 @@ public class CustomerControllerTest extends BaseTest {
     }
 
     @Test
-    public void getCustomerForAutoComplete() {
+    public void getCustomerForAutoComplete() throws Exception {
+        String uri = V1 + root  + "/customers-to-sale";
+        Long shopId = 1L;
+        String searchKeywords = "1234";
+        String customerPhone = "456987";
+        List<Long> customers = Arrays.asList(1L);
+        Pageable pageable = PageRequest.of(0,5);
+        String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
+        List<CustomerDTO> lstCustomerDTO = new ArrayList<>();
+        CustomerDTO customerDTO = new CustomerDTO();
+        lstCustomerDTO.add(customerDTO);
+        Page<CustomerDTO> page = new PageImpl<>(lstCustomerDTO, pageable, lstCustomerDTO.size());
+        Mockito.when(repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, shopId, pageable))
+                .thenReturn(page);
+
+        serviceImpl.getCustomerForAutoComplete(searchKeywords, shopId, pageable);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -668,7 +687,33 @@ public class CustomerControllerTest extends BaseTest {
     }
 
     @Test
-    public void createForFeign() {
+    public void createForFeign() throws Exception {
+        String uri = V1 + root  + "/feign";
+        Long shopId = 1L;
+        CustomerOnlRequest request = new CustomerOnlRequest();
+        request.setLastName("LastName");
+        request.setFirstName("FirstName");
+        request.setAddress("Address");
+        ShopDTO shop = shopDTOS.get(0);
+        shop.setShopCode("123");
+        Mockito.when(shopClient.getShopByIdV1(shopId))
+                .thenReturn(new Response<ShopDTO>().withData(shop));
+        PageRequest pageReq = PageRequest.of(0,1);
+
+        Page<Customer> pageCustomer = new PageImpl<>(customerList, pageReq, customerList.size());
+        Mockito.when(repository.getLastCustomerNumber(shopId, pageReq))
+                .thenReturn(pageCustomer);
+        Mockito.when(customerTypeService.getCustomerTypeDefaut())
+                .thenReturn(new CustomerTypeDTO());
+
+        serviceImpl.createForOnlOrder(request, shopId);
+
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                .content(this.mapToJson(request))
+                .param("shopId", shopId.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -684,13 +729,60 @@ public class CustomerControllerTest extends BaseTest {
     }
 
     @Test
-    public void excelCustomersReport() {
+    public void excelCustomersReport() throws Exception {
+        String uri = V1 + root  + "/export";
+        String searchKeywords = "123456";
+        Long customerTypeId = 1L;
+        Integer status = 1;
+        Boolean isShop = true;
+        Long genderId = 1L;
+        Long areaId = 1L;
+        String phone = "0982888758";
+        String idNo = "147896325";
+        Long id = 1L;
+        CustomerFilter filter = new CustomerFilter(searchKeywords, customerTypeId, status, genderId, areaId, phone, idNo, id,isShop);
+        Pageable pageable = PageRequest.of(0,5);
+        AreaDTO areaDTO = new AreaDTO();
+        List<AreaDTO> precincts = Arrays.asList(areaDTO);
+        Response response = new Response();
+        response.withData(precincts);
+        Mockito.when(areaClient.getPrecinctsByDistrictIdV1(filter.getAreaId()))
+                .thenReturn(response);
+
+        Customer customer = new Customer();
+        customer.setCustomerTypeId(1L);
+        customer.setStatus(1);
+        List<Customer> customers = Arrays.asList(customer);
+        Mockito.when(repository.findAll(any(Specification.class), any(Sort.class)))
+                .thenReturn(customers);
+
+        CustomerTypeDTO customerTypeDTO = new CustomerTypeDTO();
+        List<CustomerTypeDTO> customerTypes = Arrays.asList(customerTypeDTO);
+        Mockito.when(customerTypeService.findByIds(Arrays.asList(1L)))
+                .thenReturn(customerTypes);
+
+        Response response1 = new Response<ApParamDTO>();
+        response1.withData(apParamDTOS);
+        Mockito.when(apParamClient.getCloselytypesV1()).thenReturn(response1);
+
+        Mockito.when(apParamClient.getCardTypesV1()).thenReturn(response1);
+
+        Response response2 = new Response<CategoryDataDTO>();
+        response2.withData(categoryDataDTOS);
+        Mockito.when(categoryDataClient.getGendersV1()).thenReturn(response2);
+
+        serviceImpl.exportExcel(filter);
+
+        ResultActions resultActions = mockMvc
+                .perform(put(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
     public void updateFeign() throws Exception {
         String uri = V1 + root  + "/feign/update/{id}";
-        Long shopId = 1L;
+        Long id = 1L;
         CustomerRequest request = new CustomerRequest();
         request.setId(1L);
         Pageable pageable = PageRequest.of(0,5);
@@ -698,10 +790,10 @@ public class CustomerControllerTest extends BaseTest {
         Mockito.when(repository.findById(request.getId()))
                 .thenReturn(Optional.of(customerDb));
 
-        serviceImpl.updateForSale(request, shopId);
+        serviceImpl.updateForSale(request, id);
 
         ResultActions resultActions = mockMvc
-                .perform(get(uri, shopId).contentType(MediaType.APPLICATION_JSON))
+                .perform(put(uri, id).contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
@@ -719,8 +811,8 @@ public class CustomerControllerTest extends BaseTest {
 
         serviceImpl.getIdCustomerBySearchKeyWords(searchKeywords);
 
-        ResultActions resultActions = mockMvc
-                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
@@ -749,8 +841,9 @@ public class CustomerControllerTest extends BaseTest {
 
         serviceImpl.getIdCustomerBy(searchKeywords, customerPhone, ids);
 
-        ResultActions resultActions = mockMvc
-                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                .content(this.mapToJson(ids))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
@@ -796,8 +889,9 @@ public class CustomerControllerTest extends BaseTest {
 
         serviceImpl.getCustomerInfo(status, customerIds, sorts);
 
-        ResultActions resultActions = mockMvc
-                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(post(uri)
+                .content(this.mapToJson(sorts))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
         assertEquals(200, resultActions.andReturn().getResponse().getStatus());
     }
@@ -889,8 +983,73 @@ public class CustomerControllerTest extends BaseTest {
     }
 
     @Test
-    public void getMemoryStatistics() throws Exception {
-        String uri = V1 + root  + "/memory-status";
+    public void getCustomerDefault() throws Exception {
+        String uri = V1 + root  + "/scorecumulated/{customerId}";
+        Long customerId = 1L;
+
+        MemberCustomer memberCustomer = new MemberCustomer();
+        Mockito.when(memBerCustomerRepos.findByCustomerId(customerId)).thenReturn(Optional.of(memberCustomer));
+
+        serviceImpl.getScoreCumulated(customerId);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri,customerId).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void findCustomerForSale() throws Exception {
+        String uri = V1 + root  + "/autocomplete";
+        Long shopId = 1L;
+        String searchKeywords = "123";
+        Boolean customerOfShop = true;
+        Boolean searchPhoneOnly = true;
+        Boolean searchAddressOnly = true;
+        Pageable pageable = Pageable.unpaged();
+        CustomerSaleFilter filter = new CustomerSaleFilter();
+        filter.setCustomerOfShop(customerOfShop);
+        filter.setSearchPhoneOnly(searchPhoneOnly);
+        filter.setSearchKeywords(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase());
+
+        Long shop = null;
+        if(filter.isCustomerOfShop()) shop = shopId;
+        CustomerDTO customer = new CustomerDTO();
+        List<CustomerDTO> lst = Arrays.asList(customer);
+        Page<CustomerDTO> response = new PageImpl<>(lst, pageable, lst.size());
+        Mockito.when(repository.searchForSaleFone(shop, filter.getSearchKeywords(), pageable)).thenReturn(response);
+
+        serviceImpl.findCustomerForSale(shopId, filter, pageable);
+
+        ResultActions resultActions = mockMvc
+                .perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void findCustomerForSale1() throws Exception {
+        String uri = V1 + root  + "/autocomplete";
+        Long shopId = 1L;
+        String searchKeywords = "123";
+        Boolean customerOfShop = false;
+        Boolean searchPhoneOnly = false;
+        Boolean searchAddressOnly = false;
+        Pageable pageable = Pageable.unpaged();
+        CustomerSaleFilter filter = new CustomerSaleFilter();
+        filter.setCustomerOfShop(customerOfShop);
+        filter.setSearchPhoneOnly(searchPhoneOnly);
+        filter.setSearchKeywords(VNCharacterUtils.removeAccent(searchKeywords.trim()).toUpperCase());
+
+        Long shop = null;
+        if(filter.isCustomerOfShop()) shop = shopId;
+        CustomerDTO customer = new CustomerDTO();
+        List<CustomerDTO> lst = Arrays.asList(customer);
+        Page<CustomerDTO> response = new PageImpl<>(lst, pageable, lst.size());
+        Mockito.when(repository.searchForSale(shop, VNCharacterUtils.removeAccent(filter.getSearchKeywords()).toUpperCase(),
+                filter.getSearchKeywords(), filter.getSearchKeywords(), pageable)).thenReturn(response);
+
+        serviceImpl.findCustomerForSale(shopId, filter, pageable);
 
         ResultActions resultActions = mockMvc
                 .perform(get(uri).contentType(MediaType.APPLICATION_JSON))

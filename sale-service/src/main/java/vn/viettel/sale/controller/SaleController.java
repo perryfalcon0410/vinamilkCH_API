@@ -20,6 +20,7 @@ import vn.viettel.sale.messaging.OrderPromotionRequest;
 import vn.viettel.sale.messaging.SaleOrderRequest;
 import vn.viettel.sale.messaging.SalePromotionCalculationRequest;
 import vn.viettel.sale.service.ProductService;
+import vn.viettel.sale.service.SaleOrderService;
 import vn.viettel.sale.service.SalePromotionService;
 import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.dto.*;
@@ -46,6 +47,10 @@ public class SaleController extends BaseController {
     SalePromotionService salePromotionService;
 
     private final String root = "/sales";
+
+    public void setService(SaleService service) {
+        if(this.service == null) this.service = service;
+    }
 
     @ApiOperation(value = "Api dùng để tạo mới đơn bán hàng, đơn hàng online")
     @ApiResponses(value = {
