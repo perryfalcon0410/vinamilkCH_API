@@ -170,4 +170,17 @@ public interface ProductRepository extends BaseRepository<Product>, JpaSpecifica
     		+ "		PalletShopProduct psp on psp.productId = pd.id "
     		+ "		AND psp.shopId = :shopId")
     List<String> getPalletSplit(Long shopId);
+    
+    @Query(value = 
+    		"SELECT "
+    		+ "		pd "
+    		+ "FROM "
+    		+ "		Product pd "
+    		+ "JOIN "
+    		+ "		PalletShopProduct psp on psp.productId = pd.id "
+    		+ "		AND psp.shopId = :shopId "
+    		+ "JOIN "
+    		+ "    	MOQShopProduct moq on moq.productId = pd.id "
+    		+ "    	AND moq.shopId = :shopId ")
+    List<Product> getByPalletAndMoq(Long shopId);
 }

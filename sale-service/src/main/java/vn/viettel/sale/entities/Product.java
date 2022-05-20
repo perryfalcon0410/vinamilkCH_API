@@ -73,7 +73,7 @@ public class Product extends BaseEntity {
     @Column(name = "GROUP_VAT")
     private String groupVat;
     @Column(name = "REF_PRODUCT_ID")
-    private Long redProductId;
+    private Long refProductId;
     @Column(name = "REF_APPLY_DATE")
     private LocalDateTime refApplyDate;
     @Column(name = "CONVFACT2")

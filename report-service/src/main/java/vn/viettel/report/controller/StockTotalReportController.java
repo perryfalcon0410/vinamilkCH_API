@@ -76,7 +76,6 @@ public class StockTotalReportController extends BaseController {
         return new Response<StockTotalReportPrintDTO>().withData(response);
     }
     
-    @ApiOperation(value = "In danh sách báo cáo tồn kho")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal server error")}
@@ -87,6 +86,48 @@ public class StockTotalReportController extends BaseController {
                                                     @RequestParam Long productId,
                                                     @RequestParam(value="rptDate", required = false) LocalDate rptDate) {
     	Long response = stockTotalReportService.getStockAggregated(shopId, productId, rptDate);
+        return new Response<Long>().withData(response);
+    }
+    
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/rpt-stock-import")
+    public Response<Long> getImport( 
+    												@RequestParam Long shopId,
+                                                    @RequestParam Long productId,
+                                                    @RequestParam(value="rptDate", required = false) LocalDate rptBegDate,
+                                                    @RequestParam(value="rptDate", required = false) LocalDate rptEndDate) {
+    	Long response = stockTotalReportService.getImportPast(shopId, productId, rptBegDate, rptEndDate);
+        return new Response<Long>().withData(response);
+    }
+
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/rpt-stock-export")
+    public Response<Long> getExport( 
+    												@RequestParam Long shopId,
+                                                    @RequestParam Long productId,
+                                                    @RequestParam(value="rptDate", required = false) LocalDate rptBegDate,
+                                                    @RequestParam(value="rptDate", required = false) LocalDate rptEndDate) {
+    	Long response = stockTotalReportService.getExportPast(shopId, productId, rptBegDate, rptEndDate);
+        return new Response<Long>().withData(response);
+    }
+    
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 500, message = "Internal server error")}
+    )
+    @GetMapping(V1 + root + "/rpt-stock-consumption")
+    public Response<Long> getCumulativeConsumption( 
+    												@RequestParam Long shopId,
+                                                    @RequestParam Long productId,
+                                                    @RequestParam(value="rptDate", required = false) LocalDate rptBegDate,
+                                                    @RequestParam(value="rptDate", required = false) LocalDate rptEndDate) {
+    	Long response = stockTotalReportService.getCumulativeConsumption(shopId, productId, rptBegDate, rptEndDate);
         return new Response<Long>().withData(response);
     }
 }

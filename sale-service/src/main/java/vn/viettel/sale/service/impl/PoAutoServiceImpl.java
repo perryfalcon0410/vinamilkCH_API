@@ -29,26 +29,37 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.viettel.core.convert.XStreamTranslator;
+import vn.viettel.core.dto.ShopDTO;
+import vn.viettel.core.dto.ShopParamDTO;
 import vn.viettel.core.dto.common.ApParamDTO;
 import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
 import vn.viettel.core.util.StringUtils;
+import vn.viettel.sale.entities.MOQShopProduct;
+import vn.viettel.sale.entities.PalletShopProduct;
 import vn.viettel.sale.entities.PoAuto;
+import vn.viettel.sale.entities.PoAutoCoreShopProduct;
 import vn.viettel.sale.entities.Product;
 import vn.viettel.sale.entities.SalePlan;
+import vn.viettel.sale.entities.ShopProduct;
 import vn.viettel.sale.entities.PoAutoDetail;
 import vn.viettel.sale.entities.Price;
+import vn.viettel.sale.repository.MOQShopProductRepository;
 import vn.viettel.sale.repository.PalletShopProductRepository;
+import vn.viettel.sale.repository.PoAutoCoreShopProductRepository;
 import vn.viettel.sale.repository.PoAutoDetailRepository;
 import vn.viettel.sale.repository.PoAutoGroupRepository;
 import vn.viettel.sale.repository.PoAutoRepository;
+import vn.viettel.sale.repository.PoConfirmRepository;
 import vn.viettel.sale.repository.PoTransDetailRepository;
 import vn.viettel.sale.repository.PriceRepository;
+import vn.viettel.sale.repository.ProductInfoRepository;
 import vn.viettel.sale.repository.ProductRepository;
 import vn.viettel.sale.repository.SaleDayRepository;
 import vn.viettel.sale.repository.SalePlanRepository;
+import vn.viettel.sale.repository.ShopProductRepository;
 import vn.viettel.sale.repository.StockAdjustmentTransDetailRepository;
 import vn.viettel.sale.repository.StockTotalRepository;
 import vn.viettel.sale.service.PoAutoService;
@@ -56,6 +67,7 @@ import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
 import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
+import vn.viettel.sale.service.dto.RequestOfferDTO;
 import vn.viettel.sale.service.dto.poSplitDTO;
 import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.ReportStockClient;
@@ -103,6 +115,21 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	@Autowired
 	StockTotalRepository stockTotalRepository;
 	
+	@Autowired
+	ShopProductRepository shopProductRepository;
+	
+	@Autowired
+	PoConfirmRepository poConfirmRepository;
+	
+	@Autowired
+	ProductInfoRepository productInfoRepository;
+	
+	@Autowired
+	MOQShopProductRepository moqShopProductRepository;
+	
+	@Autowired
+	PoAutoCoreShopProductRepository poAutoCoreShopProductRepository;
+	
     @Autowired
     ApparamClient apparamClient;
     
@@ -126,27 +153,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	public Page<PoAutoDTO> getAllPoAuto(Long shopId, int page) {
 
 		Pageable pageable = PageRequest.of(page, 5, Sort.by("poAutoNumber"));
-		
-		LocalDate today = LocalDate.now();
-		
-		String test1 = getOfferPoAuto(2742l, 8321l);
-		
-		// long khi cong lai ma null thi gay ra nullException
-		Long test2 = poAutoRepository.getImportQuantity1(2742l, null, null) + poAutoRepository.getImportQuantity2(2742l, null);
-		
-		// long khi cong lai ma null thi gay ra nullException
-		Long test3 = poAutoRepository.getExportQuantity1(2742l, null, null) + poAutoRepository.getExportQuantity2(2742l, null);
-		
-		Long test4 = poAutoRepository.getExportQuantity3(2742l, null);
-		
-		// xet null or = 0 thi loai san pham do ra
-		Long KeHoachTieuThuThang = salePlanRepository.getQuantityByShopProduct(2742l, 8321l, null);
-		
-		// check null, 0
-		Long DinhMucKeHoach = KeHoachTieuThuThang/saleDayRepository.getDayMonthByShopId(shopId, null);
-		
-		// check null, 0
-		Long NgayDuTruKH = (stockTotalRepository.getStockTotalByShopProduct(2742l, 3471l, 8321l)/DinhMucKeHoach);
 		
 		return poAutoRepository.findAllPo(shopId, pageable);
 	}
@@ -277,20 +283,329 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		return SUCCESS;
 	}
 	
-	public String getOfferPoAuto(Long shopId, Long productId) {
+	@Override
+	public List<RequestOfferDTO> getRequestPo(Long shopId) {
 		
-		try {
-			LocalDate lastMonthDay = LocalDate.now();
-			lastMonthDay = lastMonthDay.withDayOfMonth(1).minusDays(1);
-			Response<Long> test = reportStockClient.getStockAggregated(shopId, productId, lastMonthDay); 
-			System.out.println("aaa");
+		List<RequestOfferDTO> res = new ArrayList<>();
+		List<Product> pdList = productRepository.getByPalletAndMoq(shopId);
+		
+		pdList.forEach(pd -> {
+			RequestOfferDTO temp = handleOfferPo(shopId, pd);
+			if(temp != null) res.add(temp);
+		});
+		
+		return res;
+	}
+	
+	private RequestOfferDTO handleOfferPo(Long shopId, Product pd) {
+		
+		// shopId = 2742l;
+		// productId = 8321l;
+		
+		RequestOfferDTO reqPO = new RequestOfferDTO();
+		Long warehouseTypeId = 3471l;
+		Long productId = pd.getId();
+		String LUYKE = "F1_NGAY_LUYKE";
+		
+		LocalDate now = LocalDate.now();
+		LocalDate firstMonthDay = now.withDayOfMonth(1);
+		LocalDate yesterday =  now.minusDays(1);
+		
+		Response<ShopDTO> shopResp = shopClient.getByIdV1(shopId);
+		if(shopResp == null || shopResp.getData() == null) return null;
+		//return ERROR + ": shop";
+		ShopDTO shop = shopResp.getData();
+		
+		if(pd.getStatus() != 1) return null;
+		// return ERROR + ": status";
+		
+		// Ma Hang
+		String MH = pd.getProductCode();
+		reqPO.setMH(MH);
+		
+		// Ten Hang
+		String TH = pd.getProductName();
+		reqPO.setTH(TH);
+		
+		// Ton dau ky
+		Long TDK = 0l;
+		LocalDate lastMonthDay = now.withDayOfMonth(1).minusDays(1);
+		Response<Long> TDKresp = reportStockClient.getStockAggregated(shopId, productId, lastMonthDay);
+		if(TDKresp == null) TDK = 0l;
+		else TDK = TDKresp.getData();
+		reqPO.setTDK(TDK);
+		
+		// Nhap
+		Long pastImportPO = 0l;
+		Response<Long> pastImportPOresp = reportStockClient.getImport(shopId, productId, firstMonthDay, yesterday);
+		if(pastImportPOresp == null) pastImportPO = 0l;
+		else pastImportPO = pastImportPOresp.getData();
+		if(pastImportPO == null) pastImportPO = 0l;
+		
+		Long importPO1 = poAutoRepository.getImportQuantity1(shopId, now, null);
+		Long importPO2 = poAutoRepository.getImportQuantity2(shopId, now);
+		if(importPO1 == null) importPO1 = 0l;
+		if(importPO2 == null) importPO2 = 0l;
+		
+		Long importPO = pastImportPO + importPO1 + importPO2;
+		reqPO.setNhap(importPO);
+		
+		// Xuat
+		Long pastExportPO = 0l;
+		Response<Long> pastExportPOresp = reportStockClient.getExport(shopId, productId, firstMonthDay, yesterday);
+		if(pastExportPOresp == null) pastExportPO = 0l;
+		else pastExportPO = pastExportPOresp.getData();
+		if(pastExportPO == null) pastExportPO = 0l;
+		
+		Long exportPO1 = poAutoRepository.getExportQuantity1(2742l, now, null);
+		Long exportPO2 = poAutoRepository.getExportQuantity2(2742l, now);
+		if(exportPO1 == null) exportPO1 = 0l;
+		if(exportPO2 == null) exportPO2 = 0l;
+		
+		Long exportPO = pastExportPO + exportPO1 + exportPO2;
+		reqPO.setXuat(exportPO);
+		
+		// Luy ke Tieu Thu Thang
+		Long pastLKTT = 0l;
+		Response<Long> pastLKTTresp = reportStockClient.getCumulativeConsumption(shopId, productId, firstMonthDay, yesterday);			
+		if(pastLKTTresp == null || pastLKTTresp.getData() == null) pastLKTT = 0l;
+		else pastLKTT = pastLKTTresp.getData();
+		
+		Long presentLKTH = poAutoRepository.getComsumptionQuantity(shopId, now);
+		if(presentLKTH == null) presentLKTH = 0l;
+		
+		Long LKTT = pastLKTT + presentLKTH;
+		reqPO.setLKTT(LKTT);
+		
+		// Ke Hoach Tieu Thu Thang
+		Long KHTT = salePlanRepository.getQuantityByShopProduct(shopId, productId, firstMonthDay);
+		if(KHTT == null || KHTT == 0l) return null;
+		//return ERROR + ": KHTT";
+		reqPO.setKHTT(KHTT);
+		
+		// Dinh Muc Ke Hoach
+		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, firstMonthDay);
+		if(workingDayMonth == null || workingDayMonth == 0) return null;
+		//return ERROR + ": DMKH";
+		Long DMKH = KHTT/workingDayMonth;
+		reqPO.setDMKH(DMKH);
+		
+		// Ngay Du Tru
+		Long DTTT = 0l;
+		Integer stockDTparent = 0;
+		Integer stockDT = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseTypeId, productId);
+		if(stockDT == null || stockDT == 0) return null;
+		// return ERROR + ": NDT stock";
+		
+		if(pd.getRefProductId() == null) {
+			Long DTKH = stockDT/DMKH;
+			
+			Response<ShopParamDTO> shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shopId);
+			
+			int breakCounter = 1;
+			while (shopParamDTO == null && breakCounter < 4) {
+				breakCounter++;
+				shop = shop.getParentShop();
+				if(shop == null) return null;
+				// return ERROR + ": NDT shop";
+				shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shop.getId());
+			}
+			ShopParamDTO data = shopParamDTO.getData();
+			
+			Long n = 28l;
+			if(data != null) {
+				if(data.getName() != null)
+					n = Long.valueOf(data.getName());
+			}
+			LocalDate beforeNday = now.minusDays(n);
+			
+			Long pastDTTT = 0l;
+			Response<Long> pastDTTTresp = new Response<Long>();
+			if(n != 0l) {
+				pastDTTTresp = reportStockClient.getCumulativeConsumption(shopId, productId, beforeNday, yesterday);			
+			}
+			if(pastDTTTresp == null || pastDTTTresp.getData() == null) pastDTTT = 0l;
+			else pastDTTT = pastDTTTresp.getData();
+			
+			Long presentDTTT = poAutoRepository.getComsumptionQuantity(shopId, now);
+			if(presentDTTT == null) presentDTTT = 0l;
+			
+			DTTT = DTKH + presentDTTT + pastDTTT;
 		}
-		catch(Exception e) {
-			e.printStackTrace();
-			return ERROR;
+		else {
+			stockDTparent = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseTypeId, pd.getRefProductId());
+			if(stockDTparent == null) stockDTparent = 0;
+			DTTT = (long) (stockDT + stockDTparent);
+		}
+		reqPO.setDTTT(DTTT);
+		
+		// Ton kho an toan
+		Long minSf = 0l;
+		Integer maxSf = 0;
+		Long calendarDay = 0l;
+		Long lead = 0l;
+		Long percentage = 0l;
+		ShopProduct spc = null;
+		
+		ShopProduct sp = shopProductRepository.findByShopIdAndProductIdAndType(shopId, productId, 2);
+		if(sp == null || (sp.getMinSf() == null && sp.getCalendarDay() == null && sp.getLead() == null)) 
+			spc = shopProductRepository.findByShopIdAndCatIdAndType(shopId, pd.getCatId(), 1);
+		
+		if(sp != null) {
+			if(sp.getMinSf() != null) minSf = Long.valueOf(sp.getMinSf());
+			if(spc != null) minSf = Long.valueOf(spc.getMinSf());
+			if(minSf == null) minSf = 0l;
+		
+			calendarDay = sp.getCalendarDay();
+			if(spc != null) calendarDay = spc.getCalendarDay();
+			if(calendarDay == null) calendarDay = 0l;
+		
+			lead = sp.getLead();
+			if(spc != null) lead = spc.getLead();
+			if(lead == null) lead = 0l;
+			
+			percentage = sp.getPercentage();
+			if(spc != null) percentage = spc.getPercentage();
+			if(percentage == null) percentage = 0l;
+			
+			maxSf = sp.getMaxSf();
+			if(spc != null) maxSf = spc.getMaxSf();
+			if(maxSf == null) maxSf = 0;
+		}
+		reqPO.setMin(minSf);
+		reqPO.setNext(calendarDay);
+		reqPO.setLead(lead);
+
+		// Yeu Cau Ton
+		Long YCT = (minSf + calendarDay + lead) * DMKH;
+		reqPO.setYCT(YCT);
+		
+		// Hang Di Duong, PO Nhap Hang
+		Integer HDD = poConfirmRepository.getQuantityByShopIdAndStatusAndImportDate(shopId, 0, now);
+		if(HDD == null) HDD = 0;
+		reqPO.setHDD(HDD);
+		
+		// Yeu Cau Dat Hang (QC)
+		Integer QC = pd.getConvFact();
+		if(QC == null || QC == 0) return null;
+		// return ERROR + ": convfact";
+		reqPO.setQC(QC);
+		
+		Long YCDH = 0l;
+		
+		YCDH = ((minSf + calendarDay + lead) * DMKH - stockDT - HDD) / QC;
+		
+		if(pd.getRefProductId() != null) {
+			Long KHTTparent = salePlanRepository.getQuantityByShopProduct(shopId, pd.getRefProductId(), firstMonthDay);
+			if(KHTTparent == null) KHTTparent = 0l;
+			if((KHTT > 0 && KHTTparent == 0) || (KHTT == 0 && KHTTparent > 0))
+				YCDH = ((minSf + calendarDay + lead) * DMKH - stockDT - stockDTparent - HDD) / QC;
+		}
+			
+		// So Luong Thung
+		Long SLT = 0l;
+		Integer moqValue = 0;
+		Integer convfact2 = 0;
+		
+		Response<ShopParamDTO> SLTCheckResp = shopClient.getShopParamV1("PO_PARAM", "OVER_QUOTA", shopId);
+		MOQShopProduct moq = moqShopProductRepository.getByShopIdAndProductId(shopId, productId);
+		PalletShopProduct psd = palletShopProductRepository.getByShopIdAndProductId(shopId, productId);
+		Response<ApParamDTO> ap = apparamClient.getApParamByCodeTypeV1("HSDHTD", "HSDHTD");
+		PoAutoCoreShopProduct poc = poAutoCoreShopProductRepository.getByShopIdAndProductId(shopId, productId);
+		if(moq != null) moqValue = moq.getMoqValue();
+		if(psd != null) convfact2 = psd.getConvfact2();
+		
+		// SLT Cau hinh muc chan
+		if(SLTCheckResp != null && SLTCheckResp.getData() != null) SLT = YCDH / QC;
+		else {
+			if(LKTT > KHTT * percentage) SLT = 0l;
+			else if(LKTT + YCDH <= KHTT * percentage) SLT = YCDH;
+			else if(LKTT + YCDH > KHTT * percentage) SLT = KHTT * percentage - LKTT;
+			else if(YCDH > KHTT * maxSf) SLT = KHTT * maxSf / QC;
+			if(SLT > 20) SLT = roundUpBy5(SLT);
 		}
 		
-		return SUCCESS;
+		// SLT Cau hinh lam tron MOQ
+		if(moq != null) {
+			if(YCDH <= 20) {
+				if(moqValue > 0 && YCDH > 0 && YCDH / QC < moqValue) {
+					if(YCDH / QC < 5 / 10 * moqValue) SLT = 0l;
+					else SLT = Long.valueOf(moqValue);
+				}
+				else SLT = YCDH / QC;
+			}
+			else {
+				if(moqValue > 0 && Math.ceil((double) YCDH / QC / 5) * 5 > 0 && Math.ceil((double) YCDH / QC / 5) * 5 < moqValue) {
+					if(YCDH / QC < 5 / 10 * moqValue) SLT = 0l;
+					else SLT = Long.valueOf(moqValue);
+				}
+				else SLT = (long) Math.ceil((double) YCDH / QC / 5) * 5;
+			}
+		}
+		
+		// SLT Khai bao quy doi Pallet
+		if(psd != null) {
+			if(convfact2 == null || convfact2 == 0) return null;
+				// return ERROR + ": SLT convfact2";
+			if(psd.getPalletToValue() == null) {
+				if(SLT / convfact2 < Math.floorDiv(SLT, convfact2) + psd.getPalletValue()) 
+					SLT = Math.floorDiv(SLT, convfact2) * convfact2;
+				else SLT = (long) (Math.ceil((double) SLT / convfact2) * convfact2);
+			}
+			else {
+				if(SLT / convfact2 >= psd.getPalletValue() && SLT/convfact2 <= psd.getPalletToValue()) {
+					if(SLT / convfact2 < Math.floorDiv(SLT, convfact2) + 5 / 10) 
+						SLT = Math.floorDiv(SLT, convfact2) * convfact2;
+					else SLT = (long) Math.ceil(SLT / convfact2) * convfact2;
+				}
+			}
+		}
+		
+		// SLT Khai bao he so core
+		if(poc != null && ap != null && ap.getData() != null) {
+			SLT = SLT * ap.getData().getIntValue() * poc.getCoreValue();
+			if(SLT > 20) SLT = roundUpBy5(SLT);
+			if(SLT == 0) return null;
+				// return ERROR + ": SLT core";
+		}
+		reqPO.setSLT(SLT);
+		
+		// Thanh Tien
+		Price pr = priceRepository.getNewPriceOfProduct(productId);
+		Long TT = (long) (SLT * QC * pr.getPrice());
+		reqPO.setTT(TT);
+		
+		// Trong Luong
+		Long TL = SLT * QC;
+		reqPO.setTL(TL);
+		
+		// Canh Bao
+		String CB = "";
+		String catCode = productInfoRepository.getProductInfoCodeById(pd.getCatId());
+		
+		if(DTTT > 14l) CB = "X";
+		else if(("A".equals(catCode) || "B".equals(catCode)) && DTTT > 30l ) CB = "X";
+		else if("D".equals(catCode) && DTTT > 10) CB = "X";
+		else if(LKTT / countWorkingDay() < DMKH * 70 / 100 && now.getDayOfMonth() > 10) CB = "X";
+		else if(DTTT > 4 * minSf && now.getDayOfMonth() > 10) CB = "QX";
+		else if(YCDH == 0 && LKTT > KHTT) CB = "O";
+		reqPO.setCB(CB);
+		
+		return reqPO;
+	}
+	
+	private Integer countWorkingDay() {
+		LocalDate now = LocalDate.now();
+		int sundayCount = (int) now.getDayOfMonth() / 7;
+		Integer spareDay = now.getDayOfMonth() - sundayCount * 7;
+		if(now.getDayOfWeek().getValue() + spareDay >= 7) sundayCount++;
+		return now.getDayOfMonth() - sundayCount;
+	}
+	
+	private Long roundUpBy5(Long number) {
+	
+		if(number % 5 == 0) return number;
+		return number + 5 - number % 5;
 	}
 	
 	private void handleSavePOAutoPOAutoDetail(ProductQuantityListDTO productQuantityListDTO, List<poSplitDTO> poSplitCat, List<poSplitDTO> poSplitSubCat, List<poSplitDTO> poSplitProd, Long shopId) {

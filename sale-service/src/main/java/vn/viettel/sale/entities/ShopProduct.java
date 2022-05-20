@@ -31,4 +31,10 @@ public class ShopProduct extends BaseEntity {
     private Integer maxSf;
     @Column(name = "STATUS")
     private Integer status;
+    @Column(name = "CALENDAR_D")
+    private Long calendarDay;
+    @Column(name = "LEAD")
+    private Long lead;
+    @Column(name = "PERCENTAGE")
+    private Long percentage;
 }

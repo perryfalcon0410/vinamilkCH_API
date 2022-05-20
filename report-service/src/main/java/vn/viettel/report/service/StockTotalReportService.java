@@ -21,6 +21,7 @@ public interface StockTotalReportService {
     StockTotalReportPrintDTO print(StockTotalFilter filter);
     ByteArrayInputStream exportExcel(StockTotalFilter filter) throws IOException;
     public Long getStockAggregated(Long shopId, Long productId, LocalDate rptDate);
-    public Long getImportPast(Long shopId, Long productId, Date rptBegDate, Date rptDate);
-    public Long getExportPast(Long shopId, Long productId, Date rptBegDate, Date rptDate);
+    public Long getImportPast(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate);
+    public Long getExportPast(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate);
+    public Long getCumulativeConsumption(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate);
 }

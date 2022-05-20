@@ -12,4 +12,7 @@ import vn.viettel.sale.entities.PalletShopProduct;
 @Repository
 public interface PalletShopProductRepository extends BaseRepository<PalletShopProduct>, JpaSpecificationExecutor<PalletShopProduct> {
 
+	@Query(value = "select psd from PalletShopProduct psd "
+			+ "where psd.shopId = :shopId and psd.productId = :productId")
+	public PalletShopProduct getByShopIdAndProductId(Long shopId, Long productId);
 }

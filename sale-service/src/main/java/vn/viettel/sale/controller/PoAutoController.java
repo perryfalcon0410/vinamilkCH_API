@@ -27,6 +27,7 @@ import vn.viettel.sale.service.dto.PoAutoDetailProduct;
 import vn.viettel.sale.service.dto.PoAutoNumberList;
 import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
+import vn.viettel.sale.service.dto.RequestOfferDTO;
 
 @RestController
 public class PoAutoController extends BaseController {
@@ -127,6 +128,16 @@ public class PoAutoController extends BaseController {
 		return new Response<Page<ProductStockDTO>>().withData(response);
 	}
 	
+	@ApiOperation(value = "Api dùng để lấy danh sách đơn hàng đề nghị")
+	@ApiResponse(code = 200, message = "Success")
+	@GetMapping(value = { V1 + root + "/request-po-list" })
+	public Response<List<RequestOfferDTO>> getRequestPO(HttpServletRequest httpRequest) {
+		
+		List<RequestOfferDTO> response = poAutoService.getRequestPo(this.getShopId(httpRequest));
+		
+		return new Response<List<RequestOfferDTO>>().withData(response);
+	}
+	
     @PostMapping(value = {V1 + root + "/save-po"})
     @ApiOperation(value = "Lưu đơn PO")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
@@ -141,4 +152,6 @@ public class PoAutoController extends BaseController {
         
         return new Response<String>().withData(response);
     }
+    
+    
 }

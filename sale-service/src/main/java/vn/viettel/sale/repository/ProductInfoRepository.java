@@ -11,4 +11,7 @@ public interface ProductInfoRepository extends BaseRepository<ProductInfo>, JpaS
 
     @Query(value = "SELECT pi FROM ProductInfo pi WHERE pi.type =1 ")
     List<ProductInfo> getAllProductInfo();
+    
+    @Query(value = "select pi from ProductInfo pi where id = :catId")
+    String getProductInfoCodeById(Long catId);
 }

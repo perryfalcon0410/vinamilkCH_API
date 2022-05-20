@@ -157,7 +157,7 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
 	}
    
    @Override
-   public Long getImportPast(Long shopId, Long productId, Date rptBegDate, Date rptDate) {
+   public Long getImportPast(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate) {
 	   
 	   Long importPast = reportStockAggregatedRepository.getImport(shopId, productId, null, null);
 	   
@@ -165,10 +165,18 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
    }
    
    @Override
-   public Long getExportPast(Long shopId, Long productId, Date rptBegDate, Date rptDate) {
+   public Long getExportPast(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate) {
 	   
 	   Long exportPast = reportStockAggregatedRepository.getExport(shopId, productId, null, null);
 	   
 	   return exportPast;
+   }
+   
+   @Override
+   public Long getCumulativeConsumption(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate) {
+	   
+	   Long cumulativeConsumption = reportStockAggregatedRepository.getCumulativeConsumption(shopId, productId, null, null);
+	   
+	   return cumulativeConsumption;
    }
 }

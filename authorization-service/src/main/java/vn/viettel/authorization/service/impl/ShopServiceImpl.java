@@ -190,4 +190,5 @@ public class ShopServiceImpl extends BaseServiceImpl<Shop, ShopRepository> imple
 
         return shopDTOS;
     }
+    
 }

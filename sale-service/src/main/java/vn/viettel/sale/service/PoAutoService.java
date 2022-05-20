@@ -11,6 +11,7 @@ import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
 import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
+import vn.viettel.sale.service.dto.RequestOfferDTO;
 
 public interface PoAutoService {
 
@@ -28,5 +29,5 @@ public interface PoAutoService {
 	
 	public String spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopid);
 	
-	public String getOfferPoAuto(Long shopid, Long productId);
+	public List<RequestOfferDTO> getRequestPo(Long shopId);
 }
