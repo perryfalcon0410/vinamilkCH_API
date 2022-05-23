@@ -14,23 +14,24 @@ import vn.viettel.core.util.Constants;
 @NoArgsConstructor
 public class RequestOfferDTO {
 	
-	private String MH;
-	private String TH;
-	private Long TDK;
-	private Long Nhap;
-	private Long Xuat;
-	private Long LKTT;
-	private Long KHTT;
-	private Long DMKH;
-	private Long DTTT;
+	private String maHang;
+	private String tenHang;
+	private Long tonDauKy;
+	private Long nhap;
+	private Long xuat;
+	private Long luyKeTieuThu;
+	private Long keHoachTieuThu;
+	private Long dinhMucKeHoach;
+	private Long duTruKeHoach;
+	private Long duTruThucTe;
 	private Long min;
 	private Long next;
 	private Long lead;
-	private Long YCT;
-	private Integer HDD;
-	private Integer QC;
-	private Long SLT;
-	private Long TT;
-	private Long TL;
-	private String CB;
+	private Long yeuCauTon;
+	private Integer hangDiDuong;
+	private Integer yeuCauDatHang;
+	private Long soLuongThung;
+	private Long thanhTien;
+	private Long trongLuong;
+	private String canhBao;
 }

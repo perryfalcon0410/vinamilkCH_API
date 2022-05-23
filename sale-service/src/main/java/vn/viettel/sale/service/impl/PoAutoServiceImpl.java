@@ -320,20 +320,17 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		// return ERROR + ": status";
 		
 		// Ma Hang
-		String MH = pd.getProductCode();
-		reqPO.setMH(MH);
+		reqPO.setMaHang(pd.getProductCode());
 		
 		// Ten Hang
-		String TH = pd.getProductName();
-		reqPO.setTH(TH);
+		reqPO.setTenHang(pd.getProductName());
 		
 		// Ton dau ky
 		Long TDK = 0l;
 		LocalDate lastMonthDay = now.withDayOfMonth(1).minusDays(1);
 		Response<Long> TDKresp = reportStockClient.getStockAggregated(shopId, productId, lastMonthDay);
-		if(TDKresp == null) TDK = 0l;
-		else TDK = TDKresp.getData();
-		reqPO.setTDK(TDK);
+		if(TDKresp != null) TDK = TDKresp.getData();
+		reqPO.setTonDauKy(TDK);
 		
 		// Nhap
 		Long pastImportPO = 0l;
@@ -375,20 +372,20 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		if(presentLKTH == null) presentLKTH = 0l;
 		
 		Long LKTT = pastLKTT + presentLKTH;
-		reqPO.setLKTT(LKTT);
+		reqPO.setLuyKeTieuThu(LKTT);
 		
 		// Ke Hoach Tieu Thu Thang
 		Long KHTT = salePlanRepository.getQuantityByShopProduct(shopId, productId, firstMonthDay);
 		if(KHTT == null || KHTT == 0l) return null;
 		//return ERROR + ": KHTT";
-		reqPO.setKHTT(KHTT);
+		reqPO.setKeHoachTieuThu(KHTT);
 		
 		// Dinh Muc Ke Hoach
 		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, firstMonthDay);
 		if(workingDayMonth == null || workingDayMonth == 0) return null;
 		//return ERROR + ": DMKH";
-		Long DMKH = KHTT/workingDayMonth;
-		reqPO.setDMKH(DMKH);
+		Long DMKH = (Long) KHTT/workingDayMonth;
+		reqPO.setDinhMucKeHoach(DMKH);
 		
 		// Ngay Du Tru
 		Long DTTT = 0l;
@@ -397,10 +394,20 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		if(stockDT == null || stockDT == 0) return null;
 		// return ERROR + ": NDT stock";
 		
+		Long DTKH = stockDT/DMKH;
+		reqPO.setDuTruKeHoach(DTKH);
+		
+		Response<ShopParamDTO> shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shopId);
+		ShopParamDTO data = shopParamDTO.getData();
+		
+		Long n = 28l;
+		if(data != null) {
+			if(data.getName() != null)
+				n = Long.valueOf(data.getName());
+		}
+		LocalDate beforeNday = now.minusDays(n);
+		
 		if(pd.getRefProductId() == null) {
-			Long DTKH = stockDT/DMKH;
-			
-			Response<ShopParamDTO> shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shopId);
 			
 			int breakCounter = 1;
 			while (shopParamDTO == null && breakCounter < 4) {
@@ -410,14 +417,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 				// return ERROR + ": NDT shop";
 				shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shop.getId());
 			}
-			ShopParamDTO data = shopParamDTO.getData();
-			
-			Long n = 28l;
-			if(data != null) {
-				if(data.getName() != null)
-					n = Long.valueOf(data.getName());
-			}
-			LocalDate beforeNday = now.minusDays(n);
 			
 			Long pastDTTT = 0l;
 			Response<Long> pastDTTTresp = new Response<Long>();
@@ -435,9 +434,23 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		else {
 			stockDTparent = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseTypeId, pd.getRefProductId());
 			if(stockDTparent == null) stockDTparent = 0;
-			DTTT = (long) (stockDT + stockDTparent);
+			Long stockDTTT = (long) (stockDT + stockDTparent);
+			
+			Long exportDT = 0l;
+			Response<Long> exportDTResp =  reportStockClient.getExport(shopId, productId, beforeNday, yesterday);
+			if(exportDTResp != null) exportDT = exportDTResp.getData();
+			if(exportDT == null) exportDT = 0l;
+			
+			Long exportDTparent = 0l;
+			Response<Long> exportDTparentResp =  reportStockClient.getExport(shopId, pd.getRefProductId(), beforeNday, yesterday);
+			if(exportDTparentResp != null) exportDT = exportDTparentResp.getData();
+			if(exportDTparent == null) exportDTparent = 0l;
+			
+			Long exportDTTT = exportDT + exportDTparent;
+			
+			DTTT = stockDTTT / exportDTTT * n;
 		}
-		reqPO.setDTTT(DTTT);
+		reqPO.setDuTruThucTe(DTTT);
 		
 		// Ton kho an toan
 		Long minSf = 0l;
@@ -478,18 +491,18 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 
 		// Yeu Cau Ton
 		Long YCT = (minSf + calendarDay + lead) * DMKH;
-		reqPO.setYCT(YCT);
+		reqPO.setYeuCauTon(YCT);
 		
 		// Hang Di Duong, PO Nhap Hang
 		Integer HDD = poConfirmRepository.getQuantityByShopIdAndStatusAndImportDate(shopId, 0, now);
 		if(HDD == null) HDD = 0;
-		reqPO.setHDD(HDD);
+		reqPO.setHangDiDuong(HDD);
 		
 		// Yeu Cau Dat Hang (QC)
 		Integer QC = pd.getConvFact();
 		if(QC == null || QC == 0) return null;
 		// return ERROR + ": convfact";
-		reqPO.setQC(QC);
+		reqPO.setYeuCauDatHang(QC);
 		
 		Long YCDH = 0l;
 		
@@ -568,16 +581,16 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			if(SLT == 0) return null;
 				// return ERROR + ": SLT core";
 		}
-		reqPO.setSLT(SLT);
+		reqPO.setSoLuongThung(SLT);
 		
 		// Thanh Tien
 		Price pr = priceRepository.getNewPriceOfProduct(productId);
 		Long TT = (long) (SLT * QC * pr.getPrice());
-		reqPO.setTT(TT);
+		reqPO.setThanhTien(TT);
 		
 		// Trong Luong
 		Long TL = SLT * QC;
-		reqPO.setTL(TL);
+		reqPO.setTrongLuong(TL);
 		
 		// Canh Bao
 		String CB = "";
@@ -589,7 +602,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		else if(LKTT / countWorkingDay() < DMKH * 70 / 100 && now.getDayOfMonth() > 10) CB = "X";
 		else if(DTTT > 4 * minSf && now.getDayOfMonth() > 10) CB = "QX";
 		else if(YCDH == 0 && LKTT > KHTT) CB = "O";
-		reqPO.setCB(CB);
+		reqPO.setCanhBao(CB);
 		
 		return reqPO;
 	}
