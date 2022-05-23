@@ -398,6 +398,16 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		reqPO.setDuTruKeHoach(DTKH);
 		
 		Response<ShopParamDTO> shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shopId);
+		
+		int breakCounter = 1;
+		while (shopParamDTO == null && breakCounter < 4) {
+			breakCounter++;
+			shop = shop.getParentShop();
+			if(shop == null) return null;
+			// return ERROR + ": NDT shop";
+			shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shop.getId());
+		}
+		
 		ShopParamDTO data = shopParamDTO.getData();
 		
 		Long n = 28l;
@@ -408,15 +418,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		LocalDate beforeNday = now.minusDays(n);
 		
 		if(pd.getRefProductId() == null) {
-			
-			int breakCounter = 1;
-			while (shopParamDTO == null && breakCounter < 4) {
-				breakCounter++;
-				shop = shop.getParentShop();
-				if(shop == null) return null;
-				// return ERROR + ": NDT shop";
-				shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shop.getId());
-			}
 			
 			Long pastDTTT = 0l;
 			Response<Long> pastDTTTresp = new Response<Long>();
