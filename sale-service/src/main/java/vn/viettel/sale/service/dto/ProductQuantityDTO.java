@@ -15,6 +15,6 @@ public class ProductQuantityDTO {
 	
 	private Long quantity;
 	
-	private Integer groupId;
+	private Long groupId;
 	
 }

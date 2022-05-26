@@ -172,11 +172,15 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		List<PoAutoDetailProduct> poAutoDetailProductList = new ArrayList<PoAutoDetailProduct>(); 
 		
 		PoAuto poAuto = poAutoRepository.getPoAutoBypoAutoNumber(poAutoNumber, shopId);
-		if (poAuto != null) {
-			//TODO Kiem tra null khi goi nhieu ham
-			poAutoRepository.getPoAutoDetailById(poAuto.getId()).forEach((n) -> {
-				poAutoDetailProductList.add(convertPoAutoDetail(n));
-			});			
+		if (poAuto != null && poAuto.getId() != null) {
+			
+			List<PoAutoDetail> pod = poAutoRepository.getPoAutoDetailById(poAuto.getId());
+			
+			if(pod != null && !pod.isEmpty()) {
+				pod.forEach((n) -> {
+					poAutoDetailProductList.add(convertPoAutoDetail(n));
+				});
+			}
 		}
 		
 		return poAutoDetailProductList;
@@ -233,8 +237,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 
 		List<Tuple> productList = poAutoRepository.getProductByPage(shopid, keyword);
 		
-		//TODO kiem tra lai dieu kien list
-		if(productList == null || productList.size() < 1) return null;
+		if(productList == null || productList.isEmpty()) return null;
 		
 		List<ProductStockDTO> productStockDtos = productList.stream()
 	            .map(t -> new ProductStockDTO(
@@ -303,9 +306,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	
 	private RequestOfferDTO handleOfferPo(Long shopId, Product pd) {
 		
-		// shopId = 2742l;
-		// productId = 8321l;
-		
 		//TODO không hacord
 		RequestOfferDTO reqPO = new RequestOfferDTO();
 		Long warehouseTypeId = 3471l;
@@ -318,36 +318,30 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		Response<ShopDTO> shopResp = shopClient.getByIdV1(shopId);
 		if(shopResp == null || shopResp.getData() == null) return null;
-		//return ERROR + ": shop";
-		//TODO xóa đi các comment dư
+
 		ShopDTO shop = shopResp.getData();
 		
 		if(pd.getStatus() != 1) return null;
-		// return ERROR + ": status";
 		
-		// Ma Hang
 		reqPO.setMaHang(pd.getProductCode());
 		
-		// Ten Hang
 		reqPO.setTenHang(pd.getProductName());
 		
-		// Ton dau ky
 		Long TDK = 0l;
 		LocalDate lastMonthDay = now.withDayOfMonth(1).minusDays(1);
 		Response<Long> TDKresp = reportStockClient.getStockAggregated(shopId, productId, lastMonthDay);
-		if(TDKresp != null) TDK = TDKresp.getData();
+		if(TDKresp != null) {
+			TDK = TDKresp.getData();
+		}
 		reqPO.setTonDauKy(TDK);
 		
-		// Nhap
-		//TODO xem lại cách tạo biến, check if_else
 		Long pastImportPO = 0l;
 		Response<Long> pastImportPOresp = reportStockClient.getImport(shopId, productId, firstMonthDay, yesterday);
-		if(pastImportPOresp == null) pastImportPO = 0l;
-		else pastImportPO = pastImportPOresp.getData();
-		if(pastImportPO == null) pastImportPO = 0l;
+		if(pastImportPOresp != null && pastImportPOresp.getData() != null) {
+			pastImportPO = pastImportPOresp.getData();
+		}
 		
-		//TODO check lại hàm query getImportQuantity1 này, sao truyền null mà ko kiểm tra hay xử lý 
-		Long importPO1 = poAutoRepository.getImportQuantity1(shopId, now, null);
+		Long importPO1 = poAutoRepository.getImportQuantity1(shopId, now, LocalDateTime.now());
 		Long importPO2 = poAutoRepository.getImportQuantity2(shopId, now);
 		if(importPO1 == null) importPO1 = 0l;
 		if(importPO2 == null) importPO2 = 0l;
@@ -355,22 +349,20 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		Long importPO = pastImportPO + importPO1 + importPO2;
 		reqPO.setNhap(importPO);
 		
-		// Xuat
 		Long pastExportPO = 0l;
 		Response<Long> pastExportPOresp = reportStockClient.getExport(shopId, productId, firstMonthDay, yesterday);
 		if(pastExportPOresp == null) pastExportPO = 0l;
 		else pastExportPO = pastExportPOresp.getData();
 		if(pastExportPO == null) pastExportPO = 0l;
 		
-		Long exportPO1 = poAutoRepository.getExportQuantity1(2742l, now, null);
-		Long exportPO2 = poAutoRepository.getExportQuantity2(2742l, now);
+		Long exportPO1 = poAutoRepository.getExportQuantity1(shopId, now, LocalDateTime.now());
+		Long exportPO2 = poAutoRepository.getExportQuantity2(shopId, now);
 		if(exportPO1 == null) exportPO1 = 0l;
 		if(exportPO2 == null) exportPO2 = 0l;
 		
 		Long exportPO = pastExportPO + exportPO1 + exportPO2;
 		reqPO.setXuat(exportPO);
 		
-		// Luy ke Tieu Thu Thang
 		Long pastLKTT = 0l;
 		Response<Long> pastLKTTresp = reportStockClient.getCumulativeConsumption(shopId, productId, firstMonthDay, yesterday);			
 		if(pastLKTTresp == null || pastLKTTresp.getData() == null) pastLKTT = 0l;
@@ -382,25 +374,20 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		Long LKTT = pastLKTT + presentLKTH;
 		reqPO.setLuyKeTieuThu(LKTT);
 		
-		// Ke Hoach Tieu Thu Thang
 		Long KHTT = salePlanRepository.getQuantityByShopProduct(shopId, productId, firstMonthDay);
 		if(KHTT == null || KHTT == 0l) return null;
-		//return ERROR + ": KHTT";
 		reqPO.setKeHoachTieuThu(KHTT);
-		
-		// Dinh Muc Ke Hoach
+
 		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, firstMonthDay);
 		if(workingDayMonth == null || workingDayMonth == 0) return null;
 		//return ERROR + ": DMKH";
 		Long DMKH = (Long) KHTT/workingDayMonth;
 		reqPO.setDinhMucKeHoach(DMKH);
-		
-		// Ngay Du Tru
+
 		Long DTTT = 0l;
 		Integer stockDTparent = 0;
 		Integer stockDT = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseTypeId, productId);
 		if(stockDT == null || stockDT == 0) return null;
-		// return ERROR + ": NDT stock";
 		
 		Long DTKH = stockDT/DMKH;
 		reqPO.setDuTruKeHoach(DTKH);
@@ -412,7 +399,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			breakCounter++;
 			shop = shop.getParentShop();
 			if(shop == null) return null;
-			// return ERROR + ": NDT shop";
 			shopParamDTO = shopClient.getShopParamV1(LUYKE, LUYKE, shop.getId());
 		}
 		
@@ -434,9 +420,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			if(n != 0l) {
 				pastDTTTresp = reportStockClient.getCumulativeConsumption(shopId, productId, beforeNday, yesterday);			
 			}
-			//TODO coi lai if_else
-			if(pastDTTTresp == null || pastDTTTresp.getData() == null) pastDTTT = 0l;
-			else pastDTTT = pastDTTTresp.getData();
+			if(pastDTTTresp != null && pastDTTTresp.getData() != null) pastDTTT = pastDTTTresp.getData();
 			
 			Long presentDTTT = poAutoRepository.getComsumptionQuantity(shopId, now);
 			if(presentDTTT == null) presentDTTT = 0l;
@@ -459,13 +443,12 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			if(exportDTparent == null) exportDTparent = 0l;
 			
 			Long exportDTTT = exportDT + exportDTparent;
+			if(exportDTTT == 0l) return null;
 			
-			//TODO xài / thì nên kiem tra 0
 			DTTT = stockDTTT / exportDTTT * n;
 		}
 		reqPO.setDuTruThucTe(DTTT);
 		
-		// Ton kho an toan
 		Long minSf = 0l;
 		Integer maxSf = 0;
 		Long calendarDay = 0l;
@@ -502,19 +485,15 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		reqPO.setNext(calendarDay);
 		reqPO.setLead(lead);
 
-		// Yeu Cau Ton
 		Long YCT = (minSf + calendarDay + lead) * DMKH;
 		reqPO.setYeuCauTon(YCT);
 		
-		// Hang Di Duong, PO Nhap Hang
 		Integer HDD = poConfirmRepository.getQuantityByShopIdAndStatusAndImportDate(shopId, 0, now);
 		if(HDD == null) HDD = 0;
 		reqPO.setHangDiDuong(HDD);
 		
-		// Yeu Cau Dat Hang (QC)
 		Integer QC = pd.getConvFact();
 		if(QC == null || QC == 0) return null;
-		// return ERROR + ": convfact";
 		reqPO.setYeuCauDatHang(QC);
 		
 		Long YCDH = 0l;
@@ -527,8 +506,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			if((KHTT > 0 && KHTTparent == 0) || (KHTT == 0 && KHTTparent > 0))
 				YCDH = ((minSf + calendarDay + lead) * DMKH - stockDT - stockDTparent - HDD) / QC;
 		}
-			
-		// So Luong Thung
+		
 		Long SLT = 0l;
 		Integer moqValue = 0;
 		Integer convfact2 = 0;
@@ -541,7 +519,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		if(moq != null) moqValue = moq.getMoqValue();
 		if(psd != null) convfact2 = psd.getConvfact2();
 		
-		// SLT Cau hinh muc chan
 		if(SLTCheckResp != null && SLTCheckResp.getData() != null) SLT = YCDH / QC;
 		else {
 			if(LKTT > KHTT * percentage) SLT = 0l;
@@ -551,7 +528,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			if(SLT > 20) SLT = roundUpBy5(SLT);
 		}
 		
-		// SLT Cau hinh lam tron MOQ
 		if(moq != null) {
 			if(YCDH <= 20) {
 				if(moqValue > 0 && YCDH > 0 && YCDH / QC < moqValue) {
@@ -569,7 +545,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			}
 		}
 		
-		// SLT Khai bao quy doi Pallet
 		if(psd != null) {
 			if(convfact2 == null || convfact2 == 0) return null;
 				// return ERROR + ": SLT convfact2";
@@ -587,7 +562,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			}
 		}
 		
-		// SLT Khai bao he so core
 		if(poc != null && ap != null && ap.getData() != null) {
 			SLT = SLT * ap.getData().getIntValue() * poc.getCoreValue();
 			if(SLT > 20) SLT = roundUpBy5(SLT);
@@ -596,16 +570,13 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		}
 		reqPO.setSoLuongThung(SLT);
 		
-		// Thanh Tien
 		Price pr = priceRepository.getNewPriceOfProduct(productId);
 		Long TT = (long) (SLT * QC * pr.getPrice());
 		reqPO.setThanhTien(TT);
 		
-		// Trong Luong
 		Long TL = SLT * QC;
 		reqPO.setTrongLuong(TL);
 		
-		// Canh Bao
 		String CB = "";
 		String catCode = productInfoRepository.getProductInfoCodeById(pd.getCatId());
 		
@@ -638,54 +609,52 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		ProductQuantityListDTO result = new ProductQuantityListDTO();
 		
-		HashMap<Integer, String> poNumberMap = new HashMap<Integer, String>();
+		HashMap<Long, String> poNumberMap = new HashMap<Long, String>();
 		
-		//TODO chuyen ve isEmpty
 		if(productQuantityListDTO == null ||
 				productQuantityListDTO.getProductQuantityList() == null ||
-				productQuantityListDTO.getProductQuantityList().size() == 0) return ;
+				productQuantityListDTO.getProductQuantityList().isEmpty()) return ;
 		
-		//TODO Dặt lại tên biến
-		// coi lại loại giá trị, hiện đang không đồng nhất
-		// Xài equal để so sánh
-		productQuantityListDTO.getProductQuantityList().forEach(n -> {
+		productQuantityListDTO.getProductQuantityList().forEach(pq -> {
 
-			Product pd = productRepository.getByProductCode(n.getProductCode());
+			Product pd = productRepository.getByProductCode(pq.getProductCode());
 			
-			poSplitProd.forEach(m -> {
-				if(m.getObjectId() == pd.getId()) {
-					n.setGroupId(m.getId().intValue());
+			poSplitProd.forEach(pod -> {
+				if(pod.getObjectId() != null && pod.getObjectId().equals(pd.getId())) {
+					pq.setGroupId(pod.getId());
 				}
 			});
 			
-			if(n.getGroupId() == null) {
-				poSplitSubCat.forEach(m -> {
-					if(m.getObjectId() == pd.getSubCatId()) {
-						n.setGroupId(m.getId().intValue());
+			if(pq.getGroupId() == null) {
+				poSplitSubCat.forEach(pos -> {
+					if(pos.getObjectId() != null && pos.getObjectId().equals(pd.getSubCatId())) {
+						pq.setGroupId(pos.getId());
 					}
 				});
 			}
 			
-			if(n.getGroupId() == null) {
-				poSplitCat.forEach(m -> {
-					if(m.getObjectId() == pd.getCatId()) {
-						n.setGroupId(m.getId().intValue());
+			if(pq.getGroupId() == null) {
+				poSplitCat.forEach(poc -> {
+					if(poc.getObjectId() != null && poc.getObjectId().equals(pd.getCatId())) {
+						pq.setGroupId(poc.getId());
 					}
 				});
 			}
 			
-			if(n.getGroupId() == null) {
-				n.setGroupId(-1);
+			if(pq.getGroupId() == null) {
+				pq.setGroupId(-1l);
 			}
 			
-			n.setProductConv(pd.getConvFact());
-			result.add(n);
+			pq.setProductConv(pd.getConvFact());
+			result.add(pq);
 			
 		});
 		
 		result.getProductQuantityList().forEach(n -> {
 			if(poNumberMap.get(n.getGroupId()) == null) {
-				poNumberMap.put(n.getGroupId(), getCurrentMaxPOAutoNumberId());
+				String poNumber = getCurrentMaxPOAutoNumberId();
+				if(StringUtils.stringIsNullOrEmpty(poNumber)) return;
+				poNumberMap.put(n.getGroupId(), poNumber);
 			}
 			
 			PoAuto po = poAutoRepository.getPoAutoBypoAutoNumber(poNumberMap.get(n.getGroupId()), shopId);
@@ -721,9 +690,13 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	private String getCurrentMaxPOAutoNumberId() {
 		
 		//TODO coi lại viết câu query lấy 1 phần tử
-		// Thêm try/catch để bắt lỗi
-		PoAuto a = poAutoRepository.getNewestPoAutoNumber().get(0);
-		return ("MTPO" + String.valueOf(Long.valueOf(a.getPoAutoNumber().substring(4)) + 1) );
+		try {
+			PoAuto a = poAutoRepository.getNewestPoAutoNumber().get(0);
+			return ("MTPO" + String.valueOf(Long.valueOf(a.getPoAutoNumber().substring(4)) + 1) );			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	@Transactional(rollbackFor = Exception.class)
@@ -751,10 +724,10 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 
         for (PoAuto poAuto : poAutoNumberList) {
         	try {
-        		//TODO tạo biến để thay thế query nhiều lần
-        		if(shopClient.getByIdV1(poAuto.getShopId()).getData() == null) return;
-        		String shopCode = shopClient.getByIdV1(poAuto.getShopId()).getData().getShopCode();
-        		if(!shopClient.getByIdV1(poAuto.getShopId()).getData().getShopCode().isEmpty()) {        			
+        		ShopDTO shop = shopClient.getByIdV1(poAuto.getShopId()).getData();
+        		if(shop == null) return;
+        		String shopCode = shop.getShopCode();
+        		if(!shop.getShopCode().isEmpty()) {        			
         			String fileName = StringUtils.createXmlFileNameV2(shopCode);
         			InputStream inputStream = this.exportXmlFile(poAuto, shopCode);
         			if (inputStream != null) {
@@ -803,10 +776,9 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         
     	if(poAuto == null) return null;
     	
-    	//TODO đặt tên biến lại
-    	String PaymentTerm = "12 NET";
-    	String SiteID = "KHOCHINH";
-    	String Version = "1";
+    	String PAYMENT_TERM = "12 NET";
+    	String SITE_ID = "KHOCHINH";
+    	String VERSION = "1";
         
         PO po = new PO();
         List<NewPO> newPOList = new ArrayList<>();
@@ -820,7 +792,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         poHeader.setOrderDate(poAuto.getApproveDate());
         poHeader.setStatus(String.valueOf(poAuto.getStatus()));
         poHeader.setTotal(poAuto.getTotal().floatValue());
-        poHeader.setPaymentTerm(PaymentTerm);
+        poHeader.setPaymentTerm(PAYMENT_TERM);
         List<POHeader> poHeaderList = new ArrayList<>();
         poHeaderList.add(poHeader);
         
@@ -847,12 +819,12 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
             line.setItemCode(product.getProductCode());
             line.setItemDescr(product.getProductName());
             line.setUom(product.getUom1());
-            line.setSiteId(SiteID);
+            line.setSiteId(SITE_ID);
             line.setQuantity(n.getQuantity().intValue());
             line.setPrice(n.getPrice().doubleValue());
             line.setLineTotal(n.getAmount().doubleValue());
             line.setRequestDate(poAuto.getPoAutoDate());
-            line.setVersion(Version);
+            line.setVersion(VERSION);
             line.setPlanqty(Planqty);
             lineList.add(line);
         });
