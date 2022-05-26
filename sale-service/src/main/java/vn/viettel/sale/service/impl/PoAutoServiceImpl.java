@@ -146,6 +146,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
     
     private Class<?>[] classes = new Class[] { PO.class, NewPO.class, POHeader.class, PODetail.class, Line.class};
     
+    //TODO Khai báo lai mã lỗi
     String ERROR = "Có lỗi trong quá trình xử lý.";
     String SUCCESS = "Thành công.";
 
@@ -172,6 +173,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		PoAuto poAuto = poAutoRepository.getPoAutoBypoAutoNumber(poAutoNumber, shopId);
 		if (poAuto != null) {
+			//TODO Kiem tra null khi goi nhieu ham
 			poAutoRepository.getPoAutoDetailById(poAuto.getId()).forEach((n) -> {
 				poAutoDetailProductList.add(convertPoAutoDetail(n));
 			});			
@@ -184,6 +186,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	@Transactional(rollbackFor = Exception.class)
 	public String approvePoAuto(List<String> poAutoNumberList, Long shopId) {
 		
+		//TODO Đưa về các enum
 		Integer UNAPPROVE_STATUS = 0;
 		
 		if(poAutoNumberList.isEmpty()) return ERROR;
@@ -230,6 +233,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 
 		List<Tuple> productList = poAutoRepository.getProductByPage(shopid, keyword);
 		
+		//TODO kiem tra lai dieu kien list
 		if(productList == null || productList.size() < 1) return null;
 		
 		List<ProductStockDTO> productStockDtos = productList.stream()
@@ -302,6 +306,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		// shopId = 2742l;
 		// productId = 8321l;
 		
+		//TODO không hacord
 		RequestOfferDTO reqPO = new RequestOfferDTO();
 		Long warehouseTypeId = 3471l;
 		Long productId = pd.getId();
@@ -314,6 +319,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		Response<ShopDTO> shopResp = shopClient.getByIdV1(shopId);
 		if(shopResp == null || shopResp.getData() == null) return null;
 		//return ERROR + ": shop";
+		//TODO xóa đi các comment dư
 		ShopDTO shop = shopResp.getData();
 		
 		if(pd.getStatus() != 1) return null;
@@ -333,12 +339,14 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		reqPO.setTonDauKy(TDK);
 		
 		// Nhap
+		//TODO xem lại cách tạo biến, check if_else
 		Long pastImportPO = 0l;
 		Response<Long> pastImportPOresp = reportStockClient.getImport(shopId, productId, firstMonthDay, yesterday);
 		if(pastImportPOresp == null) pastImportPO = 0l;
 		else pastImportPO = pastImportPOresp.getData();
 		if(pastImportPO == null) pastImportPO = 0l;
 		
+		//TODO check lại hàm query getImportQuantity1 này, sao truyền null mà ko kiểm tra hay xử lý 
 		Long importPO1 = poAutoRepository.getImportQuantity1(shopId, now, null);
 		Long importPO2 = poAutoRepository.getImportQuantity2(shopId, now);
 		if(importPO1 == null) importPO1 = 0l;
@@ -411,6 +419,8 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		ShopParamDTO data = shopParamDTO.getData();
 		
 		Long n = 28l;
+		
+		//TODO nên cẩn thận parse value coi chừng lỗi
 		if(data != null) {
 			if(data.getName() != null)
 				n = Long.valueOf(data.getName());
@@ -424,6 +434,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			if(n != 0l) {
 				pastDTTTresp = reportStockClient.getCumulativeConsumption(shopId, productId, beforeNday, yesterday);			
 			}
+			//TODO coi lai if_else
 			if(pastDTTTresp == null || pastDTTTresp.getData() == null) pastDTTT = 0l;
 			else pastDTTT = pastDTTTresp.getData();
 			
@@ -449,6 +460,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			
 			Long exportDTTT = exportDT + exportDTparent;
 			
+			//TODO xài / thì nên kiem tra 0
 			DTTT = stockDTTT / exportDTTT * n;
 		}
 		reqPO.setDuTruThucTe(DTTT);
@@ -628,10 +640,14 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		HashMap<Integer, String> poNumberMap = new HashMap<Integer, String>();
 		
+		//TODO chuyen ve isEmpty
 		if(productQuantityListDTO == null ||
 				productQuantityListDTO.getProductQuantityList() == null ||
 				productQuantityListDTO.getProductQuantityList().size() == 0) return ;
 		
+		//TODO Dặt lại tên biến
+		// coi lại loại giá trị, hiện đang không đồng nhất
+		// Xài equal để so sánh
 		productQuantityListDTO.getProductQuantityList().forEach(n -> {
 
 			Product pd = productRepository.getByProductCode(n.getProductCode());
@@ -704,6 +720,8 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	
 	private String getCurrentMaxPOAutoNumberId() {
 		
+		//TODO coi lại viết câu query lấy 1 phần tử
+		// Thêm try/catch để bắt lỗi
 		PoAuto a = poAutoRepository.getNewestPoAutoNumber().get(0);
 		return ("MTPO" + String.valueOf(Long.valueOf(a.getPoAutoNumber().substring(4)) + 1) );
 	}
@@ -719,6 +737,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         
         if (apParamDTOList == null) return;
         
+        //TODO xử lý gì ở đây
         if (apParamDTOList.get(0).getValue().equals(ACCEPT_VALUE)) {
         	// Do the download thing
         	
@@ -732,6 +751,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 
         for (PoAuto poAuto : poAutoNumberList) {
         	try {
+        		//TODO tạo biến để thay thế query nhiều lần
         		if(shopClient.getByIdV1(poAuto.getShopId()).getData() == null) return;
         		String shopCode = shopClient.getByIdV1(poAuto.getShopId()).getData().getShopCode();
         		if(!shopClient.getByIdV1(poAuto.getShopId()).getData().getShopCode().isEmpty()) {        			
@@ -783,6 +803,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         
     	if(poAuto == null) return null;
     	
+    	//TODO đặt tên biến lại
     	String PaymentTerm = "12 NET";
     	String SiteID = "KHOCHINH";
     	String Version = "1";

@@ -62,6 +62,8 @@ public class PoAutoController extends BaseController {
 													@RequestParam(name = "page", required = false) Integer page,
 													@RequestParam(name = "poStatus", required = false) Integer poStatus) {
 
+		// TODO sử dụng default xem thay thế dc ko
+		// Xóa đi các space, tab dư
 		if(poStatus == null) poStatus = -1;
 		
 		Page<PoAutoDTO> response = poAutoService.getSearchPoAuto(poAutoNumber,
