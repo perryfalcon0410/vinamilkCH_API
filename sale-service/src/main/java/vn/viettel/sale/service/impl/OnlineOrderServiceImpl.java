@@ -381,7 +381,7 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
     public void getOnlineOrderSchedule() {
         List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
         String readPath = "/home/ftpimt/pos/neworder", backupPath = "/home/ftpimt/pos/backup", newOrder = "_VES_", cancelOrder = "_CANORDERPOS_"
-                , destinationMessage = "/home/ftpimt/pos/ordermessage", failName = "VES_ORDERMESSAGE_", shopCodes = "";
+                , destinationMessage = "/home/ftpimt/pos/ordermessage", failName = "VES_ORDERMESSAGE_";
         if(apParamDTOList != null){
             for(ApParamDTO app : apParamDTOList){
                 if(app.getApParamCode() == null || "FTP_ORDER".equalsIgnoreCase(app.getApParamCode().trim())) readPath = app.getValue().trim();
@@ -392,48 +392,40 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
                     destinationMessage = app.getValue().trim();
                 if (app.getApParamCode() == null || "FTP_FILE_FAIL".equalsIgnoreCase(app.getApParamCode().trim()))
                     failName = app.getValue().trim();
-                if(app.getApParamCode() == null || "FTP_ORDER_SHOP".equalsIgnoreCase(app.getApParamCode().trim())) shopCodes = app.getValue();
             }
         }
         FTPINFO ftpinfo = new FTPINFO(apParamDTOList);
         ConnectFTP connectFTP = new ConnectFTP(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword());
 
-        String[] arrShops = {null};
-        if(shopCodes != null && !shopCodes.isEmpty()) {
-            arrShops = shopCodes.split(";");
-        }
-
-        for(String shopCode : arrShops){
-            if(newOrder == null) newOrder = "";
-            if(cancelOrder == null) cancelOrder = "";
-            if(connectFTP.reConnected(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword())){
-                FTPFile[] ftpFiles = connectFTP.getFilesV2(readPath);
-                if (ftpFiles != null && ftpFiles.length > 0) {
-                    for (FTPFile file : ftpFiles) {
-                        if (file.isFile() && file.getName().endsWith(connectFTP.getReadFile()) &&
-                                ((shopCode==null || shopCode.isEmpty()) || (shopCode!=null && file.getName().toLowerCase().startsWith(shopCode.trim().toLowerCase())))) {
-                            InputStream inputstream = null;
-                            try {
-                                if(connectFTP.reConnected(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword())){
-                                    inputstream = connectFTP.retrieveFile(readPath + "/" + file.getName());
-                                    if(file.getName().toLowerCase().contains(newOrder.toLowerCase()) && inputstream != null) {
-                                        this.syncXmlOnlineOrder(inputstream);
-                                        connectFTP.moveFile(readPath, backupPath, file.getName());
-                                    }else if(file.getName().toLowerCase().contains(cancelOrder.toLowerCase()) && inputstream != null) {
-                                        this.syncXmlToCancelOnlineOrder(inputstream);
-                                        connectFTP.moveFile(readPath, backupPath, file.getName());
-                                    }
+        if(newOrder == null) newOrder = "";
+        if(cancelOrder == null) cancelOrder = "";
+        if(connectFTP.reConnected(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword())){
+            FTPFile[] ftpFiles = connectFTP.getFilesV2(readPath);
+            if (ftpFiles != null && ftpFiles.length > 0) {
+                for (FTPFile file : ftpFiles) {
+                    if (file.isFile() && file.getName().endsWith(connectFTP.getReadFile())) {
+                        InputStream inputstream = null;
+                        try {
+                            if(connectFTP.reConnected(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword())){
+                                inputstream = connectFTP.retrieveFile(readPath + "/" + file.getName());
+                                if(file.getName().toLowerCase().contains(newOrder.toLowerCase()) && inputstream != null) {
+                                    this.syncXmlOnlineOrder(inputstream);
+                                    connectFTP.moveFile(readPath, backupPath, file.getName());
+                                }else if(file.getName().toLowerCase().contains(cancelOrder.toLowerCase()) && inputstream != null) {
+                                    this.syncXmlToCancelOnlineOrder(inputstream);
+                                    connectFTP.moveFile(readPath, backupPath, file.getName());
                                 }
-                            }catch (Exception ex) {
-                                LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "FTP read files error: " +  file.getName() + " - " + ex.getMessage());
-                            }finally {
-                                IOUtils.closeQuietly(inputstream);
                             }
+                        }catch (Exception ex) {
+                            LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "FTP read files error: " +  file.getName() + " - " + ex.getMessage());
+                        }finally {
+                            IOUtils.closeQuietly(inputstream);
                         }
                     }
                 }
             }
         }
+
         connectFTP.disconnectFTPServer();
 
     }
