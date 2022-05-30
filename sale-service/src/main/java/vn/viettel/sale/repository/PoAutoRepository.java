@@ -25,7 +25,8 @@ import vn.viettel.sale.service.dto.PoAutoDTO;
 @Repository
 public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificationExecutor<PoAuto> {
 	
-	@Query(value = "select new vn.viettel.sale.service.dto.PoAutoDTO (po.poAutoNumber, po.groupCode, po.status, po.createAt, po.approveDate, po.amount) from PoAuto po where po.shopId = :shopId")
+	@Query(value = "select new vn.viettel.sale.service.dto.PoAutoDTO (po.poAutoNumber, po.groupCode, po.status, po.createAt, po.approveDate, po.amount) from PoAuto po "
+			+ "where po.shopId = :shopId")
 	public Page<PoAutoDTO> findAllPo(Long shopId, Pageable pageable);
 	
     @Query(value = "select new vn.viettel.sale.service.dto.PoAutoDTO (po.poAutoNumber, po.groupCode, po.status, po.createAt, po.approveDate, po.amount) from PoAuto po "
@@ -54,7 +55,7 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     @Query(value = "select sp from SalePlan sp where sp.shopId = :shopId "
     		+ "and sp.productId = :productId "
     		+ "and sp.month between :fromMonth and :toMonth")
-    public SalePlan getSalePlanByShopIdProductIdMonth(String shopId, Long productId, Date fromMonth, Date toMonth);
+    public SalePlan getSalePlanByShopIdProductIdMonth(Long shopId, Long productId, Date fromMonth, Date toMonth);
     
     @Modifying()
     @Query(value = "Update PoAuto SET status = 2, updateAt = :date Where poAutoNumber = :poAutoNumber "

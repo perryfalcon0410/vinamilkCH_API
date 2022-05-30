@@ -19,4 +19,7 @@ public interface WareHouseTypeRepository extends BaseRepository<WareHouseType> {
     @Query(value = "SELECT new vn.viettel.sale.service.dto.WareHouseTypeDTO( w.id, w.wareHouseTypeCode, w.wareHouseTypeName, Case when w.id =:defaultId then 1 else 0 end )" +
             " FROM WareHouseType w WHERE w.status = 1 ORDER BY w.wareHouseTypeCode asc ")
     List<WareHouseTypeDTO> findWithDefault(Long defaultId);
+    
+    @Query(value = "select wh from WareHouseType wh where wh.wareHouseTypeCode = :code")
+    WareHouseType getByCode(String code);
 }
