@@ -665,7 +665,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
     ////////////////////////////////////////////////////////////////////////////////////////////////
     @Transactional(rollbackFor = Exception.class)
     public ResponseMessage  createPoTrans(ReceiptCreateRequest request, Long userId, Long shopId) {
-        List<PoTrans> lstRedInvoiceNos = repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim());
+        List<PoTrans> lstRedInvoiceNos = repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim(), shopId);
         if(!lstRedInvoiceNos.isEmpty()) throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
         if(request.getRedInvoiceNo() != null && request.getRedInvoiceNo().length() >50) throw new ValidateException(ResponseMessage.INVALID_STRING_LENGTH);
         checkNoteLength(request.getNote());
@@ -968,7 +968,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         PoTrans poTrans = repository.findByIdAndShopIdAndTypeAndStatus(id, shopId, 1, 1 )
                 .orElseThrow(() -> new ValidateException(ResponseMessage.PO_TRANS_IS_NOT_EXISTED));
 
-        List<PoTrans> lstRedInvoiceNos = repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim());
+        List<PoTrans> lstRedInvoiceNos = repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim(), shopId);
         if(!lstRedInvoiceNos.isEmpty() && !lstRedInvoiceNos.get(0).getId().equals(poTrans.getId()))
             throw new ValidateException(ResponseMessage.RED_INVOICE_NO_IS_EXIST);
 
