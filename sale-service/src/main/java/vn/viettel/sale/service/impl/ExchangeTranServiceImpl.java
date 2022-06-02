@@ -121,9 +121,8 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
     public ResponseMessage create(ExchangeTransRequest request, Long userId, Long shopId) {
         List<CategoryDataDTO> cats = categoryDataClient.getByCategoryGroupCodeV1().getData();
         List<Long> catIds = cats.stream().map(CategoryDataDTO::getId).collect(Collectors.toList());
-        List<String> exChangeCodes = repository.getListExChangeCodes();
-        if (exChangeCodes.contains(request.getTransCode()))
-            throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
+        List<String> exChangeCodes = repository.getListExChangeCodes(request.getTransCode(), shopId);
+        if (!exChangeCodes.isEmpty()) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
         if (!catIds.contains(request.getReasonId())) throw new ValidateException(ResponseMessage.REASON_NOT_FOUND);
         if (request.getCustomerId() == null) throw new ValidateException(ResponseMessage.CUSTOMER_DOES_NOT_EXIST);
 
@@ -150,6 +149,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
 
         for (ExchangeTransDetailRequest etd : request.getLstExchangeDetail()) {
             ExchangeTransDetail exchangeTransDetail = modelMapper.map(etd, ExchangeTransDetail.class);
+            exchangeTransDetail.setId(null);
             exchangeTransDetail.setTransId(exchangeTransRecord.getId());
             exchangeTransDetail.setTransDate(date);
             setPrice(prices, exchangeTransDetail);
@@ -259,8 +259,7 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
         LocalDateTime date = LocalDateTime.now();
         ExchangeTrans exchange = repository.getById(exchangeTranId, shopId, request.getCustomerId());
         if (exchange != null && DateUtils.formatDate2StringDate(exchange.getTransDate()).equals(DateUtils.formatDate2StringDate(date))) {
-            List<String> listTransCode = repository.getListExChangeCodes();
-            if (listTransCode == null) throw new ValidateException(ResponseMessage.EXCHANGE_CODE_IS_EXIST);
+
             List<Long> productIds = request.getLstExchangeDetail().stream().map(
                     item -> item.getProductId()).distinct().collect(Collectors.toList());
             CustomerTypeDTO customerDTO = customerTypeClient.getCustomerTypeForSale(request.getCustomerId(), shopId);
@@ -272,8 +271,6 @@ public class ExchangeTranServiceImpl extends BaseServiceImpl<ExchangeTrans, Exch
             List<ExchangeTransDetail> dbExchangeTransDetails = transDetailRepository.findByTransId(exchangeTranId);
             validate(request.getLstExchangeDetail(), productIds, prices, stockTotals, dbExchangeTransDetails);
 
-            listTransCode.remove(exchange.getTransCode());
-            if (!listTransCode.contains(request.getTransCode())) exchange.setTransCode(request.getTransCode());
             exchange.setCustomerId(request.getCustomerId());
             exchange.setReasonId(request.getReasonId());
 

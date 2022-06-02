@@ -13,8 +13,8 @@ import java.util.List;
 
 public interface ExchangeTransRepository extends BaseRepository<ExchangeTrans>, JpaSpecificationExecutor<ExchangeTrans> {
 
-    @Query(value = "SELECT transCode FROM ExchangeTrans WHERE  status =1 ")
-    List<String> getListExChangeCodes();
+    @Query(value = "SELECT transCode FROM ExchangeTrans WHERE  status =1 and transCode = :transCode and shopId =:shopId")
+    List<String> getListExChangeCodes(String transCode, Long shopId);
 
     @Query(value = "SELECT new vn.viettel.sale.service.dto.ExchangeTotalDTO( sum(ex.quantity) , sum(ex.totalAmount)) " +
             " FROM ExchangeTrans ex WHERE  ( :status is null or ex.status = :status ) " +
