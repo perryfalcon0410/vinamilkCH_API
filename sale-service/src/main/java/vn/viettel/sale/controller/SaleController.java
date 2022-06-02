@@ -52,6 +52,10 @@ public class SaleController extends BaseController {
         if(this.service == null) this.service = service;
     }
 
+    public void setSalePromotionService(SalePromotionService service) {
+        if(this.salePromotionService == null) this.salePromotionService = service;
+    }
+
     @ApiOperation(value = "Api dùng để tạo mới đơn bán hàng, đơn hàng online")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
@@ -111,7 +115,8 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để tính khuyến mãi")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/promotion-calculation"})
-    public Response<SalePromotionCalculationDTO> promotionCalculation(HttpServletRequest httpRequest, @Valid @ApiParam("Thông tin cần tính") @RequestBody SalePromotionCalculationRequest calculationRequest) {
+    public Response<SalePromotionCalculationDTO> promotionCalculation(HttpServletRequest httpRequest,
+                             @Valid @ApiParam("Thông tin cần tính") @RequestBody SalePromotionCalculationRequest calculationRequest) {
 
         SalePromotionCalculationDTO result = salePromotionService.promotionCalculation(calculationRequest, this.getShopId(httpRequest));
         return new Response<SalePromotionCalculationDTO>().withData(result);
@@ -151,7 +156,8 @@ public class SaleController extends BaseController {
     @ApiOperation(value = "Api dùng để lấy mã giảm giá")
     @ApiResponse(code = 200, message = "Success")
     @PostMapping(value = { V1 + root + "/discount-code/{code}"})
-    public Response<SalePromotionDTO> getDiscountCode(HttpServletRequest httpRequest, @PathVariable("code") String discountCode, @Valid @ApiParam("Thông tin mua hàng") @RequestBody OrderPromotionRequest orderRequest) {
+    public Response<SalePromotionDTO> getDiscountCode(HttpServletRequest httpRequest, @PathVariable("code") String discountCode, @Valid @ApiParam("Thông tin mua hàng")
+    @RequestBody OrderPromotionRequest orderRequest) {
         if (orderRequest == null || orderRequest.getProducts() == null || orderRequest.getProducts().size() < 1){
             throw new ValidateException(ResponseMessage.ORDER_ITEM_NOT_NULL);
         }

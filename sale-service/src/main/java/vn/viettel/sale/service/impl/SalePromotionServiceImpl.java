@@ -567,22 +567,11 @@ public class SalePromotionServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrd
             salePromotion.setProgramId(program.getId());
             salePromotion.setProgramType(program.getType());
             SalePromotionDiscountDTO spDto = new SalePromotionDiscountDTO();
-      /*     if(isInclusiveTax){
-               amtExTax = 0D;
-           }else {
-               amtInTax = 0D;
-           }*/
 
             double percentInTax = calPercent(orderData.getTotalPrice(), amtInTax);
             double percentExTax = calPercent(orderData.getTotalPriceNotVAT(), amtExTax);
             List<SaleDiscountSaveDTO> saveInfo = initSaleDiscountSaveDTO(orderData.getProducts(), 1, percentInTax, percentExTax,
                     isInclusiveTax(program.getDiscountPriceType()), amtInTax, amtExTax);
-          /*  amtInTax = 0D;
-            amtExTax = 0D;
-            for(SaleDiscountSaveDTO info: saveInfo) {
-               amtInTax += info.getAmountInTax();
-               amtExTax += info.getAmountExTax();
-            }*/
 
             if (forSaving) {
                 spDto.setDiscountInfo(saveInfo);

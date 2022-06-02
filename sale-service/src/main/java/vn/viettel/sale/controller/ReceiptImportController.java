@@ -65,7 +65,8 @@ public class ReceiptImportController extends BaseController {
                                         @SortDefault(sort = "transCode", direction = Sort.Direction.DESC)
                                 })
                                 Pageable pageable) {
-        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(transCode, redInvoiceNo, DateUtils.convertFromDate(fromDate), DateUtils.convertToDate(toDate),type,this.getShopId(request),pageable);
+        CoverResponse<Page<ReceiptImportListDTO>, TotalResponse> response = receiptService.find(transCode, redInvoiceNo, DateUtils.convertFromDate(fromDate),
+                DateUtils.convertToDate(toDate),type,this.getShopId(request),pageable);
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.FIND_RECEIPT_IMPORT_SUCCESS);
         return new Response<CoverResponse<Page<ReceiptImportListDTO>, TotalResponse>>().withData(response);
     }
@@ -111,8 +112,10 @@ public class ReceiptImportController extends BaseController {
                                                 @Valid @RequestBody ReceiptUpdateRequest rq) {
         ResponseMessage message = receiptService.updateReceiptImport(rq, id,this.getUsername(request),this.getShopId(request));
         Response response = new Response();
-        response.setStatusValue(message.statusCodeValue());
-        response.setStatusCode(message.statusCode());
+        if(message != null) {
+            response.setStatusValue(message.statusCodeValue());
+            response.setStatusCode(message.statusCode());
+        }
         LogFile.logToFile(appName, getUsername(request), LogLevel.INFO, request, LogMessage.UPDATE_RECEIPT_IMPORT_SUCCESS);
         return response;
     }

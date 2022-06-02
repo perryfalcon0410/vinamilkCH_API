@@ -4,7 +4,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -28,18 +30,21 @@ import vn.viettel.sale.entities.*;
 import vn.viettel.sale.messaging.*;
 import vn.viettel.sale.repository.*;
 import vn.viettel.sale.service.ReceiptImportService;
+import vn.viettel.sale.service.SaleService;
 import vn.viettel.sale.service.StockTotalService;
 import vn.viettel.sale.service.dto.*;
 import vn.viettel.sale.service.feign.*;
 import vn.viettel.sale.service.impl.ReceiptImportServiceImpl;
 
+import javax.validation.Valid;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.BDDMockito.given;
@@ -58,22 +63,28 @@ public class ReceiptImportControllerTest extends BaseTest {
 
     @Mock
     PoTransRepository repository;
-
+    @Mock
+    StockAdjustmentTransRepository stockAdjustmentTransRepository;
     @Mock
     ProductRepository productRepository;
-
+    @Mock
+    StockBorrowingTransRepository stockBorrowingTransRepository;
     @Mock
     PoTransDetailRepository poTransDetailRepository;
-
+    @Mock
+    ProductPriceRepository productPriceRepository;
     @Mock
     StockTotalService stockTotalService;
-
+    @Mock
+    SaleOrderDetailRepository saleOrderDetailRepository;
     @Mock
     ShopClient shopClient;
-
+    @Mock
+    SaleOrderRepository saleOrderRepository;
     @Mock
     PoConfirmRepository poConfirmRepository;
-
+    @Mock
+    SaleService saleService;
     @Mock
     PoDetailRepository poDetailRepository;
 
@@ -85,7 +96,8 @@ public class ReceiptImportControllerTest extends BaseTest {
 
     @Mock
     StockAdjustmentRepository stockAdjustmentRepository;
-
+    @Mock
+    StockTotalRepository stockTotalRepository;
     @Mock
     ApparamClient apparamClient;
 
@@ -94,10 +106,12 @@ public class ReceiptImportControllerTest extends BaseTest {
 
     @Mock
     StockAdjustmentDetailRepository stockAdjustmentDetailRepository;
-
+    @Mock
+    StockAdjustmentTransDetailRepository stockAdjustmentTransDetailRepository;
     @Mock
     StockBorrowingDetailRepository stockBorrowingDetailRepository;
-
+    @Mock
+    StockBorrowingTransDetailRepository stockBorrowingTransDetailRepository;
     @Mock
     CustomerTypeClient customerTypeClient;
 
@@ -346,10 +360,10 @@ public class ReceiptImportControllerTest extends BaseTest {
         MvcResult mvcResult = resultActions.andReturn();
         assertEquals(200, mvcResult.getResponse().getStatus());
     }
-
+    @Test
     public void createImportType1Test() throws Exception {
         String uri = V1 + root;
-        request.setImportType(0);
+        request.setImportType(1);
         request.setPoId((long)1);
 
         given(userClient.getUserByIdV1(userId)).willReturn(new UserDTO());
@@ -359,12 +373,29 @@ public class ReceiptImportControllerTest extends BaseTest {
         stockAdjustment.setWareHouseTypeId(wareHouseTypeId);
         stockAdjustment.setStatus(0);
         stockAdjustment.setReasonId((long)1);
+        stockAdjustment.setId(1L);
         given(stockAdjustmentRepository.getById(request.getPoId(), shopId, 1)).willReturn(stockAdjustment);
         Response<ApParamDTO> reason = new Response<>();
         ApParamDTO apParamDTO = new ApParamDTO();
         apParamDTO.setId((long)1);
         reason.withData(apParamDTO);
         given(apparamClient.getReasonV1(stockAdjustment.getReasonId())).willReturn(reason);
+
+        PoConfirm poConfirm = new PoConfirm();
+        poConfirm.setId((long)1);
+        poConfirm.setShopId(shopId);
+        poConfirm.setStatus(0);
+        poConfirm.setWareHouseTypeId(wareHouseTypeId);
+//        given(poConfirmRepository.getById(request.getPoId())).willReturn(poConfirm);
+        DateFormat df = new SimpleDateFormat("yy");
+        String yy = df.format(Calendar.getInstance().getTime());
+        StockAdjustmentTrans stockAdjustmentTrans = new StockAdjustmentTrans();
+        stockAdjustmentTrans.setInternalNumber("00001");
+        Pageable pageable = PageRequest.of(0,2);
+        Page<StockAdjustmentTrans> stockAdjustmentTransPage = new PageImpl<>(Arrays.asList(stockAdjustmentTrans), pageable, 1);
+        when(stockAdjustmentTransRepository.getLastInternalCode(1,
+                "EDCT.ShopCode." + yy + ".", DateUtils.convertFromDate(LocalDateTime.now().with(firstDayOfYear())), pageable)).thenReturn(stockAdjustmentTransPage);
+        given(stockAdjustmentDetailRepository.getStockAdjustmentDetailByAdjustmentId(stockAdjustment.getId())).willReturn(adjustmentDetails);
 
         ResponseMessage result = serviceImp.createReceipt(request, userId, shopId);
         assertNotNull(result);
@@ -380,13 +411,23 @@ public class ReceiptImportControllerTest extends BaseTest {
         assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
+    @Test
     public void createImportType2Test() throws Exception {
         String uri = V1 + root;
         request.setImportType(2);
         request.setPoId((long)1);
+        StockBorrowing stockBorrowing = new StockBorrowing();
+        stockBorrowing.setId(1L);
+        given(stockBorrowingRepository.getImportById(request.getPoId(), shopId)).willReturn(stockBorrowing);
+        StockBorrowingTrans stockBorrowingTrans = new StockBorrowingTrans();
+        stockBorrowingTrans.setTransCode("00001");
 
-        given(stockBorrowingRepository.getImportById(request.getPoId(), shopId)).willReturn(new StockBorrowing());
-
+        DateFormat df = new SimpleDateFormat("yy");
+        String yy = df.format(Calendar.getInstance().getTime());
+        Page<StockBorrowingTrans> borrTrans = new PageImpl<>(Arrays.asList(stockBorrowingTrans), PageRequest.of(0,1), 1);
+        when(stockBorrowingTransRepository.getLastTransCode(1,
+                "EDCB.ShopCode."+yy+".", DateUtils.convertFromDate(LocalDateTime.now().with(firstDayOfYear())), PageRequest.of(0,1))).thenReturn(borrTrans);
+        given(stockBorrowingDetailRepository.findByBorrowingId(id)).willReturn(borrowingDetails);
         ResponseMessage result = serviceImp.createReceipt(request, userId, shopId);
         assertNotNull(result);
         assertEquals(result, responseMessage);
@@ -474,6 +515,7 @@ public class ReceiptImportControllerTest extends BaseTest {
     public void getPoDetailByPoIdAndPriceIsNullTest() throws Exception {
         String uri = V1 + root + "/po-detail1/" + id.toString();
 
+        when(poDetailRepository.getPoDetailByPoIdAndPriceIsLessThan(id)).thenReturn(poDetails);
         serviceImp.getPoDetailByPoIdAndPriceIsNull(id, shopId);
 
         ResultActions resultActions = mockMvc.perform(get(uri, 1L).contentType(MediaType.APPLICATION_JSON))
@@ -553,4 +595,376 @@ public class ReceiptImportControllerTest extends BaseTest {
         assertEquals(200, mvcResult.getResponse().getStatus());
     }
 
+    @Test
+    public void updateReceiptImport_Type0() throws Exception {
+        String uri = V1 + root + "/update/1";
+        ReceiptUpdateRequest request = new ReceiptUpdateRequest();
+        request.setType(0);
+        request.setNote("123");
+        request.setRedInvoiceNo("123");
+        request.setInternalNumber("123");
+        request.setPoCoNumber("123");
+        List<ReceiptCreateDetailRequest> lstUpdate = new ArrayList<>();
+        ReceiptCreateDetailRequest receiptCreateDetailRequest = new ReceiptCreateDetailRequest();
+        receiptCreateDetailRequest.setProductId(1L);
+        receiptCreateDetailRequest.setId(1L);
+        receiptCreateDetailRequest.setQuantity(1);
+        lstUpdate.add(receiptCreateDetailRequest);
+        ReceiptCreateDetailRequest receiptCreateDetailRequest1 = new ReceiptCreateDetailRequest();
+        receiptCreateDetailRequest1.setProductId(1L);
+        receiptCreateDetailRequest1.setId(-1L);
+        receiptCreateDetailRequest1.setQuantity(1);
+        lstUpdate.add(receiptCreateDetailRequest1);
+        request.setLstUpdate(lstUpdate);
+
+        PoTrans poTrans = new PoTrans();
+        poTrans.setId(1L);
+        poTrans.setTransDate(LocalDateTime.now());
+        poTrans.setWareHouseTypeId(1L);
+        Mockito.when(repository.findByIdAndShopIdAndTypeAndStatus(id, shopId, 1, 1 )).thenReturn(java.util.Optional.of(poTrans));
+        List<PoTrans> lstRedInvoiceNos = new ArrayList<>();
+        lstRedInvoiceNos.add(poTrans);
+        Mockito.when(repository.getByRedInvoiceNo(request.getRedInvoiceNo().trim())).thenReturn(lstRedInvoiceNos);
+        Mockito.when(repository.getByPoCoNumber(request.getPoCoNumber().trim())).thenReturn(lstRedInvoiceNos);
+        Mockito.when(repository.getByInternalNumber(request.getInternalNumber().trim())).thenReturn(lstRedInvoiceNos);
+        List<PoTransDetail> poTransDetails = new ArrayList<>();
+        PoTransDetail poTransDetail = new PoTransDetail();
+        poTransDetail.setId(1L);
+        poTransDetail.setProductId(1L);
+        poTransDetail.setQuantity(2);
+        poTransDetails.add(poTransDetail);
+        when(poTransDetailRepository.getPoTransDetail(id)).thenReturn(poTransDetails);
+
+        serviceImp.updateReceiptImport(request, id, null,shopId);
+
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.patch(uri)
+                        .content(this.mapToJson(request))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void updateReceiptImport_Type1() throws Exception {
+        String uri = V1 + root + "/update/1";
+        ReceiptUpdateRequest request = new ReceiptUpdateRequest();
+        request.setType(1);
+        request.setNote("123");
+        request.setRedInvoiceNo("123");
+        request.setInternalNumber("123");
+        request.setPoCoNumber("123");
+        List<ReceiptCreateDetailRequest> lstUpdate = new ArrayList<>();
+        ReceiptCreateDetailRequest receiptCreateDetailRequest = new ReceiptCreateDetailRequest();
+        receiptCreateDetailRequest.setProductId(1L);
+        receiptCreateDetailRequest.setId(1L);
+        receiptCreateDetailRequest.setQuantity(1);
+        lstUpdate.add(receiptCreateDetailRequest);
+        ReceiptCreateDetailRequest receiptCreateDetailRequest1 = new ReceiptCreateDetailRequest();
+        receiptCreateDetailRequest1.setProductId(1L);
+        receiptCreateDetailRequest1.setId(-1L);
+        receiptCreateDetailRequest1.setQuantity(1);
+        lstUpdate.add(receiptCreateDetailRequest1);
+        request.setLstUpdate(lstUpdate);
+
+        StockAdjustmentTrans adjustmentTrans = new StockAdjustmentTrans();
+        adjustmentTrans.setTransDate(LocalDateTime.now());
+        when(stockAdjustmentTransRepository.getByIdAndShopId(id, shopId, 1)).thenReturn(adjustmentTrans);
+
+        serviceImp.updateReceiptImport(request, id, null,shopId);
+
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.patch(uri)
+                        .content(this.mapToJson(request))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void updateReceiptImport_Type2() throws Exception {
+        String uri = V1 + root + "/update/1";
+        ReceiptUpdateRequest request = new ReceiptUpdateRequest();
+        request.setType(2);
+        request.setNote("123");
+        request.setRedInvoiceNo("123");
+        request.setInternalNumber("123");
+        request.setPoCoNumber("123");
+        List<ReceiptCreateDetailRequest> lstUpdate = new ArrayList<>();
+        ReceiptCreateDetailRequest receiptCreateDetailRequest = new ReceiptCreateDetailRequest();
+        receiptCreateDetailRequest.setProductId(1L);
+        receiptCreateDetailRequest.setId(1L);
+        receiptCreateDetailRequest.setQuantity(1);
+        lstUpdate.add(receiptCreateDetailRequest);
+        ReceiptCreateDetailRequest receiptCreateDetailRequest1 = new ReceiptCreateDetailRequest();
+        receiptCreateDetailRequest1.setProductId(1L);
+        receiptCreateDetailRequest1.setId(-1L);
+        receiptCreateDetailRequest1.setQuantity(1);
+        lstUpdate.add(receiptCreateDetailRequest1);
+        request.setLstUpdate(lstUpdate);
+
+        StockBorrowingTrans adjustmentTrans = new StockBorrowingTrans();
+        adjustmentTrans.setTransDate(LocalDateTime.now());
+        when(stockBorrowingTransRepository.getByIdAndShopId(id, shopId, 1)).thenReturn(adjustmentTrans);
+
+        serviceImp.updateReceiptImport(request, id, null,shopId);
+
+        ResultActions resultActions =  mockMvc
+                .perform(MockMvcRequestBuilders.patch(uri)
+                        .content(this.mapToJson(request))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+        MvcResult mvcResult = resultActions.andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    public void getTrans() {
+    }
+
+    @Test
+    public void removeReceiptImport0() throws Exception {
+        String uri = V1 + root  + "/remove/1";
+        type = 0;
+        PoTrans poTrans = new PoTrans();
+        poTrans.setId(1L);
+        poTrans.setTransDate(LocalDateTime.now());
+        poTrans.setWareHouseTypeId(1L);
+        poTrans.setFromTransId(1L);
+        poTrans.setStatus(1);
+        when(repository.findById(poTrans.getFromTransId())).thenReturn(Optional.of(poTrans));
+        List<PoTransDetail> poTransDetails = new ArrayList<>();
+        PoTransDetail poTransDetail = new PoTransDetail();
+        poTransDetail.setId(1L);
+        poTransDetail.setProductId(1L);
+        poTransDetail.setQuantity(2);
+        poTransDetail.setPrice(5000.0);
+        poTransDetail.setReturnAmount(0);
+        poTransDetails.add(poTransDetail);
+        when(poTransDetailRepository.getPoTransDetailByTransId(poTrans.getId())).thenReturn(poTransDetails);
+        List<StockTotal> stockTotals = new ArrayList<>();
+        StockTotal stockTotal = new StockTotal();
+        stockTotal.setId(1L);
+        stockTotal.setQuantity(20);
+        stockTotal.setProductId(1L);
+        stockTotals.add(stockTotal);
+        when(stockTotalRepository.getStockTotal(shopId, poTrans.getWareHouseTypeId(), Arrays.asList(1L))).thenReturn(stockTotals);
+
+        serviceImp.removeReceiptImport(id,type,"",shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void removeReceiptImport1() throws Exception {
+        String uri = V1 + root  + "/remove/1";
+        type = 1;
+        List<StockTotal> stockTotals = new ArrayList<>();
+        StockTotal stockTotal = new StockTotal();
+        stockTotal.setId(1L);
+        stockTotal.setQuantity(20);
+        stockTotal.setProductId(1L);
+        stockTotals.add(stockTotal);
+        when(stockTotalRepository.getStockTotal(shopId, 1L, Arrays.asList(1L))).thenReturn(stockTotals);
+
+        StockAdjustmentTransDetail stockAdjustmentTransDetail = new StockAdjustmentTransDetail();
+        stockAdjustmentTransDetail.setProductId(1L);
+        stockAdjustmentTransDetail.setQuantity(2);
+        stockAdjustmentTransDetail.setPrice(Float.parseFloat("5000"));
+        List<StockAdjustmentTransDetail> adjustmentTransDetails = Arrays.asList(stockAdjustmentTransDetail);
+        when(stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id)).thenReturn(adjustmentTransDetails);
+
+        StockAdjustmentTrans stockAdjustmentTrans = new StockAdjustmentTrans();
+        stockAdjustmentTrans.setInternalNumber("00001");
+        stockAdjustmentTrans.setWareHouseTypeId(1L);
+        stockAdjustmentTrans.setTransDate(LocalDateTime.now());
+        stockAdjustmentTrans.setId(1L);
+        stockAdjustmentTrans.setRedInvoiceNo("123");
+        stockAdjustmentTrans.setAdjustmentId(1L);
+        stockAdjustmentTrans.setStatus(1);
+        when(stockAdjustmentTransRepository.getById(id)).thenReturn(stockAdjustmentTrans);
+
+        SaleOrder saleOrder = new SaleOrder();
+        saleOrder.setId(1L);
+        List<SaleOrder> orders = Arrays.asList(saleOrder);
+        when(saleOrderRepository.findSaleOrderByOrderCode(Arrays.asList(stockAdjustmentTrans.getRedInvoiceNo()))).thenReturn(orders);
+
+        when(saleOrderDetailRepository.findSaleOrderDetail(saleOrder.getId(), null)).thenReturn(new ArrayList<>());
+        when(stockAdjustmentRepository.getById(stockAdjustmentTrans.getAdjustmentId())).thenReturn(new StockAdjustment());
+
+        serviceImp.removeReceiptImport(id,type,"",shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void removeReceiptImport2() throws Exception {
+        String uri = V1 + root  + "/remove/1";
+        type = 2;
+        List<StockTotal> stockTotals = new ArrayList<>();
+        StockTotal stockTotal = new StockTotal();
+        stockTotal.setId(1L);
+        stockTotal.setQuantity(20);
+        stockTotal.setProductId(1L);
+        stockTotals.add(stockTotal);
+        when(stockTotalRepository.getStockTotal(shopId, 1L, Arrays.asList(1L))).thenReturn(stockTotals);
+
+        StockBorrowingTransDetail stockAdjustmentTransDetail = new StockBorrowingTransDetail();
+        stockAdjustmentTransDetail.setProductId(1L);
+        stockAdjustmentTransDetail.setQuantity(2);
+        stockAdjustmentTransDetail.setPrice(Float.parseFloat("5000"));
+        List<StockBorrowingTransDetail> adjustmentTransDetails = Arrays.asList(stockAdjustmentTransDetail);
+        when(stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(1L)).thenReturn(adjustmentTransDetails);
+
+        StockBorrowingTrans stockAdjustmentTrans = new StockBorrowingTrans();
+        stockAdjustmentTrans.setInternalNumber("00001");
+        stockAdjustmentTrans.setWareHouseTypeId(1L);
+        stockAdjustmentTrans.setTransDate(LocalDateTime.now());
+        stockAdjustmentTrans.setId(1L);
+        stockAdjustmentTrans.setRedInvoiceNo("123");
+        stockAdjustmentTrans.setStatus(1);
+        when(stockBorrowingTransRepository.getById(id)).thenReturn(stockAdjustmentTrans);
+
+        serviceImp.removeReceiptImport(id,type,"",shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getListPoConfirm() {
+    }
+
+    @Test
+    public void getListStockAdjustment() {
+    }
+
+    @Test
+    public void getListStockBorrowing() {
+    }
+
+    @Test
+    public void getPoDetailByPoId() {
+    }
+
+    @Test
+    public void getPoDetailByPoIdAndPriceIsNull() {
+    }
+
+    @Test
+    public void getPoTransDetail0() throws Exception {
+        String uri = V1 + root  + "/trans-detail/1";
+        type = 0;
+        PoTrans poTrans = new PoTrans();
+        poTrans.setId(1L);
+        poTrans.setTransDate(LocalDateTime.now());
+        poTrans.setWareHouseTypeId(1L);
+        given(repository.getById(id)).willReturn(poTrans);
+        List<PoTransDetail> poTransDetails = new ArrayList<>();
+        PoTransDetail poTransDetail = new PoTransDetail();
+        poTransDetail.setId(1L);
+        poTransDetail.setProductId(1L);
+        poTransDetail.setQuantity(2);
+        poTransDetail.setPrice(5000.0);
+        poTransDetails.add(poTransDetail);
+        when(poTransDetailRepository.getPoTransDetail0(id)).thenReturn(poTransDetails);
+        when(poTransDetailRepository.getPoTransDetail1(id)).thenReturn(poTransDetails);
+
+        serviceImp.getTransDetail(type,id,shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getPoTransDetail0_2() throws Exception {
+        String uri = V1 + root  + "/trans-detail/1";
+        type = 0;
+        PoTrans poTrans = new PoTrans();
+        poTrans.setId(1L);
+        poTrans.setTransDate(LocalDateTime.now());
+        poTrans.setWareHouseTypeId(1L);
+        poTrans.setFromTransId(1L);
+        given(repository.getById(id)).willReturn(poTrans);
+        when(repository.findById(poTrans.getFromTransId())).thenReturn(Optional.of(poTrans));
+        List<PoTransDetail> poTransDetails = new ArrayList<>();
+        when(poTransDetailRepository.getPoTransDetailByTransId(id)).thenReturn(poTransDetails);
+
+        serviceImp.getTransDetail(type,id,shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getPoTransDetail1() throws Exception {
+        String uri = V1 + root  + "/trans-detail/1";
+        type = 1;
+
+        StockAdjustmentTransDetail stockAdjustmentTransDetail = new StockAdjustmentTransDetail();
+        stockAdjustmentTransDetail.setProductId(1L);
+        stockAdjustmentTransDetail.setQuantity(2);
+        stockAdjustmentTransDetail.setPrice(Float.parseFloat("5000"));
+        List<StockAdjustmentTransDetail> adjustmentTransDetails = Arrays.asList(stockAdjustmentTransDetail);
+        when(stockAdjustmentTransDetailRepository.getStockAdjustmentTransDetailsByTransId(id)).thenReturn(adjustmentTransDetails);
+
+        serviceImp.getTransDetail(type,id,shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getPoTransDetail2() throws Exception {
+        String uri = V1 + root  + "/trans-detail/1";
+        type = 2;
+
+        StockBorrowingTransDetail stockAdjustmentTransDetail = new StockBorrowingTransDetail();
+        stockAdjustmentTransDetail.setProductId(1L);
+        stockAdjustmentTransDetail.setQuantity(2);
+        stockAdjustmentTransDetail.setPrice(Float.parseFloat("5000"));
+        List<StockBorrowingTransDetail> adjustmentTransDetails = Arrays.asList(stockAdjustmentTransDetail);
+        when(stockBorrowingTransDetailRepository.getStockBorrowingTransDetailByTransId(id)).thenReturn(adjustmentTransDetails);
+
+        serviceImp.getTransDetail(type,id,shopId);
+
+        ResultActions resultActions = mockMvc.perform(get(uri)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+        resultActions.andDo(MockMvcResultHandlers.print());
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void exportToExcel() {
+    }
 }
