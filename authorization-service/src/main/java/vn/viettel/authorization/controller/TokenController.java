@@ -3,6 +3,7 @@ package vn.viettel.authorization.controller;
 import io.jsonwebtoken.impl.DefaultClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import vn.viettel.authorization.service.ShopService;
 import vn.viettel.authorization.service.TokenGenerateService;
 import vn.viettel.core.controller.BaseController;
 
@@ -26,5 +27,9 @@ public class TokenController extends BaseController {
     @GetMapping("/feignGetBlackListToken")
     public boolean getBlackListToken(@RequestParam("token") String token) {
         return tokenGenerateService.getBlackListToken(token);
+    }
+
+    public void setService(TokenGenerateService service) {
+        if(tokenGenerateService == null) tokenGenerateService = service;
     }
 }

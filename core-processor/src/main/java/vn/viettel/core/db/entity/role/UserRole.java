@@ -17,9 +17,4 @@ public enum UserRole implements Validatable {
         return roleName;
     }
 
-    @Override
-    public String validateValue() {
-        return String.valueOf(this.roleName);
-    }
-
 }

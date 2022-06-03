@@ -131,6 +131,9 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
     @Autowired
     StockTotalService stockTotalService;
 
+    @Autowired
+    DefinedObject definedObject;
+
     @Value( "${sale.order.type.apparam}" )
     private String apParamOrderType;
 
@@ -281,7 +284,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         // 2. check promotion - khuyến mãi
         if (request.getPromotionInfo() != null && !request.getPromotionInfo().isEmpty()){
-            OrderPromotionRequest orderRequest = new OrderPromotionRequest();
+            OrderPromotionRequest orderRequest = definedObject.newOrderPromotionRequest();
             orderRequest.setCustomerId(request.getCustomerId());
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
@@ -434,7 +437,7 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
 
         //4. check existing promotion code - mã giảm giá
         if (StringUtils.stringNotNullOrEmpty(request.getDiscountCode())){
-            OrderPromotionRequest orderRequest = new OrderPromotionRequest();
+            OrderPromotionRequest orderRequest = definedObject.newOrderPromotionRequest();
             orderRequest.setCustomerId(request.getCustomerId());
             orderRequest.setOrderType(request.getOrderType());
             orderRequest.setProducts(lstProductOrder);
@@ -1069,35 +1072,6 @@ public class SaleServiceImpl extends BaseServiceImpl<SaleOrder, SaleOrderReposit
         }
 
         return  code + Integer.toString(STT + 100000).substring(1);
-        /*
-        EntityManager newEntityM = entityManager.getEntityManagerFactory().createEntityManager();
-        CriteriaBuilder cb = newEntityM.getCriteriaBuilder();
-        CriteriaQuery<SaleOrder> query = cb.createQuery(SaleOrder.class);
-        Root<SaleOrder> saleOrder = query.from(SaleOrder.class);
-
-        query.where(cb.equal(saleOrder.get(SaleOrder_.shopId), shop.getId()),
-                cb.greaterThanOrEqualTo(saleOrder.get(SaleOrder_.createdAt), start), cb.like(saleOrder.get(SaleOrder_.orderNumber),  code + "%"));
-
-        query.orderBy(cb.desc(saleOrder.get("orderNumber")));
-
-        List<SaleOrder> saleOrders = null;
-        try {
-            saleOrders = newEntityM.createQuery(query).setMaxResults(1).setFirstResult(0).getResultList();
-        }catch(Exception exception) {
-            throw exception;
-        }finally {
-            newEntityM.close();
-        }
-
-        int STT = 1;
-        if(!saleOrders.isEmpty()) {
-            String str = saleOrders.get(0).getOrderNumber();
-            String numberString = str.substring(str.length() - 5);
-            STT = Integer.valueOf(numberString) + 1;
-        }
-         return  code + Integer.toString(STT + 100000).substring(1);
-        */
-
     }
 
 

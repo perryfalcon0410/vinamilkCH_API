@@ -55,9 +55,6 @@ public interface PromotionClient {
     @PostMapping("api/v1/promotions/get-free-items/{programId}")
     Response<List<PromotionProductOpenDTO>> getFreeItemV1(@PathVariable Long programId);
 
-    @PutMapping(value = { "api/v1/promotions/vouchers"})
-    Response<VoucherDTO> updateVoucher(@Valid @RequestBody VoucherDTO request);
-
     @GetMapping(value = {"api/v1/promotions/isReturn"})
     Boolean isReturn(@RequestParam String code);
 
@@ -70,9 +67,6 @@ public interface PromotionClient {
 
     @GetMapping(value = { "/api/v1/promotions/promotion-program-detail/{programId}"})
     Response<List<PromotionProgramDetailDTO>> findPromotionProgramDetailV1(@PathVariable Long programId, @RequestParam List<Long> productIds);
-
-//    @GetMapping(value = { "/api/v1/promotions/promotion-sale-product/{programId}"})
-//    Response<List<PromotionSaleProductDTO>> findPromotionSaleProductByProgramIdV1(@PathVariable Long programId);
 
     @GetMapping(value = { "/api/v1/promotions/check/promotion-sale-product/{programId}"})
     Response<Boolean> checkSaleProductByProgramIdV1(@PathVariable Long programId, @RequestParam List<Long> productIds);

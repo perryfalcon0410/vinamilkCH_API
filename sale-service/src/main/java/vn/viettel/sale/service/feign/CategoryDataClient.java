@@ -13,17 +13,9 @@ import java.util.List;
 @Service
 @FeignClientAuthenticate(name = "common-service")
 public interface CategoryDataClient {
-    @GetMapping("/api/v1/commons/categorydata/{id}")
-    Response<CategoryDataDTO> getCategoryDataByIdV1(@PathVariable Long id);
-
-    @GetMapping("/api/v1/commons/categorydata/genders")
-    Response<List<CategoryDataDTO>> getGendersV1();
 
     @GetMapping("/api/v1/commons/categorydata/get-by-group-code")
     Response<List<CategoryDataDTO>> getByCategoryGroupCodeV1();
-
-    @GetMapping("/api/v1/commons/categorydata/reason/{id}")
-    Response<CategoryDataDTO> getReasonByIdV1(@PathVariable Long id);
 
     @GetMapping("/api/v1/commons/categorydata/feign/get-reason-exchange")
     Response<List<CategoryDataDTO>> getReasonExchangeFeign(@RequestParam(required = false) List<Long> customerIds,

@@ -1141,7 +1141,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
             adjustmentTrans.setNote(request.getNote());
             adjustmentTrans.setUpdatedBy(userName);
             adjustmentTrans.setInternalNumber(request.getInternalNumber());
-            stockAdjustmentTransRepository.save(adjustmentTrans);
+            adjustmentTrans = stockAdjustmentTransRepository.save(adjustmentTrans);
             return Arrays.asList(adjustmentTrans.getId());
         }else throw new ValidateException(ResponseMessage.EXPIRED_FOR_UPDATE);
 
@@ -1269,7 +1269,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
                 stockAdjustmentRepository.save(stockAdjustment);
             }
             stockAdjustmentTrans.setStatus(-1);
-            stockAdjustmentTransRepository.save(stockAdjustmentTrans);
+            stockAdjustmentTrans = stockAdjustmentTransRepository.save(stockAdjustmentTrans);
             syncIds.add(Arrays.asList(stockAdjustment.getId().toString()));
             syncIds.add(Arrays.asList(stockAdjustmentTrans.getId().toString()));
             syncIds.add(orderNumbers);
@@ -1365,7 +1365,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(yy);
         reciCode.append(".");
         Page<StockBorrowingTrans> borrTrans = stockBorrowingTransRepository.getLastTransCode(1,
-                reciCode.toString(), LocalDateTime.now().with(firstDayOfYear()), PageRequest.of(0,1));
+                reciCode.toString(), DateUtils.convertFromDate(LocalDateTime.now().with(firstDayOfYear())), PageRequest.of(0,1));
         int STT = 0;
         if(!borrTrans.getContent().isEmpty()) {
             String str = borrTrans.getContent().get(0).getTransCode();
@@ -1387,7 +1387,7 @@ public class ReceiptImportServiceImpl extends BaseServiceImpl<PoTrans, PoTransRe
         reciCode.append(".");
         Pageable pageable = PageRequest.of(0,2);
         Page<StockAdjustmentTrans> stockAdjustmentTrans = stockAdjustmentTransRepository.getLastInternalCode(1,
-                reciCode.toString(), LocalDateTime.now().with(firstDayOfYear()), pageable);
+                reciCode.toString(), DateUtils.convertFromDate(LocalDateTime.now().with(firstDayOfYear())), pageable);
         int STT = 0;
         if(!stockAdjustmentTrans.getContent().isEmpty()) {
             String str = stockAdjustmentTrans.getContent().get(0).getInternalNumber();

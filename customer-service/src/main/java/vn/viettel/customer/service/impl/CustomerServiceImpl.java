@@ -372,10 +372,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
             customerDTO.setCustomerType(customerType);
         }
 
-        //list top five product
-//        List<String> lstProduct = saleOrderClient.getTopFiveFavoriteProductsV1(customer.getId()).getData();
-//        customerDTO.setLstProduct(lstProduct);
-
         return customerDTO;
     }
 
@@ -569,48 +565,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         return excel.export();
     }
 
-    /*
-        Đổi hàng hỏng  - hàng trả lại
-     */
-/*
-    @Override
-    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
-        if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
-        String name = VNCharacterUtils.removeAccent(searchKeywords).toUpperCase();
-        //hạn chế request vào db
-        if(searchKeywords.length() >= 4 && (customers == null || customers.isEmpty() || !searchKeywords.substring(0,4).equals(searchKey.substring(0,4)) )) {
-            //chánh tấn công server: 3 request liên tục trong 1 giây xong phải nghỉ 3 giây được request tiếp
-            if(lastRequest > 0 && count >= 3 && (System.currentTimeMillis() - lastRequest) < 1000){
-                // không request và cài thời gian đợi 3 giây
-                waitTime = (1000 * 3) + System.currentTimeMillis();
-            }
-            //clear thời gian đợi
-            if(System.currentTimeMillis() > waitTime) waitTime = 0L;
-            if(waitTime < 1) {
-                count++;
-                lastRequest = System.currentTimeMillis();
-                searchKey = searchKeywords;
-                customers = repository.searchForAutoComplete(name.substring(0,4), searchKeywords.substring(0,4).toUpperCase(), searchKeywords.substring(0,4));
-            }
-        }
-        List<CustomerDTO> results = new ArrayList<>();
-        if(customers != null){
-            for(CustomerDTO cus : customers){
-                if((cus.getCustomerCode() != null && cus.getCustomerCode().contains(searchKeywords.toUpperCase()))
-                        || (cus.getNameText() != null && cus.getNameText().contains(name))
-//                        || (cus.getAddress() != null && cus.getAddress().contains(searchKeywords))
-                        || (cus.getPhone() != null && cus.getPhone().contains(searchKeywords))
-                        || (cus.getMobiPhone() != null && cus.getMobiPhone().contains(searchKeywords)) ){
-                    results.add(cus);
-                    if(results.size() == pageable.getPageSize()) break;
-                }
-            }
-        }
-        Collections.sort(results, Comparator.comparing(CustomerDTO::getNameText));
-        return new PageImpl<>(results);
-    }
-*/
-
     @Override
     public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Long shopId, Pageable pageable) {
         if(searchKeywords == null || searchKeywords.isEmpty() || searchKeywords.length() < 4) return  new PageImpl<>(new ArrayList<>());
@@ -618,17 +572,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
         //hạn chế request vào db
         return repository.searchCustomer(name, searchKeywords.toUpperCase(), searchKeywords, shopId, pageable);
     }
-
-
-/*    @Override
-    public Page<CustomerDTO> getCustomerForAutoComplete(String searchKeywords, Pageable pageable) {
-        if(searchKeywords == null || searchKeywords.isEmpty()) return  new PageImpl<>(new ArrayList<>());
-        searchKeywords = StringUtils.defaultIfBlank(searchKeywords, StringUtils.EMPTY);
-        Page<Customer> customers = repository.findAll( Specification
-                .where(CustomerSpecification.haskeySearchForSale(searchKeywords.replaceAll("^\\s+", ""))).and(CustomerSpecification.hasStatus(1)),pageable);
-        Page<CustomerDTO> response = customers.map(item -> modelMapper.map(item, CustomerDTO.class));
-        return response;
-    }*/
 
     @Override
     public CustomerDTO getCustomerDefault(Long shopId) {
@@ -718,13 +661,6 @@ public class CustomerServiceImpl extends BaseServiceImpl<Customer, CustomerRepos
     @Transactional(rollbackFor = Exception.class)
     public void updateCustomerStartMonth() {
         repository.schedulerUpdateStartMonth();
-    }
-
-    private List<Long> getShopIdDecode(Long shopId) {
-        List<Long> shopIdDecode = new ArrayList<>();
-        shopIdDecode.add(shopId);
-        shopIdDecode.add(0L);
-        return shopIdDecode;
     }
 
 }

@@ -15,6 +15,6 @@ public interface ShopClient {
     @GetMapping("/api/v1/users/shops/{id}")
     Response<ShopDTO> getShopByIdV1(@PathVariable Long id);
 
-    @PostMapping(value = { "/api/v1/users/shops/level-customer"})
+    @GetMapping(value = { "/api/v1/users/shops/level-customer"})
     Response<Long> getLevelUpdateCustomerV1(@RequestParam Long shopId);
 }

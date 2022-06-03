@@ -15,7 +15,4 @@ public interface CustomerClient {
     @GetMapping("/api/v1/customers/{id}")
     Response<CustomerDTO> getCustomerByIdV1(@PathVariable(name = "id") Long id);
 
-    @GetMapping("/api/v1/customers/membercustomers/findCustomer/feign/{id}")
-    MemberCustomerDTO getMemberCustomer(@PathVariable(name = "id") Long id);
-
 }

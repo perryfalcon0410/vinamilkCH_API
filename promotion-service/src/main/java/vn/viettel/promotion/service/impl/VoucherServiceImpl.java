@@ -19,7 +19,6 @@ import vn.viettel.promotion.repository.*;
 import vn.viettel.promotion.service.VoucherService;
 import vn.viettel.promotion.service.feign.CustomerClient;
 import vn.viettel.promotion.service.feign.ShopClient;
-import vn.viettel.promotion.service.feign.UserClient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,9 +42,6 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, VoucherReposito
 
     @Autowired
     VoucherRepository voucherRepository;
-
-    @Autowired
-    UserClient userClient;
 
     @Autowired
     ShopClient shopClient;

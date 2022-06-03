@@ -12,6 +12,6 @@ import java.util.List;
 @FeignClientAuthenticate(name = "common-service")
 public interface DbLogClient {
 
-    @PostMapping("/api/v1/commons/dblogs")
-    Response<List<AreaDTO>> createV1();
+//    @PostMapping("/api/v1/commons/dblogs")
+//    Response<List<AreaDTO>> createV1();
 }

@@ -71,7 +71,6 @@ public class ChangePriceReportControllerTest extends BaseTest {
                 return shop;
             }
 
-            @Override
             public Response<ShopDTO> getByNameV1(String name) {
                 return shop;
             }

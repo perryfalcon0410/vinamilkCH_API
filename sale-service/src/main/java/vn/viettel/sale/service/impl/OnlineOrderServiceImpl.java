@@ -58,7 +58,6 @@ import vn.viettel.sale.service.OnlineOrderService;
 import vn.viettel.sale.service.dto.OnlineOrderDTO;
 import vn.viettel.sale.service.dto.OrderProductOnlineDTO;
 import vn.viettel.sale.service.feign.ApparamClient;
-import vn.viettel.sale.service.feign.AreaClient;
 import vn.viettel.sale.service.feign.CustomerClient;
 import vn.viettel.sale.service.feign.CustomerTypeClient;
 import vn.viettel.sale.service.feign.ShopClient;
@@ -80,9 +79,6 @@ public class OnlineOrderServiceImpl extends BaseServiceImpl<OnlineOrder, OnlineO
 
     @Autowired
     CustomerClient customerClient;
-
-    @Autowired
-    AreaClient areaClient;
 
     @Autowired
     ApparamClient apparamClient;

@@ -68,6 +68,7 @@ public abstract class BaseController extends HandlerException {
     public String getUsername(HttpServletRequest httpRequest) {
         String username = (String)  httpRequest.getAttribute(Constants.CURRENT_USERNAME);
         if(username !=null && !username.isEmpty()) return username;
+        if(securityContexHolder == null) return "";
         return securityContexHolder.getContext().getUserName();
     }
 

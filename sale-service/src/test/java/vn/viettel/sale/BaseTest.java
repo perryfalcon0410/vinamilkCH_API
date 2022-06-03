@@ -46,14 +46,12 @@ public class BaseTest extends JsonObjectConverter {
                 })
                 .build();
 
-		/*
-		 * try(MockedStatic<LocalDateTime> mockedStatic =
-		 * Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) { String
-		 * instantExpected = "2022-02-22T10:15:30Z"; Clock clock =
-		 * Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC")); LocalDateTime
-		 * now = LocalDateTime.now(clock);
-		 * mockedStatic.when(LocalDateTime::now).thenReturn(now); }
-		 */
+//        try(MockedStatic<LocalDateTime> mockedStatic = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS)) {
+//            String instantExpected = "2022-02-22T10:15:30Z";
+//            Clock clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+//            LocalDateTime now = LocalDateTime.now(clock);
+//            mockedStatic.when(LocalDateTime::now).thenReturn(now);
+//        }
     }
 
     @Test

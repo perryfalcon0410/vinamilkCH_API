@@ -6,6 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -24,6 +27,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -135,7 +139,29 @@ public class CategoryDataControllerTest extends BaseTest {
 
         assertEquals(id, dto.getId());
 
-        ResultActions resultActions = mockMvc.perform(get(uri,1).contentType(MediaType.APPLICATION_JSON))
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        assertEquals(200, resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    public void getReasonExchangeFeign() throws Exception {
+        Long id = lstEntities.get(4).getId();
+        String uri = V1 + root + "/feign/get-reason-exchange";
+        List<Long> customerIds = Arrays.asList(id);
+        String sortName = null;
+        String direction = null;
+
+        List<CategoryDataDTO> lst = new ArrayList<>();
+        lst.add(new CategoryDataDTO());
+        Page<CategoryDataDTO> page = new PageImpl<>(lst, PageRequest.of(0, 1000), lst.size());
+        when(repository.listReasonExchangeTransId(customerIds, PageRequest.of(0, 1000)))
+                .thenReturn(page);
+        serviceImp.getListReasonExchangeFeign(customerIds, sortName, direction);
+
+        ResultActions resultActions = mockMvc.perform(get(uri).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 

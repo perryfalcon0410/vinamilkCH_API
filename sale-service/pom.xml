@@ -152,6 +152,7 @@
 			<version>4.13</version>
 			<scope>test</scope>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy -->
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
@@ -203,7 +204,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-						<include>.*ControllerTest.java</include>
+						<include>.*Test.java</include>
 					</includes>
 				</configuration>
 			</plugin>
@@ -213,9 +214,6 @@
     <profiles>
         <profile>
             <id>unittest</id>
-             <properties>
-		      <surefire.argLine>-javaagent:org.jacoco.agent-0.8.7-runtime.jar</surefire.argLine>
-		     </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -232,16 +230,16 @@
                                 <id>coverage-report</id>
                                 <phase>test</phase>
                                 <goals>
-                                  <goal>report</goal>
+                                    <goal>report</goal>
                                 </goals>
-                              </execution>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <parallel>all</parallel>
+                            <parallel>methods</parallel>
                             <threadCount>10</threadCount>
                             <testFailureIgnore>true</testFailureIgnore>
                             <redirectTestOutputToFile>true</redirectTestOutputToFile>
@@ -283,7 +281,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.9</version>
+                        <version>0.8.7</version>
                         <reportSets>
                             <reportSet>
                                 <reports>

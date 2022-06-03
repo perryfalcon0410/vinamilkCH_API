@@ -42,13 +42,6 @@ public class ApParamController extends BaseController {
         return new Response<ApParamDTO>().withData(apParamDTO);
     }
 
-//    @ApiOperation(value = "Ap param theo ids")
-//    @RoleFeign
-//    @GetMapping(value = {V1 + root + "/ids"})
-//    public List<ApParamDTO> getApParamByIds(HttpServletRequest httpRequest, @RequestParam List<Long> apParamIds) {
-//        return apParamService.getApParamByIds(apParamIds);
-//    }
-
     @ApiOperation(value = "Danh sách loại thẻ")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad request"),

@@ -19,7 +19,4 @@ public interface UserClient {
     @GetMapping("api/v1/users/findByIds")
     List<UserDTO> getUserByIdsV1(@RequestParam(required = false) List<Long> userIds);
 
-    @GetMapping("api/v1/users/get-user-permission/{roleId}")
-    List<PermissionDTO> getUserPermissionV1(@PathVariable Long roleId);
-
 }
