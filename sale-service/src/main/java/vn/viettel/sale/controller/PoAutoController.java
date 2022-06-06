@@ -40,9 +40,7 @@ public class PoAutoController extends BaseController {
 	@ApiOperation(value = "Api dùng để lấy tất cả danh sách mua hàng")
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/po-list" })
-	public Response<Page<PoAutoDTO>> getAllPoAuto(HttpServletRequest httpRequest, @RequestParam(name = "page", required = false) Integer page) {
-
-		if(page == null) page = 0;
+	public Response<Page<PoAutoDTO>> getAllPoAuto(HttpServletRequest httpRequest, @RequestParam(name = "page", defaultValue = "0") Integer page) {
 		
 		Page<PoAutoDTO> response = poAutoService.getAllPoAuto(this.getShopId(httpRequest), page);
 
@@ -60,11 +58,7 @@ public class PoAutoController extends BaseController {
 													@RequestParam(value="fromApproveDate", required = false) Date fromApproveDate,
 													@RequestParam(value="toApproveDate", required = false) Date toApproveDate,
 													@RequestParam(name = "page", required = false) Integer page,
-													@RequestParam(name = "poStatus", required = false) Integer poStatus) {
-
-		// TODO sử dụng default xem thay thế dc ko
-		// Xóa đi các space, tab dư
-		if(poStatus == null) poStatus = -1;
+													@RequestParam(name = "poStatus", defaultValue = "-1") Integer poStatus) {
 		
 		Page<PoAutoDTO> response = poAutoService.getSearchPoAuto(poAutoNumber,
 																 poGroupCode, 

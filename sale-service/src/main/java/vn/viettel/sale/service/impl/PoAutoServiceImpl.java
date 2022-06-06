@@ -72,6 +72,7 @@ import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
 import vn.viettel.sale.service.dto.RequestOfferDTO;
 import vn.viettel.sale.service.dto.poSplitDTO;
+import vn.viettel.sale.service.enums.StatusType;
 import vn.viettel.sale.service.feign.ApparamClient;
 import vn.viettel.sale.service.feign.ReportStockClient;
 import vn.viettel.sale.service.feign.ShopClient;
@@ -151,26 +152,11 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
     XStreamTranslator xstream = XStreamTranslator.getInstance();
     
     private Class<?>[] classes = new Class[] { PO.class, NewPO.class, POHeader.class, PODetail.class, Line.class};
-
+    
     String ERROR = ResponseMessage.ERROR.statusCodeValue();
     String SUCCESS = ResponseMessage.SUCCESSFUL.statusCodeValue();
-    
-    enum Status{
-    	UNAPPROVE_STATUS(0),
-    	APPROVE_STATUS(1),
-    	CANCEL_STATUS(2);
-    	
-    	private final Integer code;
-    	
-		Status(int code) {
-			this.code = code;
-		}
-		
-		public int code() {
-	        return code;
-	    }
-    }
-
+	WareHouseType warehouseType = wareHouseTypeRepository.getByCode("WHCH");
+	
 	@Override
 	public Page<PoAutoDTO> getAllPoAuto(Long shopId, int page) {
 
@@ -179,7 +165,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		return po;
 	}
-
+	
 	@Override
 	public Page<PoAutoDTO> getSearchPoAuto(String poAutoNumber, String poGroupCode, LocalDateTime fromCreateDate, LocalDateTime toCreateDate, LocalDateTime fromApproveDate, LocalDateTime toApproveDate, int poStatus, Long shopId, int page) {
 		
@@ -218,7 +204,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			List<PoAuto> poAutoSucList = new ArrayList<>();
 			poAutoNumberList.forEach(n -> {
 				PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
-				if(Status.UNAPPROVE_STATUS.code.equals(temp.getStatus())) {
+				if(StatusType.UNAPPROVE_STATUS.getCode().equals(temp.getStatus())) {
 					poAutoRepository.approvePo(n, LocalDateTime.now(), shopId);
 					poAutoSucList.add(temp);
 				}
@@ -241,7 +227,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		poAutoNumberList.forEach(n -> {
 			PoAuto temp = poAutoRepository.getPoAutoBypoAutoNumber(n, shopId);
-			if(!Status.CANCEL_STATUS.code.equals(temp.getStatus())) {
+			if(!StatusType.CANCEL_STATUS.getCode().equals(temp.getStatus())) {
 				poAutoRepository.cancelPo(n, LocalDateTime.now(), shopId);
 			}
 		});
@@ -251,19 +237,19 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	
 	@Override
 	public Page<ProductStockDTO> getProductByPage(Pageable pageable, Long shopid, String keyword) {
-
+		
 		List<Tuple> productList = poAutoRepository.getProductByPage(shopid, keyword);
 		
 		if(productList == null || productList.isEmpty()) return null;
 		
 		List<ProductStockDTO> productStockDtos = productList.stream()
-	            .map(t -> new ProductStockDTO(
-	                    t.get(0, String.class), 
-	                    t.get(1, String.class), 
-	                    t.get(2, BigDecimal.class),
-	                    t.get(3, BigDecimal.class)
-	                    ))
-	            .collect(Collectors.toList());
+				.map(t -> new ProductStockDTO(
+						t.get(0, String.class), 
+						t.get(1, String.class), 
+						t.get(2, BigDecimal.class),
+						t.get(3, BigDecimal.class)
+						))
+				.collect(Collectors.toList());
 		
 		final int start = (int)pageable.getOffset();
  		final int end = Math.min((start + pageable.getPageSize()), productStockDtos.size());
@@ -324,9 +310,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	private RequestOfferDTO handleOfferPo(Long shopId, Product pd) {
 		
 		RequestOfferDTO reqPO = new RequestOfferDTO();
-		WareHouseType warehouseType = wareHouseTypeRepository.getByCode("WHCH");
-		if(warehouseType == null) return null;
-		Long warehouseTypeId = warehouseType.getId();
 		Long productId = pd.getId();
 		String LUYKE = "F1_NGAY_LUYKE";
 		
@@ -336,7 +319,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		
 		Response<ShopDTO> shopResp = shopClient.getByIdV1(shopId);
 		if(shopResp == null || shopResp.getData() == null) return null;
-
+		
 		ShopDTO shop = shopResp.getData();
 		
 		if(pd.getStatus() != 1) return null;
@@ -395,16 +378,15 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		Long KHTT = salePlanRepository.getQuantityByShopProduct(shopId, productId, firstMonthDay);
 		if(KHTT == null || KHTT == 0l) return null;
 		reqPO.setKeHoachTieuThu(KHTT);
-
+		
 		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, firstMonthDay);
 		if(workingDayMonth == null || workingDayMonth == 0) return null;
-		//return ERROR + ": DMKH";
 		Long DMKH = (Long) KHTT/workingDayMonth;
 		reqPO.setDinhMucKeHoach(DMKH);
-
+		
 		Long DTTT = 0l;
 		Integer stockDTparent = 0;
-		Integer stockDT = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseTypeId, productId);
+		Integer stockDT = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseType.getId(), productId);
 		if(stockDT == null || stockDT == 0) return null;
 		
 		Long DTKH = stockDT/DMKH;
@@ -450,7 +432,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			DTTT = DTKH + presentDTTT + pastDTTT;
 		}
 		else {
-			stockDTparent = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseTypeId, pd.getRefProductId());
+			stockDTparent = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseType.getId(), pd.getRefProductId());
 			if(stockDTparent == null) stockDTparent = 0;
 			Long stockDTTT = (long) (stockDT + stockDTparent);
 			
@@ -461,7 +443,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			
 			Long exportDTparent = 0l;
 			Response<Long> exportDTparentResp =  reportStockClient.getExport(shopId, pd.getRefProductId(), beforeNday, yesterday);
-			if(exportDTparentResp != null) exportDT = exportDTparentResp.getData();
+			if(exportDTparentResp != null) exportDTparent = exportDTparentResp.getData();
 			if(exportDTparent == null) exportDTparent = 0l;
 			
 			Long exportDTTT = exportDT + exportDTparent;
@@ -506,7 +488,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		reqPO.setMin(minSf);
 		reqPO.setNext(calendarDay);
 		reqPO.setLead(lead);
-
+		
 		Long YCT = (minSf + calendarDay + lead) * DMKH;
 		reqPO.setYeuCauTon(YCT);
 		
@@ -638,8 +620,12 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 				productQuantityListDTO.getProductQuantityList().isEmpty()) return ;
 		
 		productQuantityListDTO.getProductQuantityList().forEach(pq -> {
-
+			
 			Product pd = productRepository.getByProductCode(pq.getProductCode());
+			
+			Integer stockQuantity = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseType.getId(), pd.getId());
+			
+			if(pq.getQuantity() > stockQuantity) return;
 			
 			poSplitProd.forEach(pod -> {
 				if(pod.getObjectId() != null && pod.getObjectId().equals(pd.getId())) {
@@ -723,41 +709,39 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	@Transactional(rollbackFor = Exception.class)
 	private void poAutoExportXML(List<PoAuto> poAutoNumberList) {
 		
-		String ACCEPT_VALUE = "1";
-		
 		if(poAutoNumberList.isEmpty()) return;
-        
-        List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
-        
-        if (apParamDTOList == null) return;
-
-        String uploadDestination = "/POCHGTSP/MTAUTOPO";
-            
-        FTPINFO ftpinfo = new FTPINFO(apParamDTOList);
-        
-        ConnectFTP connectFTP = new ConnectFTP(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword());
-
-        for (PoAuto poAuto : poAutoNumberList) {
-        	try {
-        		ShopDTO shop = shopClient.getByIdV1(poAuto.getShopId()).getData();
-        		if(shop == null) return;
-        		String shopCode = shop.getShopCode();
-        		if(!StringUtils.stringIsNullOrEmpty(shopCode)) {
-        			String fileName = StringUtils.createXmlFileNameV2(shopCode);
-        			InputStream inputStream = this.exportXmlFile(poAuto, shopCode, shop.getId());
-        			if (inputStream != null) {
-        				String finalLocate = uploadDestination + "/" + shopCode;
-        				connectFTP.uploadFileV2(inputStream, fileName, finalLocate);
-        			}
-        		}
-        	} catch (Exception ex) {
+		
+		List<ApParamDTO> apParamDTOList = apparamClient.getApParamByTypeV1("FTP").getData();
+		
+		if (apParamDTOList == null) return;
+		
+		String uploadDestination = "/POCHGTSP/MTAUTOPO";
+		
+		FTPINFO ftpinfo = new FTPINFO(apParamDTOList);
+		
+		ConnectFTP connectFTP = new ConnectFTP(ftpinfo.getServer(), ftpinfo.getPortStr(), ftpinfo.getUserName(), ftpinfo.getPassword());
+		
+		for (PoAuto poAuto : poAutoNumberList) {
+			try {
+				ShopDTO shop = shopClient.getByIdV1(poAuto.getShopId()).getData();
+				if(shop == null) return;
+				String shopCode = shop.getShopCode();
+				if(!StringUtils.stringIsNullOrEmpty(shopCode)) {
+					String fileName = StringUtils.createXmlFileNameV2(shopCode);
+					InputStream inputStream = this.exportXmlFile(poAuto, shopCode, shop.getId());
+					if (inputStream != null) {
+						String finalLocate = uploadDestination + "/" + shopCode;
+						connectFTP.uploadFileV2(inputStream, fileName, finalLocate);
+						}
+					}
+				} catch (Exception ex) {
 				LogFile.logToFile(appName, "schedule", LogLevel.ERROR, null, "Error parse sale order " + poAuto.getPoAutoNumber() + " to file - " + ex.getMessage());
 				ex.printStackTrace();
 			}
-        }
-        
-        connectFTP.disconnectFTPServer();
-   }
+		}
+		
+		connectFTP.disconnectFTPServer();
+	}
 	
 	private PoAutoDetailProduct convertPoAutoDetail(PoAutoDetail poAutoDetail) {
 		
@@ -786,21 +770,21 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		return po;
 	}
 	
-    @Transactional(rollbackFor = Exception.class)
-    private InputStream exportXmlFile(PoAuto poAuto, String shopCode, Long shopId) throws Exception {
-        
-    	if(poAuto == null) return null;
-    	
-    	String PAYMENT_TERM = "12 NET";
-    	String SITE_ID = "KHOCHINH";
-    	String VERSION = "1";
-        
-        PO po = new PO();
-        List<NewPO> newPOList = new ArrayList<>();
-        NewPO newPO = new NewPO();
-        POHeader poHeader = new POHeader();
-
-        poHeader.setDistCode(shopCode);
+	@Transactional(rollbackFor = Exception.class)
+	private InputStream exportXmlFile(PoAuto poAuto, String shopCode, Long shopId) throws Exception {
+		
+		if(poAuto == null) return null;
+		
+		String PAYMENT_TERM = "12 NET";
+		String SITE_ID = "KHOCHINH";
+		String VERSION = "1";
+		
+		PO po = new PO();
+		List<NewPO> newPOList = new ArrayList<>();
+		NewPO newPO = new NewPO();
+		POHeader poHeader = new POHeader();
+		
+		poHeader.setDistCode(shopCode);
         poHeader.setPoNumber(poAuto.getPoAutoNumber());
         poHeader.setBillToLocation(poAuto.getBillToLocation());
         poHeader.setShipToLocation(poAuto.getShipToLocation());
@@ -854,14 +838,14 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
         newPO.setPoDetailList(poDetailList);
         newPOList.add(newPO);
         po.setNewPOList(newPOList);
-
+        
         xstream.processAnnotations(classes);
         xstream.toXMLFile(po);
         String xml = xstream.toXML(po);
         return new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
         
     }
-	
+    
     @Getter
     @Setter
     @NoArgsConstructor
