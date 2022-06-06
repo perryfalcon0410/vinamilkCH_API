@@ -155,7 +155,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
     
     String ERROR = ResponseMessage.ERROR.statusCodeValue();
     String SUCCESS = ResponseMessage.SUCCESSFUL.statusCodeValue();
-	WareHouseType warehouseType = wareHouseTypeRepository.getByCode("WHCH");
 	
 	@Override
 	public Page<PoAutoDTO> getAllPoAuto(Long shopId, int page) {
@@ -312,6 +311,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		RequestOfferDTO reqPO = new RequestOfferDTO();
 		Long productId = pd.getId();
 		String LUYKE = "F1_NGAY_LUYKE";
+		WareHouseType warehouseType = wareHouseTypeRepository.getByCode("WHCH");
 		
 		LocalDate now = LocalDate.now();
 		LocalDate firstMonthDay = now.withDayOfMonth(1);
@@ -612,7 +612,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	private void handleSavePOAutoPOAutoDetail(ProductQuantityListDTO productQuantityListDTO, List<poSplitDTO> poSplitCat, List<poSplitDTO> poSplitSubCat, List<poSplitDTO> poSplitProd, Long shopId) {
 		
 		ProductQuantityListDTO result = new ProductQuantityListDTO();
-		
+		WareHouseType warehouseType = wareHouseTypeRepository.getByCode("WHCH");
 		HashMap<Long, String> poNumberMap = new HashMap<Long, String>();
 		
 		if(productQuantityListDTO == null ||
@@ -622,7 +622,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		productQuantityListDTO.getProductQuantityList().forEach(pq -> {
 			
 			Product pd = productRepository.getByProductCode(pq.getProductCode());
-			
 			Integer stockQuantity = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseType.getId(), pd.getId());
 			
 			if(pq.getQuantity() > stockQuantity) return;
