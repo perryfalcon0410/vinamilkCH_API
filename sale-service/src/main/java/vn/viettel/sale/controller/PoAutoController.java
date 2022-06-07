@@ -25,6 +25,7 @@ import vn.viettel.sale.service.PoAutoService;
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
 import vn.viettel.sale.service.dto.PoAutoNumberList;
+import vn.viettel.sale.service.dto.PoCreateBasicInfoDTO;
 import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
 import vn.viettel.sale.service.dto.RequestOfferDTO;
@@ -116,12 +117,12 @@ public class PoAutoController extends BaseController {
 	@ApiOperation(value = "Api dùng để lấy tất cả danh sách mua hàng")
 	@ApiResponse(code = 200, message = "Success")
 	@GetMapping(value = { V1 + root + "/product-list" })
-	public Response<Page<ProductStockDTO>> getAllProductByPage(HttpServletRequest httpRequest, 
+	public Response<List<ProductStockDTO>> getAllProductByPage(HttpServletRequest httpRequest, 
 														@RequestParam(name = "keyword", required = false) String keyword,
 														Pageable pageable) {
-		Page<ProductStockDTO> response = poAutoService.getProductByPage(pageable, this.getShopId(httpRequest), keyword);
+		List<ProductStockDTO> response = poAutoService.getProductByPage(pageable, this.getShopId(httpRequest), keyword);
 		
-		return new Response<Page<ProductStockDTO>>().withData(response);
+		return new Response<List<ProductStockDTO>>().withData(response);
 	}
 	
 	@ApiOperation(value = "Api dùng để lấy danh sách đơn hàng đề nghị")
@@ -134,20 +135,31 @@ public class PoAutoController extends BaseController {
 		return new Response<List<RequestOfferDTO>>().withData(response);
 	}
 	
-    @PostMapping(value = {V1 + root + "/save-po"})
-    @ApiOperation(value = "Lưu đơn PO")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 500, message = "Internal server error")}
-    )
-    public Response<String> splitPO(HttpServletRequest request,
-                                                         @ApiParam("PO auto list need save")
-                                                         @RequestBody ProductQuantityListDTO productQuantityListDTO ) {
-    	
-    	String response = poAutoService.spiltPO(productQuantityListDTO, this.getShopId(request));
-        
-        return new Response<String>().withData(response);
-    }
-    
-    
+	@PostMapping(value = {V1 + root + "/save-po"})
+	@ApiOperation(value = "Lưu đơn PO")
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+			@ApiResponse(code = 400, message = "Bad request"),
+			@ApiResponse(code = 500, message = "Internal server error")}
+	)
+	public Response<String> splitPO(HttpServletRequest request,
+														@ApiParam("PO auto list need save")
+														@RequestBody ProductQuantityListDTO productQuantityListDTO ) {
+		
+		String response = poAutoService.spiltPO(productQuantityListDTO, this.getShopId(request));
+		
+		return new Response<String>().withData(response);
+	}
+	
+	@GetMapping(value = {V1 + root + "/po-create-basic-info"})
+	@ApiOperation(value = "Lưu đơn PO")
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Success"),
+			@ApiResponse(code = 400, message = "Bad request"),
+			@ApiResponse(code = 500, message = "Internal server error")}
+	)
+	public Response<PoCreateBasicInfoDTO> getPoCreateBasicInfo(HttpServletRequest request) {
+		
+		PoCreateBasicInfoDTO response = poAutoService.getPoCreateBasicInfo(this.getShopId(request));
+		
+		return new Response<PoCreateBasicInfoDTO>().withData(response);
+	}
 }

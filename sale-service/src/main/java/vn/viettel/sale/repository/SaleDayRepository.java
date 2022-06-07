@@ -1,6 +1,6 @@
 package vn.viettel.sale.repository;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +13,6 @@ import vn.viettel.sale.entities.SaleDay;
 public interface SaleDayRepository extends BaseRepository<SaleDay>, JpaSpecificationExecutor<SaleDay> {
 	
 	@Query(value = "select sd.dayNumber from SaleDay sd "
-			+ "where (sd. month = :date or 1=1) and sd.shopId = :shopId ")
-	public Integer getDayMonthByShopId(Long shopId, LocalDate date);
+			+ "where sd. month = :date and sd.shopId = :shopId ")
+	public Integer getDayMonthByShopId(Long shopId, Date date);
 }

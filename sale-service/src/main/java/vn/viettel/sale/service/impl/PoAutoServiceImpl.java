@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,7 +19,6 @@ import javax.persistence.Tuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -68,6 +68,7 @@ import vn.viettel.sale.repository.WareHouseTypeRepository;
 import vn.viettel.sale.service.PoAutoService;
 import vn.viettel.sale.service.dto.PoAutoDTO;
 import vn.viettel.sale.service.dto.PoAutoDetailProduct;
+import vn.viettel.sale.service.dto.PoCreateBasicInfoDTO;
 import vn.viettel.sale.service.dto.ProductQuantityListDTO;
 import vn.viettel.sale.service.dto.ProductStockDTO;
 import vn.viettel.sale.service.dto.RequestOfferDTO;
@@ -174,6 +175,25 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	}
 	
 	@Override
+	public PoCreateBasicInfoDTO getPoCreateBasicInfo(Long shopId) {
+		
+		PoCreateBasicInfoDTO poCreateBasicInfoDTO = new PoCreateBasicInfoDTO();
+		
+		LocalDate now = LocalDate.now();
+		LocalDate firstMonthDay = now.withDayOfMonth(1);
+		
+		poCreateBasicInfoDTO.setDayInMonth(now.getDayOfMonth());
+		
+		poCreateBasicInfoDTO.setSaleDayInMonth(countWorkingDay());
+		
+		Date date = Date.from(firstMonthDay.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+		Integer salePlan = saleDayRepository.getDayMonthByShopId(shopId, date);
+		if(null != salePlan) poCreateBasicInfoDTO.setSalePlanInMonth(salePlan);
+		
+		return poCreateBasicInfoDTO;
+	}
+	
+	@Override
 	public List<PoAutoDetailProduct> getPoAutoDetailProduct(String poAutoNumber, Long shopId) {
 		
 		List<PoAutoDetailProduct> poAutoDetailProductList = new ArrayList<PoAutoDetailProduct>(); 
@@ -235,7 +255,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 	}
 	
 	@Override
-	public Page<ProductStockDTO> getProductByPage(Pageable pageable, Long shopid, String keyword) {
+	public List<ProductStockDTO> getProductByPage(Pageable pageable, Long shopid, String keyword) {
 		
 		List<Tuple> productList = poAutoRepository.getProductByPage(shopid, keyword);
 		
@@ -250,11 +270,11 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 						))
 				.collect(Collectors.toList());
 		
-		final int start = (int)pageable.getOffset();
- 		final int end = Math.min((start + pageable.getPageSize()), productStockDtos.size());
-		final Page<ProductStockDTO> paging = new PageImpl<>(productStockDtos.subList(start, end), pageable, productStockDtos.size());
+//		final int start = (int)pageable.getOffset();
+// 		final int end = Math.min((start + pageable.getPageSize()), productStockDtos.size());
+//		final Page<ProductStockDTO> paging = new PageImpl<>(productStockDtos.subList(start, end), pageable, productStockDtos.size());
 		
-		return paging;
+		return productStockDtos;
 	}
 	
 	public String spiltPO( ProductQuantityListDTO productQuantityListDTO ,Long shopId) {
@@ -379,7 +399,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		if(KHTT == null || KHTT == 0l) return null;
 		reqPO.setKeHoachTieuThu(KHTT);
 		
-		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, firstMonthDay);
+		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, null);
 		if(workingDayMonth == null || workingDayMonth == 0) return null;
 		Long DMKH = (Long) KHTT/workingDayMonth;
 		reqPO.setDinhMucKeHoach(DMKH);
@@ -409,7 +429,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		if(data != null) {
 			if(data.getName() != null)
 				try {
-					n = Long.valueOf(data.getName());					
+					n = Long.valueOf(data.getName());
 				} catch (Exception e) {
 					e.printStackTrace();
 					return null;
@@ -600,7 +620,9 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		int sundayCount = (int) now.getDayOfMonth() / 7;
 		Integer spareDay = now.getDayOfMonth() - sundayCount * 7;
 		if(now.getDayOfWeek().getValue() + spareDay >= 7) sundayCount++;
-		return now.getDayOfMonth() - sundayCount;
+		Integer ans = now.getDayOfMonth() - sundayCount;
+		if(ans < 1) ans = 0;
+		return ans;
 	}
 	
 	private Long roundUpBy5(Long number) {
