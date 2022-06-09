@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import vn.viettel.sale.entities.PoConfirm;
 import vn.viettel.core.repository.BaseRepository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PoConfirmRepository extends BaseRepository<PoConfirm> {
@@ -21,6 +21,6 @@ public interface PoConfirmRepository extends BaseRepository<PoConfirm> {
     		+ "on poc.id = pod.poId "
     		+ "where poc.shopId = :shopId and "
     		+ "poc.status = :status and "
-    		+ "poc.importDate = :importDate")
-    Integer getQuantityByShopIdAndStatusAndImportDate(Long shopId, int status, LocalDate importDate); 
+    		+ "poc.importDate between :fromDate and :toDate ")
+    Integer getQuantityByShopIdAndStatusAndImportDate(Long shopId, int status, LocalDateTime fromDate, LocalDateTime toDate); 
 }

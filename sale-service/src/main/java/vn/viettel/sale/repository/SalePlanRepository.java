@@ -1,6 +1,6 @@
 package vn.viettel.sale.repository;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +14,7 @@ public interface SalePlanRepository extends BaseRepository<SalePlan>, JpaSpecifi
 
 	@Query(value = "select sp.quantity from SalePlan sp "
 			+ "where sp.productId = :productId and sp.shopId = :shopId "
-			+ "and (month = :date or 1=1)")
-	public Long getQuantityByShopProduct(Long shopId, Long productId, LocalDate date);
+			+ "and month = :date")
+	public Long getQuantityByShopProduct(Long shopId, Long productId, Date date);
 	
 }

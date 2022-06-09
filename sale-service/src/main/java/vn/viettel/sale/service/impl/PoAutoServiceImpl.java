@@ -36,6 +36,7 @@ import vn.viettel.core.logging.LogFile;
 import vn.viettel.core.logging.LogLevel;
 import vn.viettel.core.messaging.Response;
 import vn.viettel.core.service.BaseServiceImpl;
+import vn.viettel.core.util.DateUtils;
 import vn.viettel.core.util.ResponseMessage;
 import vn.viettel.core.util.StringUtils;
 import vn.viettel.sale.entities.MOQShopProduct;
@@ -43,6 +44,7 @@ import vn.viettel.sale.entities.PalletShopProduct;
 import vn.viettel.sale.entities.PoAuto;
 import vn.viettel.sale.entities.PoAutoCoreShopProduct;
 import vn.viettel.sale.entities.Product;
+import vn.viettel.sale.entities.ProductInfo;
 import vn.viettel.sale.entities.SalePlan;
 import vn.viettel.sale.entities.ShopProduct;
 import vn.viettel.sale.entities.WareHouseType;
@@ -185,9 +187,8 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		poCreateBasicInfoDTO.setDayInMonth(now.getDayOfMonth());
 		
 		poCreateBasicInfoDTO.setSaleDayInMonth(countWorkingDay());
-		
-		Date date = Date.from(firstMonthDay.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-		Integer salePlan = saleDayRepository.getDayMonthByShopId(shopId, date);
+
+		Integer salePlan = saleDayRepository.getDayMonthByShopId(shopId, convertBeginLocalDate(firstMonthDay));
 		if(null != salePlan) poCreateBasicInfoDTO.setSalePlanInMonth(salePlan);
 		
 		return poCreateBasicInfoDTO;
@@ -326,6 +327,14 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		return res;
 	}
 	
+	private Date convertBeginLocalDate(LocalDate localDate) {
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+	
+	private Date convertEndLocalDate(LocalDate localDate) {
+		return Date.from(localDate.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+	}
+	
 	private RequestOfferDTO handleOfferPo(Long shopId, Product pd) {
 		
 		RequestOfferDTO reqPO = new RequestOfferDTO();
@@ -336,6 +345,10 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		LocalDate now = LocalDate.now();
 		LocalDate firstMonthDay = now.withDayOfMonth(1);
 		LocalDate yesterday =  now.minusDays(1);
+		
+		LocalDateTime locNow = LocalDateTime.now();
+		LocalDateTime locNowBegDate = DateUtils.convertFromDate(locNow);
+		LocalDateTime locNowEndDate = DateUtils.convertToDate(locNow);
 		
 		Response<ShopDTO> shopResp = shopClient.getByIdV1(shopId);
 		if(shopResp == null || shopResp.getData() == null) return null;
@@ -362,8 +375,8 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			pastImportPO = pastImportPOresp.getData();
 		}
 		
-		Long importPO1 = poAutoRepository.getImportQuantity1(shopId, now, LocalDateTime.now());
-		Long importPO2 = poAutoRepository.getImportQuantity2(shopId, now);
+		Long importPO1 = poAutoRepository.getImportQuantity1(shopId, locNowBegDate, locNowEndDate);
+		Long importPO2 = poAutoRepository.getImportQuantity2(shopId, locNowBegDate, locNowEndDate);
 		if(importPO1 == null) importPO1 = 0l;
 		if(importPO2 == null) importPO2 = 0l;
 		
@@ -376,8 +389,8 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		else pastExportPO = pastExportPOresp.getData();
 		if(pastExportPO == null) pastExportPO = 0l;
 		
-		Long exportPO1 = poAutoRepository.getExportQuantity1(shopId, now, LocalDateTime.now());
-		Long exportPO2 = poAutoRepository.getExportQuantity2(shopId, now);
+		Long exportPO1 = poAutoRepository.getExportQuantity1(shopId, locNowBegDate, locNowEndDate);
+		Long exportPO2 = poAutoRepository.getExportQuantity2(shopId, locNowBegDate, locNowEndDate);
 		if(exportPO1 == null) exportPO1 = 0l;
 		if(exportPO2 == null) exportPO2 = 0l;
 		
@@ -385,29 +398,32 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		reqPO.setXuat(exportPO);
 		
 		Long pastLKTT = 0l;
-		Response<Long> pastLKTTresp = reportStockClient.getCumulativeConsumption(shopId, productId, firstMonthDay, yesterday);			
+		Response<Long> pastLKTTresp = reportStockClient.getCumulativeConsumption(shopId, productId, firstMonthDay, yesterday);
 		if(pastLKTTresp == null || pastLKTTresp.getData() == null) pastLKTT = 0l;
 		else pastLKTT = pastLKTTresp.getData();
 		
-		Long presentLKTH = poAutoRepository.getComsumptionQuantity(shopId, now);
+		Long presentLKTH = poAutoRepository.getComsumptionQuantity(shopId, locNowBegDate, locNowEndDate);
 		if(presentLKTH == null) presentLKTH = 0l;
 		
 		Long LKTT = pastLKTT + presentLKTH;
 		reqPO.setLuyKeTieuThu(LKTT);
 		
-		Long KHTT = salePlanRepository.getQuantityByShopProduct(shopId, productId, firstMonthDay);
-		if(KHTT == null || KHTT == 0l) return null;
+		Long KHTT = salePlanRepository.getQuantityByShopProduct(shopId, productId, convertBeginLocalDate(firstMonthDay));
+		//TODO if(KHTT == null || KHTT == 0l) return null;
+		if(KHTT == null || KHTT == 0l) KHTT = 1l;
 		reqPO.setKeHoachTieuThu(KHTT);
 		
-		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, null);
-		if(workingDayMonth == null || workingDayMonth == 0) return null;
+		Integer workingDayMonth = saleDayRepository.getDayMonthByShopId(shopId, convertBeginLocalDate(firstMonthDay));
+		//TODO if(workingDayMonth == null || workingDayMonth == 0) return null;
+		if(workingDayMonth == null || workingDayMonth == 0) workingDayMonth = 1;
 		Long DMKH = (Long) KHTT/workingDayMonth;
 		reqPO.setDinhMucKeHoach(DMKH);
 		
 		Long DTTT = 0l;
 		Integer stockDTparent = 0;
 		Integer stockDT = stockTotalRepository.getStockTotalByShopProduct(shopId, warehouseType.getId(), productId);
-		if(stockDT == null || stockDT == 0) return null;
+		//TODO if(stockDT == null || stockDT == 0) return null;
+		if(stockDT == null || stockDT == 0) stockDT = 1;
 		
 		Long DTKH = stockDT/DMKH;
 		reqPO.setDuTruKeHoach(DTKH);
@@ -446,7 +462,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			}
 			if(pastDTTTresp != null && pastDTTTresp.getData() != null) pastDTTT = pastDTTTresp.getData();
 			
-			Long presentDTTT = poAutoRepository.getComsumptionQuantity(shopId, now);
+			Long presentDTTT = poAutoRepository.getComsumptionQuantity(shopId, locNowBegDate, locNowEndDate);
 			if(presentDTTT == null) presentDTTT = 0l;
 			
 			DTTT = DTKH + presentDTTT + pastDTTT;
@@ -512,7 +528,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		Long YCT = (minSf + calendarDay + lead) * DMKH;
 		reqPO.setYeuCauTon(YCT);
 		
-		Integer HDD = poConfirmRepository.getQuantityByShopIdAndStatusAndImportDate(shopId, 0, now);
+		Integer HDD = poConfirmRepository.getQuantityByShopIdAndStatusAndImportDate(shopId, 0, locNowBegDate, locNowEndDate);
 		if(HDD == null) HDD = 0;
 		reqPO.setHangDiDuong(HDD);
 		
@@ -525,7 +541,7 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		YCDH = ((minSf + calendarDay + lead) * DMKH - stockDT - HDD) / QC;
 		
 		if(pd.getRefProductId() != null) {
-			Long KHTTparent = salePlanRepository.getQuantityByShopProduct(shopId, pd.getRefProductId(), firstMonthDay);
+			Long KHTTparent = salePlanRepository.getQuantityByShopProduct(shopId, pd.getRefProductId(), convertBeginLocalDate(firstMonthDay));
 			if(KHTTparent == null) KHTTparent = 0l;
 			if((KHTT > 0 && KHTTparent == 0) || (KHTT == 0 && KHTTparent > 0))
 				YCDH = ((minSf + calendarDay + lead) * DMKH - stockDT - stockDTparent - HDD) / QC;
@@ -590,7 +606,6 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 			SLT = SLT * ap.getData().getIntValue() * poc.getCoreValue();
 			if(SLT > 20) SLT = roundUpBy5(SLT);
 			if(SLT == 0) return null;
-				// return ERROR + ": SLT core";
 		}
 		reqPO.setSoLuongThung(SLT);
 		
@@ -602,7 +617,11 @@ public class PoAutoServiceImpl extends BaseServiceImpl<PoAuto, PoAutoRepository>
 		reqPO.setTrongLuong(TL);
 		
 		String CB = "";
-		String catCode = productInfoRepository.getProductInfoCodeById(pd.getCatId());
+		ProductInfo cat = productInfoRepository.getProductInfoCodeById(pd.getCatId());
+		String catCode = "";
+		if(cat != null) {
+			catCode = cat.getProductInfoCode();
+		}
 		
 		if(DTTT > 14l) CB = "X";
 		else if(("A".equals(catCode) || "B".equals(catCode)) && DTTT > 30l ) CB = "X";

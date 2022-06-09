@@ -21,14 +21,14 @@ public interface ReportStockAggregatedRepository extends BaseRepository<ReportSt
 			+ "where rsa.shopId = :shopId "
 			+ "and rsa.productId = :productId "
 			+ "and rsa.rptDate = :rptDate")
-	public List<Long> getStockAggregated(Long shopId, Long productId, LocalDate rptDate);
+	public List<Long> getStockAggregated(Long shopId, Long productId, Date rptDate);
 	
 	@Query(value = "select "
 			+ "(SUM(rsa.impQuantity + rsa.impAdjustmentQuantity + rsa.impBorrowingQuantity + rsa.impReturnQuantity + rsa.impComboQuantity)) "
 			+ "from ReportStockAggregated rsa "
 			+ "where rsa.shopId = :shopId "
 			+ "and rsa.productId = :productId "
-			+ "and (1 = 1 or (rsa.rptDate between :rptBegDate and :rptEndDate))")
+			+ "and rsa.rptDate between :rptBegDate and :rptEndDate")
 	public Long getImport(Long shopId, Long productId, Date rptBegDate, Date rptEndDate);
 
 	@Query(value = "select "
@@ -37,7 +37,7 @@ public interface ReportStockAggregatedRepository extends BaseRepository<ReportSt
 			+ "from ReportStockAggregated rsa "
 			+ "where rsa.shopId = :shopId "
 			+ "and rsa.productId = :productId "
-			+ "and (1 = 1 or (rsa.rptDate between :rptBegDate and :rptEndDate))")
+			+ "and rsa.rptDate between :rptBegDate and :rptEndDate")
 	public Long getExport(Long shopId, Long productId, Date rptBegDate, Date rptEndDate);
 
 	@Query(value = "select "
@@ -46,6 +46,6 @@ public interface ReportStockAggregatedRepository extends BaseRepository<ReportSt
 			+ "from ReportStockAggregated rsa "
 			+ "where rsa.shopId = :shopId "
 			+ "and rsa.productId = :productId "
-			+ "and (1 = 1 or (rsa.rptDate between :rptBegDate and :rptEndDate))")
+			+ "and rsa.rptDate between :rptBegDate and :rptEndDate")
 	public Long getCumulativeConsumption(Long shopId, Long productId, Date rptBegDate, Date rptEndDate);
 }

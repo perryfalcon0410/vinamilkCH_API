@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -149,9 +150,8 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
    @Override
 	public Long getStockAggregated(Long shopId, Long productId, LocalDate rptDate) {
 	   
-	   List<Long> reportStockAggregatedList = reportStockAggregatedRepository.getStockAggregated(shopId, productId, rptDate);
-
-	   Long test = getImportPast(shopId, productId, null, null);
+	   Date date = Date.from(rptDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	   List<Long> reportStockAggregatedList = reportStockAggregatedRepository.getStockAggregated(shopId, productId, date);
 	   
 	   return reportStockAggregatedList.get(0);
 	}
@@ -159,7 +159,7 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
    @Override
    public Long getImportPast(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate) {
 	   
-	   Long importPast = reportStockAggregatedRepository.getImport(shopId, productId, null, null);
+	   Long importPast = reportStockAggregatedRepository.getImport(shopId, productId, convertBeginLocalDate(rptBegDate), convertEndLocalDate(rptDate));
 	   
 	   return importPast;
    }
@@ -167,7 +167,7 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
    @Override
    public Long getExportPast(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate) {
 	   
-	   Long exportPast = reportStockAggregatedRepository.getExport(shopId, productId, null, null);
+	   Long exportPast = reportStockAggregatedRepository.getExport(shopId, productId, convertBeginLocalDate(rptBegDate), convertEndLocalDate(rptDate));
 	   
 	   return exportPast;
    }
@@ -175,8 +175,16 @@ public class StockTotalReportServiceImpl extends BaseReportServiceImpl implement
    @Override
    public Long getCumulativeConsumption(Long shopId, Long productId, LocalDate rptBegDate, LocalDate rptDate) {
 	   
-	   Long cumulativeConsumption = reportStockAggregatedRepository.getCumulativeConsumption(shopId, productId, null, null);
+	   Long cumulativeConsumption = reportStockAggregatedRepository.getCumulativeConsumption(shopId, productId, convertBeginLocalDate(rptBegDate), convertEndLocalDate(rptDate));
 	   
 	   return cumulativeConsumption;
    }
+   
+	private Date convertBeginLocalDate(LocalDate localDate) {
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+	
+	private Date convertEndLocalDate(LocalDate localDate) {
+		return Date.from(localDate.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+	}
 }

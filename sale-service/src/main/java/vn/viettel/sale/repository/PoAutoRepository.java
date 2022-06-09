@@ -1,6 +1,5 @@
 package vn.viettel.sale.repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -100,53 +99,53 @@ public interface PoAutoRepository extends BaseRepository<PoAuto>, JpaSpecificati
     @Query(value = "select SUM(potd.quantity + satd.quantity + sbtd.quantity) "
     		+ "from PoTrans pot "
     		+ "join PoTransDetail potd on potd.transId = pot.id "
-    		+ "join StockAdjustmentTrans sat on pot.shopId = sat.shopId and sat.type = 1 and sat.status = 1 and sat.adjustmentDate = :date "
+    		+ "join StockAdjustmentTrans sat on pot.shopId = sat.shopId and sat.type = 1 and sat.status = 1 and sat.adjustmentDate between :locBegDate and :locEndDate "
     		+ "join StockAdjustmentTransDetail satd on satd.transId = sat.id "
-    		+ "join StockBorrowingTrans sbt on pot.shopId = sbt.toShopId and sbt.type = 1 and sbt.status = 1 and sbt.borrowDate = :date "
+    		+ "join StockBorrowingTrans sbt on pot.shopId = sbt.toShopId and sbt.type = 1 and sbt.status = 1 and sbt.borrowDate between :locBegDate and :locEndDate "
     		+ "join StockBorrowingTransDetail sbtd on sbt.id = sbtd.transId "
-    		+ "where pot.status = 1 and pot.type = 1 and pot.transDate = :locDate "
+    		+ "where pot.status = 1 and pot.type = 1 and pot.transDate between :locBegDate and :locEndDate "
     		+ "and pot.shopId = :shopId")
-    Long getImportQuantity1(Long shopId, LocalDate date, LocalDateTime locDate);
+    Long getImportQuantity1(Long shopId, LocalDateTime locBegDate, LocalDateTime locEndDate);
     
     @Query(value = "select SUM(sod.quantity + cptd.quantity) "
     		+ "from SaleOrder so "
     		+ "join SaleOrderDetail sod on so.id = sod.saleOrderId "
-    		+ "join ComboProductTrans cpt on so.shopId = cpt.shopId and cpt.transType = 1 and cpt.transDate = :date "
+    		+ "join ComboProductTrans cpt on so.shopId = cpt.shopId and cpt.transType = 1 and cpt.transDate between :locBegDate and :locEndDate "
     		+ "join ComboProductTransDetail cptd on cpt.id = cptd.transId and cptd.isCombo = 1 "
-    		+ "where so.shopId = :shopId and so.type = 2 and so.orderDate = :date ")
-    Long getImportQuantity2(Long shopId, LocalDate date);
+    		+ "where so.shopId = :shopId and so.type = 2 and so.orderDate between :locBegDate and :locEndDate ")
+    Long getImportQuantity2(Long shopId, LocalDateTime locBegDate, LocalDateTime locEndDate);
     
     @Query(value = "select SUM(potd.quantity + satd.quantity + sbtd.quantity) "
     		+ "from PoTrans pot "
     		+ "join PoTransDetail potd on potd.transId = pot.id "
-    		+ "join StockAdjustmentTrans sat on pot.shopId = sat.shopId and sat.type = 2 and sat.status = 3 and sat.adjustmentDate = :date "
+    		+ "join StockAdjustmentTrans sat on pot.shopId = sat.shopId and sat.type = 2 and sat.status = 3 and sat.adjustmentDate between :locBegDate and :locEndDate "
     		+ "join StockAdjustmentTransDetail satd on satd.transId = sat.id "
-    		+ "join StockBorrowingTrans sbt on pot.shopId = sbt.shopId and sbt.type = 2 and sbt.status = 2 and sbt.borrowDate = :date "
+    		+ "join StockBorrowingTrans sbt on pot.shopId = sbt.shopId and sbt.type = 2 and sbt.status = 2 and sbt.borrowDate between :locBegDate and :locEndDate "
     		+ "join StockBorrowingTransDetail sbtd on sbt.id = sbtd.transId "
-    		+ "where pot.status = 1 and pot.type = 2 and pot.transDate = :locDate "
+    		+ "where pot.status = 1 and pot.type = 2 and pot.transDate between :locBegDate and :locEndDate "
     		+ "and pot.shopId = :shopId")
-    Long getExportQuantity1(Long shopId, LocalDate date, LocalDateTime locDate);
+    Long getExportQuantity1(Long shopId, LocalDateTime locBegDate, LocalDateTime locEndDate);
     
     @Query(value = "select SUM(sod.quantity + cptd.quantity + etd.quantity - sod2.quantity) "
     		+ "from SaleOrder so "
     		+ "join SaleOrderDetail sod on so.id = sod.saleOrderId "
-    		+ "join SaleOrder so2 on so.shopId = so2.shopId and so2.type = 2 and so2.orderDate = :date "
+    		+ "join SaleOrder so2 on so.shopId = so2.shopId and so2.type = 2 and so2.orderDate between :locBegDate and :locEndDate "
     		+ "join SaleOrderDetail sod2 on so2.id = sod2.saleOrderId "
-    		+ "join ComboProductTrans cpt on so.shopId = cpt.shopId and cpt.transType = 2 and cpt.transDate = :date "
+    		+ "join ComboProductTrans cpt on so.shopId = cpt.shopId and cpt.transType = 2 and cpt.transDate between :locBegDate and :locEndDate "
     		+ "join ComboProductTransDetail cptd on cpt.id = cptd.transId and cptd.isCombo = 1 "
-    		+ "join ExchangeTrans et on so.shopId = et.shopId and et.transDate = :date "
+    		+ "join ExchangeTrans et on so.shopId = et.shopId and et.transDate between :locBegDate and :locEndDate "
     		+ "join ExchangeTransDetail etd on et.id = etd.transId "
-    		+ "where so.shopId = :shopId and so.type = 1 and so.orderDate = :date ")
-    Long getExportQuantity2(Long shopId, LocalDate date);
+    		+ "where so.shopId = :shopId and so.type = 1 and so.orderDate between :locBegDate and :locEndDate ")
+    Long getExportQuantity2(Long shopId, LocalDateTime locBegDate, LocalDateTime locEndDate);
     
     @Query(value = "select SUM(sod.quantity + etd.quantity - sod2.quantity) "
     		+ "from SaleOrder so "
     		+ "join SaleOrderDetail sod on so.id = sod.saleOrderId "
-    		+ "join SaleOrder so2 on so.shopId = so2.shopId and so2.type = 2 and so2.orderDate = :date "
+    		+ "join SaleOrder so2 on so.shopId = so2.shopId and so2.type = 2 and so2.orderDate between :locBegDate and :locEndDate "
     		+ "join SaleOrderDetail sod2 on so2.id = sod2.saleOrderId "
-    		+ "join ExchangeTrans et on so.shopId = et.shopId and et.transDate = :date "
+    		+ "join ExchangeTrans et on so.shopId = et.shopId and et.transDate between :locBegDate and :locEndDate "
     		+ "join ExchangeTransDetail etd on et.id = etd.transId "
-    		+ "where so.shopId = :shopId and so.type = 1 and so.orderDate = :date ")
-    Long getComsumptionQuantity(Long shopId, LocalDate date);
-
+    		+ "where so.shopId = :shopId and so.type = 1 and so.orderDate between :locBegDate and :locEndDate ")
+    Long getComsumptionQuantity(Long shopId, LocalDateTime locBegDate, LocalDateTime locEndDate);
+    
 }
