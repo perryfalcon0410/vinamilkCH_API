@@ -1,0 +1,66 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="lacnv1" id="14-07-2022-create-table-freezer-type" >
+        <createTable tableName="FREEZER_TYPE">
+            <column name="ID" type="bigint" autoIncrement="true" remarks="Id bảng">
+                <constraints primaryKeyName="FREEZER_TYPE_PK" primaryKey="true"/>
+            </column>
+            <column name="CODE" type="varchar(20)" remarks="Mã loại tủ"></column>
+            <column name="NAME" type="nvarchar(50)" remarks="Tên loại tủ"></column>
+            <column name="STATUS" type="tinyint" remarks="Trạng thái loại tủ"></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(50)"></column>
+            <column name="CREATED_BY" type="varchar(50)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="FREEZER_TYPE"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="lacnv1" id="14-07-2022-create-table-freezer" >
+        <createTable tableName="FREEZER">
+            <column name="ID" type="bigint" autoIncrement="true" remarks="Id bảng">
+                <constraints primaryKeyName="FREEZER_PK" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint" remarks="Id đơn vị (shops.id)"></column>
+            <column name="FREEZER_TYPE_ID" type="bigint" remarks="Id loại tủ (freezer_type.id)"></column>
+            <column name="CAPACITY" type="int" remarks="Dung tích"></column>
+            <column name="QUANTITY" type="int" remarks="Số lượng"></column>
+            <column name="STATUS" type="tinyint" remarks="Trạng thái tủ (0: Ngưng hoạt động; 1 Hoạt động)"></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(50)"></column>
+            <column name="CREATED_BY" type="varchar(50)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="FREEZER"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet author="lacnv1" id="14-07-2022-create-table-freezer-mapping-product" >
+        <createTable tableName="FREEZER_MAPPING_PRODUCT">
+            <column name="ID" type="bigint" autoIncrement="true" remarks="Id bảng">
+                <constraints primaryKeyName="FREEZER_MAP_PROD_PK" primaryKey="true"/>
+            </column>
+            <column name="OBJECT_TYPE" type="tinyint" remarks="1 : Ngành hàng ; 2: Sản phẩm"></column>
+            <column name="CAT_ID" type="bigint" remarks="ID nganh hang (product_info.id, type = 9)"></column>
+            <column name="PRODUCT_ID" type="bigint" remarks="Id sản phẩm (products.id)"></column>
+            <column name="FREEZER_TYPE_ID" type="bigint" remarks="Id loại tủ (freezer_type.id)"></column>
+            <column name="STATUS" type="tinyint" remarks="Trạng thái (0: Ngưng hoạt động; 1 Hoạt động)"></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(50)"></column>
+            <column name="CREATED_BY" type="varchar(50)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="FREEZER_MAPPING_PRODUCT"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

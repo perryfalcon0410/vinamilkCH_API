@@ -1,0 +1,33 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="lacnv1" id="14-07-2022-create-table-standard-inventory" >
+        <createTable tableName="STANDARD_INVENTORY">
+            <column name="ID" type="bigint" autoIncrement="true" remarks="Id bảng">
+                <constraints primaryKeyName="STANDARD_INVENTORY_PK" primaryKey="true"/>
+            </column>
+            <column name="SHOP_ID" type="bigint" remarks="Id đơn vị (shops.id)"></column>
+            <column name="CAT_ID" type="bigint" remarks="Id ngành hàng (product_info.id)"></column>
+            <column name="PRODUCT_ID" type="bigint" remarks="Id sản phẩm (products.id)"></column>
+            <column name="OBJECT_TYPE" type="tinyint" remarks="1: tồn kho chuẩn của cửa hàng, 2: tồn kho min trưng bày"></column>
+            <column name="MIN_EHIBIT" type="int" remarks="Tồn kho min trưng bày"></column>
+            <column name="MINSF" type="int" remarks="Tồn kho min"></column>
+            <column name="MAXSF" type="int" remarks="Tồn kho max"></column>
+            <column name="LEAD" type="int" remarks="Số ngày đi đường"></column>
+            <column name="CALENDAR_D" type="int" remarks="Ngày bán hàng (thứ)"></column>
+            <column name="STATUS" type="tinyint" remarks="Trạng thái: 1-active,0-inactive"></column>
+            <column name="CREATED_AT" type="datetime"></column>
+            <column name="UPDATED_AT" type="datetime"></column>
+            <column name="UPDATED_BY" type="varchar(50)"></column>
+            <column name="CREATED_BY" type="varchar(50)"></column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="STANDARD_INVENTORY"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
